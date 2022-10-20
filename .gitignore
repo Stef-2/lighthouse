@@ -12,3 +12,10 @@ _deps
 out
 .vs
 /CMakePresets.json
+
+
+lib
+include/*
+!include/lighthouse
+src/*
+!src/lighthouse
