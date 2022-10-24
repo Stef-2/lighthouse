@@ -15,6 +15,7 @@ out
 
 
 lib
+tools
 include/*
 !include/lighthouse
 src/*

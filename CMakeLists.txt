@@ -5,15 +5,39 @@ cmake_minimum_required (VERSION 3.8)
 
 project ("LightHouse")
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Add source to this project's executable.
-add_executable (LightHouse "src/lighthouse/LightHouse.cpp" "include/lighthouse/LightHouse.hpp")
+add_executable(
+	${PROJECT_NAME} 
+	
+	src/lighthouse/LightHouse.cpp
+	src/lighthouse/Window.cpp
+ "src/lighthouse/Output.cpp")
 
-if (CMAKE_VERSION VERSION_GREATER 3.12)
-  set_property(TARGET LightHouse PROPERTY CXX_STANDARD 20)
-endif()
+# Include
+include_directories(
+	"include",
+	"include/lighthouse",
+	"include/GLFW",
+	"include/glm",
+	"include/vulkan"
+)
 
-# TODO: Add tests and install targets if needed.
+# Libraries
+target_link_directories(
+	${PROJECT_NAME}
+
+	PUBLIC ${CMAKE_SOURCE_DIR}/lib,
+	PUBLIC ${CMAKE_SOURCE_DIR}/lib/glfw,
+	PUBLIC ${CMAKE_SOURCE_DIR}/lib/vulkan
+)
+
+target_link_libraries(
+	${PROJECT_NAME}
+
+	vulkan-1.lib
+	glfw3.lib
+)
