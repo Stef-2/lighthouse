@@ -28,13 +28,12 @@ auto lh::Output::Buffer::get_last_line() const -> std::string_view
 {
     auto view = std::string_view {m_buffer};
 
-    return view.substr(m_buffer.rfind('\n') + 1);
+    return view.substr(m_buffer.rfind('\n', m_buffer.size() - 2) + 1);
 }
 
 auto lh::Output::Buffer::operator<<(std::string_view string) -> Buffer&
 {
-    m_buffer.append(string.data());
-    m_buffer += '\n';
+    m_buffer.append(string.data()).append("\n");
 
     return *this;
 }

@@ -34,6 +34,8 @@ add_compile_definitions(
 	# vkfw definitions
 	VKFW_NO_EXCEPTIONS
 	VKFW_NO_LEADING_e_IN_ENUMS
+	VKFW_HPP_NO_NODISCARD_WARNINGS
+	VKFW_NO_STRUCT_CONSTRUCTORS
 )
 
 # Include
