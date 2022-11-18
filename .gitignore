@@ -11,6 +11,7 @@ CTestTestfile.cmake
 _deps
 out
 .vs
+.clang-format
 /CMakePresets.json
 
 

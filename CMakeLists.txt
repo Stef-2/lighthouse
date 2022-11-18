@@ -1,21 +1,40 @@
 ﻿# CMakeList.txt : CMake project for LightHouse, include source and define
-# project specific logic here.
-#
-cmake_minimum_required (VERSION 3.8)
 
-project ("LightHouse")
+cmake_minimum_required(VERSION 3.8)
+
+project("LightHouse")
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Source
+cmake_path(SET source ${CMAKE_CURRENT_SOURCE_DIR}/src/lighthouse)
+
 # Add source to this project's executable.
 add_executable(
 	${PROJECT_NAME} 
-	
-	src/lighthouse/LightHouse.cpp
-	src/lighthouse/Window.cpp
- "src/lighthouse/Output.cpp")
+	${source}/LightHouse.cpp
+	${source}/Window.cpp
+	${source}/Output.cpp
+	${source}/Input.cpp
+)
+
+# Compile options
+if(MSVC)
+  target_compile_options(
+	  ${PROJECT_NAME} PRIVATE
+	  # MSVC
+	  /GL /O2 /Oi /Ob3 /W4 /MP /Zf /openmp:experimental /Qpar /Qpar-report:1 /fp:fast /arch:AVX2
+  )
+endif()
+
+# Preprocessor definitions
+add_compile_definitions(
+	# vkfw definitions
+	VKFW_NO_EXCEPTIONS
+	VKFW_NO_LEADING_e_IN_ENUMS
+)
 
 # Include
 include_directories(
@@ -23,7 +42,8 @@ include_directories(
 	"include/lighthouse",
 	"include/GLFW",
 	"include/glm",
-	"include/vulkan"
+	"include/vulkan",
+	"include/vkfw"
 )
 
 # Libraries

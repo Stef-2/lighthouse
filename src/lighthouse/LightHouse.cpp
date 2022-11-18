@@ -2,7 +2,12 @@
 
 int main()
 {
-	lh::Window window{800u, 600u, "wtf"};
+	lh::Window window;
+
+	lh::Output::log() << "wtf" << "omfg";
+
+	std::cout << lh::Output::log();
+	//std::abort();
 	while(true);
 	return 0;
 }
