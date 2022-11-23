@@ -1,4 +1,4 @@
-﻿#include "LightHouse.hpp"
+﻿#include "lighthouse.hpp"
 
 int main()
 {

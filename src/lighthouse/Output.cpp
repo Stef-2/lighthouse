@@ -1,4 +1,4 @@
-#include "Output.hpp"
+#include "output.hpp"
 
 lh::output::buffer lh::output::m_log {};
 lh::output::buffer lh::output::m_warning {};

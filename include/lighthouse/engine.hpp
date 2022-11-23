@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Static.hpp"
-#include "Window.hpp"
+#include "static.hpp"
+#include "window.hpp"
 
 namespace lh
 {

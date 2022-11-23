@@ -1,4 +1,4 @@
-#include "Input.hpp"
+#include "input.hpp"
 
 auto lh::action::get_id() const -> counter_t
 {

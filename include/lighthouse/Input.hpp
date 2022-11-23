@@ -2,8 +2,8 @@
 
 #include "vkfw.hpp"
 
-#include "Window.hpp"
-#include "Static.hpp"
+#include "window.hpp"
+#include "static.hpp"
 
 #include <functional>
 #include <unordered_map>

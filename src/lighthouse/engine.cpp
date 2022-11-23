@@ -1,8 +1,8 @@
-#include "Engine.hpp"
+#include "engine.hpp"
 
 auto lh::engine::initialize(const window& window) -> void
 {
-	window
+	//window
 }
 
 auto lh::engine::run() -> void

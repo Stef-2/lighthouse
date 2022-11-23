@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Static.hpp"
+#include "static.hpp"
 
 #include <iostream>
 #include <string>

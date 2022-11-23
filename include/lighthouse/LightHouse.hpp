@@ -2,10 +2,10 @@
 
 #include "vkfw.hpp"
 
-#include "Input.hpp"
-#include "Output.hpp"
-#include "Window.hpp"
-#include "FileSystem.hpp"
+#include "input.hpp"
+#include "output.hpp"
+#include "window.hpp"
+#include "filesystem.hpp"
 #include "engine.hpp"
 
 #include <vector>

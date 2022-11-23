@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Output.hpp"
-#include "Static.hpp"
+#include "output.hpp"
+#include "static.hpp"
 
 #include <string>
 #include <iostream>

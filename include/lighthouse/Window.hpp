@@ -2,7 +2,7 @@
 
 #include "vkfw.hpp"
 
-#include "Output.hpp"
+#include "output.hpp"
 
 #include <utility>
 #include <vector>

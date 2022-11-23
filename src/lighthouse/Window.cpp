@@ -1,4 +1,4 @@
-#include "Window.hpp"
+#include "window.hpp"
 
 lh::window::window(lh::window::window_resolution resolution, std::string_view name, bool fullscreen,
                    vkfw::WindowHints& hints)
