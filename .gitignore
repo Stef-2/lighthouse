@@ -21,3 +21,4 @@ include/*
 !include/lighthouse
 src/*
 !src/lighthouse
+/CMakeSettings.json
