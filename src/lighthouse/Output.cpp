@@ -1,49 +1,49 @@
 #include "Output.hpp"
 
-lh::Output::Buffer lh::Output::m_log {};
-lh::Output::Buffer lh::Output::m_warning {};
-lh::Output::Buffer lh::Output::m_error {};
+lh::output::buffer lh::output::m_log {};
+lh::output::buffer lh::output::m_warning {};
+lh::output::buffer lh::output::m_error {};
 
-auto lh::Output::log() -> Buffer&
+auto lh::output::log() -> buffer&
 {
     return m_log;
 }
 
-auto lh::Output::warning() -> Buffer&
+auto lh::output::warning() -> buffer&
 {
     return m_warning;
 }
 
-auto lh::Output::error() -> Buffer&
+auto lh::output::error() -> buffer&
 {
     return m_error;
 }
 
-auto lh::Output::Buffer::get_data() const -> std::string_view
+auto lh::output::buffer::get_data() const -> std::string_view
 {
     return m_buffer;
 }
 
-auto lh::Output::Buffer::get_last_line() const -> std::string_view
+auto lh::output::buffer::get_last_line() const -> std::string_view
 {
     auto view = std::string_view {m_buffer};
 
     return view.substr(m_buffer.rfind('\n', m_buffer.size() - 2) + 1);
 }
 
-auto lh::Output::Buffer::operator<<(std::string_view string) -> Buffer&
+auto lh::output::buffer::operator<<(std::string_view string) -> buffer&
 {
     m_buffer.append(string.data()).append("\n");
 
     return *this;
 }
 
-lh::Output::Buffer::operator lh::Output::string() const
+lh::output::buffer::operator lh::output::string() const
 {
     return m_buffer;
 }
 
-auto lh::operator<<(std::ostream& stream, Output::Buffer& buffer) -> std::ostream&
+auto lh::operator<<(std::ostream& stream, output::buffer& buffer) -> std::ostream&
 {
     return stream << std::string {buffer};
 }

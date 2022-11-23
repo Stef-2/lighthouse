@@ -13,99 +13,98 @@
 namespace lh
 {
 	// class that encapsulates GLFW / VKFW window and monitor for display
-	class Window
+	class window
 	{
 	public:
 		
-		using WindowDimension = unsigned int;
-		using WindowGamma = float;
-		using WindowResolution = std::pair<WindowDimension, WindowDimension>;
-		using WindowPosition = std::pair<WindowDimension, WindowDimension>;
+		using window_dimension = unsigned int;
+		using window_gamma = float;
+		using window_resolution = std::pair<window_dimension, window_dimension>;
+		using window_position = std::pair<window_dimension, window_dimension>;
 
 		// resolutions commonly used in video game engines
-		enum class CommonResolutions
+		enum class common_resolutions
 		{
-			Res_320x200,
-			Res_640x360,
-			Res_800x600,
-			Res_1024x768,
-			Res_1280x720,
-			Res_1280x800,
-			Res_1280x1024,
-			Res_1360x768,
-			Res_1366x768,
-			Res_1440x900,
-			Res_1536x864,
-			Res_1600x900,
-			Res_1680x1050,
-			Res_1920x1080,
-			Res_1920x1200,
-			Res_2048x1152,
-			Res_2048x1536,
-			Res_2560x1080,
-			Res_2560x1440,
-			Res_2560x1600,
-			Res_3440x1440,
-			Res_3840x2160,
+			res_320x200,
+			res_640x360,
+			res_800x600,
+			res_1024x768,
+			res_1280x720,
+			res_1280x800,
+			res_1280x1024,
+			res_1360x768,
+			res_1366x768,
+			res_1440x900,
+			res_1536x864,
+			res_1600x900,
+			res_1680x1050,
+			res_1920x1080,
+			res_1920x1200,
+			res_2048x1152,
+			res_2048x1536,
+			res_2560x1080,
+			res_2560x1440,
+			res_2560x1600,
+			res_3440x1440,
+			res_3840x2160,
 
-			nHD					= Res_640x360,
-			SVGA				= Res_800x600,
-			XGA					= Res_1024x768,
-			WXGA				= Res_1280x720,
-			WXGA2				= Res_1280x800,
-			SXGA				= Res_1280x1024,
-			HD					= Res_1360x768,
-			HD2					= Res_1366x768,
-			WXGA3				= Res_1440x900,
-			HD3					= Res_1600x900,
-			WSXGA2				= Res_1680x1050,
-			FHD					= Res_1920x1080,
-			WUXGA				= Res_1920x1200,
-			QWXGA				= Res_2048x1152,
-			QXGA				= Res_2048x1536,
-			UWFHD				= Res_2560x1080,
-			QHD					= Res_2560x1440,
-			WQXGA				= Res_2560x1600,
-			UWQHD				= Res_3440x1440,
-			UHD					= Res_3840x2160,
+			nHD					= res_640x360,
+			SVGA				= res_800x600,
+			XGA					= res_1024x768,
+			WXGA				= res_1280x720,
+			WXGA2				= res_1280x800,
+			SXGA				= res_1280x1024,
+			HD					= res_1360x768,
+			HD2					= res_1366x768,
+			WXGA3				= res_1440x900,
+			HD3					= res_1600x900,
+			WSXGA2				= res_1680x1050,
+			FHD					= res_1920x1080,
+			WUXGA				= res_1920x1200,
+			QWXGA				= res_2048x1152,
+			QXGA				= res_2048x1536,
+			UWFHD				= res_2560x1080,
+			QHD					= res_2560x1440,
+			WQXGA				= res_2560x1600,
+			UWQHD				= res_3440x1440,
+			UHD					= res_3840x2160,
 
-			Default_windowed	= Res_1280x720,
-			Default_fullscreen	= Res_1920x1200
+			default_windowed	= res_1280x720,
+			default_fullscreen	= res_1920x1200
 		};
 
 		// mapping between 
-		static inline const std::map<CommonResolutions, WindowResolution> common_resolutions =
+		static inline const std::map<common_resolutions, window_resolution> resolution =
 		{
-			{CommonResolutions::Res_320x200,	{320, 200}},
-			{CommonResolutions::Res_640x360,	{640, 360}},
-			{CommonResolutions::Res_800x600,	{800, 600}},
-			{CommonResolutions::Res_1024x768,	{1024, 768}},
-			{CommonResolutions::Res_1280x720,	{1280, 720}},
-			{CommonResolutions::Res_1280x800,	{1280, 800}},
-			{CommonResolutions::Res_1280x1024,	{1280, 1024}},
-			{CommonResolutions::Res_1360x768,	{1360, 768}},
-			{CommonResolutions::Res_1366x768,	{1366, 768}},
-			{CommonResolutions::Res_1440x900,	{1440, 900}},
-			{CommonResolutions::Res_1536x864,	{1536, 864}},
-			{CommonResolutions::Res_1600x900,	{1600, 900}},
-			{CommonResolutions::Res_1680x1050,	{1680, 1050}},
-			{CommonResolutions::Res_1920x1080,	{1920, 1080}},
-			{CommonResolutions::Res_1920x1200,	{1920, 1200}},
-			{CommonResolutions::Res_2048x1152,	{2048, 1152}},
-			{CommonResolutions::Res_2048x1536,	{2048, 1536}},
-			{CommonResolutions::Res_2560x1080,	{2560, 1080}},
-			{CommonResolutions::Res_2560x1440,	{2560, 1440}},
-			{CommonResolutions::Res_2560x1600,	{2560, 1600}},
-			{CommonResolutions::Res_3440x1440,	{3440, 1440}},
-			{CommonResolutions::Res_3840x2160,	{3840, 2160}}
+			{common_resolutions::res_320x200,	{320, 200}},
+			{common_resolutions::res_640x360,	{640, 360}},
+			{common_resolutions::res_800x600,	{800, 600}},
+			{common_resolutions::res_1024x768,	{1024, 768}},
+			{common_resolutions::res_1280x720,	{1280, 720}},
+			{common_resolutions::res_1280x800,	{1280, 800}},
+			{common_resolutions::res_1280x1024,	{1280, 1024}},
+			{common_resolutions::res_1360x768,	{1360, 768}},
+			{common_resolutions::res_1366x768,	{1366, 768}},
+			{common_resolutions::res_1440x900,	{1440, 900}},
+			{common_resolutions::res_1536x864,	{1536, 864}},
+			{common_resolutions::res_1600x900,	{1600, 900}},
+			{common_resolutions::res_1680x1050,	{1680, 1050}},
+			{common_resolutions::res_1920x1080,	{1920, 1080}},
+			{common_resolutions::res_1920x1200,	{1920, 1200}},
+			{common_resolutions::res_2048x1152,	{2048, 1152}},
+			{common_resolutions::res_2048x1536,	{2048, 1536}},
+			{common_resolutions::res_2560x1080,	{2560, 1080}},
+			{common_resolutions::res_2560x1440,	{2560, 1440}},
+			{common_resolutions::res_2560x1600,	{2560, 1600}},
+			{common_resolutions::res_3440x1440,	{3440, 1440}},
+			{common_resolutions::res_3840x2160,	{3840, 2160}}
 		};
 		
 
-		Window(WindowResolution resolution, std::string_view name = defaultName, bool fullscreen = false,
+		window(window_resolution resolution = resolution.at(common_resolutions::default_windowed), std::string_view name = defaultName, bool fullscreen = false,
 			   vkfw::WindowHints& = const_cast<vkfw::WindowHints&>(default_hints));
-		Window();
 
-		~Window();
+		~window();
 
 		auto get_aspect_ratio() const -> double;
 		auto get_title() const -> std::string_view;
@@ -132,10 +131,9 @@ namespace lh
 			.clientAPI = vkfw::ClientAPI::None
 		};
 		static inline auto defaultName = "Light House";
-		static inline auto vkfwInitialzied = false;
 
-		std::string title;
-		vkfw::UniqueWindow window;
-		vkfw::Monitor monitor;
+		std::string m_title;
+		vkfw::UniqueWindow m_window;
+		vkfw::Monitor m_monitor;
 	};
 }

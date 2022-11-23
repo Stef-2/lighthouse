@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 3.8)
 
 project("LightHouse")
 
+set(CMAKE_BUILD_TYPE RelWithDebInfo)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -14,10 +15,12 @@ cmake_path(SET source ${CMAKE_CURRENT_SOURCE_DIR}/src/lighthouse)
 # Add source to this project's executable.
 add_executable(
 	${PROJECT_NAME} 
-	${source}/LightHouse.cpp
-	${source}/Window.cpp
-	${source}/Output.cpp
-	${source}/Input.cpp
+	${source}/lightHouse.cpp
+	${source}/window.cpp
+	${source}/output.cpp
+	${source}/input.cpp
+	${source}/filesystem.cpp
+	${source}/engine.cpp
 )
 
 # Compile options
@@ -32,10 +35,17 @@ endif()
 # Preprocessor definitions
 add_compile_definitions(
 	# vkfw definitions
+	VKFW_HPP_NO_NODISCARD_WARNINGS
 	VKFW_NO_EXCEPTIONS
 	VKFW_NO_LEADING_e_IN_ENUMS
-	VKFW_HPP_NO_NODISCARD_WARNINGS
 	VKFW_NO_STRUCT_CONSTRUCTORS
+	VKFW_NODISCARD
+)
+
+remove_definitions(
+	# vkfw definitions
+	VKFW_NODISCARD
+	VKFW_NODISCARD_WHEN_NO_EXCEPTIONS
 )
 
 # Include

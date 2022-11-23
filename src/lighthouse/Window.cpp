@@ -1,8 +1,8 @@
 #include "Window.hpp"
 
-lh::Window::Window(lh::Window::WindowResolution resolution, std::string_view name, bool fullscreen,
+lh::window::window(lh::window::window_resolution resolution, std::string_view name, bool fullscreen,
                    vkfw::WindowHints& hints)
-    : title(name)
+    : m_title(name)
 {
     initialize_vkfw();
 
@@ -10,82 +10,79 @@ lh::Window::Window(lh::Window::WindowResolution resolution, std::string_view nam
     hints.clientAPI = vkfw::ClientAPI::None;
 
     // set the monitor depending on fullscreen mode
-    monitor = fullscreen ? vkfw::getPrimaryMonitor().value : nullptr;
+    m_monitor = fullscreen ? vkfw::getPrimaryMonitor().value : nullptr;
 
     auto result = vkfw::Result {};
-    std::tie(result, window) = vkfw::createWindowUnique(resolution.first, resolution.second, defaultName, hints, monitor).asTuple();
+    std::tie(result, m_window) = vkfw::createWindowUnique(resolution.first, resolution.second, defaultName, hints, m_monitor).asTuple();
     
     if (!vkfw::check(result))
     {
-        Output::error() << "Could not initialize VKFW / GLFW window";
+        output::error() << "Could not initialize VKFW / GLFW window";
         std::abort();
     }
 }
 
-lh::Window::Window()
-    : lh::Window::Window(lh::Window::common_resolutions.at(lh::Window::CommonResolutions::Default_fullscreen))
-{
-}
-
-lh::Window::~Window()
+lh::window::~window()
 {
     vkfw::terminate();
 }
 
-auto lh::Window::get_aspect_ratio() const -> double
+auto lh::window::get_aspect_ratio() const -> double
 {
-    auto&& [width, height] = window.get().getSize().value;
+    auto&& [width, height] = m_window.get().getSize().value;
 
-    return width / height;
+    return static_cast<double>(width / height);
 }
 
-auto lh::Window::get_title() const -> std::string_view
+auto lh::window::get_title() const -> std::string_view
 {
-    return title;
+    return m_title;
 }
 
-auto lh::Window::set_title(std::string_view value) -> void
+auto lh::window::set_title(std::string_view value) -> void
 {
-    title = value;
-    window.get().setTitle(value);
+    m_title = value;
+    m_window.get().setTitle(value);
 }
 
-auto lh::Window::get_fullscreen() const -> bool
+auto lh::window::get_fullscreen() const -> bool
 {
-    return monitor;
+    return m_monitor;
 }
 
-auto lh::Window::set_fullscreen(bool value) -> void
+auto lh::window::set_fullscreen(bool value) -> void
 {
     if (get_fullscreen() == value)
         return;
 
     // set the monitor depending on fullscreen mode
-    monitor = value ? vkfw::getPrimaryMonitor().value : nullptr;
+    m_monitor = value ? vkfw::getPrimaryMonitor().value : nullptr;
 }
 
-auto lh::Window::vkfw_window() -> vkfw::Window&
+auto lh::window::vkfw_window() -> vkfw::Window&
 {
-    return window.get();
+    return m_window.get();
 }
 
-auto lh::Window::vkfw_monitor() -> vkfw::Monitor&
+auto lh::window::vkfw_monitor() -> vkfw::Monitor&
 {
-    return monitor;
+    return m_monitor;
 }
 
-auto lh::Window::initialize_vkfw() const -> void
+auto lh::window::initialize_vkfw() const -> void
 {
-    if (lh::Window::vkfwInitialzied)
+    static auto vkfw_initialized = bool {};
+
+    if (vkfw_initialized)
         return;
 
     auto success = vkfw::init();
 
     if (!vkfw::check(success))
     {
-        lh::Output::error() << "Could not initialize VKFW / GLFW.";
+        lh::output::error() << "Could not initialize VKFW / GLFW.";
         std::abort();
     }
 
-    lh::Window::vkfwInitialzied = true;
+    vkfw_initialized = true;
 }

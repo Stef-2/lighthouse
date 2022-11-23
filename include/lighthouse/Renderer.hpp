@@ -1,14 +1,10 @@
-#include "Renderer.hpp"
+#pragma once
 
-#define GLFW_INCLUDE_VULKAN
-#include "glfw3.h"
-
-#include "vulkan.hpp"
-#include "vulkan_raii.hpp"
+#include "vkfw.hpp"
 
 namespace lh
 {
-	class Renderer
+	class renderer
 	{
 	public:
 
