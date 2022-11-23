@@ -13,9 +13,6 @@
 
 namespace lh
 {
-
-
-
     // class encapsulating functions with unique IDs
     class action
     {
@@ -59,18 +56,18 @@ namespace lh
             // (3) key action (press, release, hold) -> defaults to press
             struct key_input
             {
-                key_input(std::variant<vkfw::Key, vkfw::MouseButton> = vkfw::Key::Unknown,
-                          vkfw::ModifierKeyFlags = vkfw::ModifierKeyFlags {},
-                          vkfw::KeyAction = vkfw::KeyAction::Press);
+                key_input(std::variant<vkfw::Key, vkfw::MouseButton> = {},
+                          vkfw::ModifierKeyFlags = {},
+                          std::variant<vkfw::KeyAction, vkfw::MouseButtonAction> = vkfw::KeyAction::Press);
 
                 // define comparison and hash functions so it can be used as a map key
                 auto operator<=>(const key_input&) const = default;
                 auto operator()(const key_input& value) const -> std::size_t;
 
                 // allow either keyboard or mouse key
-                std::variant<vkfw::Key, vkfw::MouseButton> m_key;
-                vkfw::ModifierKeyFlags m_flags;
-                vkfw::KeyAction m_action;
+                int m_key;
+                int m_flags;
+                int m_action;
             };
 
             static auto get_key_bindings() -> std::unordered_multimap<key_input, action, key_input>&;

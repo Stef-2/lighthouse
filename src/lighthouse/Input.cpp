@@ -50,28 +50,15 @@ auto lh::input::key_binding::unbind(const key_input& key, const action& func) ->
 }
 
 lh::input::key_binding::key_input::key_input(std::variant<vkfw::Key, vkfw::MouseButton> key,
-                                vkfw::ModifierKeyFlags flags,
-                                vkfw::KeyAction action)
-    : m_key(key), m_flags(flags), m_action(action)
+                          vkfw::ModifierKeyFlags flags,
+                          std::variant<vkfw::KeyAction, vkfw::MouseButtonAction> action)
+    : m_key(std::visit([](auto& x){return std::to_underlying(x);}, key)),
+    m_flags(flags),
+    m_action(std::visit([](auto& x) { return std::to_underlying(x); }, action))
 {
 }
 
 auto lh::input::key_binding::key_input::operator()(const key_input& value) const -> std::size_t
 {
-    // fake boost multihash
-    auto seed = std::size_t {0};
-
-    auto hash = std::hash<int>();
-
-    auto key_variant = std::holds_alternative<vkfw::Key>(value.m_key);
-    auto key = key_variant ? std::to_underlying(std::get<vkfw::Key>(value.m_key))
-                           : std::to_underlying(std::get<vkfw::MouseButton>(value.m_key));
-    auto flags = static_cast<int>(value.m_flags);
-    auto action = std::to_underlying(value.m_action);
-
-    seed ^= hash(key) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= hash(flags) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= hash(action) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-
-    return seed;
+    return 0;
 }

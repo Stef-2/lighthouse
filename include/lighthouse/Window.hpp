@@ -99,13 +99,12 @@ namespace lh
 			{common_resolutions::res_3440x1440,	{3440, 1440}},
 			{common_resolutions::res_3840x2160,	{3840, 2160}}
 		};
-		
 
 		window(window_resolution resolution = resolution.at(common_resolutions::default_windowed), std::string_view name = defaultName, bool fullscreen = false,
 			   vkfw::WindowHints& = const_cast<vkfw::WindowHints&>(default_hints));
 
 		~window();
-
+		
 		auto get_aspect_ratio() const -> double;
 		auto get_title() const -> std::string_view;
 		auto set_title(std::string_view) -> void;
@@ -133,7 +132,7 @@ namespace lh
 		static inline auto defaultName = "Light House";
 
 		std::string m_title;
-		vkfw::UniqueWindow m_window;
+		mutable vkfw::UniqueWindow m_window;
 		vkfw::Monitor m_monitor;
 	};
 }

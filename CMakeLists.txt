@@ -9,8 +9,10 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Source
+# Path
 cmake_path(SET source ${CMAKE_CURRENT_SOURCE_DIR}/src/lighthouse)
+cmake_path(SET include ${CMAKE_CURRENT_SOURCE_DIR}/include)
+cmake_path(SET library ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
 # Add source to this project's executable.
 add_executable(
@@ -50,12 +52,12 @@ remove_definitions(
 
 # Include
 include_directories(
-	"include",
-	"include/lighthouse",
-	"include/GLFW",
-	"include/glm",
-	"include/vulkan",
-	"include/vkfw"
+	${include}
+	${include}/lighthouse
+	${include}/GLFW
+	${include}/glm
+	${include}/vulkan
+	${include}/vkfw
 )
 
 # Libraries
