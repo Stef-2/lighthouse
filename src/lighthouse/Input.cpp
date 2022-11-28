@@ -5,7 +5,7 @@ auto lh::action::get_id() const -> counter_t
     return m_guid;
 }
 
-auto lh::action::operator()() -> void
+auto lh::action::operator()() const -> void
 {
     m_action();
 }
@@ -15,7 +15,8 @@ auto lh::action::operator==(const action& other) const -> bool
     return m_guid == other.m_guid;
 }
 
-auto lh::input::key_binding::get_key_bindings() -> std::unordered_multimap<key_input, action, key_input>&
+auto lh::input::key_binding::get_key_bindings()
+    -> std::unordered_multimap<const key_input, const action, const key_input>&
 {
     return m_key_bindings;
 }
@@ -37,6 +38,34 @@ auto lh::input::key_binding::unbind(const key_input& key) -> void
         m_key_bindings.erase(key);
 }
 
+auto lh::input::key_binding::initialize(window& window) -> void
+{
+    auto& keybindings = m_key_bindings;
+
+    // bind keyboard
+    window.vkfw_window().callbacks()->on_key = [&keybindings](vkfw::Window const&, vkfw::Key key, int32_t code,
+                                                                 vkfw::KeyAction action,
+                                                                 vkfw::ModifierKeyFlags modifiers) {
+        const auto input = input::key_binding::key_input {key, modifiers, action};
+        auto iterator = keybindings.equal_range(input);
+        std::cout << code;
+        for (auto& function = iterator.first; function != iterator.second; function++)
+            function->second();
+    };
+
+    // bind mouse
+    window.vkfw_window().callbacks()->on_mouse_button = [&keybindings](vkfw::Window const&, vkfw::MouseButton button,
+                                                                          vkfw::MouseButtonAction action,
+                                                                          vkfw::ModifierKeyFlags modifiers) {
+        const auto input = input::key_binding::key_input {button, modifiers, action};
+        auto iterator = keybindings.equal_range(input);
+
+        for (auto function = iterator.first; function != iterator.second; ++function)
+            function->second();
+    };
+
+}
+
 auto lh::input::key_binding::unbind(const key_input& key, const action& func) -> void
 {
     if (m_key_bindings.contains(key))
@@ -54,11 +83,16 @@ lh::input::key_binding::key_input::key_input(std::variant<vkfw::Key, vkfw::Mouse
                           std::variant<vkfw::KeyAction, vkfw::MouseButtonAction> action)
     : m_key(std::visit([](auto& x){return std::to_underlying(x);}, key)),
     m_flags(flags),
-    m_action(std::visit([](auto& x) { return std::to_underlying(x); }, action))
+    m_action(std::visit([](auto& x) {return std::to_underlying(x);}, action))
 {
 }
 
 auto lh::input::key_binding::key_input::operator()(const key_input& value) const -> std::size_t
 {
     return 0;
+}
+
+auto lh::input::initialize(window& window) -> void
+{
+    key_binding::initialize(window);
 }

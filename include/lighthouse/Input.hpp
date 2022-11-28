@@ -16,7 +16,7 @@ namespace lh
     // class encapsulating functions with unique IDs
     class action
     {
-    public:
+    public:        
         // internal function type
         using function_t = std::function<void()>;
         // internal guid counter type
@@ -30,7 +30,7 @@ namespace lh
         auto get_id() const -> counter_t;
 
         // overlaoded () operator to call the wrapped function
-        auto operator()() -> void;
+        auto operator()() const -> void;
         // comparison operators for mapping
         auto operator==(const action&) const -> bool;
         auto operator<=>(const action&) const = default;
@@ -46,10 +46,13 @@ namespace lh
     class input : static_t
     {
     public:
+        friend class engine;
 
         class key_binding
         {
         public:
+            friend class input;
+
             // full key input, constructed from:
             // (1) keyboard or mouse key code -> defaults to unknown
             // (2) keyboard modifier keys (ctrl, shift, alt, etc) -> defaults to no mods
@@ -70,7 +73,7 @@ namespace lh
                 int m_action;
             };
 
-            static auto get_key_bindings() -> std::unordered_multimap<key_input, action, key_input>&;
+            static auto get_key_bindings() -> std::unordered_multimap<const key_input, const action, const key_input>&;
 
             // binds action(s) to a key
             static auto bind(const key_input&, const action&) -> void;
@@ -83,9 +86,14 @@ namespace lh
             static auto unbind(const key_input&, const action&) -> void;
 
         private:
+            static auto initialize(window&) -> void;
+
             // map key inputs to any number of actions
-            static inline auto m_key_bindings = std::unordered_multimap<key_input, action, key_input> {};
+            static inline auto m_key_bindings = std::unordered_multimap<const key_input, const action, const key_input> {};
         };
+
+    private:
+        static auto initialize(window&) ->void;
     };
 }
 

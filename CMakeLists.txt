@@ -1,6 +1,4 @@
-﻿# CMakeList.txt : CMake project for LightHouse, include source and define
-
-cmake_minimum_required(VERSION 3.8)
+﻿cmake_minimum_required(VERSION 3.8)
 
 project("LightHouse")
 
@@ -17,21 +15,41 @@ cmake_path(SET library ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 # Add source to this project's executable.
 add_executable(
 	${PROJECT_NAME} 
+
 	${source}/lightHouse.cpp
 	${source}/window.cpp
 	${source}/output.cpp
 	${source}/input.cpp
 	${source}/filesystem.cpp
 	${source}/engine.cpp
+	${source}/renderer.cpp
 )
 
-# Compile options
-if(MSVC)
+# Compiler options
+if(${CMAKE_CXX_COMPILER_ID} MATCHES MSVC)
   target_compile_options(
 	  ${PROJECT_NAME} PRIVATE
-	  # MSVC
+	  # MSVC standard compiler settings
 	  /GL /O2 /Oi /Ob3 /W4 /MP /Zf /openmp:experimental /Qpar /Qpar-report:1 /fp:fast /arch:AVX2
-  )
+	  # MSVC disable common annoying warnings
+	  /wd4005 /wd4068 /wd4244 /wd4267 /wd4800
+)
+endif()
+
+if(${CMAKE_CXX_COMPILER_ID} MATCHES GNU)
+	target_compile_options(
+	  ${PROJECT_NAME} PRIVATE
+	  #GCC standard compiler settings
+	  -C -std=c++23
+)
+endif()
+
+# Windows specific flags
+if(WIN32)
+	add_compile_options(
+	  ${PROJECT_NAME} PRIVATE
+	  #/DNOMINMAX /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS
+)
 endif()
 
 # Preprocessor definitions
@@ -41,7 +59,12 @@ add_compile_definitions(
 	VKFW_NO_EXCEPTIONS
 	VKFW_NO_LEADING_e_IN_ENUMS
 	VKFW_NO_STRUCT_CONSTRUCTORS
-	VKFW_NODISCARD
+	VKFW_NO_INCLUDE_VULKAN_HPP
+
+	# vulkan definitions
+	#VULKAN_HPP_NO_EXCEPTIONS
+	VULKAN_HPP_NO_NODISCARD_WARNINGS
+	VULKAN_HPP_NO_SPACESHIP_OPERATOR
 )
 
 remove_definitions(
@@ -64,8 +87,8 @@ include_directories(
 target_link_directories(
 	${PROJECT_NAME}
 
-	PUBLIC ${CMAKE_SOURCE_DIR}/lib,
-	PUBLIC ${CMAKE_SOURCE_DIR}/lib/glfw,
+	PUBLIC ${CMAKE_SOURCE_DIR}/lib
+	PUBLIC ${CMAKE_SOURCE_DIR}/lib/glfw
 	PUBLIC ${CMAKE_SOURCE_DIR}/lib/vulkan
 )
 

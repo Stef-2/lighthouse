@@ -1,17 +1,18 @@
 #include "engine.hpp"
 
-auto lh::engine::initialize(window& window) -> void
+auto lh::engine::initialize(window& window, const vulkan_version& version) -> void
 {
-    static auto engine_initialized = bool {};
+    auto once = std::once_flag {};
 
-    if (engine_initialized)
-        return;
+    auto initialize = [&window, &version]() {
+        m_window = &window;
 
-    m_window = &window;
-    bind_keyboard_input();
-    bind_mouse_input();
+        renderer::initialize(window, version);
+        input::initialize(window);
+        output::initialize();
+    };
 
-    engine_initialized = true;
+    std::call_once(once, initialize);
 }
 
 auto lh::engine::run() -> void
@@ -22,34 +23,32 @@ auto lh::engine::run() -> void
     }
 }
 
-auto lh::engine::bind_keyboard_input() -> void
+auto lh::engine::get_window() -> window&
 {
-    auto& keybindings = input::key_binding::get_key_bindings();
-
-    m_window->vkfw_window().callbacks()->on_key = [&keybindings](vkfw::Window const&, vkfw::Key key, int32_t code,
-                                                                 vkfw::KeyAction action,
-                                                                 vkfw::ModifierKeyFlags modifiers)
-    {
-        auto input = input::key_binding::key_input {key, modifiers, action};
-        auto iterator = keybindings.equal_range(input);
-
-        for (auto function = iterator.first; function != iterator.second; ++function)
-            function->second();
-    };
+    return *m_window;
 }
 
-auto lh::engine::bind_mouse_input() -> void
+auto lh::engine::get_version() -> engine_version&
 {
-    auto& keybindings = input::key_binding::get_key_bindings();
+    return m_version;
+}
 
-    m_window->vkfw_window().callbacks()->on_mouse_button = [&keybindings](vkfw::Window const&, vkfw::MouseButton button,
-                                                                          vkfw::MouseButtonAction action,
-                                                                          vkfw::ModifierKeyFlags modifiers)
-    {
-        auto input = input::key_binding::key_input {button, modifiers, action};
-        auto iterator = keybindings.equal_range(input);
+lh::engine_version::operator std::string()
+{
+    return "engine version: " + m_major + ':' + m_minor + ':' + m_patch;
+}
 
-        for (auto function = iterator.first; function != iterator.second; ++function)
-            function->second();
-    };
+lh::engine_version::engine_version(version_t major, version_t minor, version_t patch)
+    : m_major(major), m_minor(minor), m_patch(patch)
+{
+}
+
+lh::engine_version::engine_version(packed_version_t version)
+    : m_major(version >> 16 & 0xFF), m_minor(version >> 8 & 0xFF), m_patch(version & 0xFF)
+{
+}
+
+lh::engine_version::operator packed_version_t()
+{
+    return m_major << 16 | m_minor << 8 | m_patch;
 }

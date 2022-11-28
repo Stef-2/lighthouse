@@ -14,7 +14,7 @@ lh::window::window(lh::window::window_resolution resolution, std::string_view na
 
     auto result = vkfw::Result {};
     std::tie(result, m_window) = vkfw::createWindowUnique(resolution.first, resolution.second, defaultName, hints, m_monitor).asTuple();
-    
+
     if (!vkfw::check(result))
     {
         output::error() << "Could not initialize VKFW / GLFW window";
@@ -71,18 +71,18 @@ auto lh::window::vkfw_monitor() -> vkfw::Monitor&
 
 auto lh::window::initialize_vkfw() const -> void
 {
-    static auto vkfw_initialized = bool {};
+    auto once = std::once_flag {};
 
-    if (vkfw_initialized)
-        return;
-
-    auto success = vkfw::init();
-
-    if (!vkfw::check(success))
+    auto initialize = []()
     {
-        lh::output::error() << "Could not initialize VKFW / GLFW.";
-        std::abort();
-    }
+        auto success = vkfw::init();
 
-    vkfw_initialized = true;
+        if (!vkfw::check(success))
+        {
+            lh::output::error() << "Could not initialize VKFW / GLFW.";
+            std::abort();
+        }
+    };
+
+    std::call_once(once, initialize);
 }

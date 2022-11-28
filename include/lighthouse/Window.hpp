@@ -100,7 +100,7 @@ namespace lh
 			{common_resolutions::res_3840x2160,	{3840, 2160}}
 		};
 
-		window(window_resolution resolution = resolution.at(common_resolutions::default_windowed), std::string_view name = defaultName, bool fullscreen = false,
+		window(window_resolution res = resolution.at(common_resolutions::default_windowed), std::string_view name = defaultName, bool fullscreen = false,
 			   vkfw::WindowHints& = const_cast<vkfw::WindowHints&>(default_hints));
 
 		~window();
