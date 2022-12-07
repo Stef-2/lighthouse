@@ -13,7 +13,8 @@ lh::window::window(lh::window::window_resolution resolution, std::string_view na
     m_monitor = fullscreen ? vkfw::getPrimaryMonitor().value : nullptr;
 
     auto result = vkfw::Result {};
-    std::tie(result, m_window) = vkfw::createWindowUnique(resolution.first, resolution.second, defaultName, hints, m_monitor).asTuple();
+    std::tie(result, m_window) =
+        vkfw::createWindowUnique(resolution.first, resolution.second, defaultName, hints, m_monitor).asTuple();
 
     if (!vkfw::check(result))
     {
@@ -22,9 +23,16 @@ lh::window::window(lh::window::window_resolution resolution, std::string_view na
     }
 }
 
-lh::window::~window()
+ lh::window::window(const window& other) : window(other.get_resolution(), other.get_title(), other.get_fullscreen())
 {
-    vkfw::terminate();
+
+}
+
+auto lh::window::get_resolution() const -> window_resolution
+{
+    auto [width, height] = m_window.get().getSize().value;
+
+    return {width, height};
 }
 
 auto lh::window::get_aspect_ratio() const -> double
@@ -59,7 +67,7 @@ auto lh::window::set_fullscreen(bool value) -> void
     m_monitor = value ? vkfw::getPrimaryMonitor().value : nullptr;
 }
 
-auto lh::window::vkfw_window() -> vkfw::Window&
+auto lh::window::vkfw_window() const -> vkfw::Window&
 {
     return m_window.get();
 }
@@ -73,8 +81,7 @@ auto lh::window::initialize_vkfw() const -> void
 {
     auto once = std::once_flag {};
 
-    auto initialize = []()
-    {
+    auto initialize = []() {
         auto success = vkfw::init();
 
         if (!vkfw::check(success))

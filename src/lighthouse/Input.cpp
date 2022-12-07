@@ -38,10 +38,10 @@ auto lh::input::key_binding::unbind(const key_input& key) -> void
         m_key_bindings.erase(key);
 }
 
-auto lh::input::key_binding::initialize(window& window) -> void
+auto lh::input::key_binding::initialize(const window& window) -> void
 {
     auto& keybindings = m_key_bindings;
-
+    
     // bind keyboard
     window.vkfw_window().callbacks()->on_key = [&keybindings](vkfw::Window const&, vkfw::Key key, int32_t code,
                                                                  vkfw::KeyAction action,
@@ -92,7 +92,7 @@ auto lh::input::key_binding::key_input::operator()(const key_input& value) const
     return 0;
 }
 
-auto lh::input::initialize(window& window) -> void
+auto lh::input::initialize(const window& window) -> void
 {
     key_binding::initialize(window);
 }

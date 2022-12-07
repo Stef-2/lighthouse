@@ -2,6 +2,7 @@
 
 project("LightHouse")
 
+#set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
 set(CMAKE_BUILD_TYPE RelWithDebInfo)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -23,14 +24,14 @@ add_executable(
 	${source}/filesystem.cpp
 	${source}/engine.cpp
 	${source}/renderer.cpp
-)
+	${source}/version.cpp)
 
 # Compiler options
 if(${CMAKE_CXX_COMPILER_ID} MATCHES MSVC)
   target_compile_options(
 	  ${PROJECT_NAME} PRIVATE
 	  # MSVC standard compiler settings
-	  /GL /O2 /Oi /Ob3 /W4 /MP /Zf /openmp:experimental /Qpar /Qpar-report:1 /fp:fast /arch:AVX2
+	  /GL /O2 /Oi /Ob3 /W4 /MP /Zf /openmp:experimental /Qpar /Qpar-report:1 /fp:fast /arch:AVX2 /showIncludes
 	  # MSVC disable common annoying warnings
 	  /wd4005 /wd4068 /wd4244 /wd4267 /wd4800
 )
@@ -48,7 +49,7 @@ endif()
 if(WIN32)
 	add_compile_options(
 	  ${PROJECT_NAME} PRIVATE
-	  #/DNOMINMAX /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS
+	  /DNOMINMAX /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS
 )
 endif()
 
@@ -77,12 +78,19 @@ remove_definitions(
 include_directories(
 	${include}
 	${include}/lighthouse
-	${include}/GLFW
+	${include}/glfw
 	${include}/glm
 	${include}/vulkan
 	${include}/vkfw
 )
-
+#[[
+target_precompile_headers(
+	${PROJECT_NAME} PUBLIC
+	${include}/vkfw/vkfw.hpp
+	${include}/vulkan/vulkan.hpp
+	${include}/vulkan/vulkan_raii.hpp
+)
+]]
 # Libraries
 target_link_directories(
 	${PROJECT_NAME}

@@ -1,36 +1,41 @@
 #include "renderer.hpp"
 
-auto lh::renderer::initialize(window& window, const vulkan_version& version) -> void
+lh::renderer::renderer(const window& window, const engine_version& engine_version, const vulkan_version& vulkan_version, bool use_validation_module)
+    : m_version(vulkan_version), m_validation_module{}
 {
     auto app_info = vk::ApplicationInfo {};
     auto instance_info = vk::InstanceCreateInfo {};
+    auto debug_info = vk::DebugUtilsMessengerCreateInfoEXT {};
+    auto validation_module = true;
 
     // configure application info
     app_info.pApplicationName = window.get_title().data();
-    app_info.applicationVersion = engine::get_version();
+    app_info.applicationVersion = engine_version;
     app_info.pEngineName = app_info.pApplicationName;
     app_info.engineVersion = app_info.applicationVersion;
-    app_info.apiVersion = VK_MAKE_API_VERSION(0, version.m_major, version.m_minor, version.m_patch);
+    app_info.apiVersion =
+        VK_MAKE_API_VERSION(0, vulkan_version.m_major, vulkan_version.m_minor, vulkan_version.m_patch);
+    
+    if (m_validation_module)
+        validation_module = m_validation_module->check_required_validation_layers();
 
     // make sure both extension and validation layers checks passed
-    if (!(check_required_extensions() && check_required_validation_layers()))
+    if (!(check_required_extensions() && validation_module))
     {
         output::fatal() << "this system does not support the required vulkan components";
     }
 
     auto required_extensions = renderer::required_extensions();
-    auto required_validation_layers = renderer::required_validation_layers();
+    auto required_validation_layers = m_validation_module ? m_validation_module->required_validation_layers() : vk_string{nullptr};
 
     // configure instance info
     instance_info.pApplicationInfo = &app_info;
-
     instance_info.enabledExtensionCount = required_extensions.size();
     instance_info.ppEnabledExtensionNames = required_extensions.data();
+    instance_info.enabledLayerCount = m_validation_module ? required_validation_layers.size() : 0;
+    instance_info.ppEnabledLayerNames = m_validation_module ? required_validation_layers.data() : nullptr;
 
-    instance_info.enabledLayerCount = m_using_validation_layers ? required_validation_layers.size() : 0;
-    instance_info.ppEnabledLayerNames = m_using_validation_layers ? required_validation_layers.data() : nullptr;
-
-    m_instance = vk::createInstance(instance_info);
+    m_instance = {{}, instance_info};
 }
 
 auto lh::renderer::check_required_extensions() -> bool
@@ -59,15 +64,12 @@ auto lh::renderer::check_required_extensions() -> bool
     return extensions_found == required_extensions.size();
 }
 
-auto lh::renderer::check_required_validation_layers() -> bool
+auto lh::renderer::validation_module::check_required_validation_layers() -> bool
 {
-    // if the rendere isn't using validation layers, check always passes
-    if (!m_using_validation_layers)
-        return true;
 
     // make sure the implementation supports all required validation layers
-    auto required_layers = renderer::required_extensions();
-    auto supported_layers = renderer::supported_extensions();
+    auto required_layers = validation_module::required_validation_layers();
+    auto supported_layers = validation_module::supported_validation_layers();
     auto layers_found = uint32_t {0};
 
     // cross check required and supported extensions
@@ -76,14 +78,14 @@ auto lh::renderer::check_required_validation_layers() -> bool
         auto check = layers_found;
 
         for (const auto& supported : supported_layers)
-            if (!strcmp(supported.extensionName, required))
+            if (!strcmp(supported.layerName, required))
             {
                 layers_found += 1;
                 break;
             }
 
         if (check == layers_found)
-            output::error() << "this system does not support the required vulkan extension: " + std::string {required};
+            output::error() << "this system does not support the required vulkan validation layer: " + std::string {required};
     }
 
     return layers_found == required_layers.size();
@@ -101,7 +103,7 @@ auto lh::renderer::supported_extensions() -> std::vector<vk::ExtensionProperties
     return extensions;
 }
 
-auto lh::renderer::supported_validation_layers() -> std::vector<vk::LayerProperties>
+auto lh::renderer::validation_module::supported_validation_layers() -> std::vector<vk::LayerProperties>
 {
     // find the number of supported layers first
     auto num_layers = uint32_t {0};
@@ -113,7 +115,7 @@ auto lh::renderer::supported_validation_layers() -> std::vector<vk::LayerPropert
     return layers;
 }
 
-auto lh::renderer::required_extensions() -> std::vector<const char*>
+auto lh::renderer::required_extensions() -> vk_string
 {
     // combine the extensions required by glfw with those specified in m_required_extensions
     auto num_extensions = uint32_t {0};
@@ -125,7 +127,15 @@ auto lh::renderer::required_extensions() -> std::vector<const char*>
     return combined_extensions;
 }
 
-auto lh::renderer::required_validation_layers() -> std::vector<const char*>
+auto lh::renderer::validation_module::required_validation_layers() -> vk_string
 {
     return m_required_validation_layers;
+}
+
+VKAPI_ATTR auto VKAPI_CALL lh::renderer::debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+                                                        VkDebugUtilsMessageTypeFlagsEXT messageType,
+                                                        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+                                                        void* pUserData) -> VkBool32
+{
+    return false;
 }

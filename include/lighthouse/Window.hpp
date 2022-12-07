@@ -73,7 +73,6 @@ namespace lh
 			default_fullscreen	= res_1920x1200
 		};
 
-		// mapping between 
 		static inline const std::map<common_resolutions, window_resolution> resolution =
 		{
 			{common_resolutions::res_320x200,	{320, 200}},
@@ -103,16 +102,17 @@ namespace lh
 		window(window_resolution res = resolution.at(common_resolutions::default_windowed), std::string_view name = defaultName, bool fullscreen = false,
 			   vkfw::WindowHints& = const_cast<vkfw::WindowHints&>(default_hints));
 
-		~window();
+		window(const window&);
 		
 		auto get_aspect_ratio() const -> double;
+		auto get_resolution() const -> window_resolution;
 		auto get_title() const -> std::string_view;
 		auto set_title(std::string_view) -> void;
 
 		auto get_fullscreen() const -> bool;
 		auto set_fullscreen(bool) -> void;
 
-		auto vkfw_window() -> vkfw::Window&;
+		auto vkfw_window() const -> vkfw::Window&;
 		auto vkfw_monitor() -> vkfw::Monitor&;
 
 	private:
@@ -131,8 +131,8 @@ namespace lh
 		};
 		static inline auto defaultName = "Light House";
 
-		std::string m_title;
 		mutable vkfw::UniqueWindow m_window;
 		vkfw::Monitor m_monitor;
+		std::string m_title;
 	};
 }

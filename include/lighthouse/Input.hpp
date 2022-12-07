@@ -86,14 +86,14 @@ namespace lh
             static auto unbind(const key_input&, const action&) -> void;
 
         private:
-            static auto initialize(window&) -> void;
+            static auto initialize(const window&) -> void;
 
             // map key inputs to any number of actions
             static inline auto m_key_bindings = std::unordered_multimap<const key_input, const action, const key_input> {};
         };
 
     private:
-        static auto initialize(window&) ->void;
+        static auto initialize(const window&) -> void;
     };
 }
 
