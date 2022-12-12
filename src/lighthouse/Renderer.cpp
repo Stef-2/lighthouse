@@ -1,48 +1,18 @@
 #include "renderer.hpp"
 
-lh::renderer::renderer(const window& window, const engine_version& engine_version, const vulkan_version& vulkan_version, bool use_validation_module)
-    : m_version(vulkan_version), m_validation_module{}
+lh::renderer::renderer(const window& window, const engine_version& engine_version, const vulkan_version& vulkan_version,
+                       bool use_validation_module)
+    : m_version(vulkan_version),
+      m_validation_module(use_validation_module ? validation_module {} : decltype(m_validation_module) {std::nullopt}),
+      m_instance(create_instance(window, engine_version, vulkan_version, use_validation_module))
 {
-    auto app_info = vk::ApplicationInfo {};
-    auto instance_info = vk::InstanceCreateInfo {};
-    auto debug_info = vk::DebugUtilsMessengerCreateInfoEXT {};
-    auto validation_module = true;
-
-    // configure application info
-    app_info.pApplicationName = window.get_title().data();
-    app_info.applicationVersion = engine_version;
-    app_info.pEngineName = app_info.pApplicationName;
-    app_info.engineVersion = app_info.applicationVersion;
-    app_info.apiVersion =
-        VK_MAKE_API_VERSION(0, vulkan_version.m_major, vulkan_version.m_minor, vulkan_version.m_patch);
-    
-    if (m_validation_module)
-        validation_module = m_validation_module->check_required_validation_layers();
-
-    // make sure both extension and validation layers checks passed
-    if (!(check_required_extensions() && validation_module))
-    {
-        output::fatal() << "this system does not support the required vulkan components";
-    }
-
-    auto required_extensions = renderer::required_extensions();
-    auto required_validation_layers = m_validation_module ? m_validation_module->required_validation_layers() : vk_string{nullptr};
-
-    // configure instance info
-    instance_info.pApplicationInfo = &app_info;
-    instance_info.enabledExtensionCount = required_extensions.size();
-    instance_info.ppEnabledExtensionNames = required_extensions.data();
-    instance_info.enabledLayerCount = m_validation_module ? required_validation_layers.size() : 0;
-    instance_info.ppEnabledLayerNames = m_validation_module ? required_validation_layers.data() : nullptr;
-
-    m_instance = {{}, instance_info};
 }
 
-auto lh::renderer::check_required_extensions() -> bool
+auto lh::renderer::extension_module::assert_required_extensions() -> bool
 {
     // make sure the implementation supports all required extensions
-    auto required_extensions = renderer::required_extensions();
-    auto supported_extensions = renderer::supported_extensions();
+    auto required_extensions = extension_module::required_extensions();
+    auto supported_extensions = extension_module::supported_extensions();
     auto extensions_found = uint32_t {0};
 
     // cross check required and supported extensions
@@ -64,7 +34,7 @@ auto lh::renderer::check_required_extensions() -> bool
     return extensions_found == required_extensions.size();
 }
 
-auto lh::renderer::validation_module::check_required_validation_layers() -> bool
+auto lh::renderer::validation_module::assert_required_validation_layers() -> bool
 {
 
     // make sure the implementation supports all required validation layers
@@ -85,13 +55,14 @@ auto lh::renderer::validation_module::check_required_validation_layers() -> bool
             }
 
         if (check == layers_found)
-            output::error() << "this system does not support the required vulkan validation layer: " + std::string {required};
+            output::error() << "this system does not support the required vulkan validation layer: " +
+                                   std::string {required};
     }
 
     return layers_found == required_layers.size();
 }
 
-auto lh::renderer::supported_extensions() -> std::vector<vk::ExtensionProperties>
+auto lh::renderer::extension_module::supported_extensions() -> std::vector<vk::ExtensionProperties>
 {
     // find the number of supported extensions first
     auto num_extensions = uint32_t {0};
@@ -115,7 +86,7 @@ auto lh::renderer::validation_module::supported_validation_layers() -> std::vect
     return layers;
 }
 
-auto lh::renderer::required_extensions() -> vk_string
+auto lh::renderer::extension_module::required_extensions() -> vk_string
 {
     // combine the extensions required by glfw with those specified in m_required_extensions
     auto num_extensions = uint32_t {0};
@@ -132,10 +103,49 @@ auto lh::renderer::validation_module::required_validation_layers() -> vk_string
     return m_required_validation_layers;
 }
 
-VKAPI_ATTR auto VKAPI_CALL lh::renderer::debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-                                                        VkDebugUtilsMessageTypeFlagsEXT messageType,
-                                                        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-                                                        void* pUserData) -> VkBool32
+auto lh::renderer::create_instance(const window& window, const engine_version& engine_version,
+                                   const vulkan_version& vulkan_version, bool use_validation_module)
+    -> vk::raii::Instance
+{
+    auto app_info = vk::ApplicationInfo {};
+    auto instance_info = vk::InstanceCreateInfo {};
+    auto debug_info = vk::DebugUtilsMessengerCreateInfoEXT {};
+    auto validation_module = true;
+
+    // configure application info
+    app_info.pApplicationName = window.get_title().data();
+    app_info.applicationVersion = engine_version;
+    app_info.pEngineName = app_info.pApplicationName;
+    app_info.engineVersion = app_info.applicationVersion;
+    app_info.apiVersion =
+        VK_MAKE_API_VERSION(0, vulkan_version.m_major, vulkan_version.m_minor, vulkan_version.m_patch);
+
+    if (m_validation_module)
+        validation_module = m_validation_module->assert_required_validation_layers();
+
+    // make sure both extension and validation layers checks passed
+    if (!(m_extension_module.assert_required_extensions() && validation_module))
+    {
+        output::fatal() << "this system does not support the required vulkan components";
+    }
+
+    auto required_extensions = m_extension_module.required_extensions();
+    auto required_validation_layers =
+        m_validation_module ? m_validation_module->required_validation_layers() : vk_string {nullptr};
+
+    // configure instance info
+    instance_info.pApplicationInfo = &app_info;
+    instance_info.enabledExtensionCount = required_extensions.size();
+    instance_info.ppEnabledExtensionNames = required_extensions.data();
+    instance_info.enabledLayerCount = m_validation_module ? required_validation_layers.size() : 0;
+    instance_info.ppEnabledLayerNames = m_validation_module ? required_validation_layers.data() : nullptr;
+
+    return {{}, instance_info};
+}
+
+VKAPI_ATTR auto VKAPI_CALL lh::renderer::validation_module::debug_callback(
+    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType,
+    const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) -> VkBool32
 {
     return false;
 }

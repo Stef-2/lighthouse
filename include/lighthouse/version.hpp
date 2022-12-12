@@ -24,6 +24,9 @@ namespace lh
         version_t m_patch {};
 
         static const engine_version m_default;
+
+    private:
+        static inline int m_pack_offset = 0xFF;
     };
 
     struct vulkan_version

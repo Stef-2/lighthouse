@@ -12,7 +12,14 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 cmake_path(SET source ${CMAKE_CURRENT_SOURCE_DIR}/src/lighthouse)
 cmake_path(SET include ${CMAKE_CURRENT_SOURCE_DIR}/include)
 cmake_path(SET library ${CMAKE_CURRENT_SOURCE_DIR}/lib)
-
+#[[
+set(CMAKE_CXX_CLANG_TIDY
+	clang-tidy
+	${source}/*
+	${include}/lighthouse/*
+	-checks = *
+)
+]]
 # Add source to this project's executable.
 add_executable(
 	${PROJECT_NAME} 
@@ -24,10 +31,11 @@ add_executable(
 	${source}/filesystem.cpp
 	${source}/engine.cpp
 	${source}/renderer.cpp
-	${source}/version.cpp)
+	${source}/version.cpp
+)
 
 # Compiler options
-if(${CMAKE_CXX_COMPILER_ID} MATCHES MSVC)
+if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
   target_compile_options(
 	  ${PROJECT_NAME} PRIVATE
 	  # MSVC standard compiler settings
@@ -37,7 +45,7 @@ if(${CMAKE_CXX_COMPILER_ID} MATCHES MSVC)
 )
 endif()
 
-if(${CMAKE_CXX_COMPILER_ID} MATCHES GNU)
+if(${CMAKE_CXX_COMPILER_ID} EQUAL GNU)
 	target_compile_options(
 	  ${PROJECT_NAME} PRIVATE
 	  #GCC standard compiler settings
@@ -83,14 +91,14 @@ include_directories(
 	${include}/vulkan
 	${include}/vkfw
 )
-#[[
+# Precompiled headers
 target_precompile_headers(
 	${PROJECT_NAME} PUBLIC
 	${include}/vkfw/vkfw.hpp
 	${include}/vulkan/vulkan.hpp
 	${include}/vulkan/vulkan_raii.hpp
 )
-]]
+
 # Libraries
 target_link_directories(
 	${PROJECT_NAME}

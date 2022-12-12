@@ -14,7 +14,7 @@ lh::engine_version::engine_version(version_t major, version_t minor, version_t p
 }
 
 lh::engine_version::engine_version(packed_version_t version)
-    : m_major(version >> 16 & 0xFF), m_minor(version >> 8 & 0xFF), m_patch(version & 0xFF)
+    : m_major(version >> 16 & m_pack_offset), m_minor(version >> 8 & m_pack_offset), m_patch(version & m_pack_offset)
 {
 }
 
