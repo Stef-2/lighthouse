@@ -102,7 +102,9 @@ namespace lh
 		window(window_resolution res = resolution.at(common_resolutions::default_windowed), std::string_view name = defaultName, bool fullscreen = false,
 			   vkfw::WindowHints& = const_cast<vkfw::WindowHints&>(default_hints));
 
-		window(const window&);
+		// move constructible only
+		window(const window&&) noexcept;
+		window(window&&) noexcept = default;
 		
 		auto get_aspect_ratio() const -> double;
 		auto get_resolution() const -> window_resolution;

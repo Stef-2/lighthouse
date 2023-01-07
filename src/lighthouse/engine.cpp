@@ -1,17 +1,16 @@
 #include "engine.hpp"
 
 lh::engine::engine(const window& window, const engine_version& engine_version, const vulkan_version& vulkan_version)
-    : m_window(std::move(window)), m_version(engine_version),
-      m_renderer(window, engine_version, vulkan_version)
+    : m_window{std::move(window)}, m_version(engine_version), m_renderer(m_window, engine_version, vulkan_version)
 {
     engine::initialize();
     input::initialize(m_window);
     output::initialize();
 }
 
- lh::engine::~engine()
+lh::engine::~engine()
 {
-     terminate();
+    terminate();
 }
 
 auto lh::engine::run() -> void
@@ -24,14 +23,15 @@ auto lh::engine::run() -> void
 
 auto lh::engine::initialize() -> void
 {
-    input::key_binding::bind({vkfw::Key::Escape}, [this]() {
-        m_window.vkfw_window().destroy();
-        std::exit(0);
-    });
+    input::key_binding::bind({vkfw::Key::Escape},
+                             [this]()
+                             {
+                                 m_window.vkfw_window().destroy();
+                                 std::exit(0);
+                             });
 
-    input::key_binding::bind({vkfw::Key::F1}, [this]() {
-        std::cout << output::log() << output::warning() << output::error();
-    });
+    input::key_binding::bind({vkfw::Key::F1},
+                             [this]() { std::cout << output::log() << output::warning() << output::error() << '\n'; });
 }
 
 auto lh::engine::poll_events() -> void

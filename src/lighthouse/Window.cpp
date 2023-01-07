@@ -18,14 +18,12 @@ lh::window::window(lh::window::window_resolution resolution, std::string_view na
 
     if (!vkfw::check(result))
     {
-        output::error() << "Could not initialize VKFW / GLFW window";
-        std::abort();
+        output::fatal() << "Could not initialize VKFW / GLFW window";
     }
 }
 
- lh::window::window(const window& other) : window(other.get_resolution(), other.get_title(), other.get_fullscreen())
+lh::window::window(const window&& other) noexcept : window(const_cast<window&&>(other))
 {
-
 }
 
 auto lh::window::get_resolution() const -> window_resolution
@@ -81,13 +79,13 @@ auto lh::window::initialize_vkfw() const -> void
 {
     auto once = std::once_flag {};
 
-    auto initialize = []() {
+    auto initialize = []()
+    {
         auto success = vkfw::init();
 
         if (!vkfw::check(success))
         {
-            lh::output::error() << "Could not initialize VKFW / GLFW.";
-            std::abort();
+            lh::output::fatal() << "Could not initialize VKFW / GLFW.";
         }
     };
 

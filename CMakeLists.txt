@@ -32,6 +32,8 @@ add_executable(
 	${source}/engine.cpp
 	${source}/renderer.cpp
 	${source}/version.cpp
+	#${source}/../vulkan/shaders.cpp
+	${source}/../vulkan/utils.cpp
 )
 
 # Compiler options
@@ -71,10 +73,8 @@ add_compile_definitions(
 	VKFW_NO_INCLUDE_VULKAN_HPP
 
 	# vulkan definitions
-	#VULKAN_HPP_NO_EXCEPTIONS
-	VULKAN_HPP_NO_CONSTRUCTORS
-	VULKAN_HPP_NO_NODISCARD_WARNINGS
-	VULKAN_HPP_NO_SPACESHIP_OPERATOR
+	#VULKAN_HPP_NO_NODISCARD_WARNINGS
+	#VULKAN_HPP_NO_SPACESHIP_OPERATOR
 )
 
 remove_definitions(
@@ -90,6 +90,8 @@ include_directories(
 	${include}/glfw
 	${include}/glm
 	${include}/vulkan
+	${include}/vulkan/utils
+	${include}/vulkan/utils/raii
 	${include}/vkfw
 )
 # Precompiled headers
