@@ -4,8 +4,8 @@
 #include "vulkan.hpp"
 #include "vulkan_raii.hpp"
 #include "vulkan/utils/utils.hpp"
-//#include "vulkan/utils/raii/utils.hpp"
 
+#include "datatype.hpp"
 #include "output.hpp"
 #include "version.hpp"
 #include "window.hpp"
@@ -78,6 +78,8 @@ namespace lh
         auto create_swapchain(const window&) -> vk::raii::SwapchainKHR;
         auto create_image_views() -> std::vector<vk::raii::ImageView>;
         auto create_depth_buffer(const window&) -> vk::raii::ImageView;
+
+        auto create_buffer(const data_t data) -> vk::raii::Buffer;
 
         vulkan_version m_version;
 

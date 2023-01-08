@@ -377,6 +377,28 @@ auto lh::renderer::create_depth_buffer(const window& window) -> vk::raii::ImageV
     return {m_device, image_view_info};
 }
 
+auto lh::renderer::create_buffer(const size_t size) -> vk::raii::Buffer
+{
+
+    auto buffer_info = vk::BufferCreateInfo({}, size, vk::BufferUsageFlagBits::eUniformBuffer);
+    auto buffer = vk::raii::Buffer(m_device, buffer_info);
+
+    auto memory_requirements = buffer.getMemoryRequirements();
+
+    auto type_index =
+        vk::su::findMemoryType(m_physical_device.getMemoryProperties(), memory_requirements.memoryTypeBits,
+                               vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+
+    auto memory_info = vk::MemoryAllocateInfo(memory_requirements.size, type_index);
+    auto buffer_memory = vk::raii::DeviceMemory(m_device, memory_info);
+
+    auto data = static_cast<uint8_t*>(buffer_memory.mapMemory(0, memory_requirements.size));
+    memcpy(data, &mvpc, size);
+    uniformDataMemory.unmapMemory();
+
+    uniformDataBuffer.bindMemory(*uniformDataMemory, 0);
+}
+
 VKAPI_ATTR auto VKAPI_CALL lh::renderer::validation_module::debug_callback(
     VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType,
     const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) -> VkBool32
