@@ -3,7 +3,9 @@
 #include "vkfw.hpp"
 #include "vulkan.hpp"
 #include "vulkan_raii.hpp"
-#include "vulkan/utils/utils.hpp"
+#include "raii_utils.hpp"
+#include "raii_shaders.hpp"
+#include "SPIRV/GlslangToSpv.h"
 
 #include "datatype.hpp"
 #include "output.hpp"
@@ -78,8 +80,12 @@ namespace lh
         auto create_swapchain(const window&) -> vk::raii::SwapchainKHR;
         auto create_image_views() -> std::vector<vk::raii::ImageView>;
         auto create_depth_buffer(const window&) -> vk::raii::ImageView;
+        auto create_pipeline_layout() -> vk::raii::PipelineLayout;
+        auto create_descriptor_set() -> vk::raii::DescriptorSet;
+        auto create_render_pass(const window&) -> vk::raii::RenderPass;
+        auto create_shader_module(const vk::ShaderStageFlagBits&) -> vk::raii::ShaderModule;
 
-        auto create_buffer(const data_t data) -> vk::raii::Buffer;
+        auto create_buffer(const data_t&, const vk::BufferUsageFlagBits&) -> vk::raii::Buffer;
 
         vulkan_version m_version;
 
@@ -95,5 +101,9 @@ namespace lh
         vk::raii::SwapchainKHR m_swapchain;
         std::vector<vk::raii::ImageView> m_image_views;
         vk::raii::ImageView m_depth_buffer;
+        vk::raii::PipelineLayout m_pipeline_layout;
+        vk::raii::DescriptorSet m_descriptor_set;
+        vk::raii::RenderPass m_render_pass;
+        vk::raii::ShaderModule m_shader_modules[2];
     };
 }

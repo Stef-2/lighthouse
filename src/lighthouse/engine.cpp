@@ -1,10 +1,11 @@
 #include "engine.hpp"
 
-lh::engine::engine(const window& window, const engine_version& engine_version, const vulkan_version& vulkan_version)
-    : m_window{std::move(window)}, m_version(engine_version), m_renderer(m_window, engine_version, vulkan_version)
+lh::engine::engine(std::unique_ptr<window> window, const engine_version& engine_version,
+                   const vulkan_version& vulkan_version)
+    : m_window(std::move(window)), m_version(engine_version), m_renderer(*m_window, engine_version, vulkan_version)
 {
     engine::initialize();
-    input::initialize(m_window);
+    input::initialize(*m_window);
     output::initialize();
 }
 
@@ -15,7 +16,7 @@ lh::engine::~engine()
 
 auto lh::engine::run() -> void
 {
-    while (!m_window.vkfw_window().shouldClose().value)
+    while (!m_window->vkfw_window().shouldClose().value)
     {
         poll_events();
     }
@@ -26,7 +27,7 @@ auto lh::engine::initialize() -> void
     input::key_binding::bind({vkfw::Key::Escape},
                              [this]()
                              {
-                                 m_window.vkfw_window().destroy();
+                                 m_window->vkfw_window().destroy();
                                  std::exit(0);
                              });
 
@@ -46,7 +47,7 @@ auto lh::engine::terminate() -> void
 
 auto lh::engine::get_window() -> const window&
 {
-    return m_window;
+    return *m_window;
 }
 
 auto lh::engine::get_version() -> engine_version&

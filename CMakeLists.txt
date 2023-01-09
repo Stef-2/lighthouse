@@ -32,7 +32,7 @@ add_executable(
 	${source}/engine.cpp
 	${source}/renderer.cpp
 	${source}/version.cpp
-	#${source}/../vulkan/shaders.cpp
+	${source}/../vulkan/shaders.cpp
 	${source}/../vulkan/utils.cpp
 )
 
@@ -93,7 +93,9 @@ include_directories(
 	${include}/vulkan/utils
 	${include}/vulkan/utils/raii
 	${include}/vkfw
+	${include}/glslang
 )
+#[[
 # Precompiled headers
 target_precompile_headers(
 	${PROJECT_NAME} PUBLIC
@@ -101,14 +103,15 @@ target_precompile_headers(
 	${include}/vulkan/vulkan.hpp
 	${include}/vulkan/vulkan_raii.hpp
 )
-
+]]
 # Libraries
 target_link_directories(
 	${PROJECT_NAME}
 
-	PUBLIC ${CMAKE_SOURCE_DIR}/lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/lib/glfw
-	PUBLIC ${CMAKE_SOURCE_DIR}/lib/vulkan
+	PUBLIC ${library}
+	PUBLIC ${library}/glfw
+	PUBLIC ${library}/vulkan
+	PUBLIC ${library}/glslang
 )
 
 target_link_libraries(
@@ -116,4 +119,15 @@ target_link_libraries(
 
 	vulkan-1.lib
 	glfw3.lib
+	#glslang.lib
+	#glslang-default-resource-limits.lib
+	SPIRV.lib
+	SPIRV-Tools.lib
+	SPIRV-Tools-opt.lib
+	GenericCodeGen.lib
+	#HLSL.lib
+	MachineIndependent.lib
+	OGLCompiler.lib
+	OSDependent.lib
+	#SPVRemapper.lib
 )

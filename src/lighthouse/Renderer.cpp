@@ -12,7 +12,12 @@ lh::renderer::renderer(const window& window, const engine_version& engine_versio
       m_surface {create_surface(window)},
       m_swapchain {create_swapchain(window)},
       m_image_views {create_image_views()},
-      m_depth_buffer {create_depth_buffer(window)}
+      m_depth_buffer {create_depth_buffer(window)},
+      m_pipeline_layout {create_pipeline_layout()},
+      m_descriptor_set {create_descriptor_set()},
+      m_render_pass {create_render_pass(window)},
+      m_shader_modules {create_shader_module(vk::ShaderStageFlagBits::eVertex),
+                        create_shader_module(vk::ShaderStageFlagBits::eFragment)}
 {
     if (use_validation_module)
     {
@@ -347,8 +352,11 @@ auto lh::renderer::create_depth_buffer(const window& window) -> vk::raii::ImageV
     image_info.imageType = vk::ImageType::e2D;
     image_info.format = depth_format;
     image_info.extent = vk::Extent3D {surface_data.extent.width, surface_data.extent.height, 1};
+    image_info.usage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
+    image_info.mipLevels = 1;
+    image_info.arrayLayers = 1;
 
-    auto image = vk::raii::Image{m_device, image_info};
+    auto image = vk::raii::Image {m_device, image_info};
 
     auto memory_properties = m_physical_device.getMemoryProperties();
     auto memory_requirements = image.getMemoryRequirements();
@@ -359,7 +367,7 @@ auto lh::renderer::create_depth_buffer(const window& window) -> vk::raii::ImageV
     for (uint32_t i = 0; i < memory_properties.memoryTypeCount; i++)
     {
         if ((type_bits & 1) && ((memory_properties.memoryTypes[i].propertyFlags &
-                                vk::MemoryPropertyFlagBits::eDeviceLocal) == vk::MemoryPropertyFlagBits::eDeviceLocal))
+                                 vk::MemoryPropertyFlagBits::eDeviceLocal) == vk::MemoryPropertyFlagBits::eDeviceLocal))
         {
             type_index = i;
             break;
@@ -372,19 +380,100 @@ auto lh::renderer::create_depth_buffer(const window& window) -> vk::raii::ImageV
     image.bindMemory(*image_memory, 0);
 
     auto image_view_info = vk::ImageViewCreateInfo({}, *image, vk::ImageViewType::e2D, depth_format, {},
-                                                {vk::ImageAspectFlagBits::eDepth, 0, 1, 0, 1});
+                                                   {vk::ImageAspectFlagBits::eDepth, 0, 1, 0, 1});
 
     return {m_device, image_view_info};
 }
 
-auto lh::renderer::create_buffer(const size_t size) -> vk::raii::Buffer
+auto lh::renderer::create_pipeline_layout() -> vk::raii::PipelineLayout
+{
+    // create a DescriptorSetLayout
+    auto descriptor_set_layout_binding =
+        vk::DescriptorSetLayoutBinding(0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex);
+
+    auto descriptor_set_info = vk::DescriptorSetLayoutCreateInfo({}, descriptor_set_layout_binding);
+    auto descriptor_set_layout = vk::raii::DescriptorSetLayout(m_device, descriptor_set_info);
+
+    // create a PipelineLayout using that DescriptorSetLayout
+    auto pipeline_layout_info = vk::PipelineLayoutCreateInfo({}, *descriptor_set_layout);
+    return {m_device, pipeline_layout_info};
+}
+
+auto lh::renderer::create_descriptor_set() -> vk::raii::DescriptorSet
+{
+    // create a descriptor pool
+    auto pool_size = vk::DescriptorPoolSize(vk::DescriptorType::eUniformBuffer, 1);
+    auto descriptor_pool_info =
+        vk::DescriptorPoolCreateInfo(vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet, 1, pool_size);
+
+    auto descriptor_pool = vk::raii::DescriptorPool(m_device, descriptor_pool_info);
+    auto descriptor_set_layout = vk::raii::su::makeDescriptorSetLayout(
+        m_device, {{vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex}});
+    // allocate a descriptor set
+    auto descriptor_set_info = vk::DescriptorSetAllocateInfo(*descriptor_pool, *descriptor_set_layout);
+
+    return std::move(vk::raii::DescriptorSets(m_device, descriptor_set_info).front());
+}
+
+auto lh::renderer::create_render_pass(const window& window) -> vk::raii::RenderPass
+{
+    auto surface_data =
+        vk::raii::su::SurfaceData(m_instance, window.get_title().data(),
+                                  vk::Extent2D(window.get_resolution().first, window.get_resolution().second));
+
+    auto color_format = vk::su::pickSurfaceFormat(m_physical_device.getSurfaceFormatsKHR(*surface_data.surface)).format;
+    auto depth_format = vk::Format::eD16Unorm;
+
+    auto attachment_descriptions = std::array<vk::AttachmentDescription, 2> {};
+
+    attachment_descriptions[0] = vk::AttachmentDescription(
+        {}, color_format, vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore,
+        vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare, vk::ImageLayout::eUndefined,
+        vk::ImageLayout::ePresentSrcKHR);
+
+    attachment_descriptions[1] = vk::AttachmentDescription(
+        {}, depth_format, vk::SampleCountFlagBits::e1, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eDontCare,
+        vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare, vk::ImageLayout::eUndefined,
+        vk::ImageLayout::eDepthStencilAttachmentOptimal);
+
+    auto color_reference = vk::AttachmentReference(0, vk::ImageLayout::eColorAttachmentOptimal);
+    auto depth_reference = vk::AttachmentReference(1, vk::ImageLayout::eDepthStencilAttachmentOptimal);
+
+    auto subpass_description =
+        vk::SubpassDescription({}, vk::PipelineBindPoint::eGraphics, {}, color_reference, {}, &depth_reference);
+
+    auto render_pass_info = vk::RenderPassCreateInfo({}, attachment_descriptions, subpass_description);
+
+    return {m_device, render_pass_info};
+}
+
+auto lh::renderer::create_shader_module(const vk::ShaderStageFlagBits& stage) -> vk::raii::ShaderModule
+{
+    glslang::InitializeProcess();
+
+    auto vertex_shader_spirv = std::vector<unsigned int>{};
+    auto shader_code = (stage == vk::ShaderStageFlagBits::eVertex)
+                           ? vertexShaderText_PC_C
+                           : fragmentShaderText_C_C;
+
+
+    vk::su::GLSLtoSPV(stage, shader_code, vertex_shader_spirv);
+
+    auto shader_module_info = vk::ShaderModuleCreateInfo({}, vertex_shader_spirv);
+    auto shader_module = vk::raii::ShaderModule {m_device, shader_module_info};
+
+    glslang::FinalizeProcess();
+
+    return shader_module;
+}
+
+auto lh::renderer::create_buffer(const data_t& data, const vk::BufferUsageFlagBits& usage) -> vk::raii::Buffer
 {
 
-    auto buffer_info = vk::BufferCreateInfo({}, size, vk::BufferUsageFlagBits::eUniformBuffer);
+    auto buffer_info = vk::BufferCreateInfo({}, data.size(), usage);
     auto buffer = vk::raii::Buffer(m_device, buffer_info);
 
     auto memory_requirements = buffer.getMemoryRequirements();
-
     auto type_index =
         vk::su::findMemoryType(m_physical_device.getMemoryProperties(), memory_requirements.memoryTypeBits,
                                vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
@@ -392,11 +481,11 @@ auto lh::renderer::create_buffer(const size_t size) -> vk::raii::Buffer
     auto memory_info = vk::MemoryAllocateInfo(memory_requirements.size, type_index);
     auto buffer_memory = vk::raii::DeviceMemory(m_device, memory_info);
 
-    auto data = static_cast<uint8_t*>(buffer_memory.mapMemory(0, memory_requirements.size));
-    memcpy(data, &mvpc, size);
-    uniformDataMemory.unmapMemory();
+    auto memory = static_cast<uint8_t*>(buffer_memory.mapMemory(0, memory_requirements.size));
+    memcpy(memory, data.data(), data.size());
 
-    uniformDataBuffer.bindMemory(*uniformDataMemory, 0);
+    buffer_memory.unmapMemory();
+    buffer.bindMemory(*buffer_memory, 0);
 }
 
 VKAPI_ATTR auto VKAPI_CALL lh::renderer::validation_module::debug_callback(
@@ -426,9 +515,7 @@ auto lh::renderer::physical_extension_module::assert_required_extensions() -> bo
 
     std::ranges::for_each(supported_extensions.begin(), supported_extensions.end(),
                           [&physical_extension_names](auto& ext)
-                          {
-                              physical_extension_names.push_back(ext.extensionName);
-                          });
+                          { physical_extension_names.push_back(ext.extensionName); });
 
     auto extensions_found = uint32_t {0};
 

@@ -12,7 +12,7 @@ namespace lh
 	class engine
 	{
 	public:
-		engine(const window&,
+		engine(std::unique_ptr<window>,
 			   const engine_version& = engine_version::m_default,
 			   const vulkan_version& = vulkan_version::m_default);
 
@@ -29,7 +29,7 @@ namespace lh
 		auto poll_events() -> void;
 		auto terminate() -> void;
 
-		window m_window;
+		std::unique_ptr<window> m_window;
 		renderer m_renderer;
 
 		engine_version m_version;
