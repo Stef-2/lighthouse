@@ -105,7 +105,7 @@ namespace lh
 		// move constructible only
 		window(const window&&) noexcept;
 		window(window&&) noexcept = default;
-		
+
 		auto get_aspect_ratio() const -> double;
 		auto get_resolution() const -> window_resolution;
 		auto get_title() const -> std::string_view;
@@ -131,7 +131,7 @@ namespace lh
 			.srgbCapable = true,
 			.clientAPI = vkfw::ClientAPI::None
 		};
-		static inline auto defaultName = "Light House";
+		static inline auto defaultName = "LightHouse";
 
 		mutable vkfw::UniqueWindow m_window;
 		vkfw::Monitor m_monitor;

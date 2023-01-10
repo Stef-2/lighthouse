@@ -18,6 +18,7 @@ auto lh::engine::run() -> void
 {
     while (!m_window->vkfw_window().shouldClose().value)
     {
+        m_renderer.render();
         poll_events();
     }
 }

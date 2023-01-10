@@ -3,9 +3,11 @@
 #include "vkfw.hpp"
 #include "vulkan.hpp"
 #include "vulkan_raii.hpp"
-#include "raii_utils.hpp"
-#include "raii_shaders.hpp"
+#include "vulkan/utils/raii/raii_utils.hpp"
+#include "vulkan/utils/raii/raii_shaders.hpp"
 #include "SPIRV/GlslangToSpv.h"
+#include "vulkan/utils/geometries.hpp"
+#include "vulkan/utils/math.hpp"
 
 #include "datatype.hpp"
 #include "output.hpp"
@@ -23,11 +25,14 @@ namespace lh
         using vk_string = const std::vector<const char*>;
 
         renderer(const window&, const engine_version& = engine_version::m_default,
-                 const vulkan_version& = vulkan_version::m_default, bool use_validaiton_module = true);
+                 const vulkan_version& = vulkan_version::m_default, bool use_validaiton_module = false);
 
+        auto render() -> void;
     private:
         // optional module used for vulkan debugging
         struct validation_module {
+            validation_module(vk::raii::Instance&);
+
             auto required_validation_layers() -> vk_string;
             auto supported_validation_layers() -> std::vector<vk::LayerProperties>;
             auto assert_required_validation_layers() -> bool;
@@ -37,14 +42,8 @@ namespace lh
                                                              const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
                                                              void* pUserData) -> VkBool32;
 
-            vk::DebugUtilsMessengerCreateInfoEXT m_debug_info {
-                vk::DebugUtilsMessengerCreateFlagsEXT {},
-                vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose,
-                vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral,
-               debug_callback};
-
             vk::raii::DebugUtilsMessengerEXT m_debug_messenger {nullptr};
-            vk_string m_required_validation_layers {"VK_LAYER_KHRONOS_validation"};
+            static inline vk_string m_required_validation_layers {"VK_LAYER_KHRONOS_validation"};
         };
 
         // instance level vulkan extensions
@@ -53,7 +52,7 @@ namespace lh
             auto supported_extensions() -> std::vector<vk::ExtensionProperties>;
             auto assert_required_extensions() -> bool;
 
-            vk_string m_required_extensions {"VK_EXT_debug_utils"};
+            static inline vk_string m_required_extensions {"VK_EXT_debug_utils"};
         };
 
         // physical device level vulkan extensions
@@ -64,46 +63,78 @@ namespace lh
             auto assert_required_extensions() -> bool;
 
             vk::raii::PhysicalDevice& m_device;
-            vk_string m_required_extensions {"VK_KHR_swapchain"};
+            static inline vk_string m_required_extensions {"VK_KHR_swapchain"};
         };
-
-        auto get_queue_family_index() -> uint32_t;
-
+        
+        auto create_context() -> vk::raii::Context;
         auto create_instance(const window&, const engine_version& = engine_version::m_default,
                              const vulkan_version& = vulkan_version::m_default, bool use_validaiton_module = true)
             -> vk::raii::Instance;
 
-        auto create_device() -> vk::raii::Device;
         auto create_physical_device() -> vk::raii::PhysicalDevice;
+        auto create_surface(const window&) -> vk::raii::SurfaceKHR;
+        auto create_extent(const window&) -> vk::Extent2D;
+        auto create_surface_data(const window&) -> vk::raii::su::SurfaceData;
+        auto create_graphics_family_queue_indices() -> std::pair<uint32_t, uint32_t>;
+        auto create_device() -> vk::raii::Device;
+        auto create_command_pool() -> vk::raii::CommandPool;
         auto create_command_buffer() -> vk::raii::CommandBuffer;
-        auto create_surface(const window&) ->vk::raii::SurfaceKHR;
+        auto create_graphics_queue() -> vk::raii::Queue;
+        auto create_present_queue() -> vk::raii::Queue;
         auto create_swapchain(const window&) -> vk::raii::SwapchainKHR;
-        auto create_image_views() -> std::vector<vk::raii::ImageView>;
+        auto create_swapchain_data(const window&) -> vk::raii::su::SwapChainData;
         auto create_depth_buffer(const window&) -> vk::raii::ImageView;
+        auto create_depth_buffer_data(const window&) -> vk::raii::su::DepthBufferData;
+        auto create_uniform_buffer() -> vk::raii::su::BufferData;
+        auto create_descriptor_set_layout() -> vk::raii::DescriptorSetLayout;
         auto create_pipeline_layout() -> vk::raii::PipelineLayout;
-        auto create_descriptor_set() -> vk::raii::DescriptorSet;
+        auto create_format() -> vk::Format;
         auto create_render_pass(const window&) -> vk::raii::RenderPass;
         auto create_shader_module(const vk::ShaderStageFlagBits&) -> vk::raii::ShaderModule;
+        auto create_framebuffers(const window&) -> std::vector<vk::raii::Framebuffer>;
+        auto create_vertex_buffer() -> vk::raii::su::BufferData;
+        auto create_descriptor_pool() -> vk::raii::DescriptorPool;
+        auto create_descriptor_set() -> vk::raii::DescriptorSet;
+        auto create_pipeline_cache() -> vk::raii::PipelineCache;
+        auto create_pipeline() -> vk::raii::Pipeline;
+        auto create_image_views() -> std::vector<vk::raii::ImageView>;
 
         auto create_buffer(const data_t&, const vk::BufferUsageFlagBits&) -> vk::raii::Buffer;
 
         vulkan_version m_version;
 
-        std::optional<validation_module> m_validation_module = {std::nullopt};
         logical_extension_module m_logical_extensions;
         physical_extension_module m_physical_extensions;
 
+        vk::raii::Context m_context;
         vk::raii::Instance m_instance;
+        std::optional<validation_module> m_validation_module = {std::nullopt};
         vk::raii::PhysicalDevice m_physical_device;
-        vk::raii::Device m_device;
-        vk::raii::CommandBuffer m_command_buffer;
+        //vk::raii::su::SurfaceData m_surface_data;
         vk::raii::SurfaceKHR m_surface;
-        vk::raii::SwapchainKHR m_swapchain;
-        std::vector<vk::raii::ImageView> m_image_views;
-        vk::raii::ImageView m_depth_buffer;
+        vk::Extent2D m_extent;
+        std::pair<uint32_t, uint32_t> m_graphics_and_present_queue_indices;
+        vk::raii::Device m_device;
+        vk::raii::CommandPool m_command_pool;
+        vk::raii::CommandBuffer m_command_buffer;
+        vk::raii::Queue m_graphics_queue;
+        vk::raii::Queue m_present_queue;
+        //vk::raii::SwapchainKHR m_swapchain;
+        vk::raii::su::SwapChainData m_swapchain_data;
+        //vk::raii::ImageView m_depth_buffer;
+        vk::raii::su::DepthBufferData m_depth_buffer_data;
+        vk::raii::su::BufferData m_uniform_buffer;
+        vk::raii::DescriptorSetLayout m_descriptor_set_layout;
         vk::raii::PipelineLayout m_pipeline_layout;
-        vk::raii::DescriptorSet m_descriptor_set;
+        vk::Format m_format;
         vk::raii::RenderPass m_render_pass;
         vk::raii::ShaderModule m_shader_modules[2];
+        std::vector<vk::raii::Framebuffer> m_framebuffers;
+        vk::raii::su::BufferData m_vertex_buffer;
+        vk::raii::DescriptorPool m_descriptor_pool;
+        vk::raii::DescriptorSet m_descriptor_set;
+        vk::raii::PipelineCache m_pipeline_cache;
+        vk::raii::Pipeline m_pipeline;
+        std::vector<vk::raii::ImageView> m_image_views;
     };
 }

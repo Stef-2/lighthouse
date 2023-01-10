@@ -34,6 +34,7 @@ add_executable(
 	${source}/version.cpp
 	${source}/../vulkan/shaders.cpp
 	${source}/../vulkan/utils.cpp
+	${source}/../vulkan/math.cpp
 )
 
 # Compiler options
@@ -90,8 +91,6 @@ include_directories(
 	${include}/glfw
 	${include}/glm
 	${include}/vulkan
-	${include}/vulkan/utils
-	${include}/vulkan/utils/raii
 	${include}/vkfw
 	${include}/glslang
 )

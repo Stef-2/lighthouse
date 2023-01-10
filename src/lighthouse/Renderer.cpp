@@ -3,25 +3,51 @@
 lh::renderer::renderer(const window& window, const engine_version& engine_version, const vulkan_version& vulkan_version,
                        bool use_validation_module)
     : m_version {vulkan_version},
-      m_validation_module {use_validation_module ? validation_module {} : decltype(m_validation_module) {std::nullopt}},
+      m_context {create_context()},
       m_instance {create_instance(window, engine_version, vulkan_version, use_validation_module)},
+      m_validation_module {use_validation_module ? validation_module {m_instance}
+                                                 : decltype(m_validation_module) {std::nullopt}},
       m_physical_device {create_physical_device()},
+      //m_surface_data {create_surface_data(window)},
+    m_extent {create_extent(window)},
+      m_surface {create_surface(window)},
+      m_graphics_and_present_queue_indices {create_graphics_family_queue_indices()},
       m_physical_extensions {m_physical_device},
       m_device {create_device()},
+      m_command_pool {create_command_pool()},
+      m_graphics_queue {create_graphics_queue()},
+      m_present_queue {create_present_queue()},
       m_command_buffer {create_command_buffer()},
-      m_surface {create_surface(window)},
-      m_swapchain {create_swapchain(window)},
+      // m_swapchain {create_swapchain(window)},
+      m_swapchain_data {create_swapchain_data(window)},
       m_image_views {create_image_views()},
-      m_depth_buffer {create_depth_buffer(window)},
+      //m_depth_buffer {create_depth_buffer(window)},
+    m_depth_buffer_data {create_depth_buffer_data(window)},
+    m_uniform_buffer {create_uniform_buffer()},
+    m_descriptor_set_layout {create_descriptor_set_layout()},
       m_pipeline_layout {create_pipeline_layout()},
+    m_format {create_format()},
       m_descriptor_set {create_descriptor_set()},
       m_render_pass {create_render_pass(window)},
       m_shader_modules {create_shader_module(vk::ShaderStageFlagBits::eVertex),
-                        create_shader_module(vk::ShaderStageFlagBits::eFragment)}
+                        create_shader_module(vk::ShaderStageFlagBits::eFragment)},
+      m_vertex_buffer {create_vertex_buffer()},
+      m_framebuffers {create_framebuffers(window)},
+    m_descriptor_pool {create_descriptor_pool()},
+    m_pipeline_cache {create_pipeline_cache()},
+    m_pipeline {create_pipeline()}
 {
     if (use_validation_module)
     {
-        m_validation_module->m_debug_messenger = {m_instance, m_validation_module->m_debug_info};
+        vk::DebugUtilsMessageSeverityFlagsEXT severityFlags(vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
+                                                            vk::DebugUtilsMessageSeverityFlagBitsEXT::eError);
+        vk::DebugUtilsMessageTypeFlagsEXT messageTypeFlags(vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
+                                                           vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance |
+                                                           vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation);
+        vk::DebugUtilsMessengerCreateInfoEXT debugUtilsMessengerCreateInfoEXT({}, severityFlags, messageTypeFlags,
+                                                                              &m_validation_module->debug_callback);
+
+        m_validation_module->m_debug_messenger = {m_instance, debugUtilsMessengerCreateInfoEXT};
     }
 }
 
@@ -31,9 +57,6 @@ auto lh::renderer::logical_extension_module::assert_required_extensions() -> boo
     auto required_extensions = logical_extension_module::required_extensions();
     auto supported_extensions = logical_extension_module::supported_extensions();
     auto extensions_found = uint32_t {0};
-
-    for (const auto& ext : supported_extensions)
-        std::cout << ext.extensionName << '\n';
 
     // cross check required and supported extensions
     for (auto& required : required_extensions)
@@ -117,9 +140,25 @@ auto lh::renderer::logical_extension_module::required_extensions() -> vk_string
     return combined_extensions;
 }
 
+lh::renderer::validation_module::validation_module(vk::raii::Instance& instance)
+    : m_debug_messenger {
+          instance,
+          {{},
+           {vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError},
+           {vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance |
+            vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation},
+           debug_callback}}
+{
+}
+
 auto lh::renderer::validation_module::required_validation_layers() -> vk_string
 {
     return m_required_validation_layers;
+}
+
+auto lh::renderer::create_context() -> vk::raii::Context
+{
+    return {};
 }
 
 auto lh::renderer::create_instance(const window& window, const engine_version& engine_version,
@@ -158,24 +197,7 @@ auto lh::renderer::create_instance(const window& window, const engine_version& e
     instance_info.enabledLayerCount = m_validation_module ? required_validation_layers.size() : 0;
     instance_info.ppEnabledLayerNames = m_validation_module ? required_validation_layers.data() : nullptr;
 
-    return {{}, instance_info};
-}
-
-auto lh::renderer::get_queue_family_index() -> uint32_t
-{
-    const auto physical_device = vk::raii::PhysicalDevices(m_instance).front();
-    const auto queue_family_properties = physical_device.getQueueFamilyProperties();
-
-    // get the first index into queue_family_properties which supports graphics
-    std::vector<vk::QueueFamilyProperties>::const_iterator queue_family_property = std::find_if(
-        queue_family_properties.begin(), queue_family_properties.end(),
-        [](vk::QueueFamilyProperties const& qfp) { return qfp.queueFlags & vk::QueueFlagBits::eGraphics; });
-
-    // if none of the available devices support the queue family, terminate
-    if (queue_family_property == queue_family_properties.end())
-        output::fatal() << "this system does not support the required vulkan components";
-
-    return static_cast<uint32_t>(std::distance(queue_family_properties.begin(), queue_family_property));
+    return {m_context, instance_info};
 }
 
 auto lh::renderer::create_device() -> vk::raii::Device
@@ -193,7 +215,7 @@ auto lh::renderer::create_device() -> vk::raii::Device
     const auto queue_priority = 0.0f;
 
     auto device_queue_info = vk::DeviceQueueCreateInfo {};
-    device_queue_info.queueFamilyIndex = get_queue_family_index();
+    device_queue_info.queueFamilyIndex = m_graphics_and_present_queue_indices.first;
     device_queue_info.queueCount = 1;
     device_queue_info.pQueuePriorities = &queue_priority;
 
@@ -207,6 +229,25 @@ auto lh::renderer::create_device() -> vk::raii::Device
     return {m_physical_device, device_info};
 }
 
+auto lh::renderer::create_command_pool() -> vk::raii::CommandPool
+{
+    // create a command pool to allocate a command buffer from
+    /*auto command_pool_info = vk::CommandPoolCreateInfo {};
+    command_pool_info.queueFamilyIndex = m_graphics_family_queue_indices.first;
+    */
+    return {m_device, {vk::CommandPoolCreateFlagBits::eResetCommandBuffer, m_graphics_and_present_queue_indices.first}};
+}
+
+auto lh::renderer::create_graphics_queue() -> vk::raii::Queue
+{
+    return {m_device, m_graphics_and_present_queue_indices.first, 0};
+}
+
+auto lh::renderer::create_present_queue() -> vk::raii::Queue
+{
+    return {m_device, m_graphics_and_present_queue_indices.second, 0};
+}
+
 auto lh::renderer::create_physical_device() -> vk::raii::PhysicalDevice
 {
     return vk::raii::PhysicalDevices(m_instance).front();
@@ -214,19 +255,16 @@ auto lh::renderer::create_physical_device() -> vk::raii::PhysicalDevice
 
 auto lh::renderer::create_command_buffer() -> vk::raii::CommandBuffer
 {
-    // create a command pool to allocate a command buffer from
-    auto command_pool_info = vk::CommandPoolCreateInfo {};
-    command_pool_info.queueFamilyIndex = get_queue_family_index();
-
-    auto command_pool = vk::raii::CommandPool {m_device, command_pool_info};
-
+    /*
     // allocate a command_buffer from the command_pool
     auto command_buffer_allocate_info = vk::CommandBufferAllocateInfo {};
-    command_buffer_allocate_info.commandPool = *command_pool;
+    command_buffer_allocate_info.commandPool = *m_command_pool;
     command_buffer_allocate_info.level = vk::CommandBufferLevel::ePrimary;
     command_buffer_allocate_info.commandBufferCount = 1;
 
-    return std::move(vk::raii::CommandBuffers(m_device, command_buffer_allocate_info).front());
+    return std::move(vk::raii::CommandBuffers(m_device, command_buffer_allocate_info).front());*/
+
+    return vk::raii::su::makeCommandBuffer(m_device, m_command_pool);
 }
 
 auto lh::renderer::create_surface(const window& window) -> vk::raii::SurfaceKHR
@@ -235,6 +273,19 @@ auto lh::renderer::create_surface(const window& window) -> vk::raii::SurfaceKHR
     glfwCreateWindowSurface(static_cast<VkInstance>(*m_instance), window.vkfw_window(), nullptr, &surface);
 
     return {m_instance, surface};
+}
+
+auto lh::renderer::create_extent(const window& window) -> vk::Extent2D
+{
+    return {window.get_resolution().first, window.get_resolution().second};
+}
+
+auto lh::renderer::create_surface_data(const window& window) -> vk::raii::su::SurfaceData
+{
+    auto surface = vk::raii::su::SurfaceData {
+        m_instance, window.get_title().data(), {window.get_resolution().first, window.get_resolution().second}};
+
+    return surface;
 }
 
 auto lh::renderer::create_swapchain(const window& window) -> vk::raii::SwapchainKHR
@@ -300,12 +351,38 @@ auto lh::renderer::create_swapchain(const window& window) -> vk::raii::Swapchain
 
     auto swapchain = vk::raii::SwapchainKHR {m_device, swapchain_info};
 
-    return swapchain; //{m_device, swapchain_info};
+    return swapchain;
+}
+
+auto lh::renderer::create_graphics_family_queue_indices() -> std::pair<uint32_t, uint32_t>
+{
+    return vk::raii::su::findGraphicsAndPresentQueueFamilyIndex(m_physical_device, m_surface);
+}
+
+auto lh::renderer::create_swapchain_data(const window& window) -> vk::raii::su::SwapChainData
+{ /*
+     return {m_physical_device,
+             m_device,
+             m_surface,
+             {window.get_resolution().first, window.get_resolution().second},
+             vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferSrc,
+             {},
+             m_graphics_family_queue_indices.first,
+             m_graphics_family_queue_indices.second};*/
+
+    return {m_physical_device,
+            m_device,
+            m_surface,
+            m_extent,
+            vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferSrc,
+            {},
+            m_graphics_and_present_queue_indices.first,
+            m_graphics_and_present_queue_indices.second};
 }
 
 auto lh::renderer::create_image_views() -> std::vector<vk::raii::ImageView>
 {
-    auto swapchain_images = m_swapchain.getImages();
+    auto swapchain_images = m_swapchain_data.images;
 
     auto image_views = std::vector<vk::raii::ImageView> {};
     image_views.reserve(swapchain_images.size());
@@ -344,14 +421,10 @@ auto lh::renderer::create_depth_buffer(const window& window) -> vk::raii::ImageV
         output::fatal() << "DepthStencilAttachment is not supported for D16Unorm depth format";
     }
 
-    auto surface_data =
-        vk::su::SurfaceData(*m_instance, window.get_title().data(),
-                            vk::Extent2D {window.get_resolution().first, window.get_resolution().second});
-
     auto image_info = vk::ImageCreateInfo {};
     image_info.imageType = vk::ImageType::e2D;
     image_info.format = depth_format;
-    image_info.extent = vk::Extent3D {surface_data.extent.width, surface_data.extent.height, 1};
+    image_info.extent = vk::Extent3D {window.get_resolution().first, window.get_resolution().second, 1};
     image_info.usage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
     image_info.mipLevels = 1;
     image_info.arrayLayers = 1;
@@ -385,8 +458,30 @@ auto lh::renderer::create_depth_buffer(const window& window) -> vk::raii::ImageV
     return {m_device, image_view_info};
 }
 
+auto lh::renderer::create_depth_buffer_data(const window&) -> vk::raii::su::DepthBufferData
+{
+    return {m_physical_device, m_device, vk::Format::eD16Unorm, m_extent};
+}
+
+auto lh::renderer::create_uniform_buffer() -> vk::raii::su::BufferData
+{
+    vk::raii::su::BufferData uniformBufferData(m_physical_device, m_device, sizeof(glm::mat4x4),
+                                               vk::BufferUsageFlagBits::eUniformBuffer);
+    glm::mat4x4 mvpcMatrix = vk::su::createModelViewProjectionClipMatrix(m_extent);
+    vk::raii::su::copyToDevice(uniformBufferData.deviceMemory, mvpcMatrix);
+
+    return uniformBufferData;
+}
+
+auto lh::renderer::create_descriptor_set_layout() -> vk::raii::DescriptorSetLayout
+{
+    return vk::raii::su::makeDescriptorSetLayout(
+        m_device, {{vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex}});
+}
+
 auto lh::renderer::create_pipeline_layout() -> vk::raii::PipelineLayout
 {
+    /*
     // create a DescriptorSetLayout
     auto descriptor_set_layout_binding =
         vk::DescriptorSetLayoutBinding(0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex);
@@ -396,11 +491,19 @@ auto lh::renderer::create_pipeline_layout() -> vk::raii::PipelineLayout
 
     // create a PipelineLayout using that DescriptorSetLayout
     auto pipeline_layout_info = vk::PipelineLayoutCreateInfo({}, *descriptor_set_layout);
-    return {m_device, pipeline_layout_info};
+    return {m_device, pipeline_layout_info};*/
+
+    return {m_device, {{}, *m_descriptor_set_layout}};
+}
+
+auto lh::renderer::create_format() -> vk::Format
+{
+    return vk::su::pickSurfaceFormat(m_physical_device.getSurfaceFormatsKHR(*m_surface)).format;
 }
 
 auto lh::renderer::create_descriptor_set() -> vk::raii::DescriptorSet
 {
+    /*
     // create a descriptor pool
     auto pool_size = vk::DescriptorPoolSize(vk::DescriptorType::eUniformBuffer, 1);
     auto descriptor_pool_info =
@@ -413,15 +516,34 @@ auto lh::renderer::create_descriptor_set() -> vk::raii::DescriptorSet
     auto descriptor_set_info = vk::DescriptorSetAllocateInfo(*descriptor_pool, *descriptor_set_layout);
 
     return std::move(vk::raii::DescriptorSets(m_device, descriptor_set_info).front());
+    */
+
+     vk::raii::DescriptorSet descriptorSet =
+        std::move(vk::raii::DescriptorSets(m_device, {*m_descriptor_pool, *m_descriptor_set_layout}).front());
+    vk::raii::su::updateDescriptorSets(
+        m_device, descriptorSet, {{vk::DescriptorType::eUniformBuffer, m_uniform_buffer.buffer, VK_WHOLE_SIZE, nullptr}},
+        {});
+
+    return descriptorSet;
+}
+
+auto lh::renderer::create_pipeline_cache() -> vk::raii::PipelineCache
+{
+    return {m_device, vk::PipelineCacheCreateInfo{}};
+}
+
+auto lh::renderer::create_pipeline() -> vk::raii::Pipeline
+{
+    return vk::raii::su::makeGraphicsPipeline(
+        m_device, m_pipeline_cache, m_shader_modules[0], nullptr, m_shader_modules[1], nullptr,
+        vk::su::checked_cast<uint32_t>(sizeof(coloredCubeData[0])),
+        {{vk::Format::eR32G32B32A32Sfloat, 0}, {vk::Format::eR32G32B32A32Sfloat, 16}}, vk::FrontFace::eClockwise, true,
+        m_pipeline_layout, m_render_pass);
 }
 
 auto lh::renderer::create_render_pass(const window& window) -> vk::raii::RenderPass
-{
-    auto surface_data =
-        vk::raii::su::SurfaceData(m_instance, window.get_title().data(),
-                                  vk::Extent2D(window.get_resolution().first, window.get_resolution().second));
-
-    auto color_format = vk::su::pickSurfaceFormat(m_physical_device.getSurfaceFormatsKHR(*surface_data.surface)).format;
+{/*
+    auto color_format = vk::su::pickSurfaceFormat(m_physical_device.getSurfaceFormatsKHR(*m_surface)).format;
     auto depth_format = vk::Format::eD16Unorm;
 
     auto attachment_descriptions = std::array<vk::AttachmentDescription, 2> {};
@@ -444,18 +566,17 @@ auto lh::renderer::create_render_pass(const window& window) -> vk::raii::RenderP
 
     auto render_pass_info = vk::RenderPassCreateInfo({}, attachment_descriptions, subpass_description);
 
-    return {m_device, render_pass_info};
+    return {m_device, render_pass_info};*/
+
+    return vk::raii::su::makeRenderPass(m_device, m_format, m_depth_buffer_data.format);
 }
 
 auto lh::renderer::create_shader_module(const vk::ShaderStageFlagBits& stage) -> vk::raii::ShaderModule
-{
+{/*
     glslang::InitializeProcess();
 
-    auto vertex_shader_spirv = std::vector<unsigned int>{};
-    auto shader_code = (stage == vk::ShaderStageFlagBits::eVertex)
-                           ? vertexShaderText_PC_C
-                           : fragmentShaderText_C_C;
-
+    auto vertex_shader_spirv = std::vector<unsigned int> {};
+    auto shader_code = (stage == vk::ShaderStageFlagBits::eVertex) ? vertexShaderText_PC_C : fragmentShaderText_C_C;
 
     vk::su::GLSLtoSPV(stage, shader_code, vertex_shader_spirv);
 
@@ -464,7 +585,101 @@ auto lh::renderer::create_shader_module(const vk::ShaderStageFlagBits& stage) ->
 
     glslang::FinalizeProcess();
 
-    return shader_module;
+    return shader_module;*/
+
+    glslang::InitializeProcess();
+
+    auto shader_code = (stage == vk::ShaderStageFlagBits::eVertex) ? vertexShaderText_PC_C : fragmentShaderText_C_C;
+    auto module =  vk::raii::su::makeShaderModule(m_device, stage, shader_code);
+
+    glslang::FinalizeProcess();
+
+    return module;
+}
+
+auto lh::renderer::create_framebuffers(const window& window) -> std::vector<vk::raii::Framebuffer>
+{/*
+    auto attachments = std::array<vk::ImageView, 2> {};
+    attachments[1] = *m_depth_buffer;
+
+    auto framebuffers = std::vector<vk::raii::Framebuffer> {};
+    framebuffers.reserve(m_swapchain.getImages().size());
+
+    for (auto const& view : m_image_views)
+    {
+        attachments[0] = *view;
+        auto framebuffer_info = vk::FramebufferCreateInfo(
+            {}, *m_render_pass, attachments, window.get_resolution().first, window.get_resolution().second, 1);
+
+        framebuffers.push_back({m_device, framebuffer_info});
+    }
+
+    return framebuffers;*/
+
+    return vk::raii::su::makeFramebuffers(
+        m_device, m_render_pass, m_swapchain_data.imageViews, &m_depth_buffer_data.imageView, m_extent);
+}
+
+auto lh::renderer::create_vertex_buffer() -> vk::raii::su::BufferData
+{/*
+    // create a vertex buffer for some vertex and color data
+    auto buffer_info = vk::BufferCreateInfo({}, sizeof(coloredCubeData), vk::BufferUsageFlagBits::eVertexBuffer);
+    auto vertex_buffer = vk::raii::Buffer(m_device, buffer_info);
+
+    auto graphics_queue = vk::raii::Queue(m_device, m_graphics_and_present_queue_indices.first, 0);
+
+    // allocate device memory for that buffer
+    auto memory_requirements = vertex_buffer.getMemoryRequirements();
+    auto memory_type_index =
+        vk::su::findMemoryType(m_physical_device.getMemoryProperties(), memory_requirements.memoryTypeBits,
+                               vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+
+    auto memory_info = vk::MemoryAllocateInfo(memory_requirements.size, memory_type_index);
+    auto memory = vk::raii::DeviceMemory(m_device, memory_info);
+
+    // copy the vertex and color data into that device memory
+    auto data = static_cast<uint8_t*>(memory.mapMemory(0, memory_requirements.size));
+    memcpy(data, coloredCubeData, sizeof(coloredCubeData));
+    memory.unmapMemory();
+
+    // and bind the device memory to the vertex buffer
+    vertex_buffer.bindMemory(*memory, 0);
+    */
+    /*
+    auto image_acquired_semaphore = vk::raii::Semaphore(m_device, vk::SemaphoreCreateInfo());
+
+    auto result = vk::Result {};
+    auto image_index = uint32_t {};
+    std::tie(result, image_index) =
+        m_swapchain_data.swapChain.acquireNextImage(vk::su::FenceTimeout, *image_acquired_semaphore);
+
+    auto clear_values = std::array<vk::ClearValue, 2> {vk::ClearColorValue(0.2f, 0.2f, 0.2f, 0.2f),
+                                                       vk::ClearDepthStencilValue(1.0f, 0)};
+
+    m_command_buffer.begin({});
+
+    auto render_pass_begin_info =
+        vk::RenderPassBeginInfo(*m_render_pass, *m_framebuffers[image_index],
+                                vk::Rect2D(vk::Offset2D(0, 0), m_surface_data.extent), clear_values);
+    m_command_buffer.beginRenderPass(render_pass_begin_info, vk::SubpassContents::eInline);
+
+    m_command_buffer.bindVertexBuffers(0, {*vertex_buffer}, {0});
+
+    m_command_buffer.endRenderPass();
+    m_command_buffer.end();
+    vk::raii::su::submitAndWait(m_device, graphics_queue, m_command_buffer);*/
+
+    vk::raii::su::BufferData vertexBufferData(m_physical_device, m_device, sizeof(coloredCubeData),
+                                              vk::BufferUsageFlagBits::eVertexBuffer);
+    vk::raii::su::copyToDevice(vertexBufferData.deviceMemory, coloredCubeData,
+                               sizeof(coloredCubeData) / sizeof(coloredCubeData[0]));
+
+    return vertexBufferData;
+}
+
+auto lh::renderer::create_descriptor_pool() -> vk::raii::DescriptorPool
+{
+    return vk::raii::su::makeDescriptorPool(m_device, {{vk::DescriptorType::eUniformBuffer, 1}});
 }
 
 auto lh::renderer::create_buffer(const data_t& data, const vk::BufferUsageFlagBits& usage) -> vk::raii::Buffer
@@ -488,11 +703,72 @@ auto lh::renderer::create_buffer(const data_t& data, const vk::BufferUsageFlagBi
     buffer.bindMemory(*buffer_memory, 0);
 }
 
+auto lh::renderer::render() -> void
+{
+    // Get the index of the next available swapchain image:
+    vk::raii::Semaphore imageAcquiredSemaphore(m_device, vk::SemaphoreCreateInfo());
+
+    vk::Result result;
+    uint32_t imageIndex;
+    std::tie(result, imageIndex) =
+        m_swapchain_data.swapChain.acquireNextImage(vk::su::FenceTimeout, *imageAcquiredSemaphore);
+    assert(result == vk::Result::eSuccess);
+    assert(imageIndex < swapChainData.images.size());
+
+    m_command_buffer.begin({});
+
+    std::array<vk::ClearValue, 2> clearValues;
+    clearValues[0].color = vk::ClearColorValue(0.2f, 0.2f, 0.2f, 0.2f);
+    clearValues[1].depthStencil = vk::ClearDepthStencilValue(1.0f, 0);
+    vk::RenderPassBeginInfo renderPassBeginInfo(*m_render_pass, *m_framebuffers[imageIndex],
+                                                vk::Rect2D(vk::Offset2D(0, 0), m_extent), clearValues);
+    m_command_buffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
+    m_command_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_pipeline);
+    m_command_buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *m_pipeline_layout, 0, {*m_descriptor_set}, nullptr);
+
+    m_command_buffer.bindVertexBuffers(0, {*m_vertex_buffer.buffer}, {0});
+    m_command_buffer.setViewport(0, vk::Viewport(0.0f, 0.0f, static_cast<float>(m_extent.width),
+                                              static_cast<float>(m_extent.height), 0.0f, 1.0f));
+    m_command_buffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_extent));
+
+    m_command_buffer.draw(12 * 3, 1, 0, 0);
+    m_command_buffer.endRenderPass();
+    m_command_buffer.end();
+
+    vk::raii::Fence drawFence(m_device, vk::FenceCreateInfo());
+
+    vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
+    vk::SubmitInfo submitInfo(*imageAcquiredSemaphore, waitDestinationStageMask, *m_command_buffer);
+    m_graphics_queue.submit(submitInfo, *drawFence);
+
+    while (vk::Result::eTimeout == m_device.waitForFences({*drawFence}, VK_TRUE, vk::su::FenceTimeout))
+        ;
+
+    vk::PresentInfoKHR presentInfoKHR(nullptr, *m_swapchain_data.swapChain, imageIndex);
+    result = m_present_queue.presentKHR(presentInfoKHR);
+    switch (result)
+    {
+    case vk::Result::eSuccess:
+        break;
+    case vk::Result::eSuboptimalKHR:
+        std::cout << "vk::Queue::presentKHR returned vk::Result::eSuboptimalKHR !\n";
+        break;
+    default:
+        assert(false); // an unexpected result is returned !
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    /* VULKAN_KEY_END */
+
+    m_device.waitIdle();
+}
+
 VKAPI_ATTR auto VKAPI_CALL lh::renderer::validation_module::debug_callback(
     VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType,
     const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) -> VkBool32
 {
     std::cout << "FUCK YOUR RETARDED MOTHER" << *pCallbackData->pMessage;
+    std::cout << "\n\n\n WTF \n\n\n";
     return true;
 }
 
@@ -518,9 +794,6 @@ auto lh::renderer::physical_extension_module::assert_required_extensions() -> bo
                           { physical_extension_names.push_back(ext.extensionName); });
 
     auto extensions_found = uint32_t {0};
-
-    for (const auto& ext : supported_extensions)
-        std::cout << ext.extensionName << '\n';
 
     // cross check required and supported extensions
     for (auto& required : required_extensions)
