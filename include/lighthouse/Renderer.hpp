@@ -1,13 +1,14 @@
 #pragma once
 
+#include "SPIRV/GlslangToSpv.h"
 #include "vkfw.hpp"
 #include "vulkan.hpp"
-#include "vulkan_raii.hpp"
-#include "vulkan/utils/raii/raii_utils.hpp"
-#include "vulkan/utils/raii/raii_shaders.hpp"
-#include "SPIRV/GlslangToSpv.h"
+#include "vulkan/vulkan_to_string.hpp"
 #include "vulkan/utils/geometries.hpp"
 #include "vulkan/utils/math.hpp"
+#include "vulkan/utils/raii/raii_shaders.hpp"
+#include "vulkan/utils/raii/raii_utils.hpp"
+#include "vulkan_raii.hpp"
 
 #include "datatype.hpp"
 #include "output.hpp"
@@ -25,12 +26,14 @@ namespace lh
         using vk_string = const std::vector<const char*>;
 
         renderer(const window&, const engine_version& = engine_version::m_default,
-                 const vulkan_version& = vulkan_version::m_default, bool use_validaiton_module = false);
+                 const vulkan_version& = vulkan_version::m_default, bool use_validaiton_module = true);
 
         auto render() -> void;
+
     private:
         // optional module used for vulkan debugging
-        struct validation_module {
+        struct validation_module
+        {
             validation_module(vk::raii::Instance&);
 
             auto required_validation_layers() -> vk_string;
@@ -42,21 +45,39 @@ namespace lh
                                                              const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
                                                              void* pUserData) -> VkBool32;
 
-            vk::raii::DebugUtilsMessengerEXT m_debug_messenger {nullptr};
-            static inline vk_string m_required_validation_layers {"VK_LAYER_KHRONOS_validation"};
+            static VKAPI_ATTR auto VKAPI_CALL debug_callback2(VkDebugReportFlagsEXT flags,
+                                                              VkDebugReportObjectTypeEXT objectType, uint64_t object,
+                                                              size_t location, int32_t messageCode,
+                                                              const char* pLayerPrefix, const char* pMessage,
+                                                              void* pUserData) -> VkBool32;
+
+            vk::raii::DebugUtilsMessengerEXT m_debug_messenger;
+            vk::raii::DebugReportCallbackEXT m_debug_callback;
+            static inline vk_string m_required_validation_layers {"VK_LAYER_KHRONOS_validation",
+                                                                  "VK_LAYER_NV_optimus",
+                                                                  //"VK_LAYER_NV_GPU_Trace_release_public_2021_4_0",
+                                                                  //"VK_LAYER_VALVE_steam_fossilize",
+                                                                  //"VK_LAYER_LUNARG_api_dump",
+                                                                  //"VK_LAYER_LUNARG_gfxreconstruct",
+                                                                  "VK_LAYER_KHRONOS_synchronization2",
+                                                                  "VK_LAYER_LUNARG_monitor",
+                                                                  "VK_LAYER_LUNARG_screenshot",
+                                                                  "VK_LAYER_KHRONOS_profiles"};
         };
 
         // instance level vulkan extensions
-        struct logical_extension_module {
+        struct logical_extension_module
+        {
             auto required_extensions() -> vk_string;
             auto supported_extensions() -> std::vector<vk::ExtensionProperties>;
             auto assert_required_extensions() -> bool;
 
-            static inline vk_string m_required_extensions {"VK_EXT_debug_utils"};
+            static inline vk_string m_required_extensions {"VK_EXT_debug_utils", "VK_EXT_debug_report"};
         };
 
         // physical device level vulkan extensions
-        struct physical_extension_module {
+        struct physical_extension_module
+        {
 
             auto required_extensions() -> vk_string;
             auto supported_extensions() -> std::vector<vk::ExtensionProperties>;
@@ -65,7 +86,7 @@ namespace lh
             vk::raii::PhysicalDevice& m_device;
             static inline vk_string m_required_extensions {"VK_KHR_swapchain"};
         };
-        
+
         auto create_context() -> vk::raii::Context;
         auto create_instance(const window&, const engine_version& = engine_version::m_default,
                              const vulkan_version& = vulkan_version::m_default, bool use_validaiton_module = true)
@@ -110,7 +131,7 @@ namespace lh
         vk::raii::Instance m_instance;
         std::optional<validation_module> m_validation_module = {std::nullopt};
         vk::raii::PhysicalDevice m_physical_device;
-        //vk::raii::su::SurfaceData m_surface_data;
+        // vk::raii::su::SurfaceData m_surface_data;
         vk::raii::SurfaceKHR m_surface;
         vk::Extent2D m_extent;
         std::pair<uint32_t, uint32_t> m_graphics_and_present_queue_indices;
@@ -119,9 +140,9 @@ namespace lh
         vk::raii::CommandBuffer m_command_buffer;
         vk::raii::Queue m_graphics_queue;
         vk::raii::Queue m_present_queue;
-        //vk::raii::SwapchainKHR m_swapchain;
+        // vk::raii::SwapchainKHR m_swapchain;
         vk::raii::su::SwapChainData m_swapchain_data;
-        //vk::raii::ImageView m_depth_buffer;
+        // vk::raii::ImageView m_depth_buffer;
         vk::raii::su::DepthBufferData m_depth_buffer_data;
         vk::raii::su::BufferData m_uniform_buffer;
         vk::raii::DescriptorSetLayout m_descriptor_set_layout;
@@ -135,6 +156,6 @@ namespace lh
         vk::raii::DescriptorSet m_descriptor_set;
         vk::raii::PipelineCache m_pipeline_cache;
         vk::raii::Pipeline m_pipeline;
-        std::vector<vk::raii::ImageView> m_image_views;
+        // std::vector<vk::raii::ImageView> m_image_views;
     };
 }

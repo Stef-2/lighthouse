@@ -94,7 +94,7 @@ include_directories(
 	${include}/vkfw
 	${include}/glslang
 )
-#[[
+
 # Precompiled headers
 target_precompile_headers(
 	${PROJECT_NAME} PUBLIC
@@ -102,7 +102,7 @@ target_precompile_headers(
 	${include}/vulkan/vulkan.hpp
 	${include}/vulkan/vulkan_raii.hpp
 )
-]]
+
 # Libraries
 target_link_directories(
 	${PROJECT_NAME}
