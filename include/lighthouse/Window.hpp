@@ -16,10 +16,9 @@ namespace lh
 	class window
 	{
 	public:
-		
-		using window_dimension = unsigned int;
+		using window_dimension = uint32_t;
 		using window_gamma = float;
-		using window_resolution = std::pair<window_dimension, window_dimension>;
+		using window_resolution = vk::Extent2D;
 		using window_position = std::pair<window_dimension, window_dimension>;
 
 		// resolutions commonly used in video game engines

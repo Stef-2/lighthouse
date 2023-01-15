@@ -303,13 +303,13 @@ auto lh::renderer::create_surface(const window& window) -> vk::raii::SurfaceKHR
 
 auto lh::renderer::create_extent(const window& window) -> vk::Extent2D
 {
-    return {window.get_resolution().first, window.get_resolution().second};
+    return {window.get_resolution().width, window.get_resolution().height};
 }
 
 auto lh::renderer::create_surface_data(const window& window) -> vk::raii::su::SurfaceData
 {
     auto surface = vk::raii::su::SurfaceData {
-        m_instance, window.get_title().data(), {window.get_resolution().first, window.get_resolution().second}};
+        m_instance, window.get_title().data(), {window.get_resolution().width, window.get_resolution().height}};
 
     return surface;
 }
@@ -331,9 +331,9 @@ auto lh::renderer::create_swapchain(const window& window) -> vk::raii::Swapchain
     // if the surface size is undefined, the size is set to the size of the images requested
     if (surface_capabilities.currentExtent.width == std::numeric_limits<uint32_t>::max())
     {
-        swapchain_extent.width = glm::clamp(window.get_resolution().first, surface_capabilities.minImageExtent.width,
+        swapchain_extent.width = glm::clamp(window.get_resolution().width, surface_capabilities.minImageExtent.width,
                                             surface_capabilities.maxImageExtent.width);
-        swapchain_extent.height = glm::clamp(window.get_resolution().second, surface_capabilities.minImageExtent.height,
+        swapchain_extent.height = glm::clamp(window.get_resolution().height, surface_capabilities.minImageExtent.height,
                                              surface_capabilities.maxImageExtent.height);
     }
     // if the surface size is defined, the swap chain size must match
@@ -450,7 +450,7 @@ auto lh::renderer::create_depth_buffer(const window& window) -> vk::raii::ImageV
     auto image_info = vk::ImageCreateInfo {};
     image_info.imageType = vk::ImageType::e2D;
     image_info.format = depth_format;
-    image_info.extent = vk::Extent3D {window.get_resolution().first, window.get_resolution().second, 1};
+    image_info.extent = vk::Extent3D {window.get_resolution().width, window.get_resolution().height, 1};
     image_info.usage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
     image_info.mipLevels = 1;
     image_info.arrayLayers = 1;

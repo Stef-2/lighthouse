@@ -14,7 +14,7 @@ lh::window::window(lh::window::window_resolution resolution, std::string_view na
 
     auto result = vkfw::Result {};
     std::tie(result, m_window) =
-        vkfw::createWindowUnique(resolution.first, resolution.second, defaultName, hints, m_monitor).asTuple();
+        vkfw::createWindowUnique(resolution.width, resolution.height, defaultName, hints, m_monitor).asTuple();
 
     if (!vkfw::check(result))
     {
@@ -28,16 +28,16 @@ lh::window::window(const window&& other) noexcept : window(const_cast<window&&>(
 
 auto lh::window::get_resolution() const -> window_resolution
 {
-    auto [width, height] = m_window.get().getSize().value;
+    auto [width, height] {m_window.get().getFramebufferSize().value};
 
-    return {width, height};
+    return window_resolution {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
 }
 
 auto lh::window::get_aspect_ratio() const -> double
 {
-    auto&& [width, height] = m_window.get().getSize().value;
+    auto&& [width, height] = m_window.get().getFramebufferSize().value;
 
-    return static_cast<double>(width / height);
+    return static_cast<double>(width) / static_cast<double>(height);
 }
 
 auto lh::window::get_title() const -> std::string_view
