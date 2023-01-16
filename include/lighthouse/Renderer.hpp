@@ -45,14 +45,18 @@ namespace lh
                                                              const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
                                                              void* pUserData) -> VkBool32;
 
-            static VKAPI_ATTR auto VKAPI_CALL debug_callback2(VkDebugReportFlagsEXT flags,
-                                                              VkDebugReportObjectTypeEXT objectType, uint64_t object,
-                                                              size_t location, int32_t messageCode,
-                                                              const char* pLayerPrefix, const char* pMessage,
-                                                              void* pUserData) -> VkBool32;
-
             vk::raii::DebugUtilsMessengerEXT m_debug_messenger;
-            vk::raii::DebugReportCallbackEXT m_debug_callback;
+
+            static inline vk::DebugUtilsMessageSeverityFlagsEXT m_message_severity {
+                vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
+                 vk::DebugUtilsMessageSeverityFlagBitsEXT::eError};
+
+            static inline vk::DebugUtilsMessageTypeFlagsEXT m_message_type
+            {
+                vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance |
+                    vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation
+            };
+
             static inline vk_string m_required_validation_layers {"VK_LAYER_KHRONOS_validation",
                                                                   "VK_LAYER_NV_optimus",
                                                                   //"VK_LAYER_NV_GPU_Trace_release_public_2021_4_0",
@@ -78,7 +82,6 @@ namespace lh
         // physical device level vulkan extensions
         struct physical_extension_module
         {
-
             auto required_extensions() -> vk_string;
             auto supported_extensions() -> std::vector<vk::ExtensionProperties>;
             auto assert_required_extensions() -> bool;

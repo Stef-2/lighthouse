@@ -32,10 +32,11 @@ add_executable(
 	${source}/engine.cpp
 	${source}/renderer.cpp
 	${source}/version.cpp
+	${source}/node.cpp
 	${source}/../vulkan/shaders.cpp
 	${source}/../vulkan/utils.cpp
 	${source}/../vulkan/math.cpp
- "src/lighthouse/node.cpp")
+)
 
 # Compiler options
 if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)

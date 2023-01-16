@@ -44,25 +44,20 @@ auto lh::renderer::logical_extension_module::assert_required_extensions() -> boo
     // make sure the implementation supports all required extensions
     auto required_extensions = logical_extension_module::required_extensions();
     auto supported_extensions = logical_extension_module::supported_extensions();
-    auto extensions_found = uint32_t {0};
 
-    // cross check required and supported extensions
-    for (auto& required : required_extensions)
+    for (const auto& required : required_extensions)
     {
-        auto check = extensions_found;
-
-        for (const auto& supported : supported_extensions)
-            if (!strcmp(supported.extensionName, required))
-            {
-                extensions_found += 1;
-                break;
-            }
-
-        if (check == extensions_found)
-            output::error() << "this system does not support the required vulkan extension: " + std::string {required};
+        if (std::find_if(supported_extensions.begin(), supported_extensions.end(),
+                         [&required](const auto& supported)
+                         { return strcmp(required, supported.extensionName) == 0; }) == supported_extensions.end())
+        {
+            output::error() << "this system does not support the required vulkan logical extension: " +
+                                   std::string {required};
+            return false;
+        }
     }
 
-    return extensions_found == required_extensions.size();
+    return true;
 }
 
 auto lh::renderer::validation_module::assert_required_validation_layers() -> bool
@@ -70,26 +65,19 @@ auto lh::renderer::validation_module::assert_required_validation_layers() -> boo
     // make sure the implementation supports all required validation layers
     auto required_layers = validation_module::required_validation_layers();
     auto supported_layers = validation_module::supported_validation_layers();
-    auto layers_found = uint32_t {0};
 
-    // cross check required and supported extensions
-    for (auto& required : required_layers)
+    for (const auto& required : required_layers)
     {
-        auto check = layers_found;
-
-        for (const auto& supported : supported_layers)
-            if (!strcmp(supported.layerName, required))
-            {
-                layers_found += 1;
-                break;
-            }
-
-        if (check == layers_found)
-            output::error() << "this system does not support the required vulkan validation layer: " +
-                                   std::string {required};
+        if (std::find_if(supported_layers.begin(), supported_layers.end(),
+                         [&required](const auto& supported)
+                         { return strcmp(required, supported.layerName) == 0; }) == supported_layers.end())
+        {
+            output::error() << "this system does not support the required vulkan validation layer: " + std::string {required};
+            return false;
+        }
     }
 
-    return layers_found == required_layers.size();
+    return true;
 }
 
 auto lh::renderer::logical_extension_module::supported_extensions() -> std::vector<vk::ExtensionProperties>
@@ -129,44 +117,9 @@ auto lh::renderer::logical_extension_module::required_extensions() -> vk_string
 }
 
 lh::renderer::validation_module::validation_module(vk::raii::Instance& instance)
-    : m_debug_messenger {instance,
-                         {{},
-                          {vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
-                           vk::DebugUtilsMessageSeverityFlagBitsEXT::eError},
-                          {vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
-                           vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance |
-                           vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation},
-                          &debug_callback}},
-      m_debug_callback {instance,
-                        {vk::DebugReportFlagBitsEXT::eDebug | vk::DebugReportFlagBitsEXT::eError |
-                             /*vk::DebugReportFlagBitsEXT::eInformation |*/
-                             vk::DebugReportFlagBitsEXT::ePerformanceWarning | vk::DebugReportFlagBitsEXT::eWarning,
-                         &debug_callback2}}
-{/*
-    PFN_vkCreateDebugUtilsMessengerEXT pfnCreateDebugUtilsMessengerEXT =
-        (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(*instance, "vkCreateDebugUtilsMessengerEXT");
-
-     VkDebugUtilsMessengerCreateInfoEXT callback1 = {
-        VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT, // sType
-        NULL,                                                    // pNext
-        0,                                                       // flags
-        VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT |          // messageSeverity
-            VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT,
-        VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | // messageType
-            VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT,
-        debug_callback, // pfnUserCallback
-        NULL                 // pUserData
-    };
-
-     VkDebugUtilsMessengerEXT cb;
-
-     auto res = pfnCreateDebugUtilsMessengerEXT(*instance, &callback1, NULL, &cb);
-     if (res != VK_SUCCESS)
-     {
-        // Do error handling for VK_ERROR_OUT_OF_MEMORY
-     }
-
-     m_debug_messenger = vk::raii::DebugUtilsMessengerEXT(instance, cb);*/
+    : m_debug_messenger {
+          instance.createDebugUtilsMessengerEXT({{}, m_message_severity, m_message_type, &debug_callback})}
+{
 }
 
 auto lh::renderer::validation_module::required_validation_layers() -> vk_string
@@ -208,12 +161,10 @@ auto lh::renderer::create_instance(const window& window, const engine_version& e
     auto required_validation_layers =
         use_validation_module ? m_validation_module->required_validation_layers() : vk_string {nullptr};
 
-    auto instance_debugger = vk::DebugUtilsMessengerCreateInfoEXT {
-            {},
-            {vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError},
-            {vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance |
-             vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation},
-            &m_validation_module->debug_callback};
+    auto instance_debugger = vk::DebugUtilsMessengerCreateInfoEXT {{},
+                                                                   m_validation_module->m_message_severity,
+                                                                   m_validation_module->m_message_type,
+                                                                   &m_validation_module->debug_callback};
 
     // configure instance info
     instance_info.pApplicationInfo = &app_info;
@@ -843,14 +794,6 @@ VKAPI_ATTR auto VKAPI_CALL lh::renderer::validation_module::debug_callback(
     return false;
 }
 
-VKAPI_ATTR VkBool32 VKAPI_CALL lh::renderer::validation_module::debug_callback2(
-    VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objectType, uint64_t object, size_t location,
-    int32_t messageCode, const char* pLayerPrefix, const char* pMessage, void* pUserData)
-{
-    //std::cout << pMessage << '\n';
-    return false;
-}
-
 auto lh::renderer::physical_extension_module::required_extensions() -> vk_string
 {
     return m_required_extensions;
@@ -866,29 +809,17 @@ auto lh::renderer::physical_extension_module::assert_required_extensions() -> bo
     const auto supported_extensions = physical_extension_module::supported_extensions();
     const auto required_extensions = physical_extension_module::required_extensions();
 
-    auto physical_extension_names = vk_string {};
-
-    std::ranges::for_each(supported_extensions.begin(), supported_extensions.end(),
-                          [&physical_extension_names](auto& ext)
-                          { physical_extension_names.push_back(ext.extensionName); });
-
-    auto extensions_found = uint32_t {0};
-
-    // cross check required and supported extensions
-    for (auto& required : required_extensions)
+    for (const auto& required : required_extensions)
     {
-        auto check = extensions_found;
-
-        for (const auto& supported : supported_extensions)
-            if (!strcmp(supported.extensionName, required))
-            {
-                extensions_found += 1;
-                break;
-            }
-
-        if (check == extensions_found)
-            output::error() << "this system does not support the required vulkan extension: " + std::string {required};
+        if (std::find_if(supported_extensions.begin(), supported_extensions.end(),
+                         [&required](const auto& supported)
+                         { return strcmp(required, supported.extensionName) == 0; }) == supported_extensions.end())
+        {
+            output::error() << "this system does not support the required vulkan physical extension: " +
+                                   std::string {required};
+            return false;
+        }
     }
 
-    return extensions_found == required_extensions.size();
+    return true;
 }
