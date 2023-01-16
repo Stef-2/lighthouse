@@ -19,7 +19,7 @@ namespace lh
         template <typename T>
         concept glm_convertible = requires(T x) {glm::detail::compute_to_string<T>::call(x);};
         template <typename T>
-        concept vkfw_convertible = requires(T x) { vkfw::to_string(x); };
+        concept vkfw_convertible = requires(T x) {vkfw::to_string(x);};
         template <typename T>
         concept std_constructible = requires(T x) {std::string(x);} || std::convertible_to<T, std::string>;
     }
