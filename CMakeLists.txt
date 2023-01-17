@@ -6,7 +6,7 @@ project("LightHouse")
 set(CMAKE_BUILD_TYPE RelWithDebInfo)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_EXTENSIONS ON)
 
 # Path
 cmake_path(SET source ${CMAKE_CURRENT_SOURCE_DIR}/src/lighthouse)
@@ -36,7 +36,7 @@ add_executable(
 	${source}/../vulkan/shaders.cpp
 	${source}/../vulkan/utils.cpp
 	${source}/../vulkan/math.cpp
-)
+ "src/memory.cpp")
 
 # Compiler options
 if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
@@ -77,6 +77,8 @@ add_compile_definitions(
 	# vulkan definitions
 	#VULKAN_HPP_NO_NODISCARD_WARNINGS
 	#VULKAN_HPP_NO_SPACESHIP_OPERATOR
+
+	NOMINMAX 
 )
 
 remove_definitions(

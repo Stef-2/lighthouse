@@ -72,7 +72,8 @@ auto lh::renderer::validation_module::assert_required_validation_layers() -> boo
                          [&required](const auto& supported)
                          { return strcmp(required, supported.layerName) == 0; }) == supported_layers.end())
         {
-            output::error() << "this system does not support the required vulkan validation layer: " + std::string {required};
+            output::error() << "this system does not support the required vulkan validation layer: " +
+                                   std::string {required};
             return false;
         }
     }
@@ -117,8 +118,7 @@ auto lh::renderer::logical_extension_module::required_extensions() -> vk_string
 }
 
 lh::renderer::validation_module::validation_module(vk::raii::Instance& instance)
-    : m_debug_messenger {
-          instance.createDebugUtilsMessengerEXT({{}, m_message_severity, m_message_type, &debug_callback})}
+    : m_debug_messenger {instance.createDebugUtilsMessengerEXT(m_debug_info)}
 {
 }
 
@@ -136,43 +136,31 @@ auto lh::renderer::create_instance(const window& window, const engine_version& e
                                    const vulkan_version& vulkan_version, bool use_validation_module)
     -> vk::raii::Instance
 {
-    auto app_info = vk::ApplicationInfo {};
-    auto instance_info = vk::InstanceCreateInfo {};
-    auto validation_module = true;
-
-    // configure application info
-    app_info.pApplicationName = window.get_title().data();
-    app_info.applicationVersion = engine_version;
-    app_info.pEngineName = app_info.pApplicationName;
-    app_info.engineVersion = app_info.applicationVersion;
-    app_info.apiVersion =
-        VK_MAKE_API_VERSION(0, vulkan_version.m_major, vulkan_version.m_minor, vulkan_version.m_patch);
-
-    if (use_validation_module)
-        validation_module = m_validation_module->assert_required_validation_layers();
-
-    // make sure both extension and validation layers checks passed
-    if (!(m_logical_extensions.assert_required_extensions() && validation_module))
+    // make sure both logical extensions and validation layers checks passed
+    if (auto validation_module =
+            use_validation_module ? m_validation_module->assert_required_validation_layers() : true;
+        !(m_logical_extensions.assert_required_extensions() && validation_module))
     {
         output::fatal() << "this system does not support the required vulkan components";
     }
 
-    auto required_extensions = m_logical_extensions.required_extensions();
-    auto required_validation_layers =
-        use_validation_module ? m_validation_module->required_validation_layers() : vk_string {nullptr};
+    const auto required_extensions = m_logical_extensions.required_extensions();
+    const auto required_validation_layers =
+        use_validation_module ? m_validation_module->required_validation_layers() : vk_string {};
 
-    auto instance_debugger = vk::DebugUtilsMessengerCreateInfoEXT {{},
-                                                                   m_validation_module->m_message_severity,
-                                                                   m_validation_module->m_message_type,
-                                                                   &m_validation_module->debug_callback};
+    const auto instance_debugger = use_validation_module ? &m_validation_module->m_debug_info : nullptr;
 
-    // configure instance info
-    instance_info.pApplicationInfo = &app_info;
-    instance_info.pNext = use_validation_module ? &instance_debugger : nullptr;
-    instance_info.enabledExtensionCount = required_extensions.size();
-    instance_info.ppEnabledExtensionNames = required_extensions.data();
-    instance_info.enabledLayerCount = use_validation_module ? required_validation_layers.size() : 0;
-    instance_info.ppEnabledLayerNames = use_validation_module ? required_validation_layers.data() : nullptr;
+    const auto app_info = vk::ApplicationInfo {
+        window.get_title().data(), engine_version, window.get_title().data(), engine_version,
+        VK_MAKE_API_VERSION(0, vulkan_version.m_major, vulkan_version.m_minor, vulkan_version.m_patch)};
+
+    const auto instance_info = vk::InstanceCreateInfo {{},
+                                                 &app_info,
+                                                 static_cast<uint32_t>(required_validation_layers.size()),
+                                                 required_validation_layers.data(),
+                                                 static_cast<uint32_t>(required_extensions.size()),
+                                                 required_extensions.data(),
+                                                 instance_debugger};
 
     return {m_context, instance_info};
 }
@@ -227,6 +215,42 @@ auto lh::renderer::create_present_queue() -> vk::raii::Queue
 
 auto lh::renderer::create_physical_device() -> vk::raii::PhysicalDevice
 {
+    const auto physical_devices = m_instance.enumeratePhysicalDevices();
+
+    if (physical_devices.empty())
+        output::fatal() << "this system does not support any vulkan capable devices";
+
+    for (const auto& physical_device : physical_devices)
+    {
+        const auto properties = physical_device.getProperties2();
+        const auto memory = physical_device.getMemoryProperties2<vk::PhysicalDeviceMemoryProperties2, vk::PhysicalDeviceMemoryBudgetPropertiesEXT>();
+        const auto features = physical_device.getFeatures2();
+        
+        auto memory_total = vk::DeviceSize {};
+        auto memory_available = vk::DeviceSize {};
+        auto memory_usage = vk::DeviceSize {};
+
+        const auto [memory_properties, memory_budget] = memory.get<vk::PhysicalDeviceMemoryProperties2, vk::PhysicalDeviceMemoryBudgetPropertiesEXT>();
+
+        std::for_each(memory_properties.memoryProperties.memoryHeaps.begin(),
+                memory_properties.memoryProperties.memoryHeaps.end(), [&memory_total](const auto& heap){memory_total += heap.flags == vk::MemoryHeapFlagBits::eDeviceLocal ? heap.size : 0;});
+
+        std::for_each(memory_budget.heapBudget.begin(), memory_budget.heapBudget.end(),
+                      [&memory_available](const auto& heap)
+                      { memory_available += heap; });
+
+        std::for_each(memory_budget.heapUsage.begin(), memory_budget.heapUsage.end(),
+                      [&memory_usage](const auto& heap) { memory_usage += heap; });
+        std::cout << "\nram: " << lh::memory::get_available_memory() << '\n';
+        if (m_validation_module.has_value())
+        {
+            output::log() << "found the following vulkan capable devices: " << properties.properties.deviceName.data();
+            output::log() << "with: " + std::to_string(double(memory_total) / 1e+9) + " gygabites of total memory";
+            output::log() << "available: " + std::to_string(double(memory_available) / 1e+9) +
+                                 " used: " + std::to_string(double(memory_usage) / 1e+9);
+        }
+    }
+
     return vk::raii::PhysicalDevices(m_instance).front();
 }
 

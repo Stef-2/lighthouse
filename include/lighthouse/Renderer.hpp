@@ -3,17 +3,18 @@
 #include "SPIRV/GlslangToSpv.h"
 #include "vkfw.hpp"
 #include "vulkan.hpp"
-#include "vulkan/vulkan_to_string.hpp"
 #include "vulkan/utils/geometries.hpp"
 #include "vulkan/utils/math.hpp"
 #include "vulkan/utils/raii/raii_shaders.hpp"
 #include "vulkan/utils/raii/raii_utils.hpp"
+#include "vulkan/vulkan_to_string.hpp"
 #include "vulkan_raii.hpp"
 
 #include "datatype.hpp"
 #include "output.hpp"
 #include "version.hpp"
 #include "window.hpp"
+#include "memory.hpp"
 
 #include <iterator>
 #include <vector>
@@ -47,26 +48,21 @@ namespace lh
 
             vk::raii::DebugUtilsMessengerEXT m_debug_messenger;
 
-            static inline vk::DebugUtilsMessageSeverityFlagsEXT m_message_severity {
-                vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
-                 vk::DebugUtilsMessageSeverityFlagBitsEXT::eError};
+            static inline vk::DebugUtilsMessengerCreateInfoEXT m_debug_info {
+                {},
+                {vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError},
+                {vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance |
+                 vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation},
+                &debug_callback};
 
-            static inline vk::DebugUtilsMessageTypeFlagsEXT m_message_type
-            {
-                vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance |
-                    vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation
-            };
-
-            static inline vk_string m_required_validation_layers {"VK_LAYER_KHRONOS_validation",
-                                                                  "VK_LAYER_NV_optimus",
-                                                                  //"VK_LAYER_NV_GPU_Trace_release_public_2021_4_0",
-                                                                  //"VK_LAYER_VALVE_steam_fossilize",
-                                                                  //"VK_LAYER_LUNARG_api_dump",
-                                                                  //"VK_LAYER_LUNARG_gfxreconstruct",
-                                                                  "VK_LAYER_KHRONOS_synchronization2",
-                                                                  "VK_LAYER_LUNARG_monitor",
-                                                                  "VK_LAYER_LUNARG_screenshot",
-                                                                  "VK_LAYER_KHRONOS_profiles"};
+            static inline vk_string m_required_validation_layers {
+                "VK_LAYER_KHRONOS_validation", "VK_LAYER_NV_optimus",
+                //"VK_LAYER_NV_GPU_Trace_release_public_2021_4_0",
+                //"VK_LAYER_VALVE_steam_fossilize",
+                //"VK_LAYER_LUNARG_api_dump",
+                //"VK_LAYER_LUNARG_gfxreconstruct",
+                "VK_LAYER_KHRONOS_synchronization2", "VK_LAYER_LUNARG_monitor", "VK_LAYER_LUNARG_screenshot",
+                "VK_LAYER_KHRONOS_profiles"};
         };
 
         // instance level vulkan extensions
