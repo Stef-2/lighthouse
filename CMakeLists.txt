@@ -36,7 +36,9 @@ add_executable(
 	${source}/../vulkan/shaders.cpp
 	${source}/../vulkan/utils.cpp
 	${source}/../vulkan/math.cpp
- "src/memory.cpp")
+	${source}/system.cpp
+	${source}/memory.cpp
+)
 
 # Compiler options
 if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)

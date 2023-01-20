@@ -241,7 +241,7 @@ auto lh::renderer::create_physical_device() -> vk::raii::PhysicalDevice
 
         std::for_each(memory_budget.heapUsage.begin(), memory_budget.heapUsage.end(),
                       [&memory_usage](const auto& heap) { memory_usage += heap; });
-        std::cout << "\nram: " << lh::memory::get_available_memory() << '\n';
+        std::cout << "\nram: " << lh::memory::system_memory<memory::gigabytes>().m_available_memory << '\n';
         if (m_validation_module.has_value())
         {
             output::log() << "found the following vulkan capable devices: " << properties.properties.deviceName.data();
