@@ -38,6 +38,7 @@ add_executable(
 	${source}/../vulkan/math.cpp
 	${source}/system.cpp
 	${source}/memory.cpp
+	${source}/../vulkan/vma_implementation.cpp
 )
 
 # Compiler options

@@ -7,15 +7,15 @@ auto lh::operator"" _b(uint64_t value) -> uint64_t
 
 auto lh::operator"" _kb(uint64_t value) -> uint64_t
 {
-    return value * std::to_underlying(lh::memory::memory_unit::kilobyte);
+    return value * std::to_underlying(lh::memory::e_memory_unit::kilobyte);
 }
 
 auto lh::operator"" _mb(uint64_t value) -> uint64_t
 {
-    return value * std::to_underlying(lh::memory::memory_unit::megabyte);
+    return value * std::to_underlying(lh::memory::e_memory_unit::megabyte);
 }
 
 auto lh::operator"" _gb(uint64_t value) -> uint64_t
 {
-    return value * std::to_underlying(lh::memory::memory_unit::gigabyte);
+    return value * std::to_underlying(lh::memory::e_memory_unit::gigabyte);
 }
