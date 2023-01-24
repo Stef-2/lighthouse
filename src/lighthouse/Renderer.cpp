@@ -12,7 +12,7 @@ lh::renderer::renderer(const window& window, const engine_version& engine_versio
 	  // m_surface_data {create_surface_data(window)},
 	  m_extent {create_extent(window)},
 	  m_surface {create_surface(window)},
-	  m_graphics_and_present_queue_indices {create_graphics_family_queue_indices()},
+	  m_queue_families {create_queue_families()},
 	  // m_physical_extensions {m_physical_device},
 	  m_device {create_device()},
 	  m_command_pool {create_command_pool()},
@@ -165,11 +165,8 @@ auto lh::renderer::create_instance(const window& window, const engine_version& e
   return {m_context, instance_info};
 }
 
-auto lh::renderer::create_device() -> vk::raii::Device
+auto lh::renderer::create_device(const vk::PhysicalDeviceFeatures2& features) -> vk::raii::Device
 {
-  const auto features_1 = vk::raii::PhysicalDevice(m_physical_device).getFeatures();
-  const auto features_2 = vk::raii::PhysicalDevice(m_physical_device).getFeatures2();
-
   // physical extensions
   const auto required_extensions = m_physical_device.required_extensions();
 
@@ -179,14 +176,14 @@ auto lh::renderer::create_device() -> vk::raii::Device
   const auto queue_priority = 0.0f;
 
   auto device_queue_info = vk::DeviceQueueCreateInfo {};
-  device_queue_info.queueFamilyIndex = m_graphics_and_present_queue_indices.first;
+  device_queue_info.queueFamilyIndex = m_queue_families.m_graphics;
   device_queue_info.queueCount = 1;
   device_queue_info.pQueuePriorities = &queue_priority;
 
   auto device_info = vk::DeviceCreateInfo {};
   device_info.queueCreateInfoCount = 1;
   device_info.pQueueCreateInfos = &device_queue_info;
-  device_info.pEnabledFeatures = &features_1;
+  device_info.pEnabledFeatures = &features.features;
   device_info.enabledExtensionCount = required_extensions.size();
   device_info.ppEnabledExtensionNames = required_extensions.data();
 
@@ -199,26 +196,29 @@ auto lh::renderer::create_command_pool() -> vk::raii::CommandPool
   /*auto command_pool_info = vk::CommandPoolCreateInfo {};
   command_pool_info.queueFamilyIndex = m_graphics_family_queue_indices.first;
   */
-  return {m_device, {vk::CommandPoolCreateFlagBits::eResetCommandBuffer, m_graphics_and_present_queue_indices.first}};
+  return {m_device, {vk::CommandPoolCreateFlagBits::eResetCommandBuffer, m_queue_families.m_graphics}};
 }
 
 auto lh::renderer::create_graphics_queue() -> vk::raii::Queue
 {
-  return {m_device, m_graphics_and_present_queue_indices.first, 0};
+  return {m_device, m_queue_families.m_graphics, 0};
 }
 
 auto lh::renderer::create_present_queue() -> vk::raii::Queue
 {
-  return {m_device, m_graphics_and_present_queue_indices.second, 0};
+  return {m_device, m_queue_families.m_present, 0};
 }
 
 auto lh::renderer::create_physical_device() -> physical_device
 {
+  // enumerate all vulkan capable physical devices
   auto physical_devices = m_instance.enumeratePhysicalDevices();
 
+  // assert that there are any vulkan capable devices
   if (physical_devices.empty())
 	output::fatal() << "this system does not support any vulkan capable devices";
 
+  // sort them according to their performance score
   std::ranges::sort(physical_devices,
 					[](const auto& x, const auto& y) {
 					  return physical_device {x}.get_performance_score() < physical_device {y}.get_performance_score();
@@ -259,12 +259,32 @@ auto lh::renderer::create_extent(const window& window) -> vk::Extent2D
   return {window.get_resolution().width, window.get_resolution().height};
 }
 
-auto lh::renderer::create_surface_data(const window& window) -> vk::raii::su::SurfaceData
+auto lh::renderer::create_queue_families() -> queue_families
 {
-  auto surface = vk::raii::su::SurfaceData {
-	m_instance, window.get_title().data(), {window.get_resolution().width, window.get_resolution().height}};
+  const auto queue_family_properties = vk::raii::PhysicalDevice(m_physical_device).getQueueFamilyProperties2();
+  auto queue_families = renderer::queue_families {};
+  auto counter = queue_families::index_t {};
 
-  return surface;
+  for (const auto& queue_family_property : queue_family_properties)
+  {
+	if (queue_family_property.queueFamilyProperties.queueFlags & vk::QueueFlagBits::eGraphics)
+	  queue_families.m_graphics = counter;
+	if (queue_family_property.queueFamilyProperties.queueFlags & vk::QueueFlagBits::eCompute)
+	  queue_families.m_compute = counter;
+	if (queue_family_property.queueFamilyProperties.queueFlags & vk::QueueFlagBits::eTransfer)
+	  queue_families.m_transfer = counter;
+
+	counter++;
+  }
+
+  for (queue_families::index_t i {}; i < std::numeric_limits<queue_families::index_t>::max(); i++)
+	if (vk::raii::PhysicalDevice(m_physical_device).getSurfaceSupportKHR(0, *m_surface))
+	{
+	  queue_families.m_present = i;
+	  break;
+	}
+
+  return queue_families;
 }
 
 auto lh::renderer::create_swapchain(const window& window) -> vk::raii::SwapchainKHR
@@ -333,11 +353,6 @@ auto lh::renderer::create_swapchain(const window& window) -> vk::raii::Swapchain
   return swapchain;
 }
 
-auto lh::renderer::create_graphics_family_queue_indices() -> std::pair<uint32_t, uint32_t>
-{
-  return vk::raii::su::findGraphicsAndPresentQueueFamilyIndex(m_physical_device, m_surface);
-}
-
 auto lh::renderer::create_swapchain_data(const window& window) -> vk::raii::su::SwapChainData
 { /*
 	 return {m_physical_device,
@@ -355,8 +370,8 @@ auto lh::renderer::create_swapchain_data(const window& window) -> vk::raii::su::
 		  m_extent,
 		  vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferSrc,
 		  {},
-		  m_graphics_and_present_queue_indices.first,
-		  m_graphics_and_present_queue_indices.second};
+		  m_queue_families.m_graphics,
+		  m_queue_families.m_present};
 }
 
 auto lh::renderer::create_image_views() -> std::vector<vk::raii::ImageView>
@@ -730,8 +745,8 @@ auto lh::renderer::render() -> void
   uint32_t imageIndex;
   std::tie(result, imageIndex) = m_swapchain_data.swapChain.acquireNextImage(vk::su::FenceTimeout,
 																			 *imageAcquiredSemaphore);
-  assert(result == vk::Result::eSuccess);
-  assert(imageIndex < swapChainData.images.size());
+  // assert(result == vk::Result::eSuccess);
+  // assert(imageIndex < swapChainData.images.size());
 
   m_command_buffer.begin({});
 

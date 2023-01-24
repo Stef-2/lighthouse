@@ -2,6 +2,7 @@
 
 #include "mat4x4.hpp"
 
+#include <functional>
 #include <vector>
 
 namespace lh

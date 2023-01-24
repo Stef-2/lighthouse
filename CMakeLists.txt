@@ -46,7 +46,7 @@ if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
   target_compile_options(
 	  ${PROJECT_NAME} PRIVATE
 	  # MSVC standard compiler settings
-	  /GL /O2 /Oi /Ob3 /W4 /MP /Zf /openmp:experimental /Qpar /Qpar-report:1 /fp:fast /arch:AVX2 /showIncludes
+	  /GL /O3 /Oi /Ob3 /W4 /MP /Zf /openmp:experimental /Qpar /Qpar-report:1 /fp:fast /arch:AVX2 /showIncludes
 	  # MSVC disable common annoying warnings
 	  /wd4005 /wd4068 /wd4244 /wd4267 /wd4800
 )
@@ -100,7 +100,7 @@ include_directories(
 	${include}/vkfw
 	${include}/glslang
 )
-
+#[[
 # Precompiled headers
 target_precompile_headers(
 	${PROJECT_NAME} PUBLIC
@@ -108,7 +108,7 @@ target_precompile_headers(
 	${include}/vulkan/vulkan.hpp
 	${include}/vulkan/vulkan_raii.hpp
 )
-
+]]
 # Libraries
 target_link_directories(
 	${PROJECT_NAME}

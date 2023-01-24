@@ -1,6 +1,7 @@
 #pragma once
 
 #include "vkfw.hpp"
+#include "vulkan.hpp"
 
 #include "output.hpp"
 

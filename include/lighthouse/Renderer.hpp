@@ -100,6 +100,17 @@ namespace lh
 	  static inline constexpr performance_score m_minimum_accepted_score {0xFFFFFFFF};
 	};
 
+	// vulkan queue family indices
+	struct queue_families
+	{
+		using index_t = uint32_t;
+
+		index_t m_graphics;
+		index_t m_present;
+		index_t m_compute;
+		index_t m_transfer;
+	};
+
 	// vulkan memory allocator module
 	struct memory_allocator_module
 	{
@@ -120,9 +131,8 @@ namespace lh
 	auto create_physical_device() -> physical_device;
 	auto create_surface(const window&) -> vk::raii::SurfaceKHR;
 	auto create_extent(const window&) -> vk::Extent2D;
-	auto create_surface_data(const window&) -> vk::raii::su::SurfaceData;
-	auto create_graphics_family_queue_indices() -> std::pair<uint32_t, uint32_t>;
-	auto create_device() -> vk::raii::Device;
+	auto create_queue_families() -> queue_families;
+	auto create_device(const vk::PhysicalDeviceFeatures2& = {}) -> vk::raii::Device;
 	auto create_command_pool() -> vk::raii::CommandPool;
 	auto create_command_buffer() -> vk::raii::CommandBuffer;
 	auto create_graphics_queue() -> vk::raii::Queue;
@@ -159,7 +169,7 @@ namespace lh
 	// vk::raii::su::SurfaceData m_surface_data;
 	vk::raii::SurfaceKHR m_surface;
 	vk::Extent2D m_extent;
-	std::pair<uint32_t, uint32_t> m_graphics_and_present_queue_indices;
+	queue_families m_queue_families;
 	vk::raii::Device m_device;
 	vk::raii::CommandPool m_command_pool;
 	vk::raii::CommandBuffer m_command_buffer;
