@@ -1,21 +1,43 @@
 #include "memory.hpp"
 
-auto lh::operator"" _b(uint64_t value) -> uint64_t
+auto lh::memory::physical_device_memory(const vk::raii::PhysicalDevice& physical_device)
+  -> memory::physical_device_memory_info
 {
-    return value;
-}
+	const auto memory = physical_device.getMemoryProperties2<vk::PhysicalDeviceMemoryProperties2,
+															 vk::PhysicalDeviceMemoryBudgetPropertiesEXT>();
+	const auto [memory_properties, memory_budget] =
+	  memory.get<vk::PhysicalDeviceMemoryProperties2, vk::PhysicalDeviceMemoryBudgetPropertiesEXT>();
 
-auto lh::operator"" _kb(uint64_t value) -> uint64_t
-{
-    return value * std::to_underlying(lh::memory::e_memory_unit::kilobyte);
-}
+	auto device_total = vk::DeviceSize {};
+	auto device_available = vk::DeviceSize {};
+	auto device_used = vk::DeviceSize {};
 
-auto lh::operator"" _mb(uint64_t value) -> uint64_t
-{
-    return value * std::to_underlying(lh::memory::e_memory_unit::megabyte);
-}
+	auto shared_total = vk::DeviceSize {};
+	auto shared_available = vk::DeviceSize {};
+	auto shared_used = vk::DeviceSize {};
 
-auto lh::operator"" _gb(uint64_t value) -> uint64_t
-{
-    return value * std::to_underlying(lh::memory::e_memory_unit::gigabyte);
+	auto heap_count = memory_properties.memoryProperties.memoryHeapCount;
+
+	for (decltype(heap_count) i {}; i < heap_count; i++)
+	{
+	  if (memory_properties.memoryProperties.memoryHeaps[i].flags == vk::MemoryHeapFlagBits::eDeviceLocal)
+	  {
+		device_total += memory_properties.memoryProperties.memoryHeaps[i].size;
+		device_available += memory_budget.heapBudget[i];
+	  }
+	  else
+	  {
+		shared_total += memory_properties.memoryProperties.memoryHeaps[i].size;
+		shared_available += memory_budget.heapBudget[i];
+	  }
+	}
+
+	device_used = device_total - device_available;
+	shared_used = shared_total - shared_available;
+
+	auto device_available_percentage = static_cast<double>(device_available) / static_cast<double>(device_total);
+	auto shared_available_percentage = static_cast<double>(shared_available) / static_cast<double>(shared_total);
+
+	return {device_total, device_available, device_used, device_available_percentage,
+			shared_total, shared_available, shared_used, shared_available_percentage};
 }

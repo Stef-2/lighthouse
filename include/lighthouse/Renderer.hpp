@@ -21,20 +21,24 @@
 #include <ranges>
 #include <vector>
 
-namespace lh {
-  class renderer {
-public:
+namespace lh
+{
+  class renderer
+  {
+  public:
 	using vk_string = const std::vector<const char*>;
-	using physical_device_grade = uint64_t;
 
 	renderer(const window&, const engine_version& = engine_version::m_default,
 			 const vulkan_version& = vulkan_version::m_default, bool use_validaiton_module = true);
 
 	auto render() -> void;
 
-private:
+	// ===========================================================================
+
+  private:
 	// optional module used for vulkan debugging
-	struct validation_module {
+	struct validation_module
+	{
 	  validation_module(vk::raii::Instance&);
 
 	  auto required_validation_layers() -> vk_string;
@@ -66,7 +70,8 @@ private:
 	};
 
 	// instance level vulkan extensions
-	struct logical_extension_module {
+	struct logical_extension_module
+	{
 	  auto required_extensions() -> vk_string;
 	  auto supported_extensions() -> std::vector<vk::ExtensionProperties>;
 	  auto assert_required_extensions() -> bool;
@@ -75,18 +80,29 @@ private:
 													 "VK_KHR_get_physical_device_properties2"};
 	};
 
-	// physical device level vulkan extensions
-	struct physical_extension_module {
+	struct physical_device
+	{
+	  using performance_score = uint64_t;
+	  physical_device(const vk::raii::PhysicalDevice&);
+
 	  auto required_extensions() -> vk_string;
 	  auto supported_extensions() -> std::vector<vk::ExtensionProperties>;
 	  auto assert_required_extensions() -> bool;
+	  auto get_performance_score() const -> performance_score;
+	  auto get_basic_info() -> std::string;
 
-	  vk::raii::PhysicalDevice& m_device;
-	  static inline vk_string m_required_extensions {"VK_KHR_swapchain", "VK_EXT_memory_budget"};
+	  operator vk::raii::PhysicalDevice&();
+	  auto operator*() -> vk::PhysicalDevice;
+
+	  vk::raii::PhysicalDevice m_device;
+
+	  static inline const vk_string m_required_extensions {"VK_KHR_swapchain", "VK_EXT_memory_budget"};
+	  static inline constexpr performance_score m_minimum_accepted_score {0xFFFFFFFF};
 	};
 
 	// vulkan memory allocator module
-	struct memory_allocator_module {
+	struct memory_allocator_module
+	{
 	  memory_allocator_module(const vk::PhysicalDevice&, const vk::Device&, const vk::Instance&,
 							  const engine_version& = engine_version::m_default);
 	  ~memory_allocator_module();
@@ -101,7 +117,7 @@ private:
 						 const vulkan_version& = vulkan_version::m_default, bool use_validaiton_module = true)
 	  -> vk::raii::Instance;
 
-	auto create_physical_device() -> vk::raii::PhysicalDevice;
+	auto create_physical_device() -> physical_device;
 	auto create_surface(const window&) -> vk::raii::SurfaceKHR;
 	auto create_extent(const window&) -> vk::Extent2D;
 	auto create_surface_data(const window&) -> vk::raii::su::SurfaceData;
@@ -130,18 +146,16 @@ private:
 	auto create_image_views() -> std::vector<vk::raii::ImageView>;
 
 	auto create_buffer(const data_t&, const vk::BufferUsageFlagBits&) -> vk::raii::Buffer;
-	auto get_memory_status(const vk::raii::PhysicalDevice&) -> memory::physical_device_memory_info;
-	auto grade_physical_device(const vk::raii::PhysicalDevice&) -> physical_device_grade;
+
 
 	vulkan_version m_version;
 
 	logical_extension_module m_logical_extensions;
-	physical_extension_module m_physical_extensions;
 
 	vk::raii::Context m_context;
 	vk::raii::Instance m_instance;
 	std::optional<validation_module> m_validation_module = {std::nullopt};
-	vk::raii::PhysicalDevice m_physical_device;
+	physical_device m_physical_device;
 	// vk::raii::su::SurfaceData m_surface_data;
 	vk::raii::SurfaceKHR m_surface;
 	vk::Extent2D m_extent;

@@ -13,7 +13,7 @@ lh::renderer::renderer(const window& window, const engine_version& engine_versio
 	  m_extent {create_extent(window)},
 	  m_surface {create_surface(window)},
 	  m_graphics_and_present_queue_indices {create_graphics_family_queue_indices()},
-	  m_physical_extensions {m_physical_device},
+	  // m_physical_extensions {m_physical_device},
 	  m_device {create_device()},
 	  m_command_pool {create_command_pool()},
 	  m_graphics_queue {create_graphics_queue()},
@@ -167,14 +167,13 @@ auto lh::renderer::create_instance(const window& window, const engine_version& e
 
 auto lh::renderer::create_device() -> vk::raii::Device
 {
-  // vulkan features
-  const auto features_1 = m_physical_device.getFeatures();
-  const auto features_2 = m_physical_device.getFeatures2();
+  const auto features_1 = vk::raii::PhysicalDevice(m_physical_device).getFeatures();
+  const auto features_2 = vk::raii::PhysicalDevice(m_physical_device).getFeatures2();
 
   // physical extensions
-  const auto required_extensions = m_physical_extensions.required_extensions();
+  const auto required_extensions = m_physical_device.required_extensions();
 
-  if (!m_physical_extensions.assert_required_extensions())
+  if (!m_physical_device.assert_required_extensions())
 	output::fatal() << "this system does not support the required vulkan components";
 
   const auto queue_priority = 0.0f;
@@ -213,19 +212,24 @@ auto lh::renderer::create_present_queue() -> vk::raii::Queue
   return {m_device, m_graphics_and_present_queue_indices.second, 0};
 }
 
-auto lh::renderer::create_physical_device() -> vk::raii::PhysicalDevice
+auto lh::renderer::create_physical_device() -> physical_device
 {
-  const auto physical_devices = m_instance.enumeratePhysicalDevices();
+  auto physical_devices = m_instance.enumeratePhysicalDevices();
 
   if (physical_devices.empty())
 	output::fatal() << "this system does not support any vulkan capable devices";
 
-  for (const auto& physical_device : physical_devices)
-  {
-	auto grade = grade_physical_device(physical_device);
-  }
+  std::ranges::sort(physical_devices,
+					[](const auto& x, const auto& y) {
+					  return physical_device {x}.get_performance_score() < physical_device {y}.get_performance_score();
+					});
 
-  return vk::raii::PhysicalDevices(m_instance).front();
+  // assert that the device with the highest score is above the minimum score threshold
+  auto strongest_device = physical_device {physical_devices.front()};
+  if (strongest_device.get_performance_score() < strongest_device.m_minimum_accepted_score)
+	output::fatal() << "this system does not have any suitable vulkan devices";
+
+  return strongest_device;
 }
 
 auto lh::renderer::create_command_buffer() -> vk::raii::CommandBuffer
@@ -266,7 +270,7 @@ auto lh::renderer::create_surface_data(const window& window) -> vk::raii::su::Su
 auto lh::renderer::create_swapchain(const window& window) -> vk::raii::SwapchainKHR
 {
   // get the supported surface formats
-  auto formats = m_physical_device.getSurfaceFormatsKHR(*m_surface);
+  auto formats = vk::raii::PhysicalDevice(m_physical_device).getSurfaceFormatsKHR(*m_surface);
 
   if (formats.empty())
 	output::fatal() << "this system does not support the required vulkan components";
@@ -274,7 +278,7 @@ auto lh::renderer::create_swapchain(const window& window) -> vk::raii::Swapchain
   auto format = (formats.at(0).format == vk::Format::eUndefined) ? vk::Format::eB8G8R8A8Unorm : formats.at(0).format;
 
   // get the supported surface capabilities
-  auto surface_capabilities = m_physical_device.getSurfaceCapabilitiesKHR(*m_surface);
+  auto surface_capabilities = vk::raii::PhysicalDevice(m_physical_device).getSurfaceCapabilitiesKHR(*m_surface);
   auto swapchain_extent = vk::Extent2D {};
 
   // if the surface size is undefined, the size is set to the size of the images requested
@@ -345,7 +349,6 @@ auto lh::renderer::create_swapchain_data(const window& window) -> vk::raii::su::
 			 {},
 			 m_graphics_family_queue_indices.first,
 			 m_graphics_family_queue_indices.second};*/
-
   return {m_physical_device,
 		  m_device,
 		  m_surface,
@@ -380,7 +383,7 @@ auto lh::renderer::create_image_views() -> std::vector<vk::raii::ImageView>
 auto lh::renderer::create_depth_buffer(const window& window) -> vk::raii::ImageView
 {
   const auto depth_format = vk::Format::eD16Unorm;
-  auto format_properties = m_physical_device.getFormatProperties(depth_format);
+  auto format_properties = vk::raii::PhysicalDevice(m_physical_device).getFormatProperties(depth_format);
 
   auto tiling_mode = vk::ImageTiling {};
 
@@ -407,7 +410,7 @@ auto lh::renderer::create_depth_buffer(const window& window) -> vk::raii::ImageV
 
   auto image = vk::raii::Image {m_device, image_info};
 
-  auto memory_properties = m_physical_device.getMemoryProperties();
+  auto memory_properties = vk::raii::PhysicalDevice(m_physical_device).getMemoryProperties();
   auto memory_requirements = image.getMemoryRequirements();
 
   auto type_bits = memory_requirements.memoryTypeBits;
@@ -474,7 +477,7 @@ auto lh::renderer::create_pipeline_layout() -> vk::raii::PipelineLayout
 
 auto lh::renderer::create_format() -> vk::Format
 {
-  return vk::su::pickSurfaceFormat(m_physical_device.getSurfaceFormatsKHR(*m_surface)).format;
+  return vk::su::pickSurfaceFormat(vk::raii::PhysicalDevice(m_physical_device).getSurfaceFormatsKHR(*m_surface)).format;
 }
 
 auto lh::renderer::create_descriptor_set() -> vk::raii::DescriptorSet
@@ -545,7 +548,6 @@ auto lh::renderer::create_render_pass(const window& window) -> vk::raii::RenderP
 	 auto render_pass_info = vk::RenderPassCreateInfo({}, attachment_descriptions, subpass_description);
 
 	 return {m_device, render_pass_info};*/
-
   return vk::raii::su::makeRenderPass(m_device, m_format, m_depth_buffer_data.format);
 }
 
@@ -565,7 +567,6 @@ auto lh::renderer::create_shader_module(const vk::ShaderStageFlagBits& stage) ->
 	 glslang::FinalizeProcess();
 
 	 return shader_module;*/
-
   glslang::InitializeProcess();
 
   auto shader_code = (stage == vk::ShaderStageFlagBits::eVertex) ? vertexShaderText_PC_C : fragmentShaderText_C_C;
@@ -595,7 +596,6 @@ auto lh::renderer::create_framebuffers(const window& window) -> std::vector<vk::
 	 }
 
 	 return framebuffers;*/
-
   return vk::raii::su::makeFramebuffers(m_device, m_render_pass, m_swapchain_data.imageViews,
 										&m_depth_buffer_data.imageView, m_extent);
 }
@@ -635,7 +635,7 @@ auto lh::renderer::create_vertex_buffer() -> vk::raii::su::BufferData
 	  m_swapchain_data.swapChain.acquireNextImage(vk::su::FenceTimeout, *image_acquired_semaphore);
 
   auto clear_values = std::array<vk::ClearValue, 2> {vk::ClearColorValue(0.2f, 0.2f, 0.2f, 0.2f),
-													 vk::ClearDepthStencilValue(1.0f, 0)};
+												   vk::ClearDepthStencilValue(1.0f, 0)};
 
   m_command_buffer.begin({});
 
@@ -665,14 +665,13 @@ auto lh::renderer::create_descriptor_pool() -> vk::raii::DescriptorPool
 
 auto lh::renderer::create_buffer(const data_t& data, const vk::BufferUsageFlagBits& usage) -> vk::raii::Buffer
 {
-
   auto buffer_info = vk::BufferCreateInfo({}, data.size(), usage);
   auto buffer = vk::raii::Buffer(m_device, buffer_info);
 
   auto memory_requirements = buffer.getMemoryRequirements();
-  auto type_index = vk::su::findMemoryType(m_physical_device.getMemoryProperties(), memory_requirements.memoryTypeBits,
-										   vk::MemoryPropertyFlagBits::eHostVisible |
-											 vk::MemoryPropertyFlagBits::eHostCoherent);
+  auto type_index = vk::su::findMemoryType(
+	vk::raii::PhysicalDevice(m_physical_device).getMemoryProperties(), memory_requirements.memoryTypeBits,
+	vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
 
   auto memory_info = vk::MemoryAllocateInfo(memory_requirements.size, type_index);
   auto buffer_memory = vk::raii::DeviceMemory(m_device, memory_info);
@@ -684,124 +683,42 @@ auto lh::renderer::create_buffer(const data_t& data, const vk::BufferUsageFlagBi
   buffer.bindMemory(*buffer_memory, 0);
 }
 
-auto lh::renderer::get_memory_status(const vk::raii::PhysicalDevice& physical_device)
-  -> memory::physical_device_memory_info
+auto lh::renderer::physical_device::get_basic_info() -> std::string
 {
-  const auto memory = physical_device.getMemoryProperties2<vk::PhysicalDeviceMemoryProperties2,
-														   vk::PhysicalDeviceMemoryBudgetPropertiesEXT>();
-  const auto [memory_properties, memory_budget] =
-	memory.get<vk::PhysicalDeviceMemoryProperties2, vk::PhysicalDeviceMemoryBudgetPropertiesEXT>();
+  const auto properties = m_device.getProperties2();
+  const auto memory = memory::physical_device_memory(m_device);
+  const auto gigabyte = static_cast<double>(1_gb);
 
-  auto device_total = vk::DeviceSize {};
-  auto device_available = vk::DeviceSize {};
-  auto device_used = vk::DeviceSize {};
+  auto info = std::string {"found the following vulkan capable devices: "};
+  info += properties.properties.deviceName.data();
+  info += "\nwith: " + std::to_string(double(memory.m_device_total) / gigabyte) + " gygabites of total memory" +
+		  "available: " + std::to_string(double(memory.m_device_available) / gigabyte) +
+		  " used: " + std::to_string(double(memory.m_device_used) / gigabyte) + " " +
+		  std::to_string(memory.m_device_used_percentage) + " % free\n";
 
-  auto shared_total = vk::DeviceSize {};
-  auto shared_available = vk::DeviceSize {};
-  auto shared_used = vk::DeviceSize {};
-
-  auto heap_count = memory_properties.memoryProperties.memoryHeapCount;
-
-  for (decltype(heap_count) i {}; i < heap_count; i++)
-  {
-	if (memory_properties.memoryProperties.memoryHeaps[i].flags == vk::MemoryHeapFlagBits::eDeviceLocal)
-	{
-	  device_total += memory_properties.memoryProperties.memoryHeaps[i].size;
-	  device_available += memory_budget.heapBudget[i];
-	}
-	else
-	{
-	  shared_total += memory_properties.memoryProperties.memoryHeaps[i].size;
-	  shared_available += memory_budget.heapBudget[i];
-	}
-  }
-
-  device_used = device_total - device_available;
-  shared_used = shared_total - shared_available;
-
-  auto device_available_percentage = static_cast<double>(device_available) / static_cast<double>(device_total);
-  auto shared_available_percentage = static_cast<double>(shared_available) / static_cast<double>(shared_total);
-
-  return {device_total, device_available, device_used, device_available_percentage,
-		  shared_total, shared_available, shared_used, shared_available_percentage};
+  return info;
 }
 
-auto lh::renderer::grade_physical_device(const vk::raii::PhysicalDevice& physical_device) -> physical_device_grade
+auto lh::renderer::physical_device::operator*() -> vk::PhysicalDevice
 {
-  const auto properties = physical_device.getProperties2();
-  const auto memory = physical_device.getMemoryProperties2<vk::PhysicalDeviceMemoryProperties2,
-														   vk::PhysicalDeviceMemoryBudgetPropertiesEXT>();
-  const auto features = physical_device.getFeatures2();
-  const auto gb = 1'073'741'824;
-  auto memory_total = vk::DeviceSize {};
-  auto memory_available = vk::DeviceSize {};
-  auto memory_usage = vk::DeviceSize {};
-  auto test = vk::DeviceSize {};
+  return *m_device;
+}
 
-  const auto [memory_properties, memory_budget] =
-	memory.get<vk::PhysicalDeviceMemoryProperties2, vk::PhysicalDeviceMemoryBudgetPropertiesEXT>();
-  /*
-  std::ranges::for_each(memory_properties.memoryProperties.memoryHeaps, [&memory_total](const auto& heap)
-						{ memory_total += heap.flags == vk::MemoryHeapFlagBits::eDeviceLocal ? heap.size : 0; });
-						*/
-  // memory_properties.memoryProperties.memoryTypes[0].propertyFlags
-  /*
-  std::ranges::for_each(memory_properties.memoryProperties.memoryTypes, [&test](const auto& type)
-	{ test += type.propertyFlags == vk::MemoryPropertyFlagBits::eDeviceLocal ? memory_properties.memoryProperties.heaps
-  : 0; });*/
-  std::cout << "found " << memory_properties.memoryProperties.memoryHeapCount << " memory heaps and "
-			<< memory_properties.memoryProperties.memoryTypeCount << " memory types\n";
+auto lh::renderer::physical_device::get_performance_score() const -> performance_score
+{
+  const auto properties = m_device.getProperties2();
+  const auto features = m_device.getFeatures2();
 
-  for (const auto& heap : memory_properties.memoryProperties.memoryHeaps)
-	if (heap.flags == vk::MemoryHeapFlagBits::eDeviceLocal)
-	  std::cout << "\n mem prop size: " << double(heap.size) / gb;
+  const auto gigabyte = static_cast<double>(1_gb);
+  const auto memory = memory::physical_device_memory(m_device);
 
-  for (const auto& heap : memory_budget.heapBudget)
-	std::cout << "\n mem budget size: " << double(heap) / gb;
+  auto score = performance_score {};
 
-  std::cout << "\ntest ? : "
-			<< double(memory_properties.memoryProperties.memoryHeaps[0].size -
-					  memory_properties.memoryProperties.memoryHeaps[2].size) /
-				 gb
-			<< "\n";
-  for (uint32_t i = 0; i < memory_properties.memoryProperties.memoryTypes.size(); i++)
-  {
-	if (memory_properties.memoryProperties.memoryTypes[i].propertyFlags == vk::MemoryPropertyFlagBits::eProtected)
-	{
-	  test += memory_properties.memoryProperties
-				.memoryHeaps[memory_properties.memoryProperties.memoryTypes[i].heapIndex]
-				.size;
-	  if (memory_properties.memoryProperties.memoryHeaps[memory_properties.memoryProperties.memoryTypes[i].heapIndex]
-			.flags == vk::MemoryHeapFlagBits::eDeviceLocal)
-		std::cout << "found one !\n";
-	}
-  }
+  score += memory.m_device_total + memory.m_shared_total;
+  score += properties.properties.limits.maxImageDimension2D;
+  score += properties.properties.limits.maxFramebufferWidth * properties.properties.limits.maxFramebufferHeight;
 
-  std::ranges::for_each(memory_budget.heapBudget,
-						[&memory_available, &memory_total](const auto& heap)
-						{
-						  memory_available += heap;
-						  memory_total += heap;
-						});
-
-  std::ranges::for_each(memory_budget.heapUsage,
-						[&memory_usage, &memory_total](const auto& heap)
-						{
-						  memory_usage += heap;
-						  memory_total += heap;
-						});
-
-  if (m_validation_module.has_value())
-  {
-	output::log() << "found the following vulkan capable devices: " << properties.properties.deviceName.data();
-	output::log() << "with: " + std::to_string(double(memory_total) / gb) + " gygabites of total memory";
-	output::log() << "available: " + std::to_string(double(memory_available) / gb) +
-					   " used: " + std::to_string(double(memory_usage) / gb);
-	output::log() << "available ram: " +
-					   std::to_string(double(memory::system_memory<memory::bytes>().m_available / gb));
-	output::log() << "estimated total vram: " + std::to_string(double(test) / gb);
-	// std::to_string(double(memory::system_memory<memory::bytes>().m_total_memory - memory_total) / gb);
-  }
+  return score;
 }
 
 auto lh::renderer::render() -> void
@@ -919,20 +836,20 @@ VKAPI_ATTR auto VKAPI_CALL lh::renderer::validation_module::debug_callback(
   return false;
 }
 
-auto lh::renderer::physical_extension_module::required_extensions() -> vk_string
+auto lh::renderer::physical_device::required_extensions() -> vk_string
 {
   return m_required_extensions;
 }
 
-auto lh::renderer::physical_extension_module::supported_extensions() -> std::vector<vk::ExtensionProperties>
+auto lh::renderer::physical_device::supported_extensions() -> std::vector<vk::ExtensionProperties>
 {
   return m_device.enumerateDeviceExtensionProperties();
 }
 
-auto lh::renderer::physical_extension_module::assert_required_extensions() -> bool
+auto lh::renderer::physical_device::assert_required_extensions() -> bool
 {
-  const auto supported_extensions = physical_extension_module::supported_extensions();
-  const auto required_extensions = physical_extension_module::required_extensions();
+  const auto supported_extensions = physical_device::supported_extensions();
+  const auto required_extensions = physical_device::required_extensions();
 
   for (const auto& required : required_extensions)
   {
@@ -975,4 +892,13 @@ lh::renderer::memory_allocator_module::~memory_allocator_module()
 lh::renderer::memory_allocator_module::operator VmaAllocator&()
 {
   return m_allocator;
+}
+
+lh::renderer::physical_device::physical_device(const vk::raii::PhysicalDevice& device) : m_device(device)
+{
+}
+
+lh::renderer::physical_device::operator vk::raii::PhysicalDevice&()
+{
+  return m_device;
 }
