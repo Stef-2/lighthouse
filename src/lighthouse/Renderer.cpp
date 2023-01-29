@@ -20,6 +20,7 @@ lh::renderer::renderer(const window& window, const engine_version& engine_versio
 	  m_present_queue {create_present_queue()},
 	  m_command_buffer {create_command_buffer()},
 	  // m_swapchain {create_swapchain(window)},
+	  m_swapchain {create_swapchain(window)},
 	  m_swapchain_data {create_swapchain_data(window)},
 	  // m_image_views {create_image_views()},
 	  // m_depth_buffer {create_depth_buffer(window)},
@@ -175,17 +176,8 @@ auto lh::renderer::create_device(const vk::PhysicalDeviceFeatures2& features) ->
 
   const auto queue_priority = 0.0f;
 
-  auto device_queue_info = vk::DeviceQueueCreateInfo {};
-  device_queue_info.queueFamilyIndex = m_queue_families.m_graphics;
-  device_queue_info.queueCount = 1;
-  device_queue_info.pQueuePriorities = &queue_priority;
-
-  auto device_info = vk::DeviceCreateInfo {};
-  device_info.queueCreateInfoCount = 1;
-  device_info.pQueueCreateInfos = &device_queue_info;
-  device_info.pEnabledFeatures = &features.features;
-  device_info.enabledExtensionCount = required_extensions.size();
-  device_info.ppEnabledExtensionNames = required_extensions.data();
+  const auto device_queue_info = vk::DeviceQueueCreateInfo {{}, m_queue_families.m_graphics, 1, &queue_priority};
+  auto device_info = vk::DeviceCreateInfo {{}, device_queue_info, {}, required_extensions, &features.features};
 
   return {m_physical_device, device_info};
 }
@@ -196,6 +188,7 @@ auto lh::renderer::create_command_pool() -> vk::raii::CommandPool
   /*auto command_pool_info = vk::CommandPoolCreateInfo {};
   command_pool_info.queueFamilyIndex = m_graphics_family_queue_indices.first;
   */
+
   return {m_device, {vk::CommandPoolCreateFlagBits::eResetCommandBuffer, m_queue_families.m_graphics}};
 }
 
@@ -207,6 +200,39 @@ auto lh::renderer::create_graphics_queue() -> vk::raii::Queue
 auto lh::renderer::create_present_queue() -> vk::raii::Queue
 {
   return {m_device, m_queue_families.m_present, 0};
+}
+
+auto lh::renderer::create_swapchain(const window& window) -> swapchain
+{
+  const auto physical_device = vk::raii::PhysicalDevice {m_physical_device};
+
+  const auto capabilities = physical_device.getSurfaceCapabilities2KHR(*m_surface);
+  const auto formats = physical_device.getSurfaceFormats2KHR(*m_surface);
+  const auto present_modes = physical_device.getSurfacePresentModesKHR(*m_surface);
+  const auto extent = vk::Extent2D {window.get_resolution()};
+
+  auto format = swapchain::m_prefered_format;
+  auto present_mode = swapchain::m_prefered_present_mode;
+
+  // assert that the system supports any formats and present modes
+  if (formats.empty() || present_modes.empty())
+	output::fatal() << "this system does not meet the minimal vulkan requirements";
+
+  // attempt to acquire the prefered surface format, if unavailable, take the first one that is
+  if (std::ranges::find(formats, swapchain::m_prefered_format) == formats.end())
+  {
+	output::warning() << "this system does not support the desired vulkan surface format";
+	format = formats.front();
+  }
+
+  // attempt to acquire the prefered present mode, if unavailable, take the first one that is
+  if (std::ranges::find(present_modes, swapchain::m_prefered_present_mode) == present_modes.end())
+  {
+	output::warning() << "this system does not support the desired vulkan present mode";
+	present_mode = present_modes.front();
+  }
+
+
 }
 
 auto lh::renderer::create_physical_device() -> physical_device
@@ -234,16 +260,10 @@ auto lh::renderer::create_physical_device() -> physical_device
 
 auto lh::renderer::create_command_buffer() -> vk::raii::CommandBuffer
 {
-  /*
   // allocate a command_buffer from the command_pool
-  auto command_buffer_allocate_info = vk::CommandBufferAllocateInfo {};
-  command_buffer_allocate_info.commandPool = *m_command_pool;
-  command_buffer_allocate_info.level = vk::CommandBufferLevel::ePrimary;
-  command_buffer_allocate_info.commandBufferCount = 1;
-
-  return std::move(vk::raii::CommandBuffers(m_device, command_buffer_allocate_info).front());*/
-
-  return vk::raii::su::makeCommandBuffer(m_device, m_command_pool);
+  auto command_buffer_allocate_info = vk::CommandBufferAllocateInfo {*m_command_pool, vk::CommandBufferLevel::ePrimary,
+																	 1};
+  return std::move(vk::raii::CommandBuffers(m_device, command_buffer_allocate_info).front());
 }
 
 auto lh::renderer::create_surface(const window& window) -> vk::raii::SurfaceKHR
@@ -286,7 +306,7 @@ auto lh::renderer::create_queue_families() -> queue_families
 
   return queue_families;
 }
-
+/*
 auto lh::renderer::create_swapchain(const window& window) -> vk::raii::SwapchainKHR
 {
   // get the supported surface formats
@@ -352,7 +372,7 @@ auto lh::renderer::create_swapchain(const window& window) -> vk::raii::Swapchain
 
   return swapchain;
 }
-
+*/
 auto lh::renderer::create_swapchain_data(const window& window) -> vk::raii::su::SwapChainData
 { /*
 	 return {m_physical_device,

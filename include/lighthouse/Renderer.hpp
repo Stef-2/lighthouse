@@ -16,6 +16,7 @@
 #include "output.hpp"
 #include "version.hpp"
 #include "window.hpp"
+#include "vector_utility.hpp"
 
 #include <iterator>
 #include <ranges>
@@ -96,19 +97,35 @@ namespace lh
 
 	  vk::raii::PhysicalDevice m_device;
 
-	  static inline const vk_string m_required_extensions {"VK_KHR_swapchain", "VK_EXT_memory_budget"};
+	  static inline const vk_string m_required_extensions {"VK_KHR_swapchain", "VK_EXT_memory_budget",
+														   "VK_KHR_portability_subset"};
 	  static inline constexpr performance_score m_minimum_accepted_score {0xFFFFFFFF};
 	};
 
 	// vulkan queue family indices
 	struct queue_families
 	{
-		using index_t = uint32_t;
+	  using index_t = uint32_t;
 
-		index_t m_graphics;
-		index_t m_present;
-		index_t m_compute;
-		index_t m_transfer;
+	  index_t m_graphics;
+	  index_t m_present;
+	  index_t m_compute;
+	  index_t m_transfer;
+	};
+
+	struct swapchain
+	{
+	  swapchain(const window&);
+
+	  vk::SurfaceCapabilities2KHR m_surface_capabilities;
+	  vk::SurfaceFormat2KHR m_surface_format;
+	  vk::PresentModeKHR m_present_modes;
+	  vk::Extent2D m_extent;
+
+	  static inline const vk::SurfaceFormat2KHR m_prefered_format {
+		{vk::Format::eB8G8R8A8Srgb, vk::ColorSpaceKHR::eSrgbNonlinear}};
+
+	  static inline const vk::PresentModeKHR m_prefered_present_mode {vk::PresentModeKHR::eFifo};
 	};
 
 	// vulkan memory allocator module
@@ -137,7 +154,8 @@ namespace lh
 	auto create_command_buffer() -> vk::raii::CommandBuffer;
 	auto create_graphics_queue() -> vk::raii::Queue;
 	auto create_present_queue() -> vk::raii::Queue;
-	auto create_swapchain(const window&) -> vk::raii::SwapchainKHR;
+	// auto create_swapchain(const window&) -> vk::raii::SwapchainKHR;
+	auto create_swapchain(const window&) -> swapchain;
 	auto create_swapchain_data(const window&) -> vk::raii::su::SwapChainData;
 	auto create_depth_buffer(const window&) -> vk::raii::ImageView;
 	auto create_depth_buffer_data(const window&) -> vk::raii::su::DepthBufferData;
@@ -157,7 +175,6 @@ namespace lh
 
 	auto create_buffer(const data_t&, const vk::BufferUsageFlagBits&) -> vk::raii::Buffer;
 
-
 	vulkan_version m_version;
 
 	logical_extension_module m_logical_extensions;
@@ -176,6 +193,7 @@ namespace lh
 	vk::raii::Queue m_graphics_queue;
 	vk::raii::Queue m_present_queue;
 	// vk::raii::SwapchainKHR m_swapchain;
+	swapchain m_swapchain;
 	vk::raii::su::SwapChainData m_swapchain_data;
 	// vk::raii::ImageView m_depth_buffer;
 	vk::raii::su::DepthBufferData m_depth_buffer_data;
