@@ -78,7 +78,7 @@ namespace lh
 	  auto assert_required_extensions() -> bool;
 
 	  static inline vk_string m_required_extensions {"VK_EXT_debug_utils", "VK_EXT_debug_report",
-													 "VK_KHR_get_physical_device_properties2"};
+													 "VK_KHR_get_physical_device_properties2", "VK_KHR_get_surface_capabilities2"};
 	};
 
 	struct physical_device
@@ -115,17 +115,17 @@ namespace lh
 
 	struct swapchain
 	{
-	  swapchain(const window&);
-
 	  vk::SurfaceCapabilities2KHR m_surface_capabilities;
 	  vk::SurfaceFormat2KHR m_surface_format;
 	  vk::PresentModeKHR m_present_modes;
-	  vk::Extent2D m_extent;
+	  vk::Extent2D* m_extent;
+
+	  vk::raii::SwapchainKHR m_swapchain;
 
 	  static inline const vk::SurfaceFormat2KHR m_prefered_format {
 		{vk::Format::eB8G8R8A8Srgb, vk::ColorSpaceKHR::eSrgbNonlinear}};
-
 	  static inline const vk::PresentModeKHR m_prefered_present_mode {vk::PresentModeKHR::eFifo};
+	  static inline const uint32_t m_image_count {2};
 	};
 
 	// vulkan memory allocator module

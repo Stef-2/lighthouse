@@ -13,9 +13,9 @@ namespace lh
 	{
 		return std::ranges::find(vector, element) != vector.end();
 	}
-
+	/*
 	template<lh::string_concept T>
-	lh::output::buffer print(const std::vector<T>& vector)
+	lh::output::buffer print(const std::vector<lh::string_concept>& vector)
 	{
 		auto buffer = lh::output::buffer {};
 
@@ -25,5 +25,5 @@ namespace lh
 		}
 
 		return buffer;
-	}
+	}*/
 }

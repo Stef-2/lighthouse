@@ -213,6 +213,15 @@ auto lh::renderer::create_swapchain(const window& window) -> swapchain
 
   auto format = swapchain::m_prefered_format;
   auto present_mode = swapchain::m_prefered_present_mode;
+  auto extent = window.get_resolution();
+  auto image_count = swapchain::m_image_count;
+  auto image_usage = vk::ImageUsageFlagBits::eColorAttachment;
+  auto sharing_mode = vk::SharingMode::eExclusive;
+  auto transform = vk::SurfaceTransformFlagBitsKHR::eIdentity;
+  auto alpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
+  auto queue_family_indices =
+  { m_queue_families.m_graphics,
+	m_queue_families.m_present };
 
   // assert that the system supports any formats and present modes
   if (formats.empty() || present_modes.empty())
@@ -221,18 +230,40 @@ auto lh::renderer::create_swapchain(const window& window) -> swapchain
   // attempt to acquire the prefered surface format, if unavailable, take the first one that is
   if (std::ranges::find(formats, swapchain::m_prefered_format) == formats.end())
   {
-	output::warning() << "this system does not support the desired vulkan surface format";
+	output::warning() << "this system does not support the prefered vulkan surface format";
 	format = formats.front();
   }
 
-  // attempt to acquire the prefered present mode, if unavailable, take the first one that is
+  // attempt to acquire the prefered present mode, if unavailable, default to FIFO
   if (std::ranges::find(present_modes, swapchain::m_prefered_present_mode) == present_modes.end())
   {
-	output::warning() << "this system does not support the desired vulkan present mode";
-	present_mode = present_modes.front();
+	output::warning() << "this system does not support the prefered vulkan present mode";
+	present_mode = vk::PresentModeKHR::eFifo;
   }
 
+  // clamp the swapchain extent between the minimum and maximum supported by implementation
+  std::clamp(extent.width, capabilities.surfaceCapabilities.minImageExtent.width,
+			 capabilities.surfaceCapabilities.maxImageExtent.width);
+  std::clamp(extent.height, capabilities.surfaceCapabilities.minImageExtent.height,
+			 capabilities.surfaceCapabilities.maxImageExtent.height);
 
+  // clamp the prefered image count between the minimum and maximum supported by implementation
+  std::clamp(image_count, capabilities.surfaceCapabilities.minImageCount,
+			 capabilities.surfaceCapabilities.maxImageCount);
+
+  auto swapchain_info = vk::SwapchainCreateInfoKHR {{},
+													*m_surface,
+													image_count,
+													format.surfaceFormat.format,
+													format.surfaceFormat.colorSpace,
+													extent,
+													1,
+													image_usage,
+													sharing_mode,
+													queue_family_indices,
+													transform,
+													alpha,
+													present_mode};
 }
 
 auto lh::renderer::create_physical_device() -> physical_device

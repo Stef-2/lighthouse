@@ -33,7 +33,7 @@ auto lh::engine::initialize() -> void
                              });
 
     input::key_binding::bind({vkfw::Key::F1},
-                             [this]() { std::cout << output::log() << output::warning() << output::error() << '\n'; });
+                             [this]() { output::dump_logs(std::cout); });
 }
 
 auto lh::engine::poll_events() -> void

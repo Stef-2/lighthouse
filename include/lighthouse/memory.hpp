@@ -16,6 +16,7 @@
 #include "system.hpp"
 
 #include <iostream>
+#include <cstddef>
 
 namespace lh
 {
