@@ -17,10 +17,10 @@ namespace lh
 	class window
 	{
 	public:
-		using window_dimension = uint32_t;
-		using window_gamma = float;
-		using window_resolution = vk::Extent2D;
-		using window_position = std::pair<window_dimension, window_dimension>;
+		using window_dimension_t = uint32_t;
+		using window_gamma_t = float;
+		using window_resolution_t = vk::Extent2D;
+		using window_position_t = std::pair<window_dimension_t, window_dimension_t>;
 
 		// resolutions commonly used in video game engines
 		enum class common_resolutions
@@ -73,7 +73,7 @@ namespace lh
 			default_fullscreen	= res_1920x1200
 		};
 
-		static inline const std::map<common_resolutions, window_resolution> resolution =
+		static inline const std::map<common_resolutions, window_resolution_t> resolution =
 		{
 			{common_resolutions::res_320x200,	{320, 200}},
 			{common_resolutions::res_640x360,	{640, 360}},
@@ -99,7 +99,7 @@ namespace lh
 			{common_resolutions::res_3840x2160,	{3840, 2160}}
 		};
 
-		window(window_resolution res = resolution.at(common_resolutions::default_windowed), std::string_view name = defaultName, bool fullscreen = false,
+		window(window_resolution_t res = resolution.at(common_resolutions::default_windowed), std::string_view name = defaultName, bool fullscreen = false,
 			   vkfw::WindowHints& = const_cast<vkfw::WindowHints&>(default_hints));
 
 		// move constructible only
@@ -107,7 +107,7 @@ namespace lh
 		window(window&&) noexcept = default;
 
 		auto get_aspect_ratio() const -> double;
-		auto get_resolution() const -> window_resolution;
+		auto get_resolution() const -> window_resolution_t;
 		auto get_title() const -> std::string_view;
 		auto set_title(std::string_view) -> void;
 

@@ -46,7 +46,7 @@ if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
   target_compile_options(
 	  ${PROJECT_NAME} PRIVATE
 	  # MSVC standard compiler settings
-	  /GL /O3 /Oi /Ob3 /W4 /MP /Zf /openmp:experimental /Qpar /Qpar-report:1 /fp:fast /arch:AVX2 /showIncludes
+	  /std:c++latest /experimental /GL /O3 /Oi /Ob3 /W4 /MP /Zf /openmp:experimental /Qpar /Qpar-report:1 /fp:fast /arch:AVX2 /showIncludes
 	  # MSVC disable common annoying warnings
 	  /wd4005 /wd4068 /wd4244 /wd4267 /wd4800
 )
@@ -78,7 +78,7 @@ add_compile_definitions(
 	VKFW_NO_INCLUDE_VULKAN_HPP
 
 	# vulkan definitions
-	#VULKAN_HPP_NO_NODISCARD_WARNINGS
+	VULKAN_HPP_NO_NODISCARD_WARNINGS
 	#VULKAN_HPP_NO_SPACESHIP_OPERATOR
 
 	NOMINMAX 

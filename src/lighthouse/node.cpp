@@ -7,7 +7,7 @@ auto lh::node::get_world_node() -> lh::node&
     return world_node;
 }
 
-lh::node::node(node& parent, transformation transformation, destruction_mode destruction_mode)
+lh::node::node(node& parent, transformation_t transformation, destruction_mode destruction_mode)
     : m_parent(&parent), m_transformation(transformation), m_destruction_mode(destruction_mode), m_children {}
 {
     m_parent->add_child(*this);
@@ -111,12 +111,12 @@ auto lh::node::set_local_transformation(const transformation& transformation) ->
     m_transformation = transformation;
 }
 
-auto lh::node::get_local_transformation() const -> transformation
+auto lh::node::get_local_transformation() const -> transformation_t
 {
     return m_transformation;
 }
 
-auto lh::node::get_global_transformation() const -> transformation
+auto lh::node::get_global_transformation() const -> transformation_t
 {
     auto global_transformation = m_transformation;
     auto parent = m_parent;

@@ -23,17 +23,17 @@ namespace lh
 
   namespace memory
   {
-	using memory_size = uint64_t;
-	using decimal_representation = double;
-	using normalized_decimal = double;
+	using memory_size_t = uint64_t;
+	using decimal_t = double;
+	using normalized_decimal_t = double;
 
 	static inline constexpr auto order_multiplier = 1024u;
 
 	struct memory_unit_t
 	{
-	  memory_unit_t(memory_size value) : m_size(value) {};
-	  memory_size m_size;
-	  operator memory_size()
+	  memory_unit_t(memory_size_t value) : m_size(value) {};
+	  memory_size_t m_size;
+	  operator memory_size_t()
 	  {
 		return m_size;
 	  }
@@ -64,7 +64,7 @@ namespace lh
 	  using memory_unit_t::memory_unit_t;
 	};
 
-	enum class memory_sizes : memory_size
+	enum class memory_sizes : memory_size_t
 	{
 	  byte = sizeof(std::byte),
 	  kilobyte = byte * order_multiplier,
@@ -85,7 +85,7 @@ namespace lh
 	  unit m_available {0};
 	  unit m_used {0};
 
-	  normalized_decimal m_used_percentage {};
+	  normalized_decimal_t m_used_percentage {};
 	};
 
 	// gpu memory info
@@ -94,17 +94,17 @@ namespace lh
 	  vk::DeviceSize m_device_total {};
 	  vk::DeviceSize m_device_available {};
 	  vk::DeviceSize m_device_used {};
-	  normalized_decimal m_device_used_percentage {};
+	  normalized_decimal_t m_device_used_percentage {};
 
 	  vk::DeviceSize m_shared_total {};
 	  vk::DeviceSize m_shared_available {};
 	  vk::DeviceSize m_shared_used {};
-	  normalized_decimal m_shared_used_percentage {};
+	  normalized_decimal_t m_shared_used_percentage {};
 	};
 
 	template <memory_unit unit = gigabytes> auto system_memory()
 	{
-	  constexpr auto unit_divisor = memory_size {
+	  constexpr auto unit_divisor = memory_size_t {
 		std::same_as<unit, bytes>		? std::to_underlying(memory_sizes::byte)
 		: std::same_as<unit, kilobytes> ? std::to_underlying(memory_sizes::kilobyte)
 		: std::same_as<unit, megabytes> ? std::to_underlying(memory_sizes::megabyte)
@@ -121,8 +121,8 @@ namespace lh
 
 		memory = {status.ullTotalPhys / unit_divisor, status.ullAvailPhys / unit_divisor,
 				  (status.ullTotalPhys - status.ullAvailPhys) / unit_divisor,
-				  1.0 - static_cast<decimal_representation>(status.ullAvailPhys) /
-						  static_cast<decimal_representation>(status.ullTotalPhys)};
+				  1.0 - static_cast<decimal_t>(status.ullAvailPhys) /
+						  static_cast<decimal_t>(status.ullTotalPhys)};
 	  }
 	  else if constexpr (system::type == system::type::linux)
 	  {
@@ -141,23 +141,23 @@ namespace lh
   }
 
   // memory size literals
-  constexpr auto operator"" _b(memory::memory_size value) -> memory::memory_size
+  constexpr auto operator"" _b(memory::memory_size_t value) -> memory::memory_size_t
   {
 	return value * std::to_underlying(lh::memory::memory_sizes::byte);
   };
-  constexpr auto operator"" _kb(memory::memory_size value) -> memory::memory_size
+  constexpr auto operator"" _kb(memory::memory_size_t value) -> memory::memory_size_t
   {
 	return value * std::to_underlying(lh::memory::memory_sizes::kilobyte);
   };
-  constexpr auto operator"" _mb(memory::memory_size value) -> memory::memory_size
+  constexpr auto operator"" _mb(memory::memory_size_t value) -> memory::memory_size_t
   {
 	return value * std::to_underlying(lh::memory::memory_sizes::megabyte);
   };
-  constexpr auto operator"" _gb(memory::memory_size value) -> memory::memory_size
+  constexpr auto operator"" _gb(memory::memory_size_t value) -> memory::memory_size_t
   {
 	return value * std::to_underlying(lh::memory::memory_sizes::gigabyte);
   };
-  constexpr auto operator"" _tb(memory::memory_size value) -> memory::memory_size
+  constexpr auto operator"" _tb(memory::memory_size_t value) -> memory::memory_size_t
   {
 	return value * std::to_underlying(lh::memory::memory_sizes::terabyte);
   };

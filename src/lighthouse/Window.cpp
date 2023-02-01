@@ -1,6 +1,6 @@
 #include "window.hpp"
 
-lh::window::window(lh::window::window_resolution resolution, std::string_view name, bool fullscreen,
+lh::window::window(lh::window::window_resolution_t resolution, std::string_view name, bool fullscreen,
                    vkfw::WindowHints& hints)
     : m_title(name)
 {
@@ -26,11 +26,11 @@ lh::window::window(const window&& other) noexcept : window(const_cast<window&&>(
 {
 }
 
-auto lh::window::get_resolution() const -> window_resolution
+auto lh::window::get_resolution() const -> window_resolution_t
 {
     auto [width, height] {m_window.get().getFramebufferSize().value};
 
-    return window_resolution {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
+    return window_resolution_t {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
 }
 
 auto lh::window::get_aspect_ratio() const -> double

@@ -107,13 +107,13 @@ auto lh::renderer::validation_module::supported_validation_layers() -> std::vect
   return layers;
 }
 
-auto lh::renderer::logical_extension_module::required_extensions() -> vk_string
+auto lh::renderer::logical_extension_module::required_extensions() -> vk_string_t
 {
   // combine the extensions required by glfw with those specified in m_required_extensions
   auto num_extensions = uint32_t {0};
   auto glfw_extensions = vkfw::getRequiredInstanceExtensions(&num_extensions);
 
-  auto combined_extensions = vk_string {glfw_extensions, glfw_extensions + num_extensions};
+  auto combined_extensions = vk_string_t {glfw_extensions, glfw_extensions + num_extensions};
   combined_extensions.insert(combined_extensions.end(), m_required_extensions.begin(), m_required_extensions.end());
 
   return combined_extensions;
@@ -124,7 +124,7 @@ lh::renderer::validation_module::validation_module(vk::raii::Instance& instance)
 {
 }
 
-auto lh::renderer::validation_module::required_validation_layers() -> vk_string
+auto lh::renderer::validation_module::required_validation_layers() -> vk_string_t
 {
   return m_required_validation_layers;
 }
@@ -147,7 +147,7 @@ auto lh::renderer::create_instance(const window& window, const engine_version& e
 
   const auto required_extensions = m_logical_extensions.required_extensions();
   const auto required_validation_layers = use_validation_module ? m_validation_module->required_validation_layers()
-																: vk_string {};
+																: vk_string_t {};
 
   const auto instance_debugger = use_validation_module ? &m_validation_module->m_debug_info : nullptr;
 
@@ -209,16 +209,16 @@ auto lh::renderer::create_swapchain(const window& window) -> swapchain
   const auto capabilities = physical_device.getSurfaceCapabilities2KHR(*m_surface);
   const auto formats = physical_device.getSurfaceFormats2KHR(*m_surface);
   const auto present_modes = physical_device.getSurfacePresentModesKHR(*m_surface);
-  const auto extent = vk::Extent2D {window.get_resolution()};
 
-  auto format = swapchain::m_prefered_format;
-  auto present_mode = swapchain::m_prefered_present_mode;
   auto extent = window.get_resolution();
-  auto image_count = swapchain::m_image_count;
-  auto image_usage = vk::ImageUsageFlagBits::eColorAttachment;
-  auto sharing_mode = vk::SharingMode::eExclusive;
-  auto transform = vk::SurfaceTransformFlagBitsKHR::eIdentity;
-  auto alpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
+  auto format = swapchain::defaults::m_format;
+  auto present_mode = swapchain::defaults::m_present_mode;
+  auto image_count = swapchain::defaults::m_image_count;
+  auto image_usage = swapchain::defaults::m_image_usage;
+  auto sharing_mode = swapchain::defaults::m_sharing_mode;
+  auto transform = swapchain::defaults::m_transform;
+  auto alpha = swapchain::defaults::m_alpha;
+
   auto queue_family_indices =
   { m_queue_families.m_graphics,
 	m_queue_families.m_present };
@@ -228,27 +228,29 @@ auto lh::renderer::create_swapchain(const window& window) -> swapchain
 	output::fatal() << "this system does not meet the minimal vulkan requirements";
 
   // attempt to acquire the prefered surface format, if unavailable, take the first one that is
-  if (std::ranges::find(formats, swapchain::m_prefered_format) == formats.end())
+  if (!std::ranges::contains(formats, swapchain::defaults::m_format))
   {
 	output::warning() << "this system does not support the prefered vulkan surface format";
 	format = formats.front();
   }
 
   // attempt to acquire the prefered present mode, if unavailable, default to FIFO
-  if (std::ranges::find(present_modes, swapchain::m_prefered_present_mode) == present_modes.end())
+  if (!std::ranges::contains(present_modes, swapchain::defaults::m_present_mode))
   {
 	output::warning() << "this system does not support the prefered vulkan present mode";
 	present_mode = vk::PresentModeKHR::eFifo;
   }
 
+  std::cout << lh::to_string(present_modes);
+
   // clamp the swapchain extent between the minimum and maximum supported by implementation
-  std::clamp(extent.width, capabilities.surfaceCapabilities.minImageExtent.width,
+  extent.width = std::clamp(extent.width, capabilities.surfaceCapabilities.minImageExtent.width,
 			 capabilities.surfaceCapabilities.maxImageExtent.width);
-  std::clamp(extent.height, capabilities.surfaceCapabilities.minImageExtent.height,
+  extent.height = std::clamp(extent.height, capabilities.surfaceCapabilities.minImageExtent.height,
 			 capabilities.surfaceCapabilities.maxImageExtent.height);
 
   // clamp the prefered image count between the minimum and maximum supported by implementation
-  std::clamp(image_count, capabilities.surfaceCapabilities.minImageCount,
+  image_count = std::clamp(image_count, capabilities.surfaceCapabilities.minImageCount,
 			 capabilities.surfaceCapabilities.maxImageCount);
 
   auto swapchain_info = vk::SwapchainCreateInfoKHR {{},
@@ -264,6 +266,8 @@ auto lh::renderer::create_swapchain(const window& window) -> swapchain
 													transform,
 													alpha,
 													present_mode};
+
+  auto swapchain = vk::raii::SwapchainKHR {m_device, swapchain_info};
 }
 
 auto lh::renderer::create_physical_device() -> physical_device
@@ -753,7 +757,7 @@ auto lh::renderer::physical_device::get_basic_info() -> std::string
 {
   const auto properties = m_device.getProperties2();
   const auto memory = memory::physical_device_memory(m_device);
-  const auto gigabyte = static_cast<double>(1_gb);
+  constexpr auto gigabyte = static_cast<double>(1_gb);
 
   auto info = std::string {"found the following vulkan capable devices: "};
   info += properties.properties.deviceName.data();
@@ -770,15 +774,15 @@ auto lh::renderer::physical_device::operator*() -> vk::PhysicalDevice
   return *m_device;
 }
 
-auto lh::renderer::physical_device::get_performance_score() const -> performance_score
+auto lh::renderer::physical_device::get_performance_score() const -> performance_score_t
 {
   const auto properties = m_device.getProperties2();
   const auto features = m_device.getFeatures2();
 
-  const auto gigabyte = static_cast<double>(1_gb);
+  constexpr auto gigabyte = static_cast<double>(1_gb);
   const auto memory = memory::physical_device_memory(m_device);
 
-  auto score = performance_score {};
+  auto score = performance_score_t {};
 
   score += memory.m_device_total + memory.m_shared_total;
   score += properties.properties.limits.maxImageDimension2D;
@@ -902,7 +906,7 @@ VKAPI_ATTR auto VKAPI_CALL lh::renderer::validation_module::debug_callback(
   return false;
 }
 
-auto lh::renderer::physical_device::required_extensions() -> vk_string
+auto lh::renderer::physical_device::required_extensions() -> vk_string_t
 {
   return m_required_extensions;
 }

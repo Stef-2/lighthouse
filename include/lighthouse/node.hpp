@@ -11,7 +11,7 @@ namespace lh
     {
     public:
         // internal transformation type
-        using transformation = glm::mat4x4;
+        using transformation_t = glm::mat4x4;
 
         // mode that describes what happens to our relatives after we die
         enum class destruction_mode
@@ -23,7 +23,7 @@ namespace lh
         };
 
         node(node& parent = world_node,
-             transformation = transformation {1.0f},
+             transformation_t = transformation_t {1.0f},
              destruction_mode = destruction_mode::collapse);
         ~node();
 
@@ -42,9 +42,9 @@ namespace lh
 
         auto operator==(const node&) const -> bool;
 
-        auto set_local_transformation(const transformation&) -> void;
-        auto get_local_transformation() const -> transformation;
-        auto get_global_transformation() const -> transformation;
+        auto set_local_transformation(const transformation_t&) -> void;
+        auto get_local_transformation() const -> transformation_t;
+        auto get_global_transformation() const -> transformation_t;
 
     private:
         // remove ourselves from our current parents children list
@@ -54,7 +54,7 @@ namespace lh
         node* m_parent;
         std::vector<node*> m_children;
 
-        transformation m_transformation;
+        transformation_t m_transformation;
 
         destruction_mode m_destruction_mode;
 
