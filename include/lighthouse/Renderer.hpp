@@ -27,15 +27,36 @@ namespace lh
   {
   public:
 	using vk_string_t = const std::vector<const char*>;
+	using vk_layers_t = const std::vector<vk::LayerProperties>;
+	using vk_extensions_t = const std::vector<vk::ExtensionProperties>;
 
-	renderer(const window&, const engine_version& = engine_version::m_default,
-			 const vulkan_version& = vulkan_version::m_default, bool use_validaiton_module = true);
+	renderer(const window&,
+			 const engine_version& = engine_version::m_default,
+			 const vulkan_version& = vulkan_version::m_default,
+			 bool use_validaiton_module = true);
 
 	auto render() -> void;
 
 	// ===========================================================================
 
   private:
+	template <typename T> class vk_wrapper
+	{
+	public:
+	  auto operator*() -> T& { return m_object; }
+	  auto operator*() const -> T& { return m_object; }
+	  auto operator->() -> T& { return m_object; }
+	  auto operator->() const -> T& { return m_object; }
+	  operator T&() { return m_object; }
+
+	protected:
+	  mutable T m_object;
+	};
+
+	class instance : vk_wrapper<vk::raii::Instance>
+	{
+	};
+
 	// optional module used for vulkan debugging
 	struct validation_module
 	{
@@ -52,54 +73,89 @@ namespace lh
 
 	  vk::raii::DebugUtilsMessengerEXT m_debug_messenger;
 
-	  static inline vk::DebugUtilsMessengerCreateInfoEXT m_debug_info {
-		{},
-		{vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError},
-		{vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance |
-		 vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation},
-		&debug_callback};
+	  struct defaults
+	  {
+		static inline vk::DebugUtilsMessengerCreateInfoEXT m_debug_info {
+		  {},
+		  {vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError},
+		  {vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance |
+		   vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation},
+		  &debug_callback};
 
-	  static inline vk_string_t m_required_validation_layers {"VK_LAYER_KHRONOS_validation", "VK_LAYER_NV_optimus",
-															//"VK_LAYER_NV_GPU_Trace_release_public_2021_4_0",
-															//"VK_LAYER_VALVE_steam_fossilize",
-															//"VK_LAYER_LUNARG_api_dump",
-															//"VK_LAYER_LUNARG_gfxreconstruct",
-															"VK_LAYER_KHRONOS_synchronization2",
-															"VK_LAYER_LUNARG_monitor", "VK_LAYER_LUNARG_screenshot",
-															"VK_LAYER_KHRONOS_profiles"};
+		static inline const vk_string_t m_required_validation_layers {"VK_LAYER_KHRONOS_validation",
+																	  "VK_LAYER_NV_optimus",
+																	  //"VK_LAYER_NV_GPU_Trace_release_public_2021_4_0",
+																	  //"VK_LAYER_VALVE_steam_fossilize",
+																	  //"VK_LAYER_LUNARG_api_dump",
+																	  //"VK_LAYER_LUNARG_gfxreconstruct",
+																	  "VK_LAYER_KHRONOS_synchronization2",
+																	  "VK_LAYER_LUNARG_monitor",
+																	  "VK_LAYER_LUNARG_screenshot",
+																	  "VK_LAYER_KHRONOS_profiles"};
+	  };
 	};
 
 	// instance level vulkan extensions
 	struct logical_extension_module
 	{
 	  auto required_extensions() -> vk_string_t;
-	  auto supported_extensions() -> std::vector<vk::ExtensionProperties>;
+	  auto supported_extensions() -> vk_extensions_t;
 	  auto assert_required_extensions() -> bool;
 
-	  static inline vk_string_t m_required_extensions {"VK_EXT_debug_utils", "VK_EXT_debug_report",
-													 "VK_KHR_get_physical_device_properties2",
-													 "VK_KHR_get_surface_capabilities2"};
+	  struct defaults
+	  {
+		static inline const vk_string_t m_required_extensions {"VK_EXT_debug_utils",
+															   "VK_KHR_get_physical_device_properties2",
+															   "VK_KHR_get_surface_capabilities2"};
+	  };
 	};
 
-	struct physical_device
+	struct physical_device : public vk_wrapper<vk::raii::PhysicalDevice>
 	{
 	  using performance_score_t = uint64_t;
-	  physical_device(const vk::raii::PhysicalDevice&);
 
-	  auto required_extensions() -> vk_string_t;
-	  auto supported_extensions() -> std::vector<vk::ExtensionProperties>;
+	  physical_device(const vk::raii::Instance&);
+
+	  static auto get_performance_score(const vk::raii::PhysicalDevice&) -> performance_score_t;
+
+	  auto required_extensions() const -> vk_string_t;
+	  auto supported_extensions() const -> vk_extensions_t;
 	  auto assert_required_extensions() -> bool;
-	  auto get_performance_score() const -> performance_score_t;
 	  auto get_basic_info() -> std::string;
 
-	  operator vk::raii::PhysicalDevice&();
-	  auto operator*() -> vk::PhysicalDevice;
+	  // operator vk::raii::PhysicalDevice&();
+	  // operator const vk::raii::PhysicalDevice&() const;
+	  // auto operator*() -> vk::raii::PhysicalDevice&;
+	  // auto operator*() const -> vk::raii::PhysicalDevice;
 
-	  vk::raii::PhysicalDevice m_device;
+	  // vk::raii::PhysicalDevice m_device;
 
-	  static inline const vk_string_t m_required_extensions {"VK_KHR_swapchain", "VK_EXT_memory_budget",
-														   "VK_KHR_portability_subset"};
-	  static inline constexpr performance_score_t m_minimum_accepted_score {0xFFFFFFFF};
+	  struct defaults
+	  {
+		static inline const vk_string_t m_required_extensions {"VK_KHR_swapchain",
+															   "VK_EXT_memory_budget",
+															   "VK_KHR_portability_subset"};
+		static inline constexpr performance_score_t m_minimum_accepted_score {0xFFFFFFFF};
+	  };
+	};
+
+	struct logical_device
+	{
+
+	  logical_device(const physical_device&,
+					 const std::vector<vk::DeviceQueueCreateInfo>&,
+					 const vk_extensions_t&,
+					 const vk::PhysicalDeviceFeatures2& = {});
+
+	  operator vk::raii::Device&();
+	  auto operator*() -> vk::raii::Device&;
+
+	  vk::raii::Device m_device;
+
+	  struct defaults
+	  {
+		static inline constexpr auto m_properties = vk::PhysicalDeviceFeatures2 {};
+	  };
 	};
 
 	// vulkan queue family indices
@@ -115,30 +171,51 @@ namespace lh
 
 	struct swapchain
 	{
+	  swapchain(const physical_device&,
+				const vk::raii::Device&,
+				const vk::Extent2D&,
+				const vk::raii::SurfaceKHR&,
+				const queue_families&);
+
 	  vk::SurfaceCapabilities2KHR m_surface_capabilities;
 	  vk::SurfaceFormat2KHR m_surface_format;
-	  vk::PresentModeKHR m_present_modes;
-	  vk::Extent2D* m_extent;
+	  vk::PresentModeKHR m_present_mode;
 
 	  vk::raii::SwapchainKHR m_swapchain;
+	  std::vector<vk::raii::ImageView> m_image_views;
+
+	  auto operator*() -> vk::SwapchainKHR;
 
 	  struct defaults
 	  {
 		static inline const auto m_format = vk::SurfaceFormat2KHR {
 		  {vk::Format::eB8G8R8A8Srgb, vk::ColorSpaceKHR::eSrgbNonlinear}};
-		static inline const auto m_present_mode = vk::PresentModeKHR::eFifo;
-		static inline const auto m_image_count = uint32_t {2};
-		static inline const auto m_image_usage = vk::ImageUsageFlagBits::eColorAttachment;
-		static inline const auto m_sharing_mode = vk::SharingMode::eExclusive;
-		static inline const auto m_transform = vk::SurfaceTransformFlagBitsKHR::eIdentity;
-		static inline const auto m_alpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
+		static inline constexpr auto m_present_mode = vk::PresentModeKHR::eImmediate;
+		static inline constexpr auto m_image_count = uint32_t {2};
+		static inline constexpr auto m_image_usage = vk::ImageUsageFlagBits::eColorAttachment;
+		static inline constexpr auto m_sharing_mode = vk::SharingMode::eExclusive;
+		static inline constexpr auto m_transform = vk::SurfaceTransformFlagBitsKHR::eIdentity;
+		static inline constexpr auto m_alpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
+		static inline constexpr auto m_image_view_type = vk::ImageViewType::e2D;
+		static inline constexpr auto m_image_aspect = vk::ImageAspectFlagBits::eColor;
+	  };
+	};
+
+	struct depth_buffer
+	{
+	  depth_buffer(const physical_device&, const logical_device&, const window&);
+
+	  struct defaults
+	  {
 	  };
 	};
 
 	// vulkan memory allocator module
 	struct memory_allocator_module
 	{
-	  memory_allocator_module(const vk::PhysicalDevice&, const vk::Device&, const vk::Instance&,
+	  memory_allocator_module(const vk::PhysicalDevice&,
+							  const vk::Device&,
+							  const vk::Instance&,
 							  const engine_version& = engine_version::m_default);
 	  ~memory_allocator_module();
 
@@ -148,9 +225,10 @@ namespace lh
 	};
 
 	auto create_context() -> vk::raii::Context;
-	auto create_instance(const window&, const engine_version& = engine_version::m_default,
-						 const vulkan_version& = vulkan_version::m_default, bool use_validaiton_module = true)
-	  -> vk::raii::Instance;
+	auto create_instance(const window&,
+						 const engine_version& = engine_version::m_default,
+						 const vulkan_version& = vulkan_version::m_default,
+						 bool use_validaiton_module = true) -> vk::raii::Instance;
 
 	auto create_physical_device() -> physical_device;
 	auto create_surface(const window&) -> vk::raii::SurfaceKHR;
@@ -162,8 +240,8 @@ namespace lh
 	auto create_graphics_queue() -> vk::raii::Queue;
 	auto create_present_queue() -> vk::raii::Queue;
 	// auto create_swapchain(const window&) -> vk::raii::SwapchainKHR;
-	auto create_swapchain(const window&) -> swapchain;
-	auto create_swapchain_data(const window&) -> vk::raii::su::SwapChainData;
+	// auto create_swapchain(const window&) -> swapchain;
+	// auto create_swapchain_data(const window&) -> vk::raii::su::SwapChainData;
 	auto create_depth_buffer(const window&) -> vk::raii::ImageView;
 	auto create_depth_buffer_data(const window&) -> vk::raii::su::DepthBufferData;
 	auto create_uniform_buffer() -> vk::raii::su::BufferData;
@@ -178,9 +256,38 @@ namespace lh
 	auto create_descriptor_set() -> vk::raii::DescriptorSet;
 	auto create_pipeline_cache() -> vk::raii::PipelineCache;
 	auto create_pipeline() -> vk::raii::Pipeline;
-	auto create_image_views() -> std::vector<vk::raii::ImageView>;
+	// auto create_image_views() -> std::vector<vk::raii::ImageView>;
 
 	auto create_buffer(const data_t&, const vk::BufferUsageFlagBits&) -> vk::raii::Buffer;
+
+	template <typename T>
+	  requires std::is_same_v<T, vk_layers_t> ||
+			   std::is_same_v<T, vk_extensions_t>
+			   static auto assert_required_components(T& supported, const vk_string_t& required_components) -> bool
+	{
+
+	  for (const auto& required : required_components)
+	  {
+		if (std::find_if(supported.begin(),
+						 supported.end(),
+						 [&required](const auto& supported)
+						 {
+						   auto name = std::string {};
+						   if constexpr (std::is_same_v<T, vk_layers_t>)
+							 name = supported.layerName.data();
+						   else
+							 name = supported.extensionName.data();
+
+						   return strcmp(required, name.c_str()) == 0;
+						 }) == supported.end())
+		{
+		  output::error() << "this system does not support the required vulkan component: " + std::string {required};
+		  return false;
+		}
+	  }
+
+	  return true;
+	};
 
 	vulkan_version m_version;
 
@@ -194,15 +301,16 @@ namespace lh
 	vk::raii::SurfaceKHR m_surface;
 	vk::Extent2D m_extent;
 	queue_families m_queue_families;
-	vk::raii::Device m_device;
+	// vk::raii::Device m_device;
+	logical_device m_device;
 	vk::raii::CommandPool m_command_pool;
 	vk::raii::CommandBuffer m_command_buffer;
 	vk::raii::Queue m_graphics_queue;
 	vk::raii::Queue m_present_queue;
 	// vk::raii::SwapchainKHR m_swapchain;
 	swapchain m_swapchain;
-	vk::raii::su::SwapChainData m_swapchain_data;
-	// vk::raii::ImageView m_depth_buffer;
+	// vk::raii::su::SwapChainData m_swapchain_data;
+	//  vk::raii::ImageView m_depth_buffer;
 	vk::raii::su::DepthBufferData m_depth_buffer_data;
 	vk::raii::su::BufferData m_uniform_buffer;
 	vk::raii::DescriptorSetLayout m_descriptor_set_layout;

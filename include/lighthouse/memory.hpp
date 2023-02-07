@@ -15,9 +15,9 @@
 
 #include "system.hpp"
 
-#include <iostream>
 #include <cstddef>
-
+#include <iostream>
+// #include <stdfloat>
 namespace lh
 {
 
@@ -79,7 +79,8 @@ namespace lh
 						  std::same_as<T, memory::terabytes>;
 
 	// ram memory info
-	template <memory_unit unit> struct memory_info
+	template <memory_unit unit>
+	struct memory_info
 	{
 	  unit m_total {0};
 	  unit m_available {0};
@@ -102,7 +103,8 @@ namespace lh
 	  normalized_decimal_t m_shared_used_percentage {};
 	};
 
-	template <memory_unit unit = gigabytes> auto system_memory()
+	template <memory_unit unit = gigabytes>
+	auto system_memory()
 	{
 	  constexpr auto unit_divisor = memory_size_t {
 		std::same_as<unit, bytes>		? std::to_underlying(memory_sizes::byte)
@@ -121,17 +123,17 @@ namespace lh
 
 		memory = {status.ullTotalPhys / unit_divisor, status.ullAvailPhys / unit_divisor,
 				  (status.ullTotalPhys - status.ullAvailPhys) / unit_divisor,
-				  1.0 - static_cast<decimal_t>(status.ullAvailPhys) /
-						  static_cast<decimal_t>(status.ullTotalPhys)};
+				  1.0 - static_cast<decimal_t>(status.ullAvailPhys) / static_cast<decimal_t>(status.ullTotalPhys)};
 	  }
 	  else if constexpr (system::type == system::type::linux)
 	  {
 		std::abort();
 		// TODO
+		/*
 		struct sysinfo memInfo;
 
 		sysinfo(&memInfo);
-		long long totalVirtualMem = memInfo;
+		long long totalVirtualMem = memInfo;*/
 	  }
 
 	  return memory;

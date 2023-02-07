@@ -7,7 +7,7 @@ set(CMAKE_BUILD_TYPE RelWithDebInfo)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
-
+set(CMAKE_VERBOSE_MAKEFILE ON)
 # Path
 cmake_path(SET source ${CMAKE_CURRENT_SOURCE_DIR}/src/lighthouse)
 cmake_path(SET include ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -52,13 +52,28 @@ if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
 )
 endif()
 
-if(${CMAKE_CXX_COMPILER_ID} EQUAL GNU)
+#[[
+if(${CMAKE_CXX_COMPILER_ID} MATCHES GNU)
+message(WTFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)
 	target_compile_options(
 	  ${PROJECT_NAME} PRIVATE
 	  #GCC standard compiler settings
 	  -C -std=c++23
-)
+	)
+	include_directories(
+		${PROJECT_NAME} PUBLIC
+		C:/msys64/ucrt64/include
+		C:/msys64/ucrt64/include/c++/12.2.0
+	)
+	
 endif()
+]]
+#[[
+find_program(CMAKE_MAKE_PROGRAM
+  NAMES make
+		make.exe
+  HINTS C:/msys64/usr/bin)
+]]
 
 # Windows specific flags
 if(WIN32)
@@ -81,6 +96,7 @@ add_compile_definitions(
 	VULKAN_HPP_NO_NODISCARD_WARNINGS
 	#VULKAN_HPP_NO_SPACESHIP_OPERATOR
 
+	#WIN32 definitions
 	NOMINMAX 
 )
 
@@ -100,15 +116,15 @@ include_directories(
 	${include}/vkfw
 	${include}/glslang
 )
-#[[
-# Precompiled headers
+
 target_precompile_headers(
-	${PROJECT_NAME} PUBLIC
+	${PROJECT_NAME} PRIVATE
 	${include}/vkfw/vkfw.hpp
 	${include}/vulkan/vulkan.hpp
+	${include}/vulkan/vulkan_enums.hpp
 	${include}/vulkan/vulkan_raii.hpp
 )
-]]
+
 # Libraries
 target_link_directories(
 	${PROJECT_NAME}
@@ -136,3 +152,5 @@ target_link_libraries(
 	OSDependent.lib
 	#SPVRemapper.lib
 )
+
+message(${CMAKE_CXX_COMPILER_ID})

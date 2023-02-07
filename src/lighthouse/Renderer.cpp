@@ -1,14 +1,16 @@
 #include "renderer.hpp"
 #include "vulkan/vma/vk_mem_alloc.h"
 
-lh::renderer::renderer(const window& window, const engine_version& engine_version, const vulkan_version& vulkan_version,
+lh::renderer::renderer(const window& window,
+					   const engine_version& engine_version,
+					   const vulkan_version& vulkan_version,
 					   bool use_validation_module)
 	: m_version {vulkan_version},
 	  m_context {create_context()},
 	  m_instance {create_instance(window, engine_version, vulkan_version, use_validation_module)},
 	  m_validation_module {use_validation_module ? validation_module {m_instance}
 												 : decltype(m_validation_module) {std::nullopt}},
-	  m_physical_device {create_physical_device()},
+	  m_physical_device {m_instance},
 	  // m_surface_data {create_surface_data(window)},
 	  m_extent {create_extent(window)},
 	  m_surface {create_surface(window)},
@@ -20,10 +22,10 @@ lh::renderer::renderer(const window& window, const engine_version& engine_versio
 	  m_present_queue {create_present_queue()},
 	  m_command_buffer {create_command_buffer()},
 	  // m_swapchain {create_swapchain(window)},
-	  m_swapchain {create_swapchain(window)},
-	  m_swapchain_data {create_swapchain_data(window)},
-	  // m_image_views {create_image_views()},
-	  // m_depth_buffer {create_depth_buffer(window)},
+	  m_swapchain {m_physical_device, m_device, m_extent, m_surface, m_queue_families},
+	  // m_swapchain_data {create_swapchain_data(window)},
+	  //  m_image_views {create_image_views()},
+	  //  m_depth_buffer {create_depth_buffer(window)},
 	  m_depth_buffer_data {create_depth_buffer_data(window)},
 	  m_uniform_buffer {create_uniform_buffer()},
 	  m_descriptor_set_layout {create_descriptor_set_layout()},
@@ -38,7 +40,7 @@ lh::renderer::renderer(const window& window, const engine_version& engine_versio
 	  m_descriptor_pool {create_descriptor_pool()},
 	  m_pipeline_cache {create_pipeline_cache()},
 	  m_pipeline {create_pipeline()},
-	  m_memory_allocator {*m_physical_device, *m_device, *m_instance}
+	  m_memory_allocator {**m_physical_device, **m_device, *m_instance}
 {
 }
 
@@ -50,7 +52,8 @@ auto lh::renderer::logical_extension_module::assert_required_extensions() -> boo
 
   for (const auto& required : required_extensions)
   {
-	if (std::find_if(supported_extensions.begin(), supported_extensions.end(),
+	if (std::find_if(supported_extensions.begin(),
+					 supported_extensions.end(),
 					 [&required](const auto& supported)
 					 { return strcmp(required, supported.extensionName) == 0; }) == supported_extensions.end())
 	{
@@ -71,7 +74,8 @@ auto lh::renderer::validation_module::assert_required_validation_layers() -> boo
 
   for (const auto& required : required_layers)
   {
-	if (std::find_if(supported_layers.begin(), supported_layers.end(),
+	if (std::find_if(supported_layers.begin(),
+					 supported_layers.end(),
 					 [&required](const auto& supported)
 					 { return strcmp(required, supported.layerName) == 0; }) == supported_layers.end())
 	{
@@ -83,7 +87,7 @@ auto lh::renderer::validation_module::assert_required_validation_layers() -> boo
   return true;
 }
 
-auto lh::renderer::logical_extension_module::supported_extensions() -> std::vector<vk::ExtensionProperties>
+auto lh::renderer::logical_extension_module::supported_extensions() -> vk_extensions_t
 {
   // find the number of supported extensions first
   auto num_extensions = uint32_t {0};
@@ -114,19 +118,21 @@ auto lh::renderer::logical_extension_module::required_extensions() -> vk_string_
   auto glfw_extensions = vkfw::getRequiredInstanceExtensions(&num_extensions);
 
   auto combined_extensions = vk_string_t {glfw_extensions, glfw_extensions + num_extensions};
-  combined_extensions.insert(combined_extensions.end(), m_required_extensions.begin(), m_required_extensions.end());
+  combined_extensions.insert(combined_extensions.end(),
+							 defaults::m_required_extensions.begin(),
+							 defaults::m_required_extensions.end());
 
   return combined_extensions;
 }
 
 lh::renderer::validation_module::validation_module(vk::raii::Instance& instance)
-	: m_debug_messenger {instance.createDebugUtilsMessengerEXT(m_debug_info)}
+	: m_debug_messenger {instance.createDebugUtilsMessengerEXT(defaults::m_debug_info)}
 {
 }
 
 auto lh::renderer::validation_module::required_validation_layers() -> vk_string_t
 {
-  return m_required_validation_layers;
+  return defaults::m_required_validation_layers;
 }
 
 auto lh::renderer::create_context() -> vk::raii::Context
@@ -134,9 +140,10 @@ auto lh::renderer::create_context() -> vk::raii::Context
   return {};
 }
 
-auto lh::renderer::create_instance(const window& window, const engine_version& engine_version,
-								   const vulkan_version& vulkan_version, bool use_validation_module)
-  -> vk::raii::Instance
+auto lh::renderer::create_instance(const window& window,
+								   const engine_version& engine_version,
+								   const vulkan_version& vulkan_version,
+								   bool use_validation_module) -> vk::raii::Instance
 {
   // make sure both logical extensions and validation layers checks passed
   if (auto validation_module = use_validation_module ? m_validation_module->assert_required_validation_layers() : true;
@@ -149,10 +156,13 @@ auto lh::renderer::create_instance(const window& window, const engine_version& e
   const auto required_validation_layers = use_validation_module ? m_validation_module->required_validation_layers()
 																: vk_string_t {};
 
-  const auto instance_debugger = use_validation_module ? &m_validation_module->m_debug_info : nullptr;
+  const auto& instance_debugger = use_validation_module ? &validation_module::defaults::m_debug_info : nullptr;
 
   const auto app_info = vk::ApplicationInfo {
-	window.get_title().data(), engine_version, window.get_title().data(), engine_version,
+	window.get_title().data(),
+	engine_version,
+	window.get_title().data(),
+	engine_version,
 	VK_MAKE_API_VERSION(0, vulkan_version.m_major, vulkan_version.m_minor, vulkan_version.m_patch)};
 
   const auto instance_info = vk::InstanceCreateInfo {{},
@@ -201,10 +211,10 @@ auto lh::renderer::create_present_queue() -> vk::raii::Queue
 {
   return {m_device, m_queue_families.m_present, 0};
 }
-
-auto lh::renderer::create_swapchain(const window& window) -> swapchain
+/*
+auto lh::renderer::create_swapchain(const vk::raii::PhysicalDevice& device, window& window) -> swapchain
 {
-  const auto physical_device = vk::raii::PhysicalDevice {m_physical_device};
+  const auto physical_device = *m_physical_device;
 
   const auto capabilities = physical_device.getSurfaceCapabilities2KHR(*m_surface);
   const auto formats = physical_device.getSurfaceFormats2KHR(*m_surface);
@@ -219,9 +229,7 @@ auto lh::renderer::create_swapchain(const window& window) -> swapchain
   auto transform = swapchain::defaults::m_transform;
   auto alpha = swapchain::defaults::m_alpha;
 
-  auto queue_family_indices =
-  { m_queue_families.m_graphics,
-	m_queue_families.m_present };
+  auto queue_family_indices = {m_queue_families.m_graphics, m_queue_families.m_present};
 
   // assert that the system supports any formats and present modes
   if (formats.empty() || present_modes.empty())
@@ -241,17 +249,15 @@ auto lh::renderer::create_swapchain(const window& window) -> swapchain
 	present_mode = vk::PresentModeKHR::eFifo;
   }
 
-  std::cout << lh::to_string(present_modes);
-
   // clamp the swapchain extent between the minimum and maximum supported by implementation
   extent.width = std::clamp(extent.width, capabilities.surfaceCapabilities.minImageExtent.width,
-			 capabilities.surfaceCapabilities.maxImageExtent.width);
+							capabilities.surfaceCapabilities.maxImageExtent.width);
   extent.height = std::clamp(extent.height, capabilities.surfaceCapabilities.minImageExtent.height,
-			 capabilities.surfaceCapabilities.maxImageExtent.height);
+							 capabilities.surfaceCapabilities.maxImageExtent.height);
 
   // clamp the prefered image count between the minimum and maximum supported by implementation
   image_count = std::clamp(image_count, capabilities.surfaceCapabilities.minImageCount,
-			 capabilities.surfaceCapabilities.maxImageCount);
+						   capabilities.surfaceCapabilities.maxImageCount);
 
   auto swapchain_info = vk::SwapchainCreateInfoKHR {{},
 													*m_surface,
@@ -268,8 +274,22 @@ auto lh::renderer::create_swapchain(const window& window) -> swapchain
 													present_mode};
 
   auto swapchain = vk::raii::SwapchainKHR {m_device, swapchain_info};
-}
 
+  auto image_views = std::vector<vk::raii::ImageView> {};
+  image_views.reserve(swapchain.getImages().size());
+  auto image_view_info = vk::ImageViewCreateInfo({}, {}, swapchain::defaults::m_image_view_type,
+												 format.surfaceFormat.format, {},
+												 {swapchain::defaults::m_image_aspect, 0, 1, 0, 1});
+
+  for (auto& image : swapchain.getImages())
+  {
+	image_view_info.image = image;
+	image_views.emplace_back(m_device, image_view_info);
+  }
+
+  return {capabilities, format, present_mode, extent, {std::move(swapchain)}, std::move(image_views)};
+}*/
+/*
 auto lh::renderer::create_physical_device() -> physical_device
 {
   // enumerate all vulkan capable physical devices
@@ -287,16 +307,17 @@ auto lh::renderer::create_physical_device() -> physical_device
 
   // assert that the device with the highest score is above the minimum score threshold
   auto strongest_device = physical_device {physical_devices.front()};
-  if (strongest_device.get_performance_score() < strongest_device.m_minimum_accepted_score)
+  if (strongest_device.get_performance_score() < physical_device::defaults::m_minimum_accepted_score)
 	output::fatal() << "this system does not have any suitable vulkan devices";
 
   return strongest_device;
 }
-
+*/
 auto lh::renderer::create_command_buffer() -> vk::raii::CommandBuffer
 {
   // allocate a command_buffer from the command_pool
-  auto command_buffer_allocate_info = vk::CommandBufferAllocateInfo {*m_command_pool, vk::CommandBufferLevel::ePrimary,
+  auto command_buffer_allocate_info = vk::CommandBufferAllocateInfo {*m_command_pool,
+																	 vk::CommandBufferLevel::ePrimary,
 																	 1};
   return std::move(vk::raii::CommandBuffers(m_device, command_buffer_allocate_info).front());
 }
@@ -408,8 +429,9 @@ auto lh::renderer::create_swapchain(const window& window) -> vk::raii::Swapchain
   return swapchain;
 }
 */
+/*
 auto lh::renderer::create_swapchain_data(const window& window) -> vk::raii::su::SwapChainData
-{ /*
+{
 	 return {m_physical_device,
 			 m_device,
 			 m_surface,
@@ -418,7 +440,7 @@ auto lh::renderer::create_swapchain_data(const window& window) -> vk::raii::su::
 	 vk::ImageUsageFlagBits::eTransferSrc,
 			 {},
 			 m_graphics_family_queue_indices.first,
-			 m_graphics_family_queue_indices.second};*/
+			 m_graphics_family_queue_indices.second};
   return {m_physical_device,
 		  m_device,
 		  m_surface,
@@ -428,10 +450,11 @@ auto lh::renderer::create_swapchain_data(const window& window) -> vk::raii::su::
 		  m_queue_families.m_graphics,
 		  m_queue_families.m_present};
 }
-
+*/
+/*
 auto lh::renderer::create_image_views() -> std::vector<vk::raii::ImageView>
 {
-  auto swapchain_images = m_swapchain_data.images;
+  auto swapchain_images = m_swapchain.m_swapchain.getImages(); // m_swapchain_data.images;
 
   auto image_views = std::vector<vk::raii::ImageView> {};
   image_views.reserve(swapchain_images.size());
@@ -449,10 +472,10 @@ auto lh::renderer::create_image_views() -> std::vector<vk::raii::ImageView>
 
   return image_views;
 }
-
+*/
 auto lh::renderer::create_depth_buffer(const window& window) -> vk::raii::ImageView
 {
-  const auto depth_format = vk::Format::eD16Unorm;
+  const auto depth_format = vk::Format::eB8G8R8A8Srgb;
   auto format_properties = vk::raii::PhysicalDevice(m_physical_device).getFormatProperties(depth_format);
 
   auto tiling_mode = vk::ImageTiling {};
@@ -501,8 +524,8 @@ auto lh::renderer::create_depth_buffer(const window& window) -> vk::raii::ImageV
   auto image_memory = vk::raii::DeviceMemory(m_device, memory_info);
   image.bindMemory(*image_memory, 0);
 
-  auto image_view_info = vk::ImageViewCreateInfo({}, *image, vk::ImageViewType::e2D, depth_format, {},
-												 {vk::ImageAspectFlagBits::eDepth, 0, 1, 0, 1});
+  auto image_view_info = vk::ImageViewCreateInfo(
+	{}, *image, vk::ImageViewType::e2D, depth_format, {}, {vk::ImageAspectFlagBits::eDepth, 0, 1, 0, 1});
 
   return {m_device, image_view_info};
 }
@@ -514,7 +537,9 @@ auto lh::renderer::create_depth_buffer_data(const window&) -> vk::raii::su::Dept
 
 auto lh::renderer::create_uniform_buffer() -> vk::raii::su::BufferData
 {
-  vk::raii::su::BufferData uniformBufferData(m_physical_device, m_device, sizeof(glm::mat4x4),
+  vk::raii::su::BufferData uniformBufferData(m_physical_device,
+											 m_device,
+											 sizeof(glm::mat4x4),
 											 vk::BufferUsageFlagBits::eUniformBuffer);
   glm::mat4x4 mvpcMatrix = vk::su::createModelViewProjectionClipMatrix(m_extent);
   vk::raii::su::copyToDevice(uniformBufferData.deviceMemory, mvpcMatrix);
@@ -570,7 +595,9 @@ auto lh::renderer::create_descriptor_set() -> vk::raii::DescriptorSet
   vk::raii::DescriptorSet descriptorSet = std::move(
 	vk::raii::DescriptorSets(m_device, {*m_descriptor_pool, *m_descriptor_set_layout}).front());
   vk::raii::su::updateDescriptorSets(
-	m_device, descriptorSet, {{vk::DescriptorType::eUniformBuffer, m_uniform_buffer.buffer, VK_WHOLE_SIZE, nullptr}},
+	m_device,
+	descriptorSet,
+	{{vk::DescriptorType::eUniformBuffer, m_uniform_buffer.buffer, VK_WHOLE_SIZE, nullptr}},
 	{});
 
   return descriptorSet;
@@ -583,11 +610,19 @@ auto lh::renderer::create_pipeline_cache() -> vk::raii::PipelineCache
 
 auto lh::renderer::create_pipeline() -> vk::raii::Pipeline
 {
-  return vk::raii::su::makeGraphicsPipeline(
-	m_device, m_pipeline_cache, m_shader_modules[0], nullptr, m_shader_modules[1], nullptr,
-	vk::su::checked_cast<uint32_t>(sizeof(coloredCubeData[0])),
-	{{vk::Format::eR32G32B32A32Sfloat, 0}, {vk::Format::eR32G32B32A32Sfloat, 16}}, vk::FrontFace::eClockwise, true,
-	m_pipeline_layout, m_render_pass);
+  return vk::raii::su::makeGraphicsPipeline(m_device,
+											m_pipeline_cache,
+											m_shader_modules[0],
+											nullptr,
+											m_shader_modules[1],
+											nullptr,
+											vk::su::checked_cast<uint32_t>(sizeof(coloredCubeData[0])),
+											{{vk::Format::eR32G32B32A32Sfloat, 0},
+											 {vk::Format::eR32G32B32A32Sfloat, 16}},
+											vk::FrontFace::eClockwise,
+											true,
+											m_pipeline_layout,
+											m_render_pass);
 }
 
 auto lh::renderer::create_render_pass(const window& window) -> vk::raii::RenderPass
@@ -666,8 +701,8 @@ auto lh::renderer::create_framebuffers(const window& window) -> std::vector<vk::
 	 }
 
 	 return framebuffers;*/
-  return vk::raii::su::makeFramebuffers(m_device, m_render_pass, m_swapchain_data.imageViews,
-										&m_depth_buffer_data.imageView, m_extent);
+  return vk::raii::su::makeFramebuffers(
+	m_device, m_render_pass, m_swapchain.m_image_views, &m_depth_buffer_data.imageView, m_extent);
 }
 
 auto lh::renderer::create_vertex_buffer() -> vk::raii::su::BufferData
@@ -720,9 +755,12 @@ auto lh::renderer::create_vertex_buffer() -> vk::raii::su::BufferData
   m_command_buffer.end();
   vk::raii::su::submitAndWait(m_device, graphics_queue, m_command_buffer);*/
 
-  vk::raii::su::BufferData vertexBufferData(m_physical_device, m_device, sizeof(coloredCubeData),
+  vk::raii::su::BufferData vertexBufferData(m_physical_device,
+											m_device,
+											sizeof(coloredCubeData),
 											vk::BufferUsageFlagBits::eVertexBuffer);
-  vk::raii::su::copyToDevice(vertexBufferData.deviceMemory, coloredCubeData,
+  vk::raii::su::copyToDevice(vertexBufferData.deviceMemory,
+							 coloredCubeData,
 							 sizeof(coloredCubeData) / sizeof(coloredCubeData[0]));
 
   return vertexBufferData;
@@ -739,9 +777,10 @@ auto lh::renderer::create_buffer(const data_t& data, const vk::BufferUsageFlagBi
   auto buffer = vk::raii::Buffer(m_device, buffer_info);
 
   auto memory_requirements = buffer.getMemoryRequirements();
-  auto type_index = vk::su::findMemoryType(
-	vk::raii::PhysicalDevice(m_physical_device).getMemoryProperties(), memory_requirements.memoryTypeBits,
-	vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+  auto type_index = vk::su::findMemoryType(vk::raii::PhysicalDevice(m_physical_device).getMemoryProperties(),
+										   memory_requirements.memoryTypeBits,
+										   vk::MemoryPropertyFlagBits::eHostVisible |
+											 vk::MemoryPropertyFlagBits::eHostCoherent);
 
   auto memory_info = vk::MemoryAllocateInfo(memory_requirements.size, type_index);
   auto buffer_memory = vk::raii::DeviceMemory(m_device, memory_info);
@@ -768,12 +807,7 @@ auto lh::renderer::physical_device::get_basic_info() -> std::string
 
   return info;
 }
-
-auto lh::renderer::physical_device::operator*() -> vk::PhysicalDevice
-{
-  return *m_device;
-}
-
+/*
 auto lh::renderer::physical_device::get_performance_score() const -> performance_score_t
 {
   const auto properties = m_device.getProperties2();
@@ -790,7 +824,7 @@ auto lh::renderer::physical_device::get_performance_score() const -> performance
 
   return score;
 }
-
+*/
 auto lh::renderer::render() -> void
 {
   // Get the index of the next available swapchain image:
@@ -798,8 +832,8 @@ auto lh::renderer::render() -> void
 
   vk::Result result;
   uint32_t imageIndex;
-  std::tie(result, imageIndex) = m_swapchain_data.swapChain.acquireNextImage(vk::su::FenceTimeout,
-																			 *imageAcquiredSemaphore);
+  std::tie(result, imageIndex) = m_swapchain.m_swapchain.acquireNextImage(vk::su::FenceTimeout,
+																		  *imageAcquiredSemaphore);
   // assert(result == vk::Result::eSuccess);
   // assert(imageIndex < swapChainData.images.size());
 
@@ -808,12 +842,14 @@ auto lh::renderer::render() -> void
   std::array<vk::ClearValue, 2> clearValues;
   clearValues[0].color = vk::ClearColorValue(0.2f, 0.2f, 0.2f, 0.2f);
   clearValues[1].depthStencil = vk::ClearDepthStencilValue(1.0f, 0);
-  vk::RenderPassBeginInfo renderPassBeginInfo(*m_render_pass, *m_framebuffers[imageIndex],
-											  vk::Rect2D(vk::Offset2D(0, 0), m_extent), clearValues);
+  vk::RenderPassBeginInfo renderPassBeginInfo(*m_render_pass,
+											  *m_framebuffers[imageIndex],
+											  vk::Rect2D(vk::Offset2D(0, 0), m_extent),
+											  clearValues);
   m_command_buffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
   m_command_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_pipeline);
-  m_command_buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *m_pipeline_layout, 0, {*m_descriptor_set},
-									  nullptr);
+  m_command_buffer.bindDescriptorSets(
+	vk::PipelineBindPoint::eGraphics, *m_pipeline_layout, 0, {*m_descriptor_set}, nullptr);
 
   m_command_buffer.bindVertexBuffers(0, {*m_vertex_buffer.buffer}, {0});
   m_command_buffer.setViewport(
@@ -838,17 +874,13 @@ auto lh::renderer::render() -> void
 
   vk::raii::su::copyToDevice(m_uniform_buffer.deviceMemory, mvpcMatrix);
 
-  vk::PresentInfoKHR presentInfoKHR(nullptr, *m_swapchain_data.swapChain, imageIndex);
+  vk::PresentInfoKHR presentInfoKHR(nullptr, *m_swapchain.m_swapchain, imageIndex);
   result = m_present_queue.presentKHR(presentInfoKHR);
   switch (result)
   {
-  case vk::Result::eSuccess:
-	break;
-  case vk::Result::eSuboptimalKHR:
-	std::cout << "vk::Queue::presentKHR returned vk::Result::eSuboptimalKHR !\n";
-	break;
-  default:
-	assert(false); // an unexpected result is returned !
+  case vk::Result::eSuccess: break;
+  case vk::Result::eSuboptimalKHR: std::cout << "vk::Queue::presentKHR returned vk::Result::eSuboptimalKHR !\n"; break;
+  default: assert(false); // an unexpected result is returned !
   }
   // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
@@ -857,9 +889,11 @@ auto lh::renderer::render() -> void
   m_device.waitIdle();
 }
 
-VKAPI_ATTR auto VKAPI_CALL lh::renderer::validation_module::debug_callback(
-  VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType,
-  const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) -> VkBool32
+VKAPI_ATTR auto VKAPI_CALL
+lh::renderer::validation_module::debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+												VkDebugUtilsMessageTypeFlagsEXT messageType,
+												const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+												void* pUserData) -> VkBool32
 {
   std::string message;
 
@@ -906,12 +940,12 @@ VKAPI_ATTR auto VKAPI_CALL lh::renderer::validation_module::debug_callback(
   return false;
 }
 
-auto lh::renderer::physical_device::required_extensions() -> vk_string_t
+auto lh::renderer::physical_device::required_extensions() const -> vk_string_t
 {
-  return m_required_extensions;
+  return defaults::m_required_extensions;
 }
 
-auto lh::renderer::physical_device::supported_extensions() -> std::vector<vk::ExtensionProperties>
+auto lh::renderer::physical_device::supported_extensions() const -> vk_extensions_t
 {
   return m_device.enumerateDeviceExtensionProperties();
 }
@@ -923,7 +957,8 @@ auto lh::renderer::physical_device::assert_required_extensions() -> bool
 
   for (const auto& required : required_extensions)
   {
-	if (std::find_if(supported_extensions.begin(), supported_extensions.end(),
+	if (std::find_if(supported_extensions.begin(),
+					 supported_extensions.end(),
 					 [&required](const auto& supported)
 					 { return strcmp(required, supported.extensionName) == 0; }) == supported_extensions.end())
 	{
@@ -936,17 +971,40 @@ auto lh::renderer::physical_device::assert_required_extensions() -> bool
   return true;
 }
 
+auto lh::renderer::physical_device::get_performance_score(const vk::raii::PhysicalDevice& device) -> performance_score_t
+{
+  const auto properties = device.getProperties2();
+  const auto features = device.getFeatures2();
+
+  constexpr auto gigabyte = static_cast<double>(1_gb);
+  const auto memory = memory::physical_device_memory(device);
+
+  auto score = performance_score_t {};
+
+  score += memory.m_device_total + memory.m_shared_total;
+  score += properties.properties.limits.maxImageDimension2D;
+  score += properties.properties.limits.maxFramebufferWidth * properties.properties.limits.maxFramebufferHeight;
+
+  return score;
+}
+
 lh::renderer::memory_allocator_module::memory_allocator_module(const vk::PhysicalDevice& physical_device,
-															   const vk::Device& device, const vk::Instance& instance,
+															   const vk::Device& device,
+															   const vk::Instance& instance,
 															   const engine_version& version)
 {
-  auto allocator_info = VmaAllocatorCreateInfo {
-	{},		  physical_device,
-	device,	  0,
-	nullptr,  nullptr,
-	nullptr,  nullptr,
-	instance, VK_MAKE_API_VERSION(0, version.m_major, version.m_minor, version.m_patch),
-	nullptr};
+  auto allocator_info =
+	VmaAllocatorCreateInfo {{},
+							physical_device,
+							device,
+							0,
+							nullptr,
+							nullptr,
+							nullptr,
+							nullptr,
+							instance,
+							VK_MAKE_API_VERSION(0, version.m_major, version.m_minor, version.m_patch),
+							nullptr};
 
   auto result = vmaCreateAllocator(&allocator_info, &m_allocator);
 
@@ -964,11 +1022,156 @@ lh::renderer::memory_allocator_module::operator VmaAllocator&()
   return m_allocator;
 }
 
-lh::renderer::physical_device::physical_device(const vk::raii::PhysicalDevice& device) : m_device(device)
+lh::renderer::physical_device::physical_device(const vk::raii::Instance& instance) : m_device {nullptr}
 {
+  // enumerate all vulkan capable physical devices
+  auto physical_devices = instance.enumeratePhysicalDevices();
+
+  // assert that there are any vulkan capable devices
+  if (physical_devices.empty())
+	output::fatal() << "this system does not support any vulkan capable devices";
+
+  // sort them according to their performance score
+  std::ranges::sort(physical_devices,
+					[](const auto& x, const auto& y) { return get_performance_score(x) < get_performance_score(y); });
+
+  // assert that the device with the highest score is above the minimum score threshold
+  auto& strongest_device = physical_devices.front();
+  if (get_performance_score(strongest_device) < physical_device::defaults::m_minimum_accepted_score)
+	output::fatal() << "this system does not have any suitable vulkan devices";
+
+  m_device = std::move(strongest_device);
 }
 
 lh::renderer::physical_device::operator vk::raii::PhysicalDevice&()
+{
+  return m_device;
+}
+
+lh::renderer::physical_device::operator const vk::raii::PhysicalDevice&() const
+{
+  return m_device;
+}
+
+lh::renderer::swapchain::swapchain(const physical_device& physical_device,
+								   const vk::raii::Device& device,
+								   const vk::Extent2D& extent,
+								   const vk::raii::SurfaceKHR& surface,
+								   const queue_families& queue_families)
+	: m_surface_capabilities {(*physical_device).getSurfaceCapabilities2KHR(*surface)},
+	  m_surface_format {},
+	  m_present_mode {},
+	  m_swapchain {nullptr},
+	  m_image_views {}
+{
+  const auto& vk_physical_device = *physical_device;
+  const auto capabilities = vk_physical_device.getSurfaceCapabilities2KHR(*surface);
+  const auto formats = vk_physical_device.getSurfaceFormats2KHR(*surface);
+  const auto present_modes = vk_physical_device.getSurfacePresentModesKHR(*surface);
+
+  m_surface_format = swapchain::defaults::m_format;
+  m_present_mode = swapchain::defaults::m_present_mode;
+  auto image_count = swapchain::defaults::m_image_count;
+  auto image_usage = swapchain::defaults::m_image_usage;
+  auto sharing_mode = swapchain::defaults::m_sharing_mode;
+  auto transform = swapchain::defaults::m_transform;
+  auto alpha = swapchain::defaults::m_alpha;
+
+  auto queue_family_indices = {queue_families.m_graphics, queue_families.m_present};
+
+  // assert that the system supports any formats and present modes
+  if (formats.empty() || present_modes.empty())
+	output::fatal() << "this system does not meet the minimal vulkan requirements";
+
+  // attempt to acquire the prefered surface format, if unavailable, take the first one that is
+  if (!std::ranges::contains(formats, swapchain::defaults::m_format))
+  {
+	output::warning() << "this system does not support the prefered vulkan surface format";
+	m_surface_format = formats.front();
+  }
+
+  // attempt to acquire the prefered present mode, if unavailable, default to FIFO
+  if (!std::ranges::contains(present_modes, swapchain::defaults::m_present_mode))
+  {
+	output::warning() << "this system does not support the prefered vulkan present mode";
+	m_present_mode = vk::PresentModeKHR::eFifo;
+  }
+
+  // assert that the extent is within limits supported by the implementation
+  if (extent.width != std::clamp(extent.width,
+								 capabilities.surfaceCapabilities.minImageExtent.width,
+								 capabilities.surfaceCapabilities.maxImageExtent.width))
+	output::fatal() << "this system does not support windows of this width: " << extent.width;
+
+  if (extent.height != std::clamp(extent.height,
+								  capabilities.surfaceCapabilities.minImageExtent.height,
+								  capabilities.surfaceCapabilities.maxImageExtent.height))
+	output::fatal() << "this system does not support windows of this height: " << extent.height;
+
+  // clamp the prefered image count between the minimum and maximum supported by implementation
+  image_count = std::clamp(image_count,
+						   capabilities.surfaceCapabilities.minImageCount,
+						   capabilities.surfaceCapabilities.maxImageCount);
+
+  auto swapchain_info = vk::SwapchainCreateInfoKHR {{},
+													*surface,
+													image_count,
+													m_surface_format.surfaceFormat.format,
+													m_surface_format.surfaceFormat.colorSpace,
+													extent,
+													1,
+													image_usage,
+													sharing_mode,
+													queue_family_indices,
+													transform,
+													alpha,
+													m_present_mode};
+
+  m_swapchain = vk::raii::SwapchainKHR {device, swapchain_info};
+
+  m_image_views.reserve(m_swapchain.getImages().size());
+  auto image_view_info = vk::ImageViewCreateInfo({},
+												 {},
+												 swapchain::defaults::m_image_view_type,
+												 m_surface_format.surfaceFormat.format,
+												 {},
+												 {swapchain::defaults::m_image_aspect, 0, 1, 0, 1});
+
+  for (auto& image : m_swapchain.getImages())
+  {
+	image_view_info.image = image;
+	m_image_views.emplace_back(device, image_view_info);
+  }
+}
+
+auto lh::renderer::swapchain::operator*() -> vk::SwapchainKHR
+{
+  return *m_swapchain;
+}
+
+lh::renderer::logical_device::operator vk::raii::Device&()
+{
+  return m_device;
+}
+
+lh::renderer::logical_device::logical_device(const physical_device& physical_device,
+											 const std::vector<vk::DeviceQueueCreateInfo>& queues,
+											 const vk_extensions_t& extensions,
+											 const vk::PhysicalDeviceFeatures2& features)
+	: m_device {nullptr}
+{
+  const auto& suported_extensions = physical_device.required_extensions();
+
+  if (!renderer::assert_required_components(extensions, suported_extensions))
+	output::fatal() << "this system does not support the required vulkan components";
+
+  // const auto device_queue_info = vk::DeviceQueueCreateInfo {{}, m_queue_families.m_graphics, 1, &queue_priority};
+  auto device_info = vk::DeviceCreateInfo {{}, queues, {}, suported_extensions, &features.features};
+
+  m_device = {physical_device, device_info};
+}
+
+auto lh::renderer::logical_device::operator*() -> vk::raii::Device&
 {
   return m_device;
 }
