@@ -16,7 +16,10 @@ lh::renderer::renderer(const window& window,
 	  m_surface {create_surface(window)},
 	  m_queue_families {create_queue_families()},
 	  // m_physical_extensions {m_physical_device},
-	  m_device {create_device()},
+	  m_device {
+		m_physical_device,
+		{vk::DeviceQueueCreateInfo {{}, m_queue_families.m_graphics, 1, &logical_device::defaults::m_queue_priority}},
+		m_physical_device.required_extensions()},
 	  m_command_pool {create_command_pool()},
 	  m_graphics_queue {create_graphics_queue()},
 	  m_present_queue {create_present_queue()},
@@ -794,8 +797,8 @@ auto lh::renderer::create_buffer(const data_t& data, const vk::BufferUsageFlagBi
 
 auto lh::renderer::physical_device::get_basic_info() -> std::string
 {
-  const auto properties = m_device.getProperties2();
-  const auto memory = memory::physical_device_memory(m_device);
+  const auto properties = m_object.getProperties2();
+  const auto memory = memory::physical_device_memory(m_object);
   constexpr auto gigabyte = static_cast<double>(1_gb);
 
   auto info = std::string {"found the following vulkan capable devices: "};
@@ -832,8 +835,7 @@ auto lh::renderer::render() -> void
 
   vk::Result result;
   uint32_t imageIndex;
-  std::tie(result, imageIndex) = m_swapchain.m_swapchain.acquireNextImage(vk::su::FenceTimeout,
-																		  *imageAcquiredSemaphore);
+  std::tie(result, imageIndex) = m_swapchain->acquireNextImage(vk::su::FenceTimeout, *imageAcquiredSemaphore);
   // assert(result == vk::Result::eSuccess);
   // assert(imageIndex < swapChainData.images.size());
 
@@ -866,7 +868,7 @@ auto lh::renderer::render() -> void
   vk::SubmitInfo submitInfo(*imageAcquiredSemaphore, waitDestinationStageMask, *m_command_buffer);
   m_graphics_queue.submit(submitInfo, *drawFence);
 
-  while (vk::Result::eTimeout == m_device.waitForFences({*drawFence}, VK_TRUE, vk::su::FenceTimeout))
+  while (vk::Result::eTimeout == m_device->waitForFences({*drawFence}, VK_TRUE, vk::su::FenceTimeout))
 	;
 
   glm::mat4x4 mvpcMatrix = vk::su::createModelViewProjectionClipMatrix(m_extent);
@@ -874,7 +876,7 @@ auto lh::renderer::render() -> void
 
   vk::raii::su::copyToDevice(m_uniform_buffer.deviceMemory, mvpcMatrix);
 
-  vk::PresentInfoKHR presentInfoKHR(nullptr, *m_swapchain.m_swapchain, imageIndex);
+  vk::PresentInfoKHR presentInfoKHR(nullptr, **m_swapchain, imageIndex);
   result = m_present_queue.presentKHR(presentInfoKHR);
   switch (result)
   {
@@ -886,7 +888,7 @@ auto lh::renderer::render() -> void
 
   /* VULKAN_KEY_END */
 
-  m_device.waitIdle();
+  m_device->waitIdle();
 }
 
 VKAPI_ATTR auto VKAPI_CALL
@@ -947,7 +949,7 @@ auto lh::renderer::physical_device::required_extensions() const -> vk_string_t
 
 auto lh::renderer::physical_device::supported_extensions() const -> vk_extensions_t
 {
-  return m_device.enumerateDeviceExtensionProperties();
+  return m_object.enumerateDeviceExtensionProperties();
 }
 
 auto lh::renderer::physical_device::assert_required_extensions() -> bool
@@ -1022,7 +1024,7 @@ lh::renderer::memory_allocator_module::operator VmaAllocator&()
   return m_allocator;
 }
 
-lh::renderer::physical_device::physical_device(const vk::raii::Instance& instance) : m_device {nullptr}
+lh::renderer::physical_device::physical_device(const vk::raii::Instance& instance)
 {
   // enumerate all vulkan capable physical devices
   auto physical_devices = instance.enumeratePhysicalDevices();
@@ -1040,17 +1042,7 @@ lh::renderer::physical_device::physical_device(const vk::raii::Instance& instanc
   if (get_performance_score(strongest_device) < physical_device::defaults::m_minimum_accepted_score)
 	output::fatal() << "this system does not have any suitable vulkan devices";
 
-  m_device = std::move(strongest_device);
-}
-
-lh::renderer::physical_device::operator vk::raii::PhysicalDevice&()
-{
-  return m_device;
-}
-
-lh::renderer::physical_device::operator const vk::raii::PhysicalDevice&() const
-{
-  return m_device;
+  m_object = std::move(strongest_device);
 }
 
 lh::renderer::swapchain::swapchain(const physical_device& physical_device,
@@ -1061,7 +1053,6 @@ lh::renderer::swapchain::swapchain(const physical_device& physical_device,
 	: m_surface_capabilities {(*physical_device).getSurfaceCapabilities2KHR(*surface)},
 	  m_surface_format {},
 	  m_present_mode {},
-	  m_swapchain {nullptr},
 	  m_image_views {}
 {
   const auto& vk_physical_device = *physical_device;
@@ -1127,9 +1118,9 @@ lh::renderer::swapchain::swapchain(const physical_device& physical_device,
 													alpha,
 													m_present_mode};
 
-  m_swapchain = vk::raii::SwapchainKHR {device, swapchain_info};
+  m_object = {device, swapchain_info};
 
-  m_image_views.reserve(m_swapchain.getImages().size());
+  m_image_views.reserve(m_object.getImages().size());
   auto image_view_info = vk::ImageViewCreateInfo({},
 												 {},
 												 swapchain::defaults::m_image_view_type,
@@ -1137,41 +1128,64 @@ lh::renderer::swapchain::swapchain(const physical_device& physical_device,
 												 {},
 												 {swapchain::defaults::m_image_aspect, 0, 1, 0, 1});
 
-  for (auto& image : m_swapchain.getImages())
+  for (auto& image : m_object.getImages())
   {
 	image_view_info.image = image;
 	m_image_views.emplace_back(device, image_view_info);
   }
 }
 
-auto lh::renderer::swapchain::operator*() -> vk::SwapchainKHR
-{
-  return *m_swapchain;
-}
-
-lh::renderer::logical_device::operator vk::raii::Device&()
-{
-  return m_device;
-}
-
 lh::renderer::logical_device::logical_device(const physical_device& physical_device,
 											 const std::vector<vk::DeviceQueueCreateInfo>& queues,
-											 const vk_extensions_t& extensions,
+											 const vk_string_t& extensions,
 											 const vk::PhysicalDeviceFeatures2& features)
-	: m_device {nullptr}
 {
-  const auto& suported_extensions = physical_device.required_extensions();
+  const auto& suported_extensions = physical_device.supported_extensions();
 
-  if (!renderer::assert_required_components(extensions, suported_extensions))
+  if (!renderer::assert_required_components(suported_extensions, extensions))
 	output::fatal() << "this system does not support the required vulkan components";
 
   // const auto device_queue_info = vk::DeviceQueueCreateInfo {{}, m_queue_families.m_graphics, 1, &queue_priority};
-  auto device_info = vk::DeviceCreateInfo {{}, queues, {}, suported_extensions, &features.features};
+  auto device_info = vk::DeviceCreateInfo {{}, queues, {}, extensions, &features.features};
 
-  m_device = {physical_device, device_info};
+  m_object = {*physical_device, device_info};
 }
 
-auto lh::renderer::logical_device::operator*() -> vk::raii::Device&
+lh::renderer::image::image(const physical_device& physical_device,
+						   const logical_device& device,
+						   const VmaAllocator& allocator,
+						   const vk::Extent2D& extent,
+						   const vk::Format& format)
+	: m_format(format), m_image {nullptr}, m_view {nullptr}, m_memory {nullptr}
 {
-  return m_device;
+  const auto image_info = vk::ImageCreateInfo {defaults::m_image_create_flags,
+											   defaults::m_image_type,
+											   format,
+											   vk::Extent3D(extent, 1),
+											   1,
+											   1,
+											   defaults::m_image_sample_count,
+											   defaults::m_image_tiling,
+											   defaults::m_image_usage | vk::ImageUsageFlagBits::eSampled,
+											   defaults::m_image_sharing_mode,
+											   {},
+											   defaults::m_image_layout};
+
+  const auto view_info =
+	vk::ImageViewCreateInfo {{}, *m_image, defaults::m_view_type, format, {}, {defaults::m_image_aspect, 0, 1, 0, 1}};
+
+  auto allocation_create_info = VmaAllocationCreateInfo {};
+  auto image_create_info = static_cast<VkImageCreateInfo>(image_info);
+  auto image = static_cast<VkImage>(*m_image);
+
+  auto allocation_info = VmaAllocationInfo {};
+  auto allocation = VmaAllocation {};
+  
+  auto result =
+	vmaCreateImage(allocator, &image_create_info, &allocation_create_info, &image, &allocation, &allocation_info);
+  assert(result);
+
+  m_image = {*device, image};
+  m_view = {*device, view_info};
+  m_memory = {*device, allocation_info.deviceMemory};
 }

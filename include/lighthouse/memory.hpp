@@ -26,6 +26,7 @@ namespace lh
 	using memory_size_t = uint64_t;
 	using decimal_t = double;
 	using normalized_decimal_t = double;
+	using vk_memory_type = uint32_t;
 
 	static inline constexpr auto order_multiplier = 1024u;
 
@@ -33,10 +34,7 @@ namespace lh
 	{
 	  memory_unit_t(memory_size_t value) : m_size(value) {};
 	  memory_size_t m_size;
-	  operator memory_size_t()
-	  {
-		return m_size;
-	  }
+	  operator memory_size_t() { return m_size; }
 	};
 
 	struct bytes : public memory_unit_t
@@ -79,8 +77,7 @@ namespace lh
 						  std::same_as<T, memory::terabytes>;
 
 	// ram memory info
-	template <memory_unit unit>
-	struct memory_info
+	template <memory_unit unit> struct memory_info
 	{
 	  unit m_total {0};
 	  unit m_available {0};
@@ -103,8 +100,7 @@ namespace lh
 	  normalized_decimal_t m_shared_used_percentage {};
 	};
 
-	template <memory_unit unit = gigabytes>
-	auto system_memory()
+	template <memory_unit unit = gigabytes> auto system_memory()
 	{
 	  constexpr auto unit_divisor = memory_size_t {
 		std::same_as<unit, bytes>		? std::to_underlying(memory_sizes::byte)
@@ -121,7 +117,8 @@ namespace lh
 		status.dwLength = sizeof(status);
 		GlobalMemoryStatusEx(&status);
 
-		memory = {status.ullTotalPhys / unit_divisor, status.ullAvailPhys / unit_divisor,
+		memory = {status.ullTotalPhys / unit_divisor,
+				  status.ullAvailPhys / unit_divisor,
 				  (status.ullTotalPhys - status.ullAvailPhys) / unit_divisor,
 				  1.0 - static_cast<decimal_t>(status.ullAvailPhys) / static_cast<decimal_t>(status.ullTotalPhys)};
 	  }
@@ -140,6 +137,10 @@ namespace lh
 	}
 
 	auto physical_device_memory(const vk::raii::PhysicalDevice&) -> physical_device_memory_info;
+	auto find_physical_device_memory_type(const vk::PhysicalDeviceMemoryProperties2&,
+										  const vk::MemoryPropertyFlags&,
+										  vk_memory_type) -> vk_memory_type;
+	auto allocate_physical_device_memory() -> vk::raii::DeviceMemory;
   }
 
   // memory size literals

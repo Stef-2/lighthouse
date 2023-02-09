@@ -2,7 +2,7 @@
 
 #include "SPIRV/GlslangToSpv.h"
 #include "vkfw.hpp"
-#include "vma/vk_mem_alloc.h"
+#include "vma/vk_mem_alloc.hpp"
 #include "vulkan.hpp"
 #include "vulkan/utils/geometries.hpp"
 #include "vulkan/utils/math.hpp"
@@ -40,21 +40,20 @@ namespace lh
 	// ===========================================================================
 
   private:
+	// vulkan object wrapper
 	template <typename T> class vk_wrapper
 	{
 	public:
 	  auto operator*() -> T& { return m_object; }
 	  auto operator*() const -> T& { return m_object; }
-	  auto operator->() -> T& { return m_object; }
-	  auto operator->() const -> T& { return m_object; }
+
+	  auto operator->() -> T* { return &m_object; }
+	  auto operator->() const -> T* { return &m_object; }
+
 	  operator T&() { return m_object; }
 
 	protected:
-	  mutable T m_object;
-	};
-
-	class instance : vk_wrapper<vk::raii::Instance>
-	{
+	  mutable T m_object {nullptr};
 	};
 
 	// optional module used for vulkan debugging
@@ -123,13 +122,6 @@ namespace lh
 	  auto assert_required_extensions() -> bool;
 	  auto get_basic_info() -> std::string;
 
-	  // operator vk::raii::PhysicalDevice&();
-	  // operator const vk::raii::PhysicalDevice&() const;
-	  // auto operator*() -> vk::raii::PhysicalDevice&;
-	  // auto operator*() const -> vk::raii::PhysicalDevice;
-
-	  // vk::raii::PhysicalDevice m_device;
-
 	  struct defaults
 	  {
 		static inline const vk_string_t m_required_extensions {"VK_KHR_swapchain",
@@ -139,21 +131,17 @@ namespace lh
 	  };
 	};
 
-	struct logical_device
+	struct logical_device : public vk_wrapper<vk::raii::Device>
 	{
 
 	  logical_device(const physical_device&,
 					 const std::vector<vk::DeviceQueueCreateInfo>&,
-					 const vk_extensions_t&,
+					 const vk_string_t&,
 					 const vk::PhysicalDeviceFeatures2& = {});
-
-	  operator vk::raii::Device&();
-	  auto operator*() -> vk::raii::Device&;
-
-	  vk::raii::Device m_device;
 
 	  struct defaults
 	  {
+		static inline constexpr auto m_queue_priority = 1.0f;
 		static inline constexpr auto m_properties = vk::PhysicalDeviceFeatures2 {};
 	  };
 	};
@@ -169,7 +157,7 @@ namespace lh
 	  index_t m_transfer;
 	};
 
-	struct swapchain
+	struct swapchain : public vk_wrapper<vk::raii::SwapchainKHR>
 	{
 	  swapchain(const physical_device&,
 				const vk::raii::Device&,
@@ -181,10 +169,7 @@ namespace lh
 	  vk::SurfaceFormat2KHR m_surface_format;
 	  vk::PresentModeKHR m_present_mode;
 
-	  vk::raii::SwapchainKHR m_swapchain;
 	  std::vector<vk::raii::ImageView> m_image_views;
-
-	  auto operator*() -> vk::SwapchainKHR;
 
 	  struct defaults
 	  {
@@ -201,12 +186,50 @@ namespace lh
 	  };
 	};
 
-	struct depth_buffer
+	struct image
 	{
-	  depth_buffer(const physical_device&, const logical_device&, const window&);
+	  struct defaults
+	  {
+		static inline constexpr auto m_format = vk::Format::eR8G8B8A8Srgb;
+
+		static inline constexpr auto m_image_type = vk::ImageType::e2D;
+		static inline constexpr auto m_image_create_flags = vk::ImageCreateFlags {};
+		static inline constexpr auto m_image_sample_count = vk::SampleCountFlagBits::e1;
+		static inline constexpr auto m_image_usage = vk::ImageUsageFlagBits::eSampled;
+		static inline constexpr auto m_image_sharing_mode = vk::SharingMode::eExclusive;
+		static inline constexpr auto m_image_layout = vk::ImageLayout::eAttachmentOptimal;
+		static inline constexpr auto m_image_tiling = vk::ImageTiling::eOptimal;
+		static inline constexpr auto m_image_aspect = vk::ImageAspectFlagBits::eColor;
+
+		static inline constexpr auto m_view_type = vk::ImageViewType::e2D;
+
+		static inline constexpr auto m_memory_type = vk::MemoryPropertyFlagBits::eDeviceLocal;
+	  };
+
+	  image(const physical_device&,
+			const logical_device&,
+			const VmaAllocator&,
+			const vk::Extent2D&,
+			const vk::Format& = defaults::m_format);
+
+	  vk::Format m_format;
+	  vk::raii::Image m_image;
+	  vk::raii::ImageView m_view;
+	  vk::raii::DeviceMemory m_memory;
+	};
+
+	struct depth_buffer : public vk_wrapper<vk::raii::ImageView>
+	{
+	  depth_buffer(const physical_device&, const logical_device&, const vk::Extent2D&);
 
 	  struct defaults
 	  {
+		static inline constexpr auto m_tiling = vk::ImageTiling::eOptimal;
+		static inline constexpr auto m_usage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
+		static inline constexpr auto m_layout = vk::ImageLayout::eUndefined;
+		static inline constexpr auto m_memory_property = vk::MemoryPropertyFlagBits::eDeviceLocal;
+		static inline constexpr auto m_aspect = vk::ImageAspectFlagBits::eDepth;
+		static inline constexpr auto m_format = vk::Format::eD16Unorm;
 	  };
 	};
 
