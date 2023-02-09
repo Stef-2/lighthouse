@@ -2,7 +2,7 @@
 
 #include "glm/gtx/string_cast.hpp"
 #include "vkfw.hpp"
-#include "vulkan.hpp"
+#include "vulkan/vulkan.hpp"
 #include "vulkan/vulkan_to_string.hpp"
 
 #include "static.hpp"
@@ -112,8 +112,7 @@ namespace lh
   auto operator<<(std::ostream& stream, lh::output::buffer& buffer) -> std::ostream&;
 
   // utility function that allows printing of any container holding string convertible types
-  template <lh::string::string_convertible_input_range T>
-  auto to_string(const T& range)
+  template <lh::string::string_convertible_input_range T> auto to_string(const T& range)
   {
 	auto buffer = lh::output::buffer {};
 

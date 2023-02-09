@@ -3,13 +3,13 @@
 #include "SPIRV/GlslangToSpv.h"
 #include "vkfw.hpp"
 #include "vma/vk_mem_alloc.hpp"
-#include "vulkan.hpp"
 #include "vulkan/utils/geometries.hpp"
 #include "vulkan/utils/math.hpp"
 #include "vulkan/utils/raii/raii_shaders.hpp"
 #include "vulkan/utils/raii/raii_utils.hpp"
+#include "vulkan/vulkan.hpp"
+#include "vulkan/vulkan_raii.hpp"
 #include "vulkan/vulkan_to_string.hpp"
-#include "vulkan_raii.hpp"
 
 #include "datatype.hpp"
 #include "memory.hpp"
@@ -208,7 +208,7 @@ namespace lh
 
 	  image(const physical_device&,
 			const logical_device&,
-			const VmaAllocator&,
+			const vma::Allocator&,
 			const vk::Extent2D&,
 			const vk::Format& = defaults::m_format);
 
@@ -242,9 +242,9 @@ namespace lh
 							  const engine_version& = engine_version::m_default);
 	  ~memory_allocator_module();
 
-	  operator VmaAllocator&();
+	  operator vma::Allocator&();
 
-	  VmaAllocator m_allocator;
+	  vma::Allocator m_allocator;
 	};
 
 	auto create_context() -> vk::raii::Context;

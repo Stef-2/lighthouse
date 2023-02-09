@@ -1,28 +1,29 @@
 #pragma once
 
 #include "vkfw.hpp"
-#include "vulkan.hpp"
+#include "vulkan/vulkan.hpp"
 
 #include "output.hpp"
 
+#include <map>
+#include <memory>
+#include <string>
 #include <utility>
 #include <vector>
-#include <string>
-#include <memory>
-#include <map>
 
 namespace lh
 {
-	// class that encapsulates GLFW / VKFW window and monitor for display
-	class window
-	{
-	public:
-		using window_dimension_t = uint32_t;
-		using window_gamma_t = float;
-		using window_resolution_t = vk::Extent2D;
-		using window_position_t = std::pair<window_dimension_t, window_dimension_t>;
+  // class that encapsulates GLFW / VKFW window and monitor for display
+  class window
+  {
+  public:
+	using window_dimension_t = uint32_t;
+	using window_gamma_t = float;
+	using window_resolution_t = vk::Extent2D;
+	using window_position_t = std::pair<window_dimension_t, window_dimension_t>;
 
-		// resolutions commonly used in video game engines
+	// resolutions commonly used in video game engines
+	// clang-format off
 		enum class common_resolutions
 		{
 			res_320x200,
@@ -73,6 +74,7 @@ namespace lh
 			default_fullscreen	= res_1920x1200
 		};
 
+		// clang-format off
 		static inline const std::map<common_resolutions, window_resolution_t> resolution =
 		{
 			{common_resolutions::res_320x200,	{320, 200}},

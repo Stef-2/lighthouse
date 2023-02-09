@@ -5,7 +5,7 @@ project("LightHouse")
 #set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
 set(CMAKE_BUILD_TYPE RelWithDebInfo)
 set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD_REQUIRED OFF)
 set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 # Path
@@ -68,12 +68,6 @@ message(WTFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 	
 endif()
 ]]
-#[[
-find_program(CMAKE_MAKE_PROGRAM
-  NAMES make
-		make.exe
-  HINTS C:/msys64/usr/bin)
-]]
 
 # Windows specific flags
 if(WIN32)
@@ -93,8 +87,9 @@ add_compile_definitions(
 	VKFW_NO_INCLUDE_VULKAN_HPP
 
 	# vulkan definitions
+	VULKAN_HPP_FLAGS_MASK_TYPE_AS_PUBLIC
 	VULKAN_HPP_NO_NODISCARD_WARNINGS
-	#VULKAN_HPP_NO_SPACESHIP_OPERATOR
+	VULKAN_HPP_NO_SPACESHIP_OPERATOR
 
 	#WIN32 definitions
 	NOMINMAX 
@@ -102,8 +97,8 @@ add_compile_definitions(
 
 remove_definitions(
 	# vkfw definitions
-	VKFW_NODISCARD
-	VKFW_NODISCARD_WHEN_NO_EXCEPTIONS
+	#VKFW_NODISCARD
+	#VKFW_NODISCARD_WHEN_NO_EXCEPTIONS
 )
 
 # Include
@@ -120,9 +115,19 @@ include_directories(
 target_precompile_headers(
 	${PROJECT_NAME} PRIVATE
 	${include}/vkfw/vkfw.hpp
+
 	${include}/vulkan/vulkan.hpp
 	${include}/vulkan/vulkan_enums.hpp
 	${include}/vulkan/vulkan_raii.hpp
+	${include}/vulkan/vulkan_to_string.hpp
+	${include}/vulkan/vulkan_structs.hpp
+	${include}/vulkan/vulkan_funcs.hpp
+	${include}/vulkan/vulkan_handles.hpp
+	${include}/vulkan/vulkan_profiles.hpp
+	${include}/vulkan/vulkan_enums.hpp
+	${include}/vulkan/vulkan_core.h
+
+	${include}/glm/fwd.hpp
 )
 
 # Libraries
@@ -132,7 +137,6 @@ target_link_directories(
 	PUBLIC ${library}
 	PUBLIC ${library}/glfw
 	PUBLIC ${library}/vulkan
-	PUBLIC ${library}/glslang
 )
 
 target_link_libraries(
@@ -140,17 +144,11 @@ target_link_libraries(
 
 	vulkan-1.lib
 	glfw3.lib
-	#glslang.lib
-	#glslang-default-resource-limits.lib
 	SPIRV.lib
 	SPIRV-Tools.lib
 	SPIRV-Tools-opt.lib
 	GenericCodeGen.lib
-	#HLSL.lib
 	MachineIndependent.lib
 	OGLCompiler.lib
 	OSDependent.lib
-	#SPVRemapper.lib
 )
-
-message(${CMAKE_CXX_COMPILER_ID})

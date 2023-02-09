@@ -996,21 +996,21 @@ lh::renderer::memory_allocator_module::memory_allocator_module(const vk::Physica
 															   const engine_version& version)
 {
   auto allocator_info =
-	VmaAllocatorCreateInfo {{},
-							physical_device,
-							device,
-							0,
-							nullptr,
-							nullptr,
-							nullptr,
-							nullptr,
-							instance,
-							VK_MAKE_API_VERSION(0, version.m_major, version.m_minor, version.m_patch),
-							nullptr};
+	vma::AllocatorCreateInfo {{},
+							  physical_device,
+							  device,
+							  0,
+							  nullptr,
+							  nullptr,
+							  nullptr,
+							  nullptr,
+							  instance,
+							  VK_MAKE_API_VERSION(0, version.m_major, version.m_minor, version.m_patch),
+							  nullptr};
 
-  auto result = vmaCreateAllocator(&allocator_info, &m_allocator);
+  auto result = vma::createAllocator(&allocator_info, &m_allocator);
 
-  if (result != VK_SUCCESS)
+  if (result != vk::Result::eSuccess)
 	output::fatal() << "unable to initialize vulkan memory allocator";
 }
 
@@ -1019,7 +1019,7 @@ lh::renderer::memory_allocator_module::~memory_allocator_module()
   vmaDestroyAllocator(m_allocator);
 }
 
-lh::renderer::memory_allocator_module::operator VmaAllocator&()
+lh::renderer::memory_allocator_module::operator vma::Allocator&()
 {
   return m_allocator;
 }
@@ -1153,7 +1153,7 @@ lh::renderer::logical_device::logical_device(const physical_device& physical_dev
 
 lh::renderer::image::image(const physical_device& physical_device,
 						   const logical_device& device,
-						   const VmaAllocator& allocator,
+						   const vma::Allocator& allocator,
 						   const vk::Extent2D& extent,
 						   const vk::Format& format)
 	: m_format(format), m_image {nullptr}, m_view {nullptr}, m_memory {nullptr}
@@ -1174,16 +1174,10 @@ lh::renderer::image::image(const physical_device& physical_device,
   const auto view_info =
 	vk::ImageViewCreateInfo {{}, *m_image, defaults::m_view_type, format, {}, {defaults::m_image_aspect, 0, 1, 0, 1}};
 
-  auto allocation_create_info = VmaAllocationCreateInfo {};
-  auto image_create_info = static_cast<VkImageCreateInfo>(image_info);
-  auto image = static_cast<VkImage>(*m_image);
-
-  auto allocation_info = VmaAllocationInfo {};
-  auto allocation = VmaAllocation {};
-  
-  auto result =
-	vmaCreateImage(allocator, &image_create_info, &allocation_create_info, &image, &allocation, &allocation_info);
-  assert(result);
+  const auto allocation_create_info = vma::AllocationCreateInfo {};
+  auto allocation_info = vma::AllocationInfo {};
+  glm::vec3 b;
+  auto [image, allocation] = allocator.createImage(image_info, allocation_create_info, allocation_info);
 
   m_image = {*device, image};
   m_view = {*device, view_info};
