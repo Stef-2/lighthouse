@@ -137,10 +137,6 @@ namespace lh
 	}
 
 	auto physical_device_memory(const vk::raii::PhysicalDevice&) -> physical_device_memory_info;
-	auto find_physical_device_memory_type(const vk::PhysicalDeviceMemoryProperties2&,
-										  const vk::MemoryPropertyFlags&,
-										  vk_memory_type) -> vk_memory_type;
-	auto allocate_physical_device_memory() -> vk::raii::DeviceMemory;
   }
 
   // memory size literals

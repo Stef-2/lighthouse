@@ -72,48 +72,55 @@ namespace lh
 
 	  vk::raii::DebugUtilsMessengerEXT m_debug_messenger;
 
-	  struct defaults
+	  struct create_info
 	  {
-		static inline vk::DebugUtilsMessengerCreateInfoEXT m_debug_info {
-		  {},
-		  {vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError},
-		  {vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance |
-		   vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation},
-		  &debug_callback};
+		vk::DebugUtilsMessengerCreateInfoEXT m_debug_info {{},
+														   {vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
+															vk::DebugUtilsMessageSeverityFlagBitsEXT::eError},
+														   {vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
+															vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance |
+															vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation},
+														   &debug_callback};
 
-		static inline const vk_string_t m_required_validation_layers {"VK_LAYER_KHRONOS_validation",
-																	  "VK_LAYER_NV_optimus",
-																	  //"VK_LAYER_NV_GPU_Trace_release_public_2021_4_0",
-																	  //"VK_LAYER_VALVE_steam_fossilize",
-																	  //"VK_LAYER_LUNARG_api_dump",
-																	  //"VK_LAYER_LUNARG_gfxreconstruct",
-																	  "VK_LAYER_KHRONOS_synchronization2",
-																	  "VK_LAYER_LUNARG_monitor",
-																	  "VK_LAYER_LUNARG_screenshot",
-																	  "VK_LAYER_KHRONOS_profiles"};
-	  };
+		vk_string_t m_required_validation_layers {"VK_LAYER_KHRONOS_validation",
+												  "VK_LAYER_NV_optimus",
+												  //"VK_LAYER_NV_GPU_Trace_release_public_2021_4_0",
+												  //"VK_LAYER_VALVE_steam_fossilize",
+												  //"VK_LAYER_LUNARG_api_dump",
+												  //"VK_LAYER_LUNARG_gfxreconstruct",
+												  "VK_LAYER_KHRONOS_synchronization2",
+												  "VK_LAYER_LUNARG_monitor",
+												  "VK_LAYER_LUNARG_screenshot",
+												  "VK_LAYER_KHRONOS_profiles"};
+	  } static inline const m_defaults;
 	};
 
 	// instance level vulkan extensions
 	struct logical_extension_module
 	{
+	  struct create_info
+	  {
+		vk_string_t m_required_extensions {"VK_EXT_debug_utils",
+										   "VK_KHR_get_physical_device_properties2",
+										   "VK_KHR_get_surface_capabilities2"};
+	  } static inline const m_defaults;
+
 	  auto required_extensions() -> vk_string_t;
 	  auto supported_extensions() -> vk_extensions_t;
 	  auto assert_required_extensions() -> bool;
-
-	  struct defaults
-	  {
-		static inline const vk_string_t m_required_extensions {"VK_EXT_debug_utils",
-															   "VK_KHR_get_physical_device_properties2",
-															   "VK_KHR_get_surface_capabilities2"};
-	  };
 	};
 
 	struct physical_device : public vk_wrapper<vk::raii::PhysicalDevice>
 	{
 	  using performance_score_t = uint64_t;
 
-	  physical_device(const vk::raii::Instance&);
+	  struct create_info
+	  {
+		vk_string_t m_required_extensions {"VK_KHR_swapchain", "VK_EXT_memory_budget", "VK_KHR_portability_subset"};
+		performance_score_t m_minimum_accepted_score {0xFFFFFFFF};
+	  } static inline const m_defaults;
+
+	  physical_device(const vk::raii::Instance&, const create_info& = m_defaults);
 
 	  static auto get_performance_score(const vk::raii::PhysicalDevice&) -> performance_score_t;
 
@@ -121,29 +128,21 @@ namespace lh
 	  auto supported_extensions() const -> vk_extensions_t;
 	  auto assert_required_extensions() -> bool;
 	  auto get_basic_info() -> std::string;
-
-	  struct defaults
-	  {
-		static inline const vk_string_t m_required_extensions {"VK_KHR_swapchain",
-															   "VK_EXT_memory_budget",
-															   "VK_KHR_portability_subset"};
-		static inline constexpr performance_score_t m_minimum_accepted_score {0xFFFFFFFF};
-	  };
 	};
 
 	struct logical_device : public vk_wrapper<vk::raii::Device>
 	{
 
+	  struct create_info
+	  {
+		float m_queue_priority = 1.0f;
+		vk::PhysicalDeviceFeatures2 m_features = vk::PhysicalDeviceFeatures2 {};
+	  } static inline const m_defaults;
+
 	  logical_device(const physical_device&,
 					 const std::vector<vk::DeviceQueueCreateInfo>&,
 					 const vk_string_t&,
-					 const vk::PhysicalDeviceFeatures2& = {});
-
-	  struct defaults
-	  {
-		static inline constexpr auto m_queue_priority = 1.0f;
-		static inline constexpr auto m_properties = vk::PhysicalDeviceFeatures2 {};
-	  };
+					 const create_info& = m_defaults);
 	};
 
 	// vulkan queue family indices
@@ -159,86 +158,84 @@ namespace lh
 
 	struct swapchain : public vk_wrapper<vk::raii::SwapchainKHR>
 	{
+	  struct create_info
+	  {
+		vk::SurfaceFormat2KHR m_format = {{vk::Format::eB8G8R8A8Srgb, vk::ColorSpaceKHR::eSrgbNonlinear}};
+		vk::PresentModeKHR m_present_mode = vk::PresentModeKHR::eImmediate;
+		uint32_t m_image_count = {2};
+		vk::ImageUsageFlagBits m_image_usage = vk::ImageUsageFlagBits::eColorAttachment;
+		vk::SharingMode m_sharing_mode = vk::SharingMode::eExclusive;
+		vk::SurfaceTransformFlagBitsKHR m_transform = vk::SurfaceTransformFlagBitsKHR::eIdentity;
+		vk::CompositeAlphaFlagBitsKHR m_alpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
+		vk::ImageViewType m_image_view_type = vk::ImageViewType::e2D;
+		vk::ImageAspectFlagBits m_image_aspect = vk::ImageAspectFlagBits::eColor;
+	  } static inline const m_defaults;
+
 	  swapchain(const physical_device&,
 				const vk::raii::Device&,
 				const vk::Extent2D&,
 				const vk::raii::SurfaceKHR&,
-				const queue_families&);
+				const queue_families&,
+				const create_info& = m_defaults);
 
 	  vk::SurfaceCapabilities2KHR m_surface_capabilities;
 	  vk::SurfaceFormat2KHR m_surface_format;
 	  vk::PresentModeKHR m_present_mode;
 
 	  std::vector<vk::raii::ImageView> m_image_views;
-
-	  struct defaults
-	  {
-		static inline const auto m_format = vk::SurfaceFormat2KHR {
-		  {vk::Format::eB8G8R8A8Srgb, vk::ColorSpaceKHR::eSrgbNonlinear}};
-		static inline constexpr auto m_present_mode = vk::PresentModeKHR::eImmediate;
-		static inline constexpr auto m_image_count = uint32_t {2};
-		static inline constexpr auto m_image_usage = vk::ImageUsageFlagBits::eColorAttachment;
-		static inline constexpr auto m_sharing_mode = vk::SharingMode::eExclusive;
-		static inline constexpr auto m_transform = vk::SurfaceTransformFlagBitsKHR::eIdentity;
-		static inline constexpr auto m_alpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
-		static inline constexpr auto m_image_view_type = vk::ImageViewType::e2D;
-		static inline constexpr auto m_image_aspect = vk::ImageAspectFlagBits::eColor;
-	  };
 	};
 
-	struct image
+	struct image : public vk_wrapper<vk::raii::Image>
 	{
-	  struct defaults
+	  struct create_info
 	  {
-		static inline constexpr auto m_format = vk::Format::eR8G8B8A8Srgb;
+		vk::Format m_format = vk::Format::eR8G8B8A8Srgb;
 
-		static inline constexpr auto m_image_type = vk::ImageType::e2D;
-		static inline constexpr auto m_image_create_flags = vk::ImageCreateFlags {};
-		static inline constexpr auto m_image_sample_count = vk::SampleCountFlagBits::e1;
-		static inline constexpr auto m_image_usage = vk::ImageUsageFlagBits::eSampled;
-		static inline constexpr auto m_image_sharing_mode = vk::SharingMode::eExclusive;
-		static inline constexpr auto m_image_layout = vk::ImageLayout::eAttachmentOptimal;
-		static inline constexpr auto m_image_tiling = vk::ImageTiling::eOptimal;
-		static inline constexpr auto m_image_aspect = vk::ImageAspectFlagBits::eColor;
+		vk::ImageType m_image_type = vk::ImageType::e2D;
+		vk::ImageCreateFlags m_image_create_flags = vk::ImageCreateFlags {};
+		vk::SampleCountFlagBits m_image_sample_count = vk::SampleCountFlagBits::e1;
+		vk::ImageUsageFlagBits m_image_usage = vk::ImageUsageFlagBits::eSampled;
+		vk::SharingMode m_image_sharing_mode = vk::SharingMode::eExclusive;
+		vk::ImageLayout m_image_layout = vk::ImageLayout::eAttachmentOptimal;
+		vk::ImageTiling m_image_tiling = vk::ImageTiling::eOptimal;
+		vk::ImageAspectFlagBits m_image_aspect = vk::ImageAspectFlagBits::eColor;
 
-		static inline constexpr auto m_view_type = vk::ImageViewType::e2D;
+		vk::ImageViewType m_view_type = vk::ImageViewType::e2D;
 
-		static inline constexpr auto m_memory_type = vk::MemoryPropertyFlagBits::eDeviceLocal;
-	  };
+		vk::MemoryPropertyFlagBits m_memory_type = vk::MemoryPropertyFlagBits::eDeviceLocal;
+	  } static inline const m_defaults;
 
 	  image(const physical_device&,
 			const logical_device&,
 			const vma::Allocator&,
 			const vk::Extent2D&,
-			const vk::Format& = defaults::m_format);
+			const create_info& = m_defaults);
 
 	  vk::Format m_format;
-	  vk::raii::Image m_image;
 	  vk::raii::ImageView m_view;
 	  vk::raii::DeviceMemory m_memory;
 	};
 
-	struct depth_buffer : public vk_wrapper<vk::raii::ImageView>
+	struct depth_buffer : public image
 	{
-	  depth_buffer(const physical_device&, const logical_device&, const vk::Extent2D&);
+	  using image::image;
 
-	  struct defaults
-	  {
-		static inline constexpr auto m_tiling = vk::ImageTiling::eOptimal;
-		static inline constexpr auto m_usage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
-		static inline constexpr auto m_layout = vk::ImageLayout::eUndefined;
-		static inline constexpr auto m_memory_property = vk::MemoryPropertyFlagBits::eDeviceLocal;
-		static inline constexpr auto m_aspect = vk::ImageAspectFlagBits::eDepth;
-		static inline constexpr auto m_format = vk::Format::eD16Unorm;
+	  static inline const create_info m_defaults {
+		.m_format = vk::Format::eD16Unorm,
+		.m_image_usage = vk::ImageUsageFlagBits::eDepthStencilAttachment,
+		.m_image_layout = vk::ImageLayout::eUndefined,
+		.m_image_tiling = vk::ImageTiling::eOptimal,
+		.m_image_aspect = vk::ImageAspectFlagBits::eDepth,
+		.m_memory_type = vk::MemoryPropertyFlagBits::eDeviceLocal,
 	  };
 	};
 
 	// vulkan memory allocator module
 	struct memory_allocator_module
 	{
-	  memory_allocator_module(const vk::PhysicalDevice&,
+	  memory_allocator_module(const vk::Instance&,
+							  const vk::PhysicalDevice&,
 							  const vk::Device&,
-							  const vk::Instance&,
 							  const engine_version& = engine_version::m_default);
 	  ~memory_allocator_module();
 
@@ -246,6 +243,8 @@ namespace lh
 
 	  vma::Allocator m_allocator;
 	};
+
+	// ===========================================================================
 
 	auto create_context() -> vk::raii::Context;
 	auto create_instance(const window&,
@@ -326,6 +325,7 @@ namespace lh
 	queue_families m_queue_families;
 	// vk::raii::Device m_device;
 	logical_device m_device;
+	memory_allocator_module m_memory_allocator;
 	vk::raii::CommandPool m_command_pool;
 	vk::raii::CommandBuffer m_command_buffer;
 	vk::raii::Queue m_graphics_queue;
@@ -333,8 +333,9 @@ namespace lh
 	// vk::raii::SwapchainKHR m_swapchain;
 	swapchain m_swapchain;
 	// vk::raii::su::SwapChainData m_swapchain_data;
+	depth_buffer m_depth_buffer;
 	//  vk::raii::ImageView m_depth_buffer;
-	vk::raii::su::DepthBufferData m_depth_buffer_data;
+	// vk::raii::su::DepthBufferData m_depth_buffer_data;
 	vk::raii::su::BufferData m_uniform_buffer;
 	vk::raii::DescriptorSetLayout m_descriptor_set_layout;
 	vk::raii::PipelineLayout m_pipeline_layout;
@@ -348,6 +349,5 @@ namespace lh
 	vk::raii::PipelineCache m_pipeline_cache;
 	vk::raii::Pipeline m_pipeline;
 	// std::vector<vk::raii::ImageView> m_image_views;
-	memory_allocator_module m_memory_allocator;
   };
 }

@@ -47,22 +47,3 @@ auto lh::memory::physical_device_memory(const vk::raii::PhysicalDevice& physical
 		  shared_used,
 		  shared_available_percentage};
 }
-
-auto lh::memory::find_physical_device_memory_type(const vk::PhysicalDeviceMemoryProperties2& properties,
-												  const vk::MemoryPropertyFlags& flags,
-												  vk_memory_type type) -> vk_memory_type
-{
-  auto memory_type = vk_memory_type {};
-
-  for (uint32_t i = 0; i < properties.memoryProperties.memoryTypeCount; i++)
-  {
-	if ((type & 1) && ((properties.memoryProperties.memoryTypes[i].propertyFlags & flags) == flags))
-	{
-	  memory_type = i;
-	  break;
-	}
-	memory_type >>= 1;
-  }
-
-  return memory_type;
-}
