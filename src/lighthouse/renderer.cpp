@@ -20,29 +20,35 @@ lh::renderer::renderer(const window& window,
 				{vk::DeviceQueueCreateInfo {
 					{}, m_queue_families.m_graphics, 1, &logical_device::m_defaults.m_queue_priority}},
 				m_physical_device.required_extensions()},
-	  m_memory_allocator {*m_instance, **m_physical_device, **m_device},
-	  m_command_pool {create_command_pool()},
+	  m_memory_allocator {*m_instance, m_physical_device, m_device},
+	  // m_command_pool {create_command_pool()},
 	  m_graphics_queue {create_graphics_queue()},
 	  m_present_queue {create_present_queue()},
-	  m_command_buffer {create_command_buffer()},
+	  // m_command_buffer {create_command_buffer()},
+	  m_command_control {m_device, m_queue_families},
 	  // m_swapchain {create_swapchain(window)},
-	  m_swapchain {m_physical_device, m_device, m_extent, m_surface, m_queue_families},
+	  m_swapchain {
+		  m_physical_device, m_device, m_extent, m_surface, m_queue_families, m_memory_allocator, m_renderpass},
 	  // m_swapchain_data {create_swapchain_data(window)},
 	  //  m_image_views {create_image_views()},
 	  //  m_depth_buffer {create_depth_buffer(window)},
 	  // m_depth_buffer_data {create_depth_buffer_data(window)},
-	  m_depth_buffer(
-		  m_physical_device, m_device, m_memory_allocator, window.get_resolution(), depth_buffer::m_defaults),
-	  m_uniform_buffer {create_uniform_buffer()},
+	  /*m_depth_buffer(
+		  m_physical_device, m_device, m_memory_allocator, window.get_resolution(), depth_buffer::m_defaults),*/
+	  m_uniform_buffer {m_physical_device,
+						m_device,
+						m_memory_allocator,
+						sizeof(glm::mat4x4),
+						buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eUniformBuffer}},
 	  m_descriptor_set_layout {create_descriptor_set_layout()},
 	  m_pipeline_layout {create_pipeline_layout()},
-	  m_format {create_format()},
+	  // m_format {create_format()},
 	  m_descriptor_set {create_descriptor_set()},
 	  m_renderpass {m_device},
 	  m_shader_modules {create_shader_module(vk::ShaderStageFlagBits::eVertex),
 						create_shader_module(vk::ShaderStageFlagBits::eFragment)},
 	  m_vertex_buffer {create_vertex_buffer()},
-	  m_framebuffers {create_framebuffers(window)},
+	  // m_framebuffers {create_framebuffers(window)},
 	  m_descriptor_pool {create_descriptor_pool()},
 	  m_pipeline_cache {create_pipeline_cache()},
 	  m_pipeline {create_pipeline()}
@@ -199,17 +205,17 @@ auto lh::renderer::create_device(const vk::PhysicalDeviceFeatures2& features) ->
 
 	return {m_physical_device, device_info};
 }
-
+/*
 auto lh::renderer::create_command_pool() -> vk::raii::CommandPool
 {
 	// create a command pool to allocate a command buffer from
-	/*auto command_pool_info = vk::CommandPoolCreateInfo {};
+	auto command_pool_info = vk::CommandPoolCreateInfo {};
 	command_pool_info.queueFamilyIndex = m_graphics_family_queue_indices.first;
-	*/
+
 
 	return {m_device, {vk::CommandPoolCreateFlagBits::eResetCommandBuffer, m_queue_families.m_graphics}};
 }
-
+*/
 auto lh::renderer::create_graphics_queue() -> vk::raii::Queue
 {
 	return {m_device, m_queue_families.m_graphics, 0};
@@ -321,6 +327,7 @@ auto lh::renderer::create_physical_device() -> physical_device
   return strongest_device;
 }
 */
+/*
 auto lh::renderer::create_command_buffer() -> vk::raii::CommandBuffer
 {
 	// allocate a command_buffer from the command_pool
@@ -329,7 +336,7 @@ auto lh::renderer::create_command_buffer() -> vk::raii::CommandBuffer
 																	   1};
 	return std::move(vk::raii::CommandBuffers(m_device, command_buffer_allocate_info).front());
 }
-
+*/
 auto lh::renderer::create_surface(const window& window) -> vk::raii::SurfaceKHR
 {
 	auto surface = VkSurfaceKHR {};
@@ -603,11 +610,10 @@ auto lh::renderer::create_descriptor_set() -> vk::raii::DescriptorSet
 
 	vk::raii::DescriptorSet descriptorSet = std::move(
 		vk::raii::DescriptorSets(m_device, {*m_descriptor_pool, *m_descriptor_set_layout}).front());
-	vk::raii::su::updateDescriptorSets(
-		m_device,
-		descriptorSet,
-		{{vk::DescriptorType::eUniformBuffer, m_uniform_buffer.buffer, VK_WHOLE_SIZE, nullptr}},
-		{});
+	vk::raii::su::updateDescriptorSets(m_device,
+									   descriptorSet,
+									   {{vk::DescriptorType::eUniformBuffer, m_uniform_buffer, VK_WHOLE_SIZE, nullptr}},
+									   {});
 
 	return descriptorSet;
 }
@@ -633,9 +639,9 @@ auto lh::renderer::create_pipeline() -> vk::raii::Pipeline
 											  m_pipeline_layout,
 											  m_renderpass);
 }
-
+/*
 auto lh::renderer::create_render_pass(const window& window) -> vk::raii::RenderPass
-{ /*
+{
 	 auto color_format =
 	 vk::su::pickSurfaceFormat(m_physical_device.getSurfaceFormatsKHR(*m_surface)).format; auto
 	 depth_format = vk::Format::eD16Unorm;
@@ -661,10 +667,12 @@ auto lh::renderer::create_render_pass(const window& window) -> vk::raii::RenderP
 
 	 auto render_pass_info = vk::RenderPassCreateInfo({}, attachment_descriptions, subpass_description);
 
-	 return {m_device, render_pass_info};*/
-	return vk::raii::su::makeRenderPass(m_device, m_format, m_depth_buffer.m_format);
+	 return {m_device, render_pass_info};
+	return vk::raii::su::makeRenderPass(m_device,
+										m_swapchain.m_surface_format.surfaceFormat.format,
+										m_depth_buffer.m_format);
 }
-
+*/
 auto lh::renderer::create_shader_module(const vk::ShaderStageFlagBits& stage) -> vk::raii::ShaderModule
 { /*
 	 glslang::InitializeProcess();
@@ -690,7 +698,7 @@ auto lh::renderer::create_shader_module(const vk::ShaderStageFlagBits& stage) ->
 
 	return module;
 }
-
+/*
 auto lh::renderer::create_framebuffers(const window& window) -> std::vector<vk::raii::Framebuffer>
 { /*
 	 auto attachments = std::array<vk::ImageView, 2> {};
@@ -709,12 +717,12 @@ auto lh::renderer::create_framebuffers(const window& window) -> std::vector<vk::
 		 framebuffers.push_back({m_device, framebuffer_info});
 	 }
 
-	 return framebuffers;*/
-	
+	 return framebuffers;
+
 	return vk::raii::su::makeFramebuffers(
 		m_device, *m_renderpass, m_swapchain.m_image_views, &m_depth_buffer.m_view, m_extent);
 }
-
+*/
 auto lh::renderer::create_vertex_buffer() -> vk::raii::su::BufferData
 { /*
 	 // create a vertex buffer for some vertex and color data
@@ -841,40 +849,42 @@ auto lh::renderer::render() -> void
 	// Get the index of the next available swapchain image:
 	vk::raii::Semaphore imageAcquiredSemaphore(m_device, vk::SemaphoreCreateInfo());
 
+	const auto& command_buffer = m_command_control.m_buffers.front();
+
 	vk::Result result;
 	uint32_t imageIndex;
 	std::tie(result, imageIndex) = m_swapchain->acquireNextImage(vk::su::FenceTimeout, *imageAcquiredSemaphore);
 	// assert(result == vk::Result::eSuccess);
 	// assert(imageIndex < swapChainData.images.size());
 
-	m_command_buffer.begin({});
+	command_buffer.begin({});
 
 	std::array<vk::ClearValue, 2> clearValues;
 	clearValues[0].color = vk::ClearColorValue(0.2f, 0.2f, 0.2f, 0.2f);
 	clearValues[1].depthStencil = vk::ClearDepthStencilValue(1.0f, 0);
 	vk::RenderPassBeginInfo renderPassBeginInfo(**m_renderpass,
-												*m_framebuffers[imageIndex],
+												**m_swapchain.m_framebuffers[imageIndex],
 												vk::Rect2D(vk::Offset2D(0, 0), m_extent),
 												clearValues);
-	m_command_buffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
-	m_command_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_pipeline);
-	m_command_buffer.bindDescriptorSets(
+	command_buffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
+	command_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_pipeline);
+	command_buffer.bindDescriptorSets(
 		vk::PipelineBindPoint::eGraphics, *m_pipeline_layout, 0, {*m_descriptor_set}, nullptr);
 
-	m_command_buffer.bindVertexBuffers(0, {*m_vertex_buffer.buffer}, {0});
-	m_command_buffer.setViewport(
+	command_buffer.bindVertexBuffers(0, {*m_vertex_buffer.buffer}, {0});
+	command_buffer.setViewport(
 		0,
 		vk::Viewport(0.0f, 0.0f, static_cast<float>(m_extent.width), static_cast<float>(m_extent.height), 0.0f, 1.0f));
-	m_command_buffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_extent));
+	command_buffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_extent));
 
-	m_command_buffer.draw(12 * 3, 1, 0, 0);
-	m_command_buffer.endRenderPass();
-	m_command_buffer.end();
+	command_buffer.draw(12 * 3, 1, 0, 0);
+	command_buffer.endRenderPass();
+	command_buffer.end();
 
 	vk::raii::Fence drawFence(m_device, vk::FenceCreateInfo());
 
 	vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
-	vk::SubmitInfo submitInfo(*imageAcquiredSemaphore, waitDestinationStageMask, *m_command_buffer);
+	vk::SubmitInfo submitInfo(*imageAcquiredSemaphore, waitDestinationStageMask, *command_buffer);
 	m_graphics_queue.submit(submitInfo, *drawFence);
 
 	while (vk::Result::eTimeout == m_device->waitForFences({*drawFence}, VK_TRUE, vk::su::FenceTimeout))
@@ -883,7 +893,7 @@ auto lh::renderer::render() -> void
 	glm::mat4x4 mvpcMatrix = vk::su::createModelViewProjectionClipMatrix(m_extent);
 	mvpcMatrix = glm::rotate(mvpcMatrix, float(vkfw::getTime().value), glm::vec3 {0.0f, 1.0f, 0.0f});
 
-	vk::raii::su::copyToDevice(m_uniform_buffer.deviceMemory, mvpcMatrix);
+	vk::raii::su::copyToDevice(m_uniform_buffer.m_memory, mvpcMatrix);
 
 	vk::PresentInfoKHR presentInfoKHR(nullptr, **m_swapchain, imageIndex);
 	result = m_present_queue.presentKHR(presentInfoKHR);
@@ -1000,15 +1010,15 @@ auto lh::renderer::physical_device::get_performance_score(const vk::raii::Physic
 	return score;
 }
 
-lh::renderer::memory_allocator_module::memory_allocator_module(const vk::Instance& instance,
-															   const vk::PhysicalDevice& physical_device,
-															   const vk::Device& device,
-															   const engine_version& version)
+lh::renderer::memory_allocator::memory_allocator(const vk::Instance& instance,
+												 const physical_device& physical_device,
+												 const logical_device& device,
+												 const engine_version& version)
 {
 	auto allocator_info =
 		vma::AllocatorCreateInfo {{},
-								  physical_device,
-								  device,
+								  **physical_device,
+								  **device,
 								  0,
 								  nullptr,
 								  nullptr,
@@ -1024,12 +1034,12 @@ lh::renderer::memory_allocator_module::memory_allocator_module(const vk::Instanc
 		output::fatal() << "unable to initialize vulkan memory allocator";
 }
 
-lh::renderer::memory_allocator_module::~memory_allocator_module()
+lh::renderer::memory_allocator::~memory_allocator()
 {
 	m_allocator.destroy();
 }
 
-lh::renderer::memory_allocator_module::operator vma::Allocator&()
+lh::renderer::memory_allocator::operator vma::Allocator&()
 {
 	return m_allocator;
 }
@@ -1056,16 +1066,20 @@ lh::renderer::physical_device::physical_device(const vk::raii::Instance& instanc
 }
 
 lh::renderer::swapchain::swapchain(const physical_device& physical_device,
-								   const vk::raii::Device& device,
+								   const logical_device& device,
 								   const vk::Extent2D& extent,
 								   const vk::raii::SurfaceKHR& surface,
 								   const queue_families& queue_families,
+								   const memory_allocator& memory_allocator,
+								   const renderpass& renderpass,
 								   const create_info& create_info)
 
 	: m_surface_capabilities {(*physical_device).getSurfaceCapabilities2KHR(*surface)},
 	  m_surface_format {},
 	  m_present_mode {},
-	  m_image_views {}
+	  m_image_views {},
+	  m_depth_buffer(physical_device, device, memory_allocator, extent, depth_buffer::m_defaults) /*,
+	   m_framebuffers {}*/
 {
 	const auto& vk_physical_device = *physical_device;
 	const auto capabilities = vk_physical_device.getSurfaceCapabilities2KHR(*surface);
@@ -1130,9 +1144,10 @@ lh::renderer::swapchain::swapchain(const physical_device& physical_device,
 													  alpha,
 													  m_present_mode};
 
-	m_object = {device, swapchain_info};
+	m_object = {*device, swapchain_info};
 
 	m_image_views.reserve(m_object.getImages().size());
+	m_framebuffers.reserve(m_object.getImages().size());
 	auto image_view_info = vk::ImageViewCreateInfo({},
 												   {},
 												   create_info.m_image_view_type,
@@ -1143,7 +1158,8 @@ lh::renderer::swapchain::swapchain(const physical_device& physical_device,
 	for (auto& image : m_object.getImages())
 	{
 		image_view_info.image = image;
-		m_image_views.emplace_back(device, image_view_info);
+		m_image_views.emplace_back(*device, image_view_info);
+		m_framebuffers.emplace_back(device, renderpass, m_image_views.back(), m_depth_buffer.m_view, extent);
 	}
 }
 
@@ -1165,7 +1181,7 @@ lh::renderer::logical_device::logical_device(const physical_device& physical_dev
 
 lh::renderer::image::image(const physical_device& physical_device,
 						   const logical_device& device,
-						   const vma::Allocator& allocator,
+						   const memory_allocator& allocator,
 						   const vk::Extent2D& extent,
 						   const create_info& create_info)
 	: m_format(create_info.m_format), m_view {nullptr}, m_memory {nullptr}
@@ -1183,10 +1199,10 @@ lh::renderer::image::image(const physical_device& physical_device,
 												 {},
 												 create_info.m_image_layout};
 
-	const auto allocation_create_info = vma::AllocationCreateInfo {};
+	const auto allocation_create_info = vma::AllocationCreateInfo {{}, vma::MemoryUsage::eAuto};
 	auto allocation_info = vma::AllocationInfo {};
 
-	auto [image, allocation] = allocator.createImage(image_info, allocation_create_info, allocation_info);
+	auto [image, allocation] = allocator.m_allocator.createImage(image_info, allocation_create_info, allocation_info);
 
 	m_object = {*device, image};
 
@@ -1202,14 +1218,72 @@ lh::renderer::renderpass::renderpass(const logical_device& device, const create_
 	const auto attachments = std::vector<vk::AttachmentDescription> {create_info.m_color_attachment,
 																	 create_info.m_depth_attachment};
 
-	const auto subpass_description = vk::SubpassDescription(vk::SubpassDescriptionFlags(),
-															create_info.m_bind_point,
-															{},
-															create_info.m_color_attachment_reference,
-															{},
-															&create_info.m_depth_attachment_reference);
+	const auto subpass_description = vk::SubpassDescription {vk::SubpassDescriptionFlags(),
+															 create_info.m_bind_point,
+															 {},
+															 create_info.m_color_attachment_reference,
+															 {},
+															 &create_info.m_depth_attachment_reference};
 
 	const auto render_pass_info = vk::RenderPassCreateInfo {{}, attachments, subpass_description};
 
 	m_object = {*device, render_pass_info};
+}
+
+lh::renderer::buffer::buffer(const physical_device& physical_device,
+							 const logical_device& device,
+							 const vma::Allocator& allocator,
+							 const vk::DeviceSize& size,
+							 const create_info& create_info)
+	: m_memory {nullptr}
+{
+	const auto buffer_info = vk::BufferCreateInfo({}, size, create_info.m_usage);
+	const auto allocation_create_info = vma::AllocationCreateInfo {{},
+																   vma::MemoryUsage::eAuto,
+																   create_info.m_properties};
+	auto allocation_info = vma::AllocationInfo {};
+
+	auto [buffer, allocation] = allocator.createBuffer(buffer_info, allocation_create_info, allocation_info);
+
+	m_object = {*device, buffer};
+	m_memory = {*device, allocation_info.deviceMemory};
+}
+
+lh::renderer::command_control::command_control(const logical_device& device,
+											   const queue_families& queue_families,
+											   const create_info& create_info)
+	: m_buffers {nullptr}
+{
+	m_object = {*device, {create_info.m_pool_flags, queue_families.m_graphics}};
+
+	auto command_buffers_info = vk::CommandBufferAllocateInfo {*m_object,
+															   create_info.m_buffer_level,
+															   create_info.m_num_buffers};
+
+	m_buffers = {*device, command_buffers_info};
+}
+
+lh::renderer::framebuffer::framebuffer(const logical_device& device,
+									   const renderpass& renderpass,
+									   const image& image,
+									   const depth_buffer& depth_buffer,
+									   const vk::Extent2D extent,
+									   const create_info& create_info)
+	: framebuffer(device, renderpass, image.m_view, depth_buffer.m_view, extent, create_info)
+{
+}
+
+lh::renderer::framebuffer::framebuffer(const logical_device& device,
+									   const renderpass& renderpass,
+									   const vk::raii::ImageView& image,
+									   const vk::raii::ImageView& depth_buffer,
+									   const vk::Extent2D extent,
+									   const create_info& create_info)
+{
+	const auto& views = std::array {*image, *depth_buffer};
+
+	const auto framebuffer_info =
+		vk::FramebufferCreateInfo {{}, **renderpass, 2, views.data(), extent.width, extent.height, 1};
+
+	m_object = {*device, framebuffer_info};
 }

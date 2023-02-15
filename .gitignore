@@ -15,7 +15,7 @@ build
 .clang-format
 /CMakePresets.json
 
-
+data
 lib
 tools
 include/*

@@ -53,8 +53,8 @@ namespace lh
 			operator T&() { return m_object; }
 
 		protected:
-			explicit vk_wrapper(T&& object) : m_object(object) {};
-			vk_wrapper(nullptr_t null = nullptr) : m_object(null) {};
+			explicit vk_wrapper(const T& object) : m_object(object) {};
+			vk_wrapper(nullptr_t object = nullptr) : m_object(object) {};
 
 			mutable T m_object {nullptr};
 		};
@@ -148,6 +148,20 @@ namespace lh
 						   const create_info& = m_defaults);
 		};
 
+		// vulkan memory allocator module
+		struct memory_allocator
+		{
+			memory_allocator(const vk::Instance&,
+							 const physical_device&,
+							 const logical_device&,
+							 const engine_version& = engine_version::m_default);
+			~memory_allocator();
+
+			operator vma::Allocator&();
+
+			vma::Allocator m_allocator;
+		};
+
 		// vulkan queue family indices
 		struct queue_families
 		{
@@ -157,35 +171,6 @@ namespace lh
 			index_t m_present;
 			index_t m_compute;
 			index_t m_transfer;
-		};
-
-		struct swapchain : public vk_wrapper<vk::raii::SwapchainKHR>
-		{
-			struct create_info
-			{
-				vk::SurfaceFormat2KHR m_format = {{vk::Format::eR8G8B8A8Srgb, vk::ColorSpaceKHR::eSrgbNonlinear}};
-				vk::PresentModeKHR m_present_mode = vk::PresentModeKHR::eImmediate;
-				uint32_t m_image_count = {2};
-				vk::ImageUsageFlagBits m_image_usage = vk::ImageUsageFlagBits::eColorAttachment;
-				vk::SharingMode m_sharing_mode = vk::SharingMode::eExclusive;
-				vk::SurfaceTransformFlagBitsKHR m_transform = vk::SurfaceTransformFlagBitsKHR::eIdentity;
-				vk::CompositeAlphaFlagBitsKHR m_alpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
-				vk::ImageViewType m_image_view_type = vk::ImageViewType::e2D;
-				vk::ImageAspectFlagBits m_image_aspect = vk::ImageAspectFlagBits::eColor;
-			} static inline const m_defaults;
-
-			swapchain(const physical_device&,
-					  const vk::raii::Device&,
-					  const vk::Extent2D&,
-					  const vk::raii::SurfaceKHR&,
-					  const queue_families&,
-					  const create_info& = m_defaults);
-
-			vk::SurfaceCapabilities2KHR m_surface_capabilities;
-			vk::SurfaceFormat2KHR m_surface_format;
-			vk::PresentModeKHR m_present_mode;
-
-			std::vector<vk::raii::ImageView> m_image_views;
 		};
 
 		struct image : public vk_wrapper<vk::raii::Image>
@@ -210,7 +195,7 @@ namespace lh
 
 			image(const physical_device&,
 				  const logical_device&,
-				  const vma::Allocator&,
+				  const memory_allocator&,
 				  const vk::Extent2D&,
 				  const create_info& = m_defaults);
 
@@ -231,21 +216,6 @@ namespace lh
 				.m_image_aspect = vk::ImageAspectFlagBits::eDepth,
 				.m_memory_type = vk::MemoryPropertyFlagBits::eDeviceLocal,
 			};
-		};
-
-		struct buffer : public vk_wrapper<vk::raii::Buffer>
-		{
-			struct create_info
-			{
-			} static const inline m_defaults;
-
-			buffer(const physical_device&,
-				   const logical_device&,
-				   const vma::Allocator&,
-				   const vk::DeviceSize&,
-				   const create_info& = m_defaults);
-
-			vk::raii::DeviceMemory m_memory;
 		};
 
 		struct renderpass : public vk_wrapper<vk::raii::RenderPass>
@@ -286,18 +256,94 @@ namespace lh
 			renderpass(const logical_device&, const create_info& = m_defaults);
 		};
 
-		// vulkan memory allocator module
-		struct memory_allocator_module
+		struct framebuffer : public vk_wrapper<vk::raii::Framebuffer>
 		{
-			memory_allocator_module(const vk::Instance&,
-									const vk::PhysicalDevice&,
-									const vk::Device&,
-									const engine_version& = engine_version::m_default);
-			~memory_allocator_module();
+			struct create_info
+			{
 
-			operator vma::Allocator&();
+			} static inline const m_defaults;
 
-			vma::Allocator m_allocator;
+			framebuffer(const logical_device&,
+						const renderpass&,
+						const image&,
+						const depth_buffer&,
+						const vk::Extent2D,
+						const create_info& = m_defaults);
+
+			framebuffer(const logical_device&,
+						const renderpass&,
+						const vk::raii::ImageView&,
+						const vk::raii::ImageView&,
+						const vk::Extent2D,
+						const create_info& = m_defaults);
+		};
+
+		struct swapchain : public vk_wrapper<vk::raii::SwapchainKHR>
+		{
+			struct create_info
+			{
+				vk::SurfaceFormat2KHR m_format = {{vk::Format::eR8G8B8A8Srgb, vk::ColorSpaceKHR::eSrgbNonlinear}};
+				vk::PresentModeKHR m_present_mode = vk::PresentModeKHR::eImmediate;
+				uint32_t m_image_count = {2};
+				vk::ImageUsageFlagBits m_image_usage = vk::ImageUsageFlagBits::eColorAttachment;
+				vk::SharingMode m_sharing_mode = vk::SharingMode::eExclusive;
+				vk::SurfaceTransformFlagBitsKHR m_transform = vk::SurfaceTransformFlagBitsKHR::eIdentity;
+				vk::CompositeAlphaFlagBitsKHR m_alpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
+				vk::ImageViewType m_image_view_type = vk::ImageViewType::e2D;
+				vk::ImageAspectFlagBits m_image_aspect = vk::ImageAspectFlagBits::eColor;
+			} static inline const m_defaults;
+
+			swapchain(const physical_device&,
+					  const logical_device&,
+					  const vk::Extent2D&,
+					  const vk::raii::SurfaceKHR&,
+					  const queue_families&,
+					  const memory_allocator&,
+					  const renderpass&,
+					  const create_info& = m_defaults);
+
+			vk::SurfaceCapabilities2KHR m_surface_capabilities;
+			vk::SurfaceFormat2KHR m_surface_format;
+			vk::PresentModeKHR m_present_mode;
+
+			depth_buffer m_depth_buffer;
+			std::vector<vk::raii::ImageView> m_image_views;
+			std::vector<framebuffer> m_framebuffers;
+		};
+
+		struct buffer : public vk_wrapper<vk::raii::Buffer>
+		{
+			struct create_info
+			{
+				vk::BufferUsageFlags m_usage = {};
+				vk::MemoryPropertyFlags m_properties = vk::MemoryPropertyFlagBits::eHostVisible |
+													   vk::MemoryPropertyFlagBits::eHostCoherent;
+			} static const inline m_defaults;
+
+			buffer(const physical_device&,
+				   const logical_device&,
+				   const vma::Allocator&,
+				   const vk::DeviceSize&,
+				   const create_info& = m_defaults);
+
+			vk::raii::DeviceMemory m_memory;
+		};
+
+		// e1m4
+		struct command_control : public vk_wrapper<vk::raii::CommandPool>
+		{
+			struct create_info
+			{
+				vk::CommandPoolCreateFlags m_pool_flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
+
+				vk::CommandBufferLevel m_buffer_level = vk::CommandBufferLevel::ePrimary;
+				uint32_t m_num_buffers = {1};
+
+			} static inline const m_defaults;
+
+			command_control(const logical_device&, const queue_families&, const create_info& = m_defaults);
+
+			vk::raii::CommandBuffers m_buffers;
 		};
 
 		// ===========================================================================
@@ -383,30 +429,33 @@ namespace lh
 		queue_families m_queue_families;
 		// vk::raii::Device m_device;
 		logical_device m_device;
-		memory_allocator_module m_memory_allocator;
-		vk::raii::CommandPool m_command_pool;
-		vk::raii::CommandBuffer m_command_buffer;
+		memory_allocator m_memory_allocator;
+		command_control m_command_control;
+		// vk::raii::CommandPool m_command_pool;
+		// vk::raii::CommandBuffer m_command_buffer;
 		vk::raii::Queue m_graphics_queue;
 		vk::raii::Queue m_present_queue;
 		// vk::raii::SwapchainKHR m_swapchain;
+		renderpass m_renderpass;
 		swapchain m_swapchain;
 		// vk::raii::su::SwapChainData m_swapchain_data;
-		depth_buffer m_depth_buffer;
-		renderpass m_renderpass;
+		// depth_buffer m_depth_buffer;
 		//  vk::raii::ImageView m_depth_buffer;
 		// vk::raii::su::DepthBufferData m_depth_buffer_data;
-		vk::raii::su::BufferData m_uniform_buffer;
+		// vk::raii::su::BufferData m_uniform_buffer;
+		buffer m_uniform_buffer;
+
 		vk::raii::DescriptorSetLayout m_descriptor_set_layout;
-		vk::raii::PipelineLayout m_pipeline_layout;
-		vk::Format m_format;
-		// vk::raii::RenderPass m_render_pass;
-		vk::raii::ShaderModule m_shader_modules[2];
-		std::vector<vk::raii::Framebuffer> m_framebuffers;
-		vk::raii::su::BufferData m_vertex_buffer;
 		vk::raii::DescriptorPool m_descriptor_pool;
 		vk::raii::DescriptorSet m_descriptor_set;
+
+		vk::raii::ShaderModule m_shader_modules[2];
+		vk::raii::PipelineLayout m_pipeline_layout;
 		vk::raii::PipelineCache m_pipeline_cache;
 		vk::raii::Pipeline m_pipeline;
+		// vk::raii::RenderPass m_render_pass;
+		// std::vector<vk::raii::Framebuffer> m_framebuffers;
+		vk::raii::su::BufferData m_vertex_buffer;
 		// std::vector<vk::raii::ImageView> m_image_views;
 	};
 }
