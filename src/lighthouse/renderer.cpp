@@ -44,7 +44,7 @@ lh::renderer::renderer(const window& window,
 	  m_pipeline_layout {create_pipeline_layout()},
 	  // m_format {create_format()},
 	  m_descriptor_set {create_descriptor_set()},
-	  m_renderpass {m_device},
+	  m_renderpass {m_physical_device, m_device, m_surface},
 	  m_shader_modules {create_shader_module(vk::ShaderStageFlagBits::eVertex),
 						create_shader_module(vk::ShaderStageFlagBits::eFragment)},
 	  m_vertex_buffer {create_vertex_buffer()},
@@ -1213,10 +1213,22 @@ lh::renderer::image::image(const physical_device& physical_device,
 	m_memory = {*device, allocation_info.deviceMemory};
 }
 
-lh::renderer::renderpass::renderpass(const logical_device& device, const create_info& create_info)
+lh::renderer::renderpass::renderpass(const physical_device& physical_device,
+									 const logical_device& device,
+									 const vk::raii::SurfaceKHR& surface,
+									 const create_info& create_info)
 {
-	const auto attachments = std::vector<vk::AttachmentDescription> {create_info.m_color_attachment,
-																	 create_info.m_depth_attachment};
+	const auto formats = physical_device->getSurfaceFormatsKHR(*surface);
+
+	auto attachments = std::vector<vk::AttachmentDescription> {create_info.m_color_attachment,
+															   create_info.m_depth_attachment};
+
+	// attempt to acquire the prefered surface format, if unavailable, take the first one that is
+	if (!std::ranges::contains(formats, create_info.m_color_attachment.format))
+	{
+		output::warning() << "this system does not support the prefered vulkan surface format";
+		attachments.front().format = formats.front().format;
+	}
 
 	const auto subpass_description = vk::SubpassDescription {vk::SubpassDescriptionFlags(),
 															 create_info.m_bind_point,
@@ -1280,7 +1292,7 @@ lh::renderer::framebuffer::framebuffer(const logical_device& device,
 									   const vk::Extent2D extent,
 									   const create_info& create_info)
 {
-	const auto& views = std::array {*image, *depth_buffer};
+	const auto views = std::array {*image, *depth_buffer};
 
 	const auto framebuffer_info =
 		vk::FramebufferCreateInfo {{}, **renderpass, 2, views.data(), extent.width, extent.height, 1};

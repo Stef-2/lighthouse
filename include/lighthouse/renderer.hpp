@@ -226,7 +226,7 @@ namespace lh
 				vk::AttachmentLoadOp m_load_operation = vk::AttachmentLoadOp::eClear;
 
 				vk::AttachmentDescription m_color_attachment = {{},
-																vk::Format::eR8G8B8A8Srgb,
+																vk::Format::eB8G8R8A8Srgb,
 																m_sample_count,
 																m_load_operation,
 																vk::AttachmentStoreOp::eStore,
@@ -253,7 +253,10 @@ namespace lh
 
 			} static inline const m_defaults;
 
-			renderpass(const logical_device&, const create_info& = m_defaults);
+			renderpass(const physical_device&,
+					   const logical_device&,
+					   const vk::raii::SurfaceKHR&,
+					   const create_info& = m_defaults);
 		};
 
 		struct framebuffer : public vk_wrapper<vk::raii::Framebuffer>
@@ -282,7 +285,7 @@ namespace lh
 		{
 			struct create_info
 			{
-				vk::SurfaceFormat2KHR m_format = {{vk::Format::eR8G8B8A8Srgb, vk::ColorSpaceKHR::eSrgbNonlinear}};
+				vk::SurfaceFormat2KHR m_format = {{vk::Format::eB8G8R8A8Srgb, vk::ColorSpaceKHR::eSrgbNonlinear}};
 				vk::PresentModeKHR m_present_mode = vk::PresentModeKHR::eImmediate;
 				uint32_t m_image_count = {2};
 				vk::ImageUsageFlagBits m_image_usage = vk::ImageUsageFlagBits::eColorAttachment;
