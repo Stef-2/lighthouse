@@ -1,9 +1,9 @@
 #pragma once
 
-#include "window.hpp"
-#include "renderer.hpp"
 #include "input.hpp"
+#include "renderer.hpp"
 #include "version.hpp"
+#include "window.hpp"
 
 namespace lh
 {
@@ -12,9 +12,7 @@ namespace lh
 	class engine
 	{
 	public:
-		engine(std::unique_ptr<window>,
-			   const engine_version& = engine_version::m_default,
-			   const vulkan_version& = vulkan_version::m_default);
+		engine(std::unique_ptr<window>, const renderer::create_info& = renderer::m_defaults);
 
 		~engine();
 
@@ -22,7 +20,7 @@ namespace lh
 		auto run() -> void;
 
 		auto get_window() -> const window&;
-		auto get_version() -> engine_version&;
+		auto get_version() -> version&;
 
 	private:
 		auto initialize() -> void;
@@ -32,6 +30,6 @@ namespace lh
 		std::unique_ptr<window> m_window;
 		renderer m_renderer;
 
-		engine_version m_version;
+		version m_version;
 	};
 }

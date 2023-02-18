@@ -48,7 +48,7 @@ auto lh::input::key_binding::initialize(const window& window) -> void
                                                                  vkfw::ModifierKeyFlags modifiers) {
         const auto input = input::key_binding::key_input {key, modifiers, action};
         auto iterator = keybindings.equal_range(input);
-        std::cout << code;
+
         for (auto& function = iterator.first; function != iterator.second; function++)
             function->second();
     };

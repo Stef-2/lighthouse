@@ -1,40 +1,33 @@
 #pragma once
 
-#include <string>
+#include "output.hpp"
 
 namespace lh
 {
-    struct engine_version
-    {
-        using version_t = uint8_t;
-        using packed_version_t = uint32_t;
+	struct version
+	{
+		using version_t = uint8_t;
+		using packed_version_t = uint32_t;
 
-        engine_version(version_t major, version_t minor, version_t patch);
-        // extract the 3 8-bit versions from a packed 32-bit one
-        engine_version(packed_version_t);
+		version(version_t major, version_t minor, version_t patch);
+		// extract the 3 8-bit versions from a packed 32-bit one
+		version(packed_version_t);
 
-        // implicit conversions to wider type, packs all 3 versions
-        operator packed_version_t() const;
+		auto major() const -> version_t;
+		auto minor() const -> version_t;
+		auto patch() const -> version_t;
 
-        // implicit conversion to a readable string format
-        operator std::string() const;
+		// implicit conversions to wider type, packs all 3 versions
+		operator packed_version_t() const;
 
-        version_t m_major {};
-        version_t m_minor {};
-        version_t m_patch {};
+		// implicit conversion to a readable string format
+		operator lh::output::string_t() const;
 
-        static const engine_version m_default;
+		static const version m_engine_version;
+		static const version m_vulkan_version;
 
-    private:
-        static inline int m_pack_offset = 0xFF;
-    };
-
-    struct vulkan_version
-    {
-        uint8_t m_major;
-        uint8_t m_minor;
-        uint8_t m_patch;
-
-        static const vulkan_version m_default;
-    };
+	private:
+		packed_version_t m_version {};
+		static inline int m_pack_offset = 0xFF;
+	};
 }

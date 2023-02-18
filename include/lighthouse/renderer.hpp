@@ -30,10 +30,16 @@ namespace lh
 		using vk_layers_t = const std::vector<vk::LayerProperties>;
 		using vk_extensions_t = const std::vector<vk::ExtensionProperties>;
 
-		renderer(const window&,
-				 const engine_version& = engine_version::m_default,
-				 const vulkan_version& = vulkan_version::m_default,
-				 bool use_validaiton_module = true);
+		struct create_info
+		{
+			version m_engine_version = version::m_engine_version;
+			version m_vulkan_version = version::m_vulkan_version;
+			uint32_t m_frames_in_flight = 2;
+			bool m_using_validation = true;
+
+		} static inline const m_defaults;
+
+		renderer(const window&, const create_info& = m_defaults);
 
 		auto render() -> void;
 
@@ -75,13 +81,15 @@ namespace lh
 
 			struct create_info
 			{
-				vk::DebugUtilsMessengerCreateInfoEXT m_debug_info {{},
-																   {vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
-																	vk::DebugUtilsMessageSeverityFlagBitsEXT::eError},
-																   {vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
-																	vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance |
-																	vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation},
-																   &debug_callback};
+				vk::DebugUtilsMessengerCreateInfoEXT m_debug_info {
+					{},
+					{vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
+					 vk::DebugUtilsMessageSeverityFlagBitsEXT::eError},
+					{vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
+					 vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance |
+					 vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation |
+					 vk::DebugUtilsMessageTypeFlagBitsEXT::eDeviceAddressBinding},
+					&debug_callback};
 
 				vk_string_t m_required_validation_layers {"VK_LAYER_KHRONOS_validation",
 														  "VK_LAYER_NV_optimus",
@@ -130,7 +138,8 @@ namespace lh
 			auto required_extensions() const -> vk_string_t;
 			auto supported_extensions() const -> vk_extensions_t;
 			auto assert_required_extensions() -> bool;
-			auto get_basic_info() -> std::string;
+			auto basic_info() const -> output::string_t;
+			auto advanced_info() const -> output::string_t;
 		};
 
 		struct logical_device : public vk_wrapper<vk::raii::Device>
@@ -154,7 +163,7 @@ namespace lh
 			memory_allocator(const vk::Instance&,
 							 const physical_device&,
 							 const logical_device&,
-							 const engine_version& = engine_version::m_default);
+							 const version& = version::m_engine_version);
 			~memory_allocator();
 
 			operator vma::Allocator&();
@@ -166,6 +175,13 @@ namespace lh
 		struct queue_families
 		{
 			using index_t = uint32_t;
+
+			struct create_info
+			{
+
+			} static inline const m_defaults;
+
+			queue_families(const physical_device&, const vk::raii::SurfaceKHR&, const create_info& = m_defaults);
 
 			index_t m_graphics;
 			index_t m_present;
@@ -349,26 +365,55 @@ namespace lh
 			vk::raii::CommandBuffers m_buffers;
 		};
 
+		struct descriptor_set_layout : public vk_wrapper<vk::raii::DescriptorSetLayout>
+		{
+			using descriptor_count_t = uint32_t;
+			using binding_location_t = uint32_t;
+
+			struct binding
+			{
+				binding_location_t m_location {};
+				vk::DescriptorType m_type {};
+				descriptor_count_t m_count {1};
+			};
+
+			struct create_info
+			{
+				vk::DescriptorSetLayoutCreateFlags m_flags {};
+				vk::ShaderStageFlagBits m_access = vk::ShaderStageFlagBits::eAll;
+
+			} static inline const m_defaults;
+
+			descriptor_set_layout(const logical_device&, const std::vector<binding>&, const create_info& = m_defaults);
+		};
+
+		struct descriptor_pool : public vk_wrapper<vk::raii::DescriptorPool>
+		{
+			struct create_info
+			{
+				vk::DescriptorPoolCreateFlags m_flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
+			} static inline const m_defaults;
+
+			descriptor_pool();
+		};
+
 		// ===========================================================================
 
 		auto create_context() -> vk::raii::Context;
 		auto create_instance(const window&,
-							 const engine_version& = engine_version::m_default,
-							 const vulkan_version& = vulkan_version::m_default,
+							 const version& = version::m_engine_version,
+							 const version& = version::m_vulkan_version,
 							 bool use_validaiton_module = true) -> vk::raii::Instance;
 
 		auto create_physical_device() -> physical_device;
 		auto create_surface(const window&) -> vk::raii::SurfaceKHR;
 		auto create_extent(const window&) -> vk::Extent2D;
-		auto create_queue_families() -> queue_families;
-		auto create_device(const vk::PhysicalDeviceFeatures2& = {}) -> vk::raii::Device;
+
 		auto create_command_pool() -> vk::raii::CommandPool;
 		auto create_command_buffer() -> vk::raii::CommandBuffer;
 		auto create_graphics_queue() -> vk::raii::Queue;
 		auto create_present_queue() -> vk::raii::Queue;
-		// auto create_swapchain(const window&) -> vk::raii::SwapchainKHR;
-		// auto create_swapchain(const window&) -> swapchain;
-		// auto create_swapchain_data(const window&) -> vk::raii::su::SwapChainData;
+
 		auto create_depth_buffer(const window&) -> vk::raii::ImageView;
 		auto create_depth_buffer_data(const window&) -> vk::raii::su::DepthBufferData;
 		auto create_uniform_buffer() -> vk::raii::su::BufferData;
@@ -386,6 +431,7 @@ namespace lh
 		// auto create_image_views() -> std::vector<vk::raii::ImageView>;
 
 		auto create_buffer(const data_t&, const vk::BufferUsageFlagBits&) -> vk::raii::Buffer;
+		auto info() -> output::string_t;
 
 		template <typename T>
 			requires std::is_same_v<T, vk_layers_t> ||
@@ -418,7 +464,7 @@ namespace lh
 			return true;
 		};
 
-		vulkan_version m_version;
+		version m_version;
 
 		logical_extension_module m_logical_extensions;
 
@@ -426,29 +472,25 @@ namespace lh
 		vk::raii::Instance m_instance;
 		std::optional<validation_module> m_validation_module = {std::nullopt};
 		physical_device m_physical_device;
-		// vk::raii::su::SurfaceData m_surface_data;
+
 		vk::raii::SurfaceKHR m_surface;
 		vk::Extent2D m_extent;
 		queue_families m_queue_families;
-		// vk::raii::Device m_device;
+
 		logical_device m_device;
 		memory_allocator m_memory_allocator;
 		command_control m_command_control;
-		// vk::raii::CommandPool m_command_pool;
-		// vk::raii::CommandBuffer m_command_buffer;
+
 		vk::raii::Queue m_graphics_queue;
 		vk::raii::Queue m_present_queue;
-		// vk::raii::SwapchainKHR m_swapchain;
+
 		renderpass m_renderpass;
 		swapchain m_swapchain;
-		// vk::raii::su::SwapChainData m_swapchain_data;
-		// depth_buffer m_depth_buffer;
-		//  vk::raii::ImageView m_depth_buffer;
-		// vk::raii::su::DepthBufferData m_depth_buffer_data;
-		// vk::raii::su::BufferData m_uniform_buffer;
+
 		buffer m_uniform_buffer;
 
-		vk::raii::DescriptorSetLayout m_descriptor_set_layout;
+		// vk::raii::DescriptorSetLayout m_descriptor_set_layout;
+		descriptor_set_layout m_descriptor_set_layout;
 		vk::raii::DescriptorPool m_descriptor_pool;
 		vk::raii::DescriptorSet m_descriptor_set;
 
@@ -456,9 +498,7 @@ namespace lh
 		vk::raii::PipelineLayout m_pipeline_layout;
 		vk::raii::PipelineCache m_pipeline_cache;
 		vk::raii::Pipeline m_pipeline;
-		// vk::raii::RenderPass m_render_pass;
-		// std::vector<vk::raii::Framebuffer> m_framebuffers;
+
 		vk::raii::su::BufferData m_vertex_buffer;
-		// std::vector<vk::raii::ImageView> m_image_views;
 	};
 }

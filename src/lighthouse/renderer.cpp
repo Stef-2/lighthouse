@@ -1,20 +1,18 @@
 #include "renderer.hpp"
 #include "vulkan/vma/vk_mem_alloc.h"
 
-lh::renderer::renderer(const window& window,
-					   const engine_version& engine_version,
-					   const vulkan_version& vulkan_version,
-					   bool use_validation_module)
-	: m_version {vulkan_version},
+lh::renderer::renderer(const window& window, const create_info& create_info)
+	: m_version {create_info.m_vulkan_version},
 	  m_context {create_context()},
-	  m_instance {create_instance(window, engine_version, vulkan_version, use_validation_module)},
-	  m_validation_module {use_validation_module ? validation_module {m_instance}
-												 : decltype(m_validation_module) {std::nullopt}},
+	  m_instance {create_instance(
+		  window, create_info.m_engine_version, create_info.m_vulkan_version, create_info.m_using_validation)},
+	  m_validation_module {create_info.m_using_validation ? validation_module {m_instance}
+														  : decltype(m_validation_module) {std::nullopt}},
 	  m_physical_device {m_instance},
 	  // m_surface_data {create_surface_data(window)},
 	  m_extent {create_extent(window)},
 	  m_surface {create_surface(window)},
-	  m_queue_families {create_queue_families()},
+	  m_queue_families {m_physical_device, m_surface},
 	  // m_physical_extensions {m_physical_device},
 	  m_device {m_physical_device,
 				{vk::DeviceQueueCreateInfo {
@@ -40,7 +38,8 @@ lh::renderer::renderer(const window& window,
 						m_memory_allocator,
 						sizeof(glm::mat4x4),
 						buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eUniformBuffer}},
-	  m_descriptor_set_layout {create_descriptor_set_layout()},
+	  m_descriptor_set_layout {m_device, {{0, vk::DescriptorType::eUniformBuffer}}},
+	  // m_descriptor_set_layout {create_descriptor_set_layout()},
 	  m_pipeline_layout {create_pipeline_layout()},
 	  // m_format {create_format()},
 	  m_descriptor_set {create_descriptor_set()},
@@ -54,6 +53,8 @@ lh::renderer::renderer(const window& window,
 	  m_pipeline {create_pipeline()}
 
 {
+	if (create_info.m_using_validation)
+		output::log() << info();
 }
 
 auto lh::renderer::logical_extension_module::assert_required_extensions() -> bool
@@ -154,8 +155,8 @@ auto lh::renderer::create_context() -> vk::raii::Context
 }
 
 auto lh::renderer::create_instance(const window& window,
-								   const engine_version& engine_version,
-								   const vulkan_version& vulkan_version,
+								   const version& engine_version,
+								   const version& vulkan_version,
 								   bool use_validation_module) -> vk::raii::Instance
 {
 	// make sure both logical extensions and validation layers checks passed
@@ -173,11 +174,7 @@ auto lh::renderer::create_instance(const window& window,
 	const auto& instance_debugger = use_validation_module ? &validation_module::m_defaults.m_debug_info : nullptr;
 
 	const auto app_info = vk::ApplicationInfo {
-		window.get_title().data(),
-		engine_version,
-		window.get_title().data(),
-		engine_version,
-		VK_MAKE_API_VERSION(0, vulkan_version.m_major, vulkan_version.m_minor, vulkan_version.m_patch)};
+		window.get_title().data(), engine_version, window.get_title().data(), engine_version, vulkan_version};
 
 	const auto instance_info = vk::InstanceCreateInfo {{},
 													   &app_info,
@@ -189,7 +186,7 @@ auto lh::renderer::create_instance(const window& window,
 
 	return {m_context, instance_info};
 }
-
+/*
 auto lh::renderer::create_device(const vk::PhysicalDeviceFeatures2& features) -> vk::raii::Device
 {
 	// physical extensions
@@ -204,7 +201,9 @@ auto lh::renderer::create_device(const vk::PhysicalDeviceFeatures2& features) ->
 	auto device_info = vk::DeviceCreateInfo {{}, device_queue_info, {}, required_extensions, &features.features};
 
 	return {m_physical_device, device_info};
+
 }
+*/
 /*
 auto lh::renderer::create_command_pool() -> vk::raii::CommandPool
 {
@@ -349,7 +348,7 @@ auto lh::renderer::create_extent(const window& window) -> vk::Extent2D
 {
 	return {window.get_resolution().width, window.get_resolution().height};
 }
-
+/*
 auto lh::renderer::create_queue_families() -> queue_families
 {
 	const auto queue_family_properties = vk::raii::PhysicalDevice(m_physical_device).getQueueFamilyProperties2();
@@ -376,7 +375,7 @@ auto lh::renderer::create_queue_families() -> queue_families
 		}
 
 	return queue_families;
-}
+}*/
 /*
 auto lh::renderer::create_swapchain(const window& window) -> vk::raii::SwapchainKHR
 {
@@ -565,7 +564,7 @@ auto lh::renderer::create_uniform_buffer() -> vk::raii::su::BufferData
 auto lh::renderer::create_descriptor_set_layout() -> vk::raii::DescriptorSetLayout
 {
 	return vk::raii::su::makeDescriptorSetLayout(
-		m_device, {{vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex}});
+		m_device, {{vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eAll}});
 }
 
 auto lh::renderer::create_pipeline_layout() -> vk::raii::PipelineLayout
@@ -582,7 +581,7 @@ auto lh::renderer::create_pipeline_layout() -> vk::raii::PipelineLayout
 	auto pipeline_layout_info = vk::PipelineLayoutCreateInfo({}, *descriptor_set_layout);
 	return {m_device, pipeline_layout_info};*/
 
-	return {m_device, {{}, *m_descriptor_set_layout}};
+	return {m_device, {{}, **m_descriptor_set_layout}};
 }
 
 auto lh::renderer::create_format() -> vk::Format
@@ -609,7 +608,7 @@ auto lh::renderer::create_descriptor_set() -> vk::raii::DescriptorSet
 	*/
 
 	vk::raii::DescriptorSet descriptorSet = std::move(
-		vk::raii::DescriptorSets(m_device, {*m_descriptor_pool, *m_descriptor_set_layout}).front());
+		vk::raii::DescriptorSets(m_device, {*m_descriptor_pool, **m_descriptor_set_layout}).front());
 	vk::raii::su::updateDescriptorSets(m_device,
 									   descriptorSet,
 									   {{vk::DescriptorType::eUniformBuffer, m_uniform_buffer, VK_WHOLE_SIZE, nullptr}},
@@ -691,7 +690,7 @@ auto lh::renderer::create_shader_module(const vk::ShaderStageFlagBits& stage) ->
 	 return shader_module;*/
 	glslang::InitializeProcess();
 
-	auto shader_code = (stage == vk::ShaderStageFlagBits::eVertex) ? vertexShaderText_PC_C : fragmentShaderText_C_C;
+	auto& shader_code = (stage == vk::ShaderStageFlagBits::eVertex) ? vertexShaderText_PC_C : fragmentShaderText_C_C;
 	auto module = vk::raii::su::makeShaderModule(m_device, stage, shader_code);
 
 	glslang::FinalizeProcess();
@@ -810,21 +809,35 @@ auto lh::renderer::create_buffer(const data_t& data, const vk::BufferUsageFlagBi
 	buffer.bindMemory(*buffer_memory, 0);
 }
 
-auto lh::renderer::physical_device::get_basic_info() -> std::string
+auto lh::renderer::physical_device::basic_info() const -> lh::output::string_t
 {
 	const auto properties = m_object.getProperties2();
 	const auto memory = memory::physical_device_memory(m_object);
 	constexpr auto gigabyte = static_cast<double>(1_gb);
 
-	auto info = std::string {"found the following vulkan capable devices: "};
-	info += properties.properties.deviceName.data();
-	info += "\nwith: " + std::to_string(double(memory.m_device_total) / gigabyte) + " gygabites of total memory" +
-			"available: " + std::to_string(double(memory.m_device_available) / gigabyte) +
-			" used: " + std::to_string(double(memory.m_device_used) / gigabyte) + " " +
-			std::to_string(memory.m_device_used_percentage) + " % free\n";
+	auto info = output::string_t {"basic vulkan device info:\n"};
+	info += "\nname: " + output::string_t {properties.properties.deviceName.data()};
+	info += "\napi version: " + output::string_t(lh::version {properties.properties.apiVersion});
+	info += "\ndriver version: " + output::string_t(lh::version {properties.properties.driverVersion});
+	info += "\ntotal memory: " + std::to_string(double(memory.m_device_total) / gigabyte) + " gygabites";
+	info += "\navailable memory: " + std::to_string(double(memory.m_device_available) / gigabyte) + " gygabites";
+	info += "\nused memory: " + std::to_string(double(memory.m_device_used) / gigabyte) + " gigabytes";
+	info += "\nfree memory: " + std::to_string(memory.m_device_used_percentage) + " %";
 
 	return info;
 }
+
+auto lh::renderer::physical_device::advanced_info() const -> output::string_t
+{
+	const auto properties = m_object.getProperties2();
+
+	auto info = output::string_t {"advanced vulkan device info:\n"};
+	info += "\nmax bound descriptor sets: " + std::to_string(properties.properties.limits.maxBoundDescriptorSets);
+	info += "\nmax push constant size: " + std::to_string(properties.properties.limits.maxPushConstantsSize) + " bytes";
+
+	return info;
+}
+
 /*
 auto lh::renderer::physical_device::get_performance_score() const -> performance_score_t
 {
@@ -912,52 +925,65 @@ auto lh::renderer::render() -> void
 	m_device->waitIdle();
 }
 
-VKAPI_ATTR auto VKAPI_CALL
-lh::renderer::validation_module::debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-												VkDebugUtilsMessageTypeFlagsEXT messageType,
-												const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-												void* pUserData) -> VkBool32
+auto lh::renderer::info() -> output::string_t
 {
-	std::string message;
+	return m_physical_device.basic_info() + m_physical_device.advanced_info();
+}
 
-	message += vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(messageSeverity)) + ": " +
-			   vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagsEXT>(messageType)) + ":\n";
-	message += std::string("\t") + "messageIDName   = <" + pCallbackData->pMessageIdName + ">\n";
-	message += std::string("\t") + "messageIdNumber = " + std::to_string(pCallbackData->messageIdNumber) + "\n";
-	message += std::string("\t") + "message         = <" + pCallbackData->pMessage + ">\n";
-	if (0 < pCallbackData->queueLabelCount)
+VKAPI_ATTR auto VKAPI_CALL
+lh::renderer::validation_module::debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
+												VkDebugUtilsMessageTypeFlagsEXT message_type,
+												const VkDebugUtilsMessengerCallbackDataEXT* callback_data,
+												void* user_data) -> VkBool32
+{
+	auto message = output::string_t {};
+
+	message += vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(message_severity)) + ": " +
+			   vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagsEXT>(message_type)) + ":\n";
+	message += std::string("\t") + "messageIDName   = <" + callback_data->pMessageIdName + ">\n";
+	message += std::string("\t") + "messageIdNumber = " + std::to_string(callback_data->messageIdNumber) + "\n";
+	message += std::string("\t") + "message         = <" + callback_data->pMessage + ">\n";
+	if (callback_data->queueLabelCount > 0)
 	{
 		message += std::string("\t") + "Queue Labels:\n";
-		for (uint32_t i = 0; i < pCallbackData->queueLabelCount; i++)
-		{
-			message += std::string("\t\t") + "labelName = <" + pCallbackData->pQueueLabels[i].pLabelName + ">\n";
-		}
+
+		for (uint32_t i = 0; i < callback_data->queueLabelCount; i++)
+			message += std::string("\t\t") + "labelName = <" + callback_data->pQueueLabels[i].pLabelName + ">\n";
 	}
-	if (0 < pCallbackData->cmdBufLabelCount)
+	if (callback_data->cmdBufLabelCount > 0)
 	{
 		message += std::string("\t") + "CommandBuffer Labels:\n";
-		for (uint32_t i = 0; i < pCallbackData->cmdBufLabelCount; i++)
-		{
-			message += std::string("\t\t") + "labelName = <" + pCallbackData->pCmdBufLabels[i].pLabelName + ">\n";
-		}
+
+		for (uint32_t i = 0; i < callback_data->cmdBufLabelCount; i++)
+			message += std::string("\t\t") + "labelName = <" + callback_data->pCmdBufLabels[i].pLabelName + ">\n";
 	}
-	if (0 < pCallbackData->objectCount)
+	if (callback_data->objectCount > 0)
 	{
-		for (uint32_t i = 0; i < pCallbackData->objectCount; i++)
+		for (uint32_t i = 0; i < callback_data->objectCount; i++)
 		{
 			message += std::string("\t") + "Object " + std::to_string(i) + "\n";
 			message += std::string("\t\t") + "objectType   = " +
-					   vk::to_string(static_cast<vk::ObjectType>(pCallbackData->pObjects[i].objectType)) + "\n";
+					   vk::to_string(static_cast<vk::ObjectType>(callback_data->pObjects[i].objectType)) + "\n";
 			message += std::string("\t\t") +
-					   "objectHandle = " + std::to_string(pCallbackData->pObjects[i].objectHandle) + "\n";
-			if (pCallbackData->pObjects[i].pObjectName)
-			{
-				message += std::string("\t\t") + "objectName   = <" + pCallbackData->pObjects[i].pObjectName + ">\n";
-			}
+					   "objectHandle = " + std::to_string(callback_data->pObjects[i].objectHandle) + "\n";
+			if (callback_data->pObjects[i].pObjectName)
+				message += std::string("\t\t") + "objectName   = <" + callback_data->pObjects[i].pObjectName + ">\n";
 		}
 	}
 
-	std::cout << message;
+	switch (message_severity)
+	{
+	case VkDebugUtilsMessageSeverityFlagBitsEXT::VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+		output::log() << message;
+		break;
+	case VkDebugUtilsMessageSeverityFlagBitsEXT::VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+		output::warning() << message;
+		break;
+	case VkDebugUtilsMessageSeverityFlagBitsEXT::VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+		output::error() << message;
+		break;
+	default: break;
+	}
 
 	return false;
 }
@@ -1005,7 +1031,8 @@ auto lh::renderer::physical_device::get_performance_score(const vk::raii::Physic
 
 	score += memory.m_device_total + memory.m_shared_total;
 	score += properties.properties.limits.maxImageDimension2D;
-	score += properties.properties.limits.maxFramebufferWidth * properties.properties.limits.maxFramebufferHeight;
+	score += performance_score_t {properties.properties.limits.maxFramebufferWidth *
+								  properties.properties.limits.maxFramebufferHeight};
 
 	return score;
 }
@@ -1013,20 +1040,10 @@ auto lh::renderer::physical_device::get_performance_score(const vk::raii::Physic
 lh::renderer::memory_allocator::memory_allocator(const vk::Instance& instance,
 												 const physical_device& physical_device,
 												 const logical_device& device,
-												 const engine_version& version)
+												 const version& version)
 {
-	auto allocator_info =
-		vma::AllocatorCreateInfo {{},
-								  **physical_device,
-								  **device,
-								  0,
-								  nullptr,
-								  nullptr,
-								  nullptr,
-								  nullptr,
-								  instance,
-								  VK_MAKE_API_VERSION(0, version.m_major, version.m_minor, version.m_patch),
-								  nullptr};
+	auto allocator_info = vma::AllocatorCreateInfo {
+		{}, **physical_device, **device, 0, nullptr, nullptr, nullptr, nullptr, instance, version, nullptr};
 
 	auto result = vma::createAllocator(&allocator_info, &m_allocator);
 
@@ -1298,4 +1315,46 @@ lh::renderer::framebuffer::framebuffer(const logical_device& device,
 		vk::FramebufferCreateInfo {{}, **renderpass, 2, views.data(), extent.width, extent.height, 1};
 
 	m_object = {*device, framebuffer_info};
+}
+
+lh::renderer::queue_families::queue_families(const physical_device& physical_device,
+											 const vk::raii::SurfaceKHR& surface,
+											 const create_info& create_info)
+	: m_graphics {}, m_present {}, m_compute {}, m_transfer {}
+{
+	const auto queue_family_properties = physical_device->getQueueFamilyProperties2();
+	auto counter = queue_families::index_t {};
+
+	for (const auto& queue_family_property : queue_family_properties)
+	{
+		if (queue_family_property.queueFamilyProperties.queueFlags & vk::QueueFlagBits::eGraphics)
+			m_graphics = counter;
+		if (queue_family_property.queueFamilyProperties.queueFlags & vk::QueueFlagBits::eCompute)
+			m_compute = counter;
+		if (queue_family_property.queueFamilyProperties.queueFlags & vk::QueueFlagBits::eTransfer)
+			m_transfer = counter;
+
+		counter++;
+	}
+
+	for (queue_families::index_t i {}; i < std::numeric_limits<queue_families::index_t>::max(); i++)
+		if (physical_device->getSurfaceSupportKHR(0, *surface))
+		{
+			m_present = i;
+			break;
+		}
+}
+
+lh::renderer::descriptor_set_layout::descriptor_set_layout(const logical_device& device,
+														   const std::vector<binding>& bindings,
+														   const create_info& create_info)
+{
+	auto layout_bindings = std::vector<vk::DescriptorSetLayoutBinding> {bindings.size()};
+
+	for (const auto& binding : bindings)
+		layout_bindings.emplace_back(binding.m_location, binding.m_type, binding.m_count, create_info.m_access);
+
+	const auto layout_info = vk::DescriptorSetLayoutCreateInfo(create_info.m_flags, layout_bindings);
+
+	m_object = {*device, layout_info};
 }
