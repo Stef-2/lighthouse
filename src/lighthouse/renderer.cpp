@@ -57,7 +57,7 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 		output::log() << info();
 }
 
-auto lh::renderer::logical_extension_module::assert_required_extensions() -> bool
+auto lh::renderer::logical_extension_module::assert_required_extensions() const -> bool
 {
 	// make sure the implementation supports all required extensions
 	auto required_extensions = logical_extension_module::required_extensions();
@@ -77,6 +77,28 @@ auto lh::renderer::logical_extension_module::assert_required_extensions() -> boo
 	}
 
 	return true;
+}
+
+auto lh::renderer::logical_extension_module::info() const -> output::string_t
+{
+	const auto supported_extensions = logical_extension_module::supported_extensions();
+	const auto required_extensions = logical_extension_module::required_extensions();
+
+	const auto supported = std::accumulate(supported_extensions.begin(),
+										   supported_extensions.end(),
+										   output::string_t {"\n======== supported logical extensions: ========\n"},
+										   [](const auto& x, const auto& y) {
+											   return std::move(x) + '\t' + static_cast<const char*>(y.extensionName) +
+													  '\n';
+										   });
+
+	const auto required = std::accumulate(required_extensions.begin(),
+										  required_extensions.end(),
+										  output::string_t {"\n======== required logical extensions: ========\n"},
+										  [](const auto& x, const auto& y)
+										  { return std::move(x) + '\t' + static_cast<const char*>(y) + '\n'; });
+
+	return supported + required;
 }
 
 auto lh::renderer::validation_module::assert_required_validation_layers() -> bool
@@ -101,7 +123,29 @@ auto lh::renderer::validation_module::assert_required_validation_layers() -> boo
 	return true;
 }
 
-auto lh::renderer::logical_extension_module::supported_extensions() -> vk_extensions_t
+auto lh::renderer::validation_module::info() const -> output::string_t
+{
+	const auto supported_layers = supported_validation_layers();
+	const auto required_layers = required_validation_layers();
+
+	const auto supported = std::accumulate(supported_layers.begin(),
+										   supported_layers.end(),
+										   output::string_t {"\n======== supported validation layers: ========\n"},
+										   [](const auto& x, const auto& y) {
+											   return std::move(x) + '\t' + static_cast<const char*>(y.layerName) +
+													  '\n';
+										   });
+
+	const auto required = std::accumulate(required_layers.begin(),
+										  required_layers.end(),
+										  output::string_t {"\n======== required validation layers: ========\n"},
+										  [](const auto& x, const auto& y)
+										  { return std::move(x) + '\t' + static_cast<const char*>(y) + '\n'; });
+
+	return supported + required;
+}
+
+auto lh::renderer::logical_extension_module::supported_extensions() const -> vk_extensions_t
 {
 	// find the number of supported extensions first
 	auto num_extensions = uint32_t {0};
@@ -113,7 +157,7 @@ auto lh::renderer::logical_extension_module::supported_extensions() -> vk_extens
 	return extensions;
 }
 
-auto lh::renderer::validation_module::supported_validation_layers() -> std::vector<vk::LayerProperties>
+auto lh::renderer::validation_module::supported_validation_layers() const -> std::vector<vk::LayerProperties>
 {
 	// find the number of supported layers first
 	auto num_layers = uint32_t {0};
@@ -125,7 +169,7 @@ auto lh::renderer::validation_module::supported_validation_layers() -> std::vect
 	return layers;
 }
 
-auto lh::renderer::logical_extension_module::required_extensions() -> vk_string_t
+auto lh::renderer::logical_extension_module::required_extensions() const -> vk_string_t
 {
 	// combine the extensions required by glfw with those specified in m_required_extensions
 	auto num_extensions = uint32_t {0};
@@ -144,7 +188,7 @@ lh::renderer::validation_module::validation_module(vk::raii::Instance& instance)
 	m_object = {instance.createDebugUtilsMessengerEXT(m_defaults.m_debug_info)};
 }
 
-auto lh::renderer::validation_module::required_validation_layers() -> vk_string_t
+auto lh::renderer::validation_module::required_validation_layers() const -> vk_string_t
 {
 	return m_defaults.m_required_validation_layers;
 }
@@ -815,14 +859,14 @@ auto lh::renderer::physical_device::basic_info() const -> lh::output::string_t
 	const auto memory = memory::physical_device_memory(m_object);
 	constexpr auto gigabyte = static_cast<double>(1_gb);
 
-	auto info = output::string_t {"basic vulkan device info:\n"};
-	info += "\nname: " + output::string_t {properties.properties.deviceName.data()};
-	info += "\napi version: " + output::string_t(lh::version {properties.properties.apiVersion});
-	info += "\ndriver version: " + output::string_t(lh::version {properties.properties.driverVersion});
-	info += "\ntotal memory: " + std::to_string(double(memory.m_device_total) / gigabyte) + " gygabites";
-	info += "\navailable memory: " + std::to_string(double(memory.m_device_available) / gigabyte) + " gygabites";
-	info += "\nused memory: " + std::to_string(double(memory.m_device_used) / gigabyte) + " gigabytes";
-	info += "\nfree memory: " + std::to_string(memory.m_device_used_percentage) + " %";
+	auto info = output::string_t {"\n======== basic vulkan device information: ========"};
+	info += "\n\tname: " + output::string_t {properties.properties.deviceName.data()};
+	info += "\n\tapi version: " + output::string_t(lh::version {properties.properties.apiVersion});
+	info += "\n\tdriver version: " + output::string_t(lh::version {properties.properties.driverVersion});
+	info += "\n\ttotal memory: " + std::to_string(double(memory.m_device_total) / gigabyte) + " gygabites";
+	info += "\n\tavailable memory: " + std::to_string(double(memory.m_device_available) / gigabyte) + " gygabites";
+	info += "\n\tused memory: " + std::to_string(double(memory.m_device_used) / gigabyte) + " gigabytes";
+	info += "\n\tfree memory: " + std::to_string(memory.m_device_used_percentage) + " %\n";
 
 	return info;
 }
@@ -831,9 +875,10 @@ auto lh::renderer::physical_device::advanced_info() const -> output::string_t
 {
 	const auto properties = m_object.getProperties2();
 
-	auto info = output::string_t {"advanced vulkan device info:\n"};
-	info += "\nmax bound descriptor sets: " + std::to_string(properties.properties.limits.maxBoundDescriptorSets);
-	info += "\nmax push constant size: " + std::to_string(properties.properties.limits.maxPushConstantsSize) + " bytes";
+	auto info = output::string_t {"\n======== advanced vulkan device information: ========"};
+	info += "\n\tmax bound descriptor sets: " + std::to_string(properties.properties.limits.maxBoundDescriptorSets);
+	info += "\n\tmax push constant size: " + std::to_string(properties.properties.limits.maxPushConstantsSize) +
+			" bytes\n";
 
 	return info;
 }
@@ -927,7 +972,13 @@ auto lh::renderer::render() -> void
 
 auto lh::renderer::info() -> output::string_t
 {
-	return m_physical_device.basic_info() + m_physical_device.advanced_info();
+	auto result = output::string_t {"\n======== renderer information: ========\n"};
+
+	result += m_defaults.m_using_validation ? m_validation_module->info() : output::string_t {};
+	result += m_logical_extensions.info();
+	result += m_physical_device.basic_info() + m_physical_device.advanced_info();
+
+	return result;
 }
 
 VKAPI_ATTR auto VKAPI_CALL
@@ -943,6 +994,7 @@ lh::renderer::validation_module::debug_callback(VkDebugUtilsMessageSeverityFlagB
 	message += std::string("\t") + "messageIDName   = <" + callback_data->pMessageIdName + ">\n";
 	message += std::string("\t") + "messageIdNumber = " + std::to_string(callback_data->messageIdNumber) + "\n";
 	message += std::string("\t") + "message         = <" + callback_data->pMessage + ">\n";
+
 	if (callback_data->queueLabelCount > 0)
 	{
 		message += std::string("\t") + "Queue Labels:\n";
@@ -962,12 +1014,12 @@ lh::renderer::validation_module::debug_callback(VkDebugUtilsMessageSeverityFlagB
 		for (uint32_t i = 0; i < callback_data->objectCount; i++)
 		{
 			message += std::string("\t") + "Object " + std::to_string(i) + "\n";
-			message += std::string("\t\t") + "objectType   = " +
+			message += std::string("\t\t") + "objectType = " +
 					   vk::to_string(static_cast<vk::ObjectType>(callback_data->pObjects[i].objectType)) + "\n";
 			message += std::string("\t\t") +
 					   "objectHandle = " + std::to_string(callback_data->pObjects[i].objectHandle) + "\n";
 			if (callback_data->pObjects[i].pObjectName)
-				message += std::string("\t\t") + "objectName   = <" + callback_data->pObjects[i].pObjectName + ">\n";
+				message += std::string("\t\t") + "objectName = <" + callback_data->pObjects[i].pObjectName + ">\n";
 		}
 	}
 

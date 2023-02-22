@@ -30,6 +30,8 @@ namespace lh
 		using vk_layers_t = const std::vector<vk::LayerProperties>;
 		using vk_extensions_t = const std::vector<vk::ExtensionProperties>;
 
+		static inline constexpr auto vk_whole_size = VK_WHOLE_SIZE;
+
 		struct create_info
 		{
 			version m_engine_version = version::m_engine_version;
@@ -65,15 +67,86 @@ namespace lh
 			mutable T m_object {nullptr};
 		};
 
+		template <typename T>
+			requires std::is_same_v<T, vk_layers_t> || std::is_same_v<T, vk_extensions_t>
+		class vulkan_extension
+		{
+		public:
+			virtual auto required_extensions() const -> vk_string_t = 0;
+			virtual auto supported_extensions() const -> T = 0;
+			auto assert_required_extensions() const -> bool
+			{
+				const auto supported = supported_extensions();
+
+				for (const auto& required : required_extensions())
+				{
+					if (std::find_if(supported.begin(),
+									 supported.end(),
+									 [&required](const auto& supported)
+									 {
+										 auto name = output::string_t {};
+										 if constexpr (std::is_same_v<T, vk_layers_t>)
+											 name = supported.layerName.data();
+										 else
+											 name = supported.extensionName.data();
+
+										 return strcmp(required, name.c_str()) == 0;
+									 }) == supported.end())
+					{
+						output::error() << "this system does not support the required vulkan component: " +
+											   output::string_t {required};
+						return false;
+					}
+				}
+
+				return true;
+			}
+			auto info() const -> output::string_t
+			{
+				const auto supported_extensions = vulkan_extension::supported_extensions();
+				const auto required_extensions = vulkan_extension::required_extensions();
+				const auto type = extension_type();
+
+				const auto supported = std::accumulate(supported_extensions.begin(),
+													   supported_extensions.end(),
+													   output::string_t {"\n======== supported " + type +
+																		 ": ========\n"},
+													   [](const auto& accumulator, const auto& extension)
+													   {
+														   auto name = output::string_t {};
+														   if constexpr (std::is_same_v<T, vk_layers_t>)
+															   name = extension.layerName.data();
+														   else
+															   name = extension.extensionName.data();
+
+														   return std::move(accumulator) + '\t' + name + '\n';
+													   });
+
+				const auto required = std::accumulate(required_extensions.begin(),
+													  required_extensions.end(),
+													  output::string_t {"\n======== required " + type + ": ========\n"},
+													  [](const auto& accumulator, const auto& extension) {
+														  return std::move(accumulator) + '\t' +
+																 static_cast<const char*>(extension) + '\n';
+													  });
+
+				return supported + required;
+			}
+
+		private:
+			virtual auto extension_type() const -> output::string_t = 0;
+			vk_string_t m_required_extensions;
+		};
+
 		// optional module used for vulkan debugging
 		struct validation_module : public vk_wrapper<vk::raii::DebugUtilsMessengerEXT>
 		{
 			validation_module(vk::raii::Instance&);
 
-			auto required_validation_layers() -> vk_string_t;
-			auto supported_validation_layers() -> std::vector<vk::LayerProperties>;
+			auto required_validation_layers() const -> vk_string_t;
+			auto supported_validation_layers() const -> std::vector<vk::LayerProperties>;
 			auto assert_required_validation_layers() -> bool;
-
+			auto info() const -> output::string_t;
 			static VKAPI_ATTR auto VKAPI_CALL debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 															 VkDebugUtilsMessageTypeFlagsEXT messageType,
 															 const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
@@ -114,9 +187,10 @@ namespace lh
 												   "VK_KHR_get_surface_capabilities2"};
 			} static inline const m_defaults;
 
-			auto required_extensions() -> vk_string_t;
-			auto supported_extensions() -> vk_extensions_t;
-			auto assert_required_extensions() -> bool;
+			auto required_extensions() const -> vk_string_t;
+			auto supported_extensions() const -> vk_extensions_t;
+			auto assert_required_extensions() const -> bool;
+			auto info() const -> output::string_t;
 		};
 
 		struct physical_device : public vk_wrapper<vk::raii::PhysicalDevice>
@@ -364,7 +438,7 @@ namespace lh
 
 			vk::raii::CommandBuffers m_buffers;
 		};
-
+		vk::PhysicalDeviceDescriptorBufferPropertiesEXT asd;
 		struct descriptor_set_layout : public vk_wrapper<vk::raii::DescriptorSetLayout>
 		{
 			using descriptor_count_t = uint32_t;
@@ -493,7 +567,7 @@ namespace lh
 		descriptor_set_layout m_descriptor_set_layout;
 		vk::raii::DescriptorPool m_descriptor_pool;
 		vk::raii::DescriptorSet m_descriptor_set;
-
+		static constexpr auto b = sizeof(VkDescriptorPool);
 		vk::raii::ShaderModule m_shader_modules[2];
 		vk::raii::PipelineLayout m_pipeline_layout;
 		vk::raii::PipelineCache m_pipeline_cache;

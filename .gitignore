@@ -18,9 +18,10 @@ build
 data
 lib
 tools
+module
+
 include/*
 !include/lighthouse
 src/*
 !src/lighthouse
-/CMakeSettings.json
 /.clang-tidy

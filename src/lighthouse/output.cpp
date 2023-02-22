@@ -28,10 +28,12 @@ auto lh::output::initialize() -> void
 
 auto lh::output::dump_logs(std::ostream& stream) -> void
 {
-	stream << "\n======== program log: ========\n"
-		   << m_log << "\n======== program warning: ========\n"
-		   << m_warning << "\n======== program error: ========\n"
-		   << m_error;
+	if (!m_log.get_data().empty())
+		stream << "\n======== program log: ========\n" << m_log;
+	if (!m_warning.get_data().empty())
+		stream << "\n======== program warning: ========\n" << m_warning;
+	if (!m_error.get_data().empty())
+		stream << "\n======== program error: ========\n" << m_error;
 }
 
 auto lh::output::exit() -> void

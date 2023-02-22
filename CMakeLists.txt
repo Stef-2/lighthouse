@@ -5,12 +5,13 @@ project("LightHouse")
 #set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
 set(CMAKE_BUILD_TYPE RelWithDebInfo)
 set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED OFF)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 # Path
 cmake_path(SET source ${CMAKE_CURRENT_SOURCE_DIR}/src/lighthouse)
 cmake_path(SET include ${CMAKE_CURRENT_SOURCE_DIR}/include)
+cmake_path(SET module ${CMAKE_CURRENT_SOURCE_DIR}/module)
 cmake_path(SET library ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 #[[
 set(CMAKE_CXX_CLANG_TIDY
@@ -45,29 +46,33 @@ add_executable(
 if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
   target_compile_options(
 	  ${PROJECT_NAME} PRIVATE
-	  # MSVC standard compiler settings
-	  /std:c++latest /experimental /GL /O3 /Oi /Ob3 /W4 /MP /Zf /openmp:experimental /Qpar /Qpar-report:1 /fp:fast /arch:AVX2 /showIncludes
+	  # MSVC compiler settings
+	  /std:c++latest /GL /Ox /Oi /W3 /MP /Zf /openmp:experimental /experimental:module /Qpar /Qpar-report:1 /fp:fast /arch:AVX2 /showIncludes /permissive- /nologo
 	  # MSVC disable common annoying warnings
 	  /wd4005 /wd4068 /wd4244 /wd4267 /wd4800
-)
+	)
+
+	target_link_options(
+		${PROJECT_NAME} PRIVATE
+		# MSVC linker settings
+		/INCREMENTAL /CGTHREADS:8 /VERBOSE:INCR
+	)
 endif()
 
-#[[
+
 if(${CMAKE_CXX_COMPILER_ID} MATCHES GNU)
-message(WTFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)
+message(HERE:${INCLUDE})
 	target_compile_options(
 	  ${PROJECT_NAME} PRIVATE
 	  #GCC standard compiler settings
-	  -C -std=c++23
+	  -C -std=c++23 -fpermissive
 	)
 	include_directories(
-		${PROJECT_NAME} PUBLIC
-		C:/msys64/ucrt64/include
-		C:/msys64/ucrt64/include/c++/12.2.0
+		${PROJECT_NAME} SYSTEM ${INCLUDE}
 	)
 	
 endif()
-]]
+
 
 # Windows specific flags
 if(WIN32)
@@ -78,7 +83,9 @@ if(WIN32)
 endif()
 
 # Preprocessor definitions
-add_compile_definitions(
+target_compile_definitions(
+	${PROJECT_NAME} PUBLIC
+
 	# vkfw definitions
 	VKFW_HPP_NO_NODISCARD_WARNINGS
 	VKFW_NO_EXCEPTIONS
@@ -95,14 +102,10 @@ add_compile_definitions(
 	NOMINMAX 
 )
 
-remove_definitions(
-	# vkfw definitions
-	#VKFW_NODISCARD
-	#VKFW_NODISCARD_WHEN_NO_EXCEPTIONS
-)
-
 # Include
-include_directories(
+target_include_directories(
+	${PROJECT_NAME} PRIVATE
+
 	${include}
 	${include}/lighthouse
 	${include}/glfw
@@ -112,6 +115,10 @@ include_directories(
 	${include}/glslang
 )
 
+# Modules
+set(CMAKE_MODULE_PATH ${module}/std ${module}/lighthouse)
+
+#[[
 target_precompile_headers(
 	${PROJECT_NAME} PRIVATE
 	${include}/vkfw/vkfw.hpp
@@ -128,7 +135,7 @@ target_precompile_headers(
 	${include}/vulkan/vulkan_core.h
 
 	${include}/glm/fwd.hpp
-)
+)]]
 
 # Libraries
 target_link_directories(
