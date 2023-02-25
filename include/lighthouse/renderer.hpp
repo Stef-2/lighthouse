@@ -1,21 +1,6 @@
 #pragma once
 
-#include "SPIRV/GlslangToSpv.h"
-#include "vkfw.hpp"
-#include "vma/vk_mem_alloc.hpp"
-#include "vulkan/utils/geometries.hpp"
-#include "vulkan/utils/math.hpp"
-#include "vulkan/utils/raii/raii_shaders.hpp"
-#include "vulkan/utils/raii/raii_utils.hpp"
-#include "vulkan/vulkan.hpp"
-#include "vulkan/vulkan_raii.hpp"
-#include "vulkan/vulkan_to_string.hpp"
-
-#include "datatype.hpp"
-#include "memory.hpp"
-#include "output.hpp"
-#include "version.hpp"
-#include "window.hpp"
+#include "vulkan.hpp"
 
 #include <iterator>
 #include <ranges>
@@ -26,124 +11,27 @@ namespace lh
 	class renderer
 	{
 	public:
-		using vk_string_t = const std::vector<const char*>;
-		using vk_layers_t = const std::vector<vk::LayerProperties>;
-		using vk_extensions_t = const std::vector<vk::ExtensionProperties>;
-
-		static inline constexpr auto vk_whole_size = VK_WHOLE_SIZE;
-
 		struct create_info
 		{
 			version m_engine_version = version::m_engine_version;
 			version m_vulkan_version = version::m_vulkan_version;
 			uint32_t m_frames_in_flight = 2;
 			bool m_using_validation = true;
+		};
 
-		} static inline const m_defaults;
-
-		renderer(const window&, const create_info& = m_defaults);
+		renderer(const window&, const create_info& = {});
 
 		auto render() -> void;
 
 		// ===========================================================================
 
 	private:
-		// base vulkan object wrapper
-		template <typename T> class vk_wrapper
-		{
-		public:
-			auto operator*() -> T& { return m_object; }
-			auto operator*() const -> T& { return m_object; }
-
-			auto operator->() -> T* { return &m_object; }
-			auto operator->() const -> T* { return &m_object; }
-
-			operator T&() { return m_object; }
-
-		protected:
-			explicit vk_wrapper(const T& object) : m_object(object) {};
-			vk_wrapper(nullptr_t object = nullptr) : m_object(object) {};
-
-			mutable T m_object {nullptr};
-		};
-
-		template <typename T>
-			requires std::is_same_v<T, vk_layers_t> || std::is_same_v<T, vk_extensions_t>
-		class vulkan_extension
-		{
-		public:
-			virtual auto required_extensions() const -> vk_string_t = 0;
-			virtual auto supported_extensions() const -> T = 0;
-			auto assert_required_extensions() const -> bool
-			{
-				const auto supported = supported_extensions();
-
-				for (const auto& required : required_extensions())
-				{
-					if (std::find_if(supported.begin(),
-									 supported.end(),
-									 [&required](const auto& supported)
-									 {
-										 auto name = output::string_t {};
-										 if constexpr (std::is_same_v<T, vk_layers_t>)
-											 name = supported.layerName.data();
-										 else
-											 name = supported.extensionName.data();
-
-										 return strcmp(required, name.c_str()) == 0;
-									 }) == supported.end())
-					{
-						output::error() << "this system does not support the required vulkan component: " +
-											   output::string_t {required};
-						return false;
-					}
-				}
-
-				return true;
-			}
-			auto info() const -> output::string_t
-			{
-				const auto supported_extensions = vulkan_extension::supported_extensions();
-				const auto required_extensions = vulkan_extension::required_extensions();
-				const auto type = extension_type();
-
-				const auto supported = std::accumulate(supported_extensions.begin(),
-													   supported_extensions.end(),
-													   output::string_t {"\n======== supported " + type +
-																		 ": ========\n"},
-													   [](const auto& accumulator, const auto& extension)
-													   {
-														   auto name = output::string_t {};
-														   if constexpr (std::is_same_v<T, vk_layers_t>)
-															   name = extension.layerName.data();
-														   else
-															   name = extension.extensionName.data();
-
-														   return std::move(accumulator) + '\t' + name + '\n';
-													   });
-
-				const auto required = std::accumulate(required_extensions.begin(),
-													  required_extensions.end(),
-													  output::string_t {"\n======== required " + type + ": ========\n"},
-													  [](const auto& accumulator, const auto& extension) {
-														  return std::move(accumulator) + '\t' +
-																 static_cast<const char*>(extension) + '\n';
-													  });
-
-				return supported + required;
-			}
-
-		private:
-			virtual auto extension_type() const -> output::string_t = 0;
-			vk_string_t m_required_extensions;
-		};
-
 		// optional module used for vulkan debugging
-		struct validation_module : public vk_wrapper<vk::raii::DebugUtilsMessengerEXT>
+		struct validation_module : public vulkan::vk_wrapper<vk::raii::DebugUtilsMessengerEXT>
 		{
 			validation_module(vk::raii::Instance&);
 
-			auto required_validation_layers() const -> vk_string_t;
+			auto required_validation_layers() const -> vulkan::vk_string_t;
 			auto supported_validation_layers() const -> std::vector<vk::LayerProperties>;
 			auto assert_required_validation_layers() -> bool;
 			auto info() const -> output::string_t;
@@ -164,16 +52,16 @@ namespace lh
 					 vk::DebugUtilsMessageTypeFlagBitsEXT::eDeviceAddressBinding},
 					&debug_callback};
 
-				vk_string_t m_required_validation_layers {"VK_LAYER_KHRONOS_validation",
-														  "VK_LAYER_NV_optimus",
-														  //"VK_LAYER_NV_GPU_Trace_release_public_2021_4_0",
-														  //"VK_LAYER_VALVE_steam_fossilize",
-														  //"VK_LAYER_LUNARG_api_dump",
-														  //"VK_LAYER_LUNARG_gfxreconstruct",
-														  "VK_LAYER_KHRONOS_synchronization2",
-														  "VK_LAYER_LUNARG_monitor",
-														  "VK_LAYER_LUNARG_screenshot",
-														  "VK_LAYER_KHRONOS_profiles"};
+				vulkan::vk_string_t m_required_validation_layers {"VK_LAYER_KHRONOS_validation",
+																  "VK_LAYER_NV_optimus",
+																  //"VK_LAYER_NV_GPU_Trace_release_public_2021_4_0",
+																  //"VK_LAYER_VALVE_steam_fossilize",
+																  //"VK_LAYER_LUNARG_api_dump",
+																  //"VK_LAYER_LUNARG_gfxreconstruct",
+																  "VK_LAYER_KHRONOS_synchronization2",
+																  "VK_LAYER_LUNARG_monitor",
+																  "VK_LAYER_LUNARG_screenshot",
+																  "VK_LAYER_KHRONOS_profiles"};
 			} static inline const m_defaults;
 		};
 
@@ -182,26 +70,26 @@ namespace lh
 		{
 			struct create_info
 			{
-				vk_string_t m_required_extensions {"VK_EXT_debug_utils",
-												   "VK_KHR_get_physical_device_properties2",
-												   "VK_KHR_get_surface_capabilities2"};
+				vulkan::vk_string_t m_required_extensions {"VK_EXT_debug_utils",
+														   "VK_KHR_get_physical_device_properties2",
+														   "VK_KHR_get_surface_capabilities2"};
 			} static inline const m_defaults;
 
-			auto required_extensions() const -> vk_string_t;
-			auto supported_extensions() const -> vk_extensions_t;
+			auto required_extensions() const -> vulkan::vk_string_t;
+			auto supported_extensions() const -> vulkan::vk_extensions_t;
 			auto assert_required_extensions() const -> bool;
 			auto info() const -> output::string_t;
 		};
 
-		struct physical_device : public vk_wrapper<vk::raii::PhysicalDevice>
+		struct physical_device : public vulkan::vk_wrapper<vk::raii::PhysicalDevice>
 		{
 			using performance_score_t = uint64_t;
 
 			struct create_info
 			{
-				vk_string_t m_required_extensions {"VK_KHR_swapchain",
-												   "VK_EXT_memory_budget",
-												   "VK_KHR_portability_subset"};
+				vulkan::vk_string_t m_required_extensions {"VK_KHR_swapchain",
+														   "VK_EXT_memory_budget",
+														   "VK_KHR_portability_subset"};
 				performance_score_t m_minimum_accepted_score {0xFFFFFFFF};
 			} static inline const m_defaults;
 
@@ -209,14 +97,14 @@ namespace lh
 
 			static auto get_performance_score(const vk::raii::PhysicalDevice&) -> performance_score_t;
 
-			auto required_extensions() const -> vk_string_t;
-			auto supported_extensions() const -> vk_extensions_t;
+			auto required_extensions() const -> vulkan::vk_string_t;
+			auto supported_extensions() const -> vulkan::vk_extensions_t;
 			auto assert_required_extensions() -> bool;
 			auto basic_info() const -> output::string_t;
 			auto advanced_info() const -> output::string_t;
 		};
 
-		struct logical_device : public vk_wrapper<vk::raii::Device>
+		struct logical_device : public vulkan::vk_wrapper<vk::raii::Device>
 		{
 
 			struct create_info
@@ -227,7 +115,7 @@ namespace lh
 
 			logical_device(const physical_device&,
 						   const std::vector<vk::DeviceQueueCreateInfo>&,
-						   const vk_string_t&,
+						   const vulkan::vk_string_t&,
 						   const create_info& = m_defaults);
 		};
 
@@ -263,7 +151,7 @@ namespace lh
 			index_t m_transfer;
 		};
 
-		struct image : public vk_wrapper<vk::raii::Image>
+		struct image : public vulkan::vk_wrapper<vk::raii::Image>
 		{
 			struct create_info
 			{
@@ -308,7 +196,7 @@ namespace lh
 			};
 		};
 
-		struct renderpass : public vk_wrapper<vk::raii::RenderPass>
+		struct renderpass : public vulkan::vk_wrapper<vk::raii::RenderPass>
 		{
 			struct create_info
 			{
@@ -349,7 +237,7 @@ namespace lh
 					   const create_info& = m_defaults);
 		};
 
-		struct framebuffer : public vk_wrapper<vk::raii::Framebuffer>
+		struct framebuffer : public vulkan::vk_wrapper<vk::raii::Framebuffer>
 		{
 			struct create_info
 			{
@@ -371,7 +259,7 @@ namespace lh
 						const create_info& = m_defaults);
 		};
 
-		struct swapchain : public vk_wrapper<vk::raii::SwapchainKHR>
+		struct swapchain : public vulkan::vk_wrapper<vk::raii::SwapchainKHR>
 		{
 			struct create_info
 			{
@@ -404,7 +292,7 @@ namespace lh
 			std::vector<framebuffer> m_framebuffers;
 		};
 
-		struct buffer : public vk_wrapper<vk::raii::Buffer>
+		struct buffer : public vulkan::vk_wrapper<vk::raii::Buffer>
 		{
 			struct create_info
 			{
@@ -423,7 +311,7 @@ namespace lh
 		};
 
 		// e1m4
-		struct command_control : public vk_wrapper<vk::raii::CommandPool>
+		struct command_control : public vulkan::vk_wrapper<vk::raii::CommandPool>
 		{
 			struct create_info
 			{
@@ -439,7 +327,7 @@ namespace lh
 			vk::raii::CommandBuffers m_buffers;
 		};
 		vk::PhysicalDeviceDescriptorBufferPropertiesEXT asd;
-		struct descriptor_set_layout : public vk_wrapper<vk::raii::DescriptorSetLayout>
+		struct descriptor_set_layout : public vulkan::vk_wrapper<vk::raii::DescriptorSetLayout>
 		{
 			using descriptor_count_t = uint32_t;
 			using binding_location_t = uint32_t;
@@ -461,7 +349,7 @@ namespace lh
 			descriptor_set_layout(const logical_device&, const std::vector<binding>&, const create_info& = m_defaults);
 		};
 
-		struct descriptor_pool : public vk_wrapper<vk::raii::DescriptorPool>
+		struct descriptor_pool : public vulkan::vk_wrapper<vk::raii::DescriptorPool>
 		{
 			struct create_info
 			{
@@ -505,29 +393,26 @@ namespace lh
 		// auto create_image_views() -> std::vector<vk::raii::ImageView>;
 
 		auto create_buffer(const data_t&, const vk::BufferUsageFlagBits&) -> vk::raii::Buffer;
-		auto info() -> output::string_t;
+		auto info(const create_info& = {}) -> output::string_t;
 
 		template <typename T>
-			requires std::is_same_v<T, vk_layers_t> ||
-					 std::is_same_v<T, vk_extensions_t>
-					 static auto assert_required_components(T& supported, const vk_string_t& required_components)
-						 -> bool
+			requires std::is_same_v<T, vulkan::vk_layers_t> ||
+					 std::is_same_v<T, vulkan::vk_extensions_t>
+					 static auto assert_required_components(T& supported,
+															const vulkan::vk_string_t& required_components) -> bool
 		{
 
 			for (const auto& required : required_components)
 			{
-				if (std::find_if(supported.begin(),
-								 supported.end(),
-								 [&required](const auto& supported)
-								 {
-									 auto name = std::string {};
-									 if constexpr (std::is_same_v<T, vk_layers_t>)
-										 name = supported.layerName.data();
-									 else
-										 name = supported.extensionName.data();
+				if (std::find_if(supported.begin(), supported.end(), [&required](const auto& supported) {
+						auto name = std::string {};
+						if constexpr (std::is_same_v<T, vulkan::vk_layers_t>)
+							name = supported.layerName.data();
+						else
+							name = supported.extensionName.data();
 
-									 return strcmp(required, name.c_str()) == 0;
-								 }) == supported.end())
+						return strcmp(required, name.c_str()) == 0;
+					}) == supported.end())
 				{
 					output::error() << "this system does not support the required vulkan component: " +
 										   std::string {required};
@@ -574,5 +459,6 @@ namespace lh
 		vk::raii::Pipeline m_pipeline;
 
 		vk::raii::su::BufferData m_vertex_buffer;
+		vulkan::instance inst;
 	};
 }

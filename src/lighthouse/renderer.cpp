@@ -50,7 +50,8 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 	  // m_framebuffers {create_framebuffers(window)},
 	  m_descriptor_pool {create_descriptor_pool()},
 	  m_pipeline_cache {create_pipeline_cache()},
-	  m_pipeline {create_pipeline()}
+	  m_pipeline {create_pipeline()},
+	  inst(window)
 
 {
 	if (create_info.m_using_validation)
@@ -65,17 +66,15 @@ auto lh::renderer::logical_extension_module::assert_required_extensions() const 
 
 	for (const auto& required : required_extensions)
 	{
-		if (std::find_if(supported_extensions.begin(),
-						 supported_extensions.end(),
-						 [&required](const auto& supported)
-						 { return strcmp(required, supported.extensionName) == 0; }) == supported_extensions.end())
+		if (std::find_if(supported_extensions.begin(), supported_extensions.end(), [&required](const auto& supported) {
+				return strcmp(required, supported.extensionName) == 0;
+			}) == supported_extensions.end())
 		{
 			output::error() << "this system does not support the required vulkan logical extension: " +
 								   std::string {required};
 			return false;
 		}
 	}
-
 	return true;
 }
 
@@ -95,8 +94,9 @@ auto lh::renderer::logical_extension_module::info() const -> output::string_t
 	const auto required = std::accumulate(required_extensions.begin(),
 										  required_extensions.end(),
 										  output::string_t {"\n======== required logical extensions: ========\n"},
-										  [](const auto& x, const auto& y)
-										  { return std::move(x) + '\t' + static_cast<const char*>(y) + '\n'; });
+										  [](const auto& x, const auto& y) {
+											  return std::move(x) + '\t' + static_cast<const char*>(y) + '\n';
+										  });
 
 	return supported + required;
 }
@@ -109,10 +109,9 @@ auto lh::renderer::validation_module::assert_required_validation_layers() -> boo
 
 	for (const auto& required : required_layers)
 	{
-		if (std::find_if(supported_layers.begin(),
-						 supported_layers.end(),
-						 [&required](const auto& supported)
-						 { return strcmp(required, supported.layerName) == 0; }) == supported_layers.end())
+		if (std::find_if(supported_layers.begin(), supported_layers.end(), [&required](const auto& supported) {
+				return strcmp(required, supported.layerName) == 0;
+			}) == supported_layers.end())
 		{
 			output::error() << "this system does not support the required vulkan validation layer: " +
 								   std::string {required};
@@ -139,13 +138,14 @@ auto lh::renderer::validation_module::info() const -> output::string_t
 	const auto required = std::accumulate(required_layers.begin(),
 										  required_layers.end(),
 										  output::string_t {"\n======== required validation layers: ========\n"},
-										  [](const auto& x, const auto& y)
-										  { return std::move(x) + '\t' + static_cast<const char*>(y) + '\n'; });
+										  [](const auto& x, const auto& y) {
+											  return std::move(x) + '\t' + static_cast<const char*>(y) + '\n';
+										  });
 
 	return supported + required;
 }
 
-auto lh::renderer::logical_extension_module::supported_extensions() const -> vk_extensions_t
+auto lh::renderer::logical_extension_module::supported_extensions() const -> vulkan::vk_extensions_t
 {
 	// find the number of supported extensions first
 	auto num_extensions = uint32_t {0};
@@ -169,13 +169,13 @@ auto lh::renderer::validation_module::supported_validation_layers() const -> std
 	return layers;
 }
 
-auto lh::renderer::logical_extension_module::required_extensions() const -> vk_string_t
+auto lh::renderer::logical_extension_module::required_extensions() const -> vulkan::vk_string_t
 {
 	// combine the extensions required by glfw with those specified in m_required_extensions
 	auto num_extensions = uint32_t {0};
 	auto glfw_extensions = vkfw::getRequiredInstanceExtensions(&num_extensions);
 
-	auto combined_extensions = vk_string_t {glfw_extensions, glfw_extensions + num_extensions};
+	auto combined_extensions = vulkan::vk_string_t {glfw_extensions, glfw_extensions + num_extensions};
 	combined_extensions.insert(combined_extensions.end(),
 							   m_defaults.m_required_extensions.begin(),
 							   m_defaults.m_required_extensions.end());
@@ -188,7 +188,7 @@ lh::renderer::validation_module::validation_module(vk::raii::Instance& instance)
 	m_object = {instance.createDebugUtilsMessengerEXT(m_defaults.m_debug_info)};
 }
 
-auto lh::renderer::validation_module::required_validation_layers() const -> vk_string_t
+auto lh::renderer::validation_module::required_validation_layers() const -> vulkan::vk_string_t
 {
 	return m_defaults.m_required_validation_layers;
 }
@@ -213,7 +213,7 @@ auto lh::renderer::create_instance(const window& window,
 
 	const auto required_extensions = m_logical_extensions.required_extensions();
 	const auto required_validation_layers = use_validation_module ? m_validation_module->required_validation_layers()
-																  : vk_string_t {};
+																  : vulkan::vk_string_t {};
 
 	const auto& instance_debugger = use_validation_module ? &validation_module::m_defaults.m_debug_info : nullptr;
 
@@ -541,12 +541,10 @@ auto lh::renderer::create_depth_buffer(const window& window) -> vk::raii::ImageV
 	if (format_properties.linearTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment)
 	{
 		tiling_mode = vk::ImageTiling::eLinear;
-	}
-	else if (format_properties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment)
+	} else if (format_properties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment)
 	{
 		tiling_mode = vk::ImageTiling::eOptimal;
-	}
-	else
+	} else
 	{
 		output::fatal() << "DepthStencilAttachment is not supported for D16Unorm depth format";
 	}
@@ -970,11 +968,11 @@ auto lh::renderer::render() -> void
 	m_device->waitIdle();
 }
 
-auto lh::renderer::info() -> output::string_t
+auto lh::renderer::info(const create_info& create_info) -> output::string_t
 {
 	auto result = output::string_t {"\n======== renderer information: ========\n"};
 
-	result += m_defaults.m_using_validation ? m_validation_module->info() : output::string_t {};
+	result += create_info.m_using_validation ? m_validation_module->info() : output::string_t {};
 	result += m_logical_extensions.info();
 	result += m_physical_device.basic_info() + m_physical_device.advanced_info();
 
@@ -1040,12 +1038,12 @@ lh::renderer::validation_module::debug_callback(VkDebugUtilsMessageSeverityFlagB
 	return false;
 }
 
-auto lh::renderer::physical_device::required_extensions() const -> vk_string_t
+auto lh::renderer::physical_device::required_extensions() const -> vulkan::vk_string_t
 {
 	return m_defaults.m_required_extensions;
 }
 
-auto lh::renderer::physical_device::supported_extensions() const -> vk_extensions_t
+auto lh::renderer::physical_device::supported_extensions() const -> vulkan::vk_extensions_t
 {
 	return m_object.enumerateDeviceExtensionProperties();
 }
@@ -1057,10 +1055,9 @@ auto lh::renderer::physical_device::assert_required_extensions() -> bool
 
 	for (const auto& required : required_extensions)
 	{
-		if (std::find_if(supported_extensions.begin(),
-						 supported_extensions.end(),
-						 [&required](const auto& supported)
-						 { return strcmp(required, supported.extensionName) == 0; }) == supported_extensions.end())
+		if (std::find_if(supported_extensions.begin(), supported_extensions.end(), [&required](const auto& supported) {
+				return strcmp(required, supported.extensionName) == 0;
+			}) == supported_extensions.end())
 		{
 			output::error() << "this system does not support the required vulkan physical extension: " +
 								   std::string {required};
@@ -1234,7 +1231,7 @@ lh::renderer::swapchain::swapchain(const physical_device& physical_device,
 
 lh::renderer::logical_device::logical_device(const physical_device& physical_device,
 											 const std::vector<vk::DeviceQueueCreateInfo>& queues,
-											 const vk_string_t& extensions,
+											 const vulkan::vk_string_t& extensions,
 											 const create_info& create_info)
 {
 	const auto& suported_extensions = physical_device.supported_extensions();
@@ -1351,8 +1348,7 @@ lh::renderer::framebuffer::framebuffer(const logical_device& device,
 									   const vk::Extent2D extent,
 									   const create_info& create_info)
 	: framebuffer(device, renderpass, image.m_view, depth_buffer.m_view, extent, create_info)
-{
-}
+{}
 
 lh::renderer::framebuffer::framebuffer(const logical_device& device,
 									   const renderpass& renderpass,

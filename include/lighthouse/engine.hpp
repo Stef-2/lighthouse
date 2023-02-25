@@ -12,7 +12,7 @@ namespace lh
 	class engine
 	{
 	public:
-		engine(std::unique_ptr<window>, const renderer::create_info& = renderer::m_defaults);
+		engine(std::unique_ptr<window>, const renderer::create_info& = {});
 
 		~engine();
 

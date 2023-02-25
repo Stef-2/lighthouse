@@ -40,7 +40,7 @@ add_executable(
 	${source}/system.cpp
 	${source}/memory.cpp
 	${source}/../vulkan/vma_implementation.cpp
-)
+ "src/lighthouse/vulkan.cpp")
 
 # Compiler options
 if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
