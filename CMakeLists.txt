@@ -2,25 +2,18 @@
 
 project("LightHouse")
 
-#set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
+
 set(CMAKE_BUILD_TYPE RelWithDebInfo)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
-set(CMAKE_VERBOSE_MAKEFILE ON)
+
 # Path
-cmake_path(SET source ${CMAKE_CURRENT_SOURCE_DIR}/src/lighthouse)
+cmake_path(SET source ${CMAKE_CURRENT_SOURCE_DIR}/source/lighthouse)
 cmake_path(SET include ${CMAKE_CURRENT_SOURCE_DIR}/include)
 cmake_path(SET module ${CMAKE_CURRENT_SOURCE_DIR}/module)
 cmake_path(SET library ${CMAKE_CURRENT_SOURCE_DIR}/lib)
-#[[
-set(CMAKE_CXX_CLANG_TIDY
-	clang-tidy
-	${source}/*
-	${include}/lighthouse/*
-	-checks = *
-)
-]]
+
 # Add source to this project's executable.
 add_executable(
 	${PROJECT_NAME} 
@@ -40,14 +33,14 @@ add_executable(
 	${source}/system.cpp
 	${source}/memory.cpp
 	${source}/../vulkan/vma_implementation.cpp
- "src/lighthouse/vulkan.cpp")
+	${source}/vulkan.cpp)
 
 # Compiler options
 if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
   target_compile_options(
 	  ${PROJECT_NAME} PRIVATE
 	  # MSVC compiler settings
-	  /std:c++latest /GL /Ox /Oi /W3 /MP /Zf /openmp:experimental /experimental:module /Qpar /Qpar-report:1 /fp:fast /arch:AVX2 /showIncludes /permissive- /nologo
+	  /std:c++latest /GL /Ox /Oi /W3 /MP /Zf /openmp:experimental /Qpar /Qpar-report:1 /fp:fast /arch:AVX2 /showIncludes /nologo /experimental:module
 	  # MSVC disable common annoying warnings
 	  /wd4005 /wd4068 /wd4244 /wd4267 /wd4800
 	)
