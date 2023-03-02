@@ -35,6 +35,12 @@ namespace lh
 		template <typename T> class vk_wrapper
 		{
 		public:
+			vk_wrapper(const T&) = delete;
+			vk_wrapper operator=(const T&) = delete;
+
+			vk_wrapper(T&& object) noexcept : m_object(std::move(object)) {};
+			vk_wrapper(nullptr_t object = nullptr) : m_object(object) {};
+
 			auto operator*() -> T& { return m_object; }
 			auto operator*() const -> T& { return m_object; }
 
@@ -46,12 +52,6 @@ namespace lh
 			virtual auto info() const -> output::string_t { return {}; }
 
 		protected:
-			vk_wrapper(const T&) = delete;
-			vk_wrapper operator=(const T&) = delete;
-
-			vk_wrapper(T&& object) noexcept : m_object(std::move(object)) {};
-			vk_wrapper(nullptr_t object = nullptr) : m_object(object) {};
-
 			mutable T m_object;
 		};
 
@@ -196,6 +196,7 @@ namespace lh
 		struct debug_messanger : public vk_wrapper<vk::raii::DebugUtilsMessengerEXT>
 		{
 			using vk_wrapper::vk_wrapper;
+
 			struct create_info
 			{
 				vk::DebugUtilsMessengerCreateInfoEXT m_debug_info {
@@ -226,13 +227,9 @@ namespace lh
 			{
 				version m_engine_version {version::m_engine_version};
 				version m_vulkan_version {version::m_vulkan_version};
-
-				vk_string_t m_required_extensions {
-					logical_extensions::m_default_logical_extensions.m_required_extensions};
-				vk_string_t m_required_validation_layers {
-					validation_layers::m_default_validation_layers.m_required_extensions};
-
-				bool m_using_validation {true};
+				logical_extensions::create_info m_extensions = logical_extensions::m_default_logical_extensions;
+				validation_layers::create_info m_validation_layers = validation_layers::m_default_validation_layers;
+				debug_messanger::create_info m_debug_messanger = {};
 			};
 
 			instance(const window&, const create_info& = {});

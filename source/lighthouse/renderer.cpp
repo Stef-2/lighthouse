@@ -3,11 +3,10 @@
 
 lh::renderer::renderer(const window& window, const create_info& create_info)
 	: m_version {create_info.m_vulkan_version},
-	  m_context {create_context()},
-	  m_instance {create_instance(
-		  window, create_info.m_engine_version, create_info.m_vulkan_version, create_info.m_using_validation)},
-	  m_validation_module {create_info.m_using_validation ? validation_module {m_instance}
-														  : decltype(m_validation_module) {std::nullopt}},
+	  // m_context {create_context()},
+	  m_instance(window),
+	  /*m_validation_module {create_info.m_using_validation ? validation_module {m_instance}
+														  : decltype(m_validation_module) {std::nullopt}},*/
 	  m_physical_device {m_instance},
 	  // m_surface_data {create_surface_data(window)},
 	  m_extent {create_extent(window)},
@@ -18,7 +17,7 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 				{vk::DeviceQueueCreateInfo {
 					{}, m_queue_families.m_graphics, 1, &logical_device::m_defaults.m_queue_priority}},
 				m_physical_device.required_extensions()},
-	  m_memory_allocator {*m_instance, m_physical_device, m_device},
+	  m_memory_allocator {**m_instance, m_physical_device, m_device},
 	  // m_command_pool {create_command_pool()},
 	  m_graphics_queue {create_graphics_queue()},
 	  m_present_queue {create_present_queue()},
@@ -50,8 +49,7 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 	  // m_framebuffers {create_framebuffers(window)},
 	  m_descriptor_pool {create_descriptor_pool()},
 	  m_pipeline_cache {create_pipeline_cache()},
-	  m_pipeline {create_pipeline()},
-	  inst(window)
+	  m_pipeline {create_pipeline()}
 
 {
 	if (create_info.m_using_validation)
@@ -197,7 +195,7 @@ auto lh::renderer::create_context() -> vk::raii::Context
 {
 	return {};
 }
-
+/*
 auto lh::renderer::create_instance(const window& window,
 								   const version& engine_version,
 								   const version& vulkan_version,
@@ -229,7 +227,7 @@ auto lh::renderer::create_instance(const window& window,
 													   instance_debugger};
 
 	return {m_context, instance_info};
-}
+}*/
 /*
 auto lh::renderer::create_device(const vk::PhysicalDeviceFeatures2& features) -> vk::raii::Device
 {
@@ -383,7 +381,7 @@ auto lh::renderer::create_command_buffer() -> vk::raii::CommandBuffer
 auto lh::renderer::create_surface(const window& window) -> vk::raii::SurfaceKHR
 {
 	auto surface = VkSurfaceKHR {};
-	glfwCreateWindowSurface(static_cast<VkInstance>(*m_instance), window.vkfw_window(), nullptr, &surface);
+	glfwCreateWindowSurface(static_cast<VkInstance>(**m_instance), window.vkfw_window(), nullptr, &surface);
 
 	return {m_instance, surface};
 }
@@ -972,7 +970,7 @@ auto lh::renderer::info(const create_info& create_info) -> output::string_t
 {
 	auto result = output::string_t {"\n======== renderer information: ========\n"};
 
-	result += create_info.m_using_validation ? m_validation_module->info() : output::string_t {};
+	// result += create_info.m_using_validation ? m_validation_module->info() : output::string_t {};
 	result += m_logical_extensions.info();
 	result += m_physical_device.basic_info() + m_physical_device.advanced_info();
 

@@ -427,9 +427,10 @@ namespace lh
 
 		logical_extension_module m_logical_extensions;
 
-		vk::raii::Context m_context;
-		vk::raii::Instance m_instance;
-		std::optional<validation_module> m_validation_module = {std::nullopt};
+		// vk::raii::Context m_context;
+		vulkan::instance m_instance;
+		// vk::raii::Instance m_instance;
+		// std::optional<validation_module> m_validation_module = {std::nullopt};
 		physical_device m_physical_device;
 
 		vk::raii::SurfaceKHR m_surface;
@@ -452,13 +453,11 @@ namespace lh
 		descriptor_set_layout m_descriptor_set_layout;
 		vk::raii::DescriptorPool m_descriptor_pool;
 		vk::raii::DescriptorSet m_descriptor_set;
-		static constexpr auto b = sizeof(VkDescriptorPool);
 		vk::raii::ShaderModule m_shader_modules[2];
 		vk::raii::PipelineLayout m_pipeline_layout;
 		vk::raii::PipelineCache m_pipeline_cache;
 		vk::raii::Pipeline m_pipeline;
 
 		vk::raii::su::BufferData m_vertex_buffer;
-		vulkan::instance inst;
 	};
 }

@@ -40,7 +40,7 @@ if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
   target_compile_options(
 	  ${PROJECT_NAME} PRIVATE
 	  # MSVC compiler settings
-	  /std:c++latest /GL /Ox /Oi /W3 /MP /Zf /openmp:experimental /Qpar /Qpar-report:1 /fp:fast /arch:AVX2 /showIncludes /nologo /experimental:module
+	  /std:c++latest /GL /Ox /Oi /W3 /MP /Zf /EHsc /openmp:experimental /Qpar /Qpar-report:1 /fp:fast /arch:AVX2 /showIncludes /nologo /experimental:module #/reference std=std.ifc std.obj
 	  # MSVC disable common annoying warnings
 	  /wd4005 /wd4068 /wd4244 /wd4267 /wd4800
 	)
@@ -80,7 +80,7 @@ target_compile_definitions(
 	${PROJECT_NAME} PUBLIC
 
 	# vkfw definitions
-	VKFW_HPP_NO_NODISCARD_WARNINGS
+	VKFW_NO_NODISCARD_WARNINGS
 	VKFW_NO_EXCEPTIONS
 	VKFW_NO_LEADING_e_IN_ENUMS
 	VKFW_NO_STRUCT_CONSTRUCTORS
@@ -111,7 +111,7 @@ target_include_directories(
 # Modules
 set(CMAKE_MODULE_PATH ${module}/std ${module}/lighthouse)
 
-#[[
+
 target_precompile_headers(
 	${PROJECT_NAME} PRIVATE
 	${include}/vkfw/vkfw.hpp
@@ -128,7 +128,7 @@ target_precompile_headers(
 	${include}/vulkan/vulkan_core.h
 
 	${include}/glm/fwd.hpp
-)]]
+)
 
 # Libraries
 target_link_directories(
