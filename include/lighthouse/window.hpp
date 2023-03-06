@@ -13,17 +13,17 @@
 
 namespace lh
 {
-  // class that encapsulates GLFW / VKFW window and monitor for display
-  class window
-  {
-  public:
-	using window_dimension_t = uint32_t;
-	using window_gamma_t = float;
-	using window_resolution_t = vk::Extent2D;
-	using window_position_t = std::pair<window_dimension_t, window_dimension_t>;
+	// class that encapsulates GLFW / VKFW window and monitor for display
+	class window
+	{
+	public:
+		using window_dimension_t = uint32_t;
+		using window_gamma_t = float;
+		using window_resolution_t = vk::Extent2D;
+		using window_position_t = std::pair<window_dimension_t, window_dimension_t>;
 
-	// resolutions commonly used in video game engines
-	// clang-format off
+		// resolutions commonly used in video game engines
+		// clang-format off
 		enum class common_resolutions
 		{
 			res_320x200,
@@ -75,7 +75,7 @@ namespace lh
 		};
 
 		// clang-format off
-		static inline const std::map<common_resolutions, window_resolution_t> resolution =
+		static inline const std::map<common_resolutions, window_resolution_t> m_resolution =
 		{
 			{common_resolutions::res_320x200,	{320, 200}},
 			{common_resolutions::res_640x360,	{640, 360}},
@@ -100,40 +100,44 @@ namespace lh
 			{common_resolutions::res_3440x1440,	{3440, 1440}},
 			{common_resolutions::res_3840x2160,	{3840, 2160}}
 		};
+		//clang-format on
 
-		window(window_resolution_t res = resolution.at(common_resolutions::default_windowed), std::string_view name = defaultName, bool fullscreen = false,
-			   vkfw::WindowHints& = const_cast<vkfw::WindowHints&>(default_hints));
+		struct create_info
+		{
+			window_resolution_t m_resolution = window::m_resolution.at(common_resolutions::default_windowed);
+			const char* m_name = "LightHouse";
+			bool m_fullscreen = false;
+			vkfw::WindowHints m_hints = {
+				.resizable = false,
+				.decorated = true,
+				.focused = true,
+				.autoIconify = false,
+				.centerCursor = true,
+				.focusOnShow = true,
+				.srgbCapable = true,
+				.clientAPI = vkfw::ClientAPI::None
+			};
+		};
+
+		window(const create_info& = {});
 
 		// move constructible only
 		window(const window&&) noexcept;
 		window(window&&) noexcept = default;
 
-		auto get_aspect_ratio() const -> double;
-		auto get_resolution() const -> window_resolution_t;
-		auto get_title() const -> std::string_view;
-		auto set_title(std::string_view) -> void;
+		auto aspect_ratio() const -> double;
+		auto resolution() const -> window_resolution_t;
+		auto title() const -> std::string_view;
+		auto title(std::string_view) -> void;
 
-		auto get_fullscreen() const -> bool;
-		auto set_fullscreen(bool) -> void;
+		auto fullscreen() const -> bool;
+		auto fullscreen(bool) -> void;
 
 		auto vkfw_window() const -> vkfw::Window&;
 		auto vkfw_monitor() -> vkfw::Monitor&;
 
 	private:
-
 		auto initialize_vkfw() const -> void;
-
-		static inline const auto default_hints = vkfw::WindowHints {
-			.resizable = false,
-			.decorated = true,
-			.focused = true,
-			.autoIconify = false,
-			.centerCursor = true,
-			.focusOnShow = true,
-			.srgbCapable = true,
-			.clientAPI = vkfw::ClientAPI::None
-		};
-		static inline auto defaultName = "LightHouse";
 
 		mutable vkfw::UniqueWindow m_window;
 		vkfw::Monitor m_monitor;

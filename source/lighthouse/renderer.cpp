@@ -388,7 +388,7 @@ auto lh::renderer::create_surface(const window& window) -> vk::raii::SurfaceKHR
 
 auto lh::renderer::create_extent(const window& window) -> vk::Extent2D
 {
-	return {window.get_resolution().width, window.get_resolution().height};
+	return {window.resolution().width, window.resolution().height};
 }
 /*
 auto lh::renderer::create_queue_families() -> queue_families
@@ -550,7 +550,7 @@ auto lh::renderer::create_depth_buffer(const window& window) -> vk::raii::ImageV
 	auto image_info = vk::ImageCreateInfo {};
 	image_info.imageType = vk::ImageType::e2D;
 	image_info.format = depth_format;
-	image_info.extent = vk::Extent3D {window.get_resolution().width, window.get_resolution().height, 1};
+	image_info.extent = vk::Extent3D {window.resolution().width, window.resolution().height, 1};
 	image_info.usage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
 	image_info.mipLevels = 1;
 	image_info.arrayLayers = 1;
@@ -827,7 +827,7 @@ auto lh::renderer::create_descriptor_pool() -> vk::raii::DescriptorPool
 {
 	return vk::raii::su::makeDescriptorPool(m_device, {{vk::DescriptorType::eUniformBuffer, 1}});
 }
-
+/*
 auto lh::renderer::create_buffer(const data_t& data, const vk::BufferUsageFlagBits& usage) -> vk::raii::Buffer
 {
 	auto buffer_info = vk::BufferCreateInfo({}, data.size(), usage);
@@ -847,7 +847,7 @@ auto lh::renderer::create_buffer(const data_t& data, const vk::BufferUsageFlagBi
 
 	buffer_memory.unmapMemory();
 	buffer.bindMemory(*buffer_memory, 0);
-}
+}*/
 
 auto lh::renderer::physical_device::basic_info() const -> lh::output::string_t
 {
@@ -857,8 +857,8 @@ auto lh::renderer::physical_device::basic_info() const -> lh::output::string_t
 
 	auto info = output::string_t {"\n======== basic vulkan device information: ========"};
 	info += "\n\tname: " + output::string_t {properties.properties.deviceName.data()};
-	info += "\n\tapi version: " + output::string_t(lh::version {properties.properties.apiVersion});
-	info += "\n\tdriver version: " + output::string_t(lh::version {properties.properties.driverVersion});
+	info += "\n\tapi version: " + lh::string::string_t(lh::version {properties.properties.apiVersion});
+	info += "\n\tdriver version: " + lh::string::string_t(lh::version {properties.properties.driverVersion});
 	info += "\n\ttotal memory: " + std::to_string(double(memory.m_device_total) / gigabyte) + " gygabites";
 	info += "\n\tavailable memory: " + std::to_string(double(memory.m_device_available) / gigabyte) + " gygabites";
 	info += "\n\tused memory: " + std::to_string(double(memory.m_device_used) / gigabyte) + " gigabytes";

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "output.hpp"
+#include "lighthouse/string.hpp"
 
 namespace lh
 {
@@ -21,7 +21,7 @@ namespace lh
 		operator packed_version_t() const;
 
 		// implicit conversion to a readable string format
-		operator lh::output::string_t() const;
+		operator lh::string::string_t() const;
 
 		static const version m_engine_version;
 		static const version m_vulkan_version;

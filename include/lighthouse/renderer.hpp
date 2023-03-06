@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vulkan.hpp"
+#include "vulkan/vulkan.hpp"
 
 #include <iterator>
 #include <ranges>
@@ -392,7 +392,7 @@ namespace lh
 		auto create_pipeline() -> vk::raii::Pipeline;
 		// auto create_image_views() -> std::vector<vk::raii::ImageView>;
 
-		auto create_buffer(const data_t&, const vk::BufferUsageFlagBits&) -> vk::raii::Buffer;
+		// auto create_buffer(const data_t&, const vk::BufferUsageFlagBits&) -> vk::raii::Buffer;
 		auto info(const create_info& = {}) -> output::string_t;
 
 		template <typename T>

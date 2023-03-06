@@ -1,11 +1,7 @@
 #pragma once
 
-#include "glm/gtx/string_cast.hpp"
-#include "vkfw.hpp"
-#include "vulkan/vulkan.hpp"
-#include "vulkan/vulkan_to_string.hpp"
-
-#include "static.hpp"
+#include "lighthouse/static.hpp"
+#include "lighthouse/string.hpp"
 
 #include <iostream>
 #include <string>
@@ -13,30 +9,6 @@
 
 namespace lh
 {
-	namespace string
-	{
-		// concepts that implicitly or explicitly convert to std::string
-		template <typename T>
-		concept std_convertible = requires(T x) { std::to_string(x); };
-		template <typename T>
-		concept glm_convertible = requires(T x) { glm::detail::compute_to_string<T>::call(x); };
-		template <typename T>
-		concept vkfw_convertible = requires(T x) { vkfw::to_string(x); };
-		template <typename T>
-		concept std_constructible = requires(T x) { std::string(x); } || std::convertible_to<T, std::string>;
-		template <typename T>
-		concept vulkan_convertible = requires(T x) { vk::to_string(x); };
-
-		// combined string convertible concepts
-		template <typename T>
-		concept string_convertible = std_convertible<T> || glm_convertible<T> || vkfw_convertible<T> ||
-									 std_constructible<T> || vulkan_convertible<T>;
-
-		// concept of a container range holding string convertible types
-		template <typename T>
-		concept string_convertible_input_range = std::ranges::input_range<T> &&
-												 lh::string::string_convertible<std::ranges::range_value_t<T>>;
-	}
 
 	// static utility class that provides custom logging facilities
 	class output : static_t
@@ -45,7 +17,7 @@ namespace lh
 		friend class engine;
 
 		// string type to be used as the internal buffer
-		using string_t = std::string;
+		using string_t = lh::string::string_t;
 
 		// custom buffer
 		class buffer
@@ -69,7 +41,7 @@ namespace lh
 			operator lh::output::string_t() const;
 
 		private:
-			string_t m_buffer;
+			string_t m_buffer {};
 		};
 
 		static auto log() -> buffer&;

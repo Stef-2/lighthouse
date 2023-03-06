@@ -33,7 +33,11 @@ add_executable(
 	${source}/system.cpp
 	${source}/memory.cpp
 	${source}/../vulkan/vma_implementation.cpp
-	${source}/vulkan.cpp)
+	${source}/vulkan/vulkan.cpp
+	${source}/vulkan/extension.cpp
+	${source}/vulkan/instance.cpp
+	${source}/vulkan/debug_messanger.cpp
+)
 
 # Compiler options
 if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
