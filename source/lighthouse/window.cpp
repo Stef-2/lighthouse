@@ -7,6 +7,8 @@ lh::window::window(const create_info& create_info) : m_title(create_info.m_name)
 	// set the monitor depending on fullscreen mode
 	m_monitor = create_info.m_fullscreen ? vkfw::getPrimaryMonitor().value : nullptr;
 
+	// alrighty();
+	MyFunc();
 	auto result = vkfw::Result {};
 	std::tie(result, m_window) = vkfw::createWindowUnique(create_info.m_resolution.width,
 														  create_info.m_resolution.height,

@@ -44,18 +44,17 @@ if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
   target_compile_options(
 	  ${PROJECT_NAME} PRIVATE
 	  # MSVC compiler settings
-	  /std:c++latest /GL /Ox /Oi /W3 /MP /Zf /EHsc /openmp:experimental /Qpar /Qpar-report:1 /fp:fast /arch:AVX2 /showIncludes /nologo /experimental:module #/reference std=std.ifc std.obj
+	  /std:c++latest /GL /Ox /Oi /W3 /MP /Zf /EHsc /openmp:experimental /Qpar /Qpar-report:1 /fp:fast /arch:AVX2 /showIncludes /nologo /experimental:module /ifcSearchDir ${module}/lighthouse# /stdIfcDir ""#/reference std=std.ifc std.obj
 	  # MSVC disable common annoying warnings
 	  /wd4005 /wd4068 /wd4244 /wd4267 /wd4800
 	)
-
+	
 	target_link_options(
 		${PROJECT_NAME} PRIVATE
 		# MSVC linker settings
 		/INCREMENTAL /CGTHREADS:8 /VERBOSE:INCR
 	)
 endif()
-
 
 if(${CMAKE_CXX_COMPILER_ID} MATCHES GNU)
 message(HERE:${INCLUDE})
@@ -114,7 +113,7 @@ target_include_directories(
 
 # Modules
 set(CMAKE_MODULE_PATH ${module}/std ${module}/lighthouse)
-
+set(PREBUILT_MODULE_PATH ${module})
 
 target_precompile_headers(
 	${PROJECT_NAME} PRIVATE

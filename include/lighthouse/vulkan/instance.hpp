@@ -8,6 +8,8 @@
 
 namespace lh
 {
+	class window;
+
 	namespace vulkan
 	{
 		struct instance : public vk_wrapper<vk::raii::Instance>

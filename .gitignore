@@ -18,10 +18,11 @@ build
 data
 lib
 tools
-module
 
 include/*
 !include/lighthouse
 src/*
 !src/lighthouse
+module/*
+!module/lighthouse
 /.clang-tidy

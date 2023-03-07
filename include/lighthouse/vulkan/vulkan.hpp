@@ -38,6 +38,7 @@ namespace lh
 
 		// ==========================================================================
 		// ==========================================================================
+		/*
 		struct physical_device : public vulkan::vk_wrapper<vk::raii::PhysicalDevice>
 		{
 			using performance_score_t = uint64_t;
@@ -72,6 +73,6 @@ namespace lh
 						   const std::vector<vk::DeviceQueueCreateInfo>&,
 						   const vulkan::vk_string_t&,
 						   const create_info& = {});
-		};
+		};*/
 	}
 }
