@@ -3,16 +3,16 @@
 #include "vkfw.hpp"
 
 #include "static.hpp"
-#include "window.hpp"
 
-#include <concepts>
 #include <functional>
 #include <unordered_map>
 #include <variant>
+#include <concepts>
 #include <vector>
 
 namespace lh
 {
+	class window;
 	// class encapsulating functions with unique IDs
 	class action
 	{
