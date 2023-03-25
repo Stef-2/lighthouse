@@ -16,7 +16,7 @@ build
 /CMakePresets.json
 
 data
-lib
+library
 tools
 
 include/*
