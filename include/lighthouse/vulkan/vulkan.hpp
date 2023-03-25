@@ -1,8 +1,8 @@
 #pragma once
 
-#include "SPIRV/GlslangToSpv.h"
+#include "vulkan/glslang/SPIRV/GlslangToSpv.h"
 #include "vkfw/vkfw.hpp"
-#include "vma/vk_mem_alloc.hpp"
+#include "vulkan/vma/vk_mem_alloc.hpp"
 #include "vulkan/utils/geometries.hpp"
 #include "vulkan/utils/math.hpp"
 #include "vulkan/utils/raii/raii_shaders.hpp"

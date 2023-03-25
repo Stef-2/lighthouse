@@ -15,8 +15,8 @@
 
 #include "system.hpp"
 
-#include <cstddef>
-#include <iostream>
+// #include <cstddef>
+// #include <iostream>
 
 namespace lh
 {
@@ -122,8 +122,7 @@ namespace lh
 						  (status.ullTotalPhys - status.ullAvailPhys) / unit_divisor,
 						  1.0 - static_cast<decimal_t>(status.ullAvailPhys) /
 									static_cast<decimal_t>(status.ullTotalPhys)};
-			}
-			else if constexpr (system::type == system::type::linux)
+			} else if constexpr (system::type == system::type::linux)
 			{
 				std::abort();
 				// TODO

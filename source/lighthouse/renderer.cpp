@@ -1,5 +1,5 @@
 #include "renderer.hpp"
-#include "vulkan/vma/vk_mem_alloc.h"
+// #include "vulkan/vma/vk_mem_alloc.h"
 
 lh::renderer::renderer(const window& window, const create_info& create_info)
 	: m_version {create_info.m_vulkan_version},

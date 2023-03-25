@@ -1,8 +1,8 @@
 #pragma once
 
-#include "renderer.hpp"
-#include "version.hpp"
-#include "window.hpp"
+#include "lighthouse/renderer.hpp"
+#include "lighthouse/version.hpp";
+#include "lighthouse/window.hpp"
 
 namespace lh
 {

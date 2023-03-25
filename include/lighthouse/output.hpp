@@ -3,10 +3,6 @@
 #include "lighthouse/static.hpp"
 #include "lighthouse/string.hpp"
 
-#include <iostream>
-#include <string>
-#include <string_view>
-
 namespace lh
 {
 
@@ -54,18 +50,18 @@ namespace lh
 		{
 			if constexpr (string::std_convertible<decltype(data)>)
 				return std::to_string(data);
-
+			/*
 			if constexpr (string::glm_convertible<decltype(data)>)
-				return glm::to_string(data);
+				return glm::to_string(data);*/
 
 			if constexpr (string::vkfw_convertible<decltype(data)>)
 				return vkfw::to_string(data);
 
 			if constexpr (string::std_constructible<decltype(data)>)
 				return lh::output::string_t {data};
-
+			/*
 			if constexpr (string::vulkan_convertible<decltype(data)>)
-				return vk::to_string(data);
+				return vk::to_string(data);*/
 		}
 
 	private:

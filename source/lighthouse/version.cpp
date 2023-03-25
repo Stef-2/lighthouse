@@ -1,4 +1,4 @@
-#include "version.hpp"
+#include "lighthouse/version.hpp"
 
 const lh::version lh::version::m_engine_version = {0, 2, 0};
 const lh::version lh::version::m_vulkan_version = {1, 3, 0};

@@ -1,6 +1,8 @@
 #pragma once
 
-#include "vulkan/vulkan.hpp"
+#include "lighthouse/vulkan/vulkan.hpp"
+
+#include "lighthouse/version.hpp"
 
 #include <iterator>
 #include <ranges>

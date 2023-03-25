@@ -2,9 +2,7 @@
 
 project("LightHouse")
 
-
-set(CMAKE_BUILD_TYPE RelWithDebInfo)
-set(CMAKE_CXX_STANDARD 23)
+#set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 
@@ -17,7 +15,8 @@ cmake_path(SET library ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 # Add source to this project's executable.
 add_executable(
 	${PROJECT_NAME} 
-
+	#${module}/lighthouse/vulkan/vulkan.ixx ${source}/../vulkan/vulkan.cpp
+	#${module}/std/std.ixx ${source}/../std/std.cpp
 	${source}/lightHouse.cpp
 	${source}/window.cpp
 	${source}/output.cpp
@@ -37,14 +36,18 @@ add_executable(
 	${source}/vulkan/extension.cpp
 	${source}/vulkan/instance.cpp
 	${source}/vulkan/debug_messanger.cpp
+
 )
+
+#STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+#STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
 
 # Compiler options
 if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
   target_compile_options(
 	  ${PROJECT_NAME} PRIVATE
 	  # MSVC compiler settings
-	  /std:c++latest /GL /Ox /Oi /W3 /MP /Zf /EHsc /openmp:experimental /Qpar /Qpar-report:1 /fp:fast /arch:AVX2 /showIncludes /nologo /experimental:module /ifcSearchDir ${module}/lighthouse# /stdIfcDir ""#/reference std=std.ifc std.obj
+	  /std:c++latest /EHsc /GL /Ox /Oi /W3 /MP /Zf /MD /openmp:experimental /Qpar /Qpar-report:1 /fp:fast /arch:AVX2 /nologo /experimental:module
 	  # MSVC disable common annoying warnings
 	  /wd4005 /wd4068 /wd4244 /wd4267 /wd4800
 	)
@@ -55,6 +58,7 @@ if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
 		/INCREMENTAL /CGTHREADS:8 /VERBOSE:INCR
 	)
 endif()
+
 
 if(${CMAKE_CXX_COMPILER_ID} MATCHES GNU)
 message(HERE:${INCLUDE})
@@ -100,20 +104,24 @@ target_compile_definitions(
 
 # Include
 target_include_directories(
-	${PROJECT_NAME} PRIVATE
+	${PROJECT_NAME} PUBLIC
 
 	${include}
 	${include}/lighthouse
 	${include}/glfw
 	${include}/glm
 	${include}/vulkan
+	${include}/vulkan/vma
+	${include}/vulkan/glslang
 	${include}/vkfw
-	${include}/glslang
 )
 
 # Modules
-set(CMAKE_MODULE_PATH ${module}/std ${module}/lighthouse)
-set(PREBUILT_MODULE_PATH ${module})
+set(CMAKE_MODULE_PATH
+	${module}/std
+	${module}/lighthouse
+	${module}/lighthouse/vulkan
+)
 
 target_precompile_headers(
 	${PROJECT_NAME} PRIVATE
