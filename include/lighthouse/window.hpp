@@ -1,15 +1,18 @@
 #pragma once
 
 #include "vkfw.hpp"
-#include "vulkan/vulkan.hpp"
-
-#include "output.hpp"
 
 #include <map>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
+
+// forward declarations
+namespace vk
+{
+	struct Extent2D;
+}
 
 namespace lh
 {
@@ -74,7 +77,6 @@ namespace lh
 			default_fullscreen	= res_1920x1200
 		};
 
-		// clang-format off
 		static inline const std::map<common_resolutions, window_resolution_t> m_resolution =
 		{
 			{common_resolutions::res_320x200,	{320, 200}},

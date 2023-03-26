@@ -2,6 +2,7 @@
 
 #include "lighthouse/static.hpp"
 #include "lighthouse/string.hpp"
+#include "lighthouse/string_convertible.hpp"
 
 namespace lh
 {
@@ -22,10 +23,28 @@ namespace lh
 			auto get_data() const -> std::string_view;
 			auto get_last_line() const -> std::string_view;
 
+			static constexpr auto to_string(const string::string_convertible auto& data) -> lh::string::string_t
+			{
+				if constexpr (string::std_convertible<decltype(data)>)
+					return std::to_string(data);
+
+				if constexpr (string::glm_convertible<decltype(data)>)
+					return glm::to_string(data);
+
+				if constexpr (string::vkfw_convertible<decltype(data)>)
+					return vkfw::to_string(data);
+
+				if constexpr (string::std_constructible<decltype(data)>)
+					return lh::string::string_t {data};
+
+				if constexpr (string::vulkan_to_string and string::vulkan_convertible<decltype(data)>)
+					return vk::to_string(data);
+			}
+
 			// enable std::cout like << operator
 			auto operator<<(const string::string_convertible auto& data) -> buffer&
 			{
-				m_buffer.append(output::to_string(data).append("\n"));
+				m_buffer.append(to_string(data).append("\n"));
 
 				if (m_fatal_flag) [[unlikely]]
 					output::exit();
@@ -34,10 +53,10 @@ namespace lh
 			}
 
 			// implicit string conversion
-			operator lh::output::string_t() const;
+			operator lh::string::string_t() const;
 
 		private:
-			string_t m_buffer {};
+			lh::string::string_t m_buffer {};
 		};
 
 		static auto log() -> buffer&;
@@ -45,24 +64,6 @@ namespace lh
 		static auto error() -> buffer&;
 
 		static auto fatal() -> buffer&;
-
-		static constexpr auto to_string(const string::string_convertible auto& data) -> lh::output::string_t
-		{
-			if constexpr (string::std_convertible<decltype(data)>)
-				return std::to_string(data);
-			/*
-			if constexpr (string::glm_convertible<decltype(data)>)
-				return glm::to_string(data);*/
-
-			if constexpr (string::vkfw_convertible<decltype(data)>)
-				return vkfw::to_string(data);
-
-			if constexpr (string::std_constructible<decltype(data)>)
-				return lh::output::string_t {data};
-			/*
-			if constexpr (string::vulkan_convertible<decltype(data)>)
-				return vk::to_string(data);*/
-		}
 
 	private:
 		static auto initialize() -> void;
@@ -87,6 +88,6 @@ namespace lh
 		for (const auto& element : range)
 			buffer << element;
 
-		return lh::output::string_t {buffer};
+		return lh::string::string_t {buffer};
 	}
 }

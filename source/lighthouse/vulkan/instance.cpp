@@ -1,5 +1,7 @@
 #include "lighthouse/vulkan/instance.hpp"
 
+#include "lighthouse/window.hpp"
+
 lh::vulkan::instance::instance(const window& window, const create_info& create_info)
 	: m_context {},
 	  m_vulkan_version(create_info.m_vulkan_version),
@@ -45,7 +47,7 @@ lh::vulkan::instance::instance(const window& window, const create_info& create_i
 		m_validation->second = {m_object};
 }
 
-auto lh::vulkan::instance::info() const -> output::string_t
+auto lh::vulkan::instance::info() const -> string::string_t
 {
 	return {};
 }

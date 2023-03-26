@@ -50,7 +50,6 @@ namespace lh
 						return false;
 					}
 				}
-
 				return true;
 			}
 			auto info() const -> lh::string::string_t
@@ -121,7 +120,7 @@ namespace lh
 			using vulkan_extension_module::vulkan_extension_module;
 
 			static inline const auto m_default_physical_extensions = create_info {
-				{"VK_KHR_swapchain", "VK_EXT_memory_budget", "VK_KHR_portability_subset"}};
+				{"VK_KHR_swapchain", "VK_EXT_memory_budget", "VK_KHR_portability_subset", "VK_KHR_dynamic_rendering"}};
 
 			physical_extensions(const vk_extensions_t& supported,
 								const create_info& create_info = m_default_physical_extensions);

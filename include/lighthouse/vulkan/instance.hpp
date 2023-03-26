@@ -1,6 +1,5 @@
 #pragma once
 
-#include "lighthouse/window.hpp"
 #include "lighthouse/vulkan/extension.hpp"
 #include "lighthouse/vulkan/raii_wrapper.hpp"
 #include "lighthouse/version.hpp"
@@ -8,6 +7,7 @@
 
 namespace lh
 {
+	// forward declarations
 	class window;
 
 	namespace vulkan
@@ -24,7 +24,7 @@ namespace lh
 			};
 
 			instance(const lh::window&, const create_info& = {});
-			auto info() const -> lh::output::string_t override;
+			auto info() const -> lh::string::string_t override;
 
 			std::optional<std::pair<validation_layers, debug_messanger>> m_validation;
 			logical_extensions m_extensions;

@@ -7,8 +7,9 @@ namespace lh
 {
 	namespace vulkan
 	{
-		struct debug_messanger : public vk_wrapper<vk::raii::DebugUtilsMessengerEXT>
+		class debug_messanger : public vk_wrapper<vk::raii::DebugUtilsMessengerEXT>
 		{
+		public:
 			using vk_wrapper::vk_wrapper;
 
 			struct create_info

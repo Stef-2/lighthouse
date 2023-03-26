@@ -1,11 +1,13 @@
 #pragma once
 
 #include "lighthouse/renderer.hpp"
-#include "lighthouse/version.hpp";
-#include "lighthouse/window.hpp"
 
 namespace lh
 {
+	// forward declarations
+	class window;
+	struct version;
+
 	// provides initialization and main loop facilities
 	class engine
 	{

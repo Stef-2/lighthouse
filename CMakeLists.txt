@@ -43,6 +43,7 @@ STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_D
 
 # Compiler options
 if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
+
   target_compile_options(
 	  ${PROJECT_NAME} PRIVATE
 	  # MSVC compiler settings
@@ -56,13 +57,13 @@ if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
 	target_link_options(
 		${PROJECT_NAME} PRIVATE
 		# MSVC linker settings
-		/INCREMENTAL /CGTHREADS:8 /VERBOSE:INCR
+		/INCREMENTAL /CGTHREADS:8 /VERBOSE:INCR /LTCG
 	)
 endif()
 
 
 if(${CMAKE_CXX_COMPILER_ID} MATCHES GNU)
-message(HERE:${INCLUDE})
+
 	target_compile_options(
 	  ${PROJECT_NAME} PRIVATE
 	  #GCC standard compiler settings

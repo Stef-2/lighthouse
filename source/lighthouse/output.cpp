@@ -55,7 +55,7 @@ auto lh::output::buffer::get_last_line() const -> std::string_view
 	return view.substr(m_buffer.rfind('\n', m_buffer.size() - 2) + 1);
 }
 
-lh::output::buffer::operator lh::output::string_t() const
+lh::output::buffer::operator lh::string::string_t() const
 {
 	return m_buffer;
 }
