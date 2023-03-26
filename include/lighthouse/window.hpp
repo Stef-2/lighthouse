@@ -2,11 +2,9 @@
 
 #include "vkfw.hpp"
 
+#include "lighthouse/string/string.hpp"
+
 #include <map>
-#include <memory>
-#include <string>
-#include <utility>
-#include <vector>
 
 // forward declarations
 namespace vk
@@ -143,6 +141,6 @@ namespace lh
 
 		mutable vkfw::UniqueWindow m_window;
 		vkfw::Monitor m_monitor;
-		std::string m_title;
+		string::string_t m_title;
 	};
 }

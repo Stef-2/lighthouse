@@ -10,13 +10,13 @@
 #include <unistd.h>
 #endif
 
-#include "vulkan/vulkan.hpp"
-#include "vulkan/vulkan_raii.hpp"
-
 #include "system.hpp"
 
-// #include <cstddef>
-// #include <iostream>
+// forward declarations
+namespace vk
+{
+	using DeviceSize = uint64_t;
+}
 
 namespace lh
 {

@@ -945,7 +945,7 @@ auto lh::renderer::render() -> void
 		;
 
 	glm::mat4x4 mvpcMatrix = vk::su::createModelViewProjectionClipMatrix(m_extent);
-	mvpcMatrix = glm::rotate(mvpcMatrix, float(vkfw::getTime().value), glm::vec3 {0.0f, 1.0f, 0.0f});
+	mvpcMatrix = glm::rotate(mvpcMatrix, float(vkfw::getTime().value), glm::vec3 {1.0f, 1.0f, 1.0f});
 
 	vk::raii::su::copyToDevice(m_uniform_buffer.m_memory, mvpcMatrix);
 

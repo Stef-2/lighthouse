@@ -1,10 +1,8 @@
 #pragma once
 
-#include "lighthouse/output.hpp"
 #include "lighthouse/static.hpp"
+#include "lighthouse/string/string.hpp"
 
-#include <string>
-#include <iostream>
 #include <filesystem>
 
 namespace lh

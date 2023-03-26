@@ -1,5 +1,7 @@
 #include "lighthouse/filesystem.hpp"
 
+#include "lighthouse/output.hpp"
+
 auto lh::file_system::root_path() -> std::filesystem::path
 {
 	// if we have discovered the root directory before, return it

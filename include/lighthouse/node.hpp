@@ -2,7 +2,6 @@
 
 #include "vulkan/glm/mat4x4.hpp"
 
-#include <functional>
 #include <vector>
 
 namespace lh

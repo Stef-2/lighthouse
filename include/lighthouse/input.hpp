@@ -4,15 +4,14 @@
 
 #include "static.hpp"
 
-#include <functional>
 #include <unordered_map>
 #include <variant>
-#include <concepts>
-#include <vector>
 
 namespace lh
 {
+	// forward declarations
 	class window;
+
 	// class encapsulating functions with unique IDs
 	class action
 	{

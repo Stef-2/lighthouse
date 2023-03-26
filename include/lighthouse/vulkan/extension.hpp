@@ -1,6 +1,6 @@
 #pragma once
 
-#include "lighthouse/string.hpp"
+#include "lighthouse/string/string.hpp"
 #include "lighthouse/output.hpp"
 
 #include <numeric>

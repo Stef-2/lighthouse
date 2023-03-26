@@ -1,8 +1,8 @@
 #pragma once
 
 #include "lighthouse/static.hpp"
-#include "lighthouse/string.hpp"
-#include "lighthouse/string_convertible.hpp"
+#include "lighthouse/string/string.hpp"
+#include "lighthouse/string/string_convertible.hpp"
 
 namespace lh
 {
@@ -25,19 +25,21 @@ namespace lh
 
 			static constexpr auto to_string(const string::string_convertible auto& data) -> lh::string::string_t
 			{
-				if constexpr (string::std_convertible<decltype(data)>)
+				using type = decltype(data);
+
+				if constexpr (string::std_convertible<type>)
 					return std::to_string(data);
 
-				if constexpr (string::glm_convertible<decltype(data)>)
+				if constexpr (string::glm_convertible<type>)
 					return glm::to_string(data);
 
-				if constexpr (string::vkfw_convertible<decltype(data)>)
+				if constexpr (string::vkfw_convertible<type>)
 					return vkfw::to_string(data);
 
-				if constexpr (string::std_constructible<decltype(data)>)
+				if constexpr (string::std_constructible<type>)
 					return lh::string::string_t {data};
 
-				if constexpr (string::vulkan_to_string and string::vulkan_convertible<decltype(data)>)
+				if constexpr (string::vulkan_to_string and string::vulkan_convertible<type>)
 					return vk::to_string(data);
 			}
 
