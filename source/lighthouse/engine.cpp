@@ -1,6 +1,6 @@
 #include "lighthouse/engine.hpp"
 #include "lighthouse/window.hpp"
-#include "lighthouse/version.hpp";
+#include "lighthouse/version.hpp"
 #include "lighthouse/input.hpp"
 
 lh::engine::engine(std::unique_ptr<lh::window> window, const renderer::create_info& create_info)

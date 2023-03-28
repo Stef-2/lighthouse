@@ -12,8 +12,9 @@ namespace lh
 
 	namespace vulkan
 	{
-		struct instance : public vk_wrapper<vk::raii::Instance>
+		class instance : public vk_wrapper<vk::raii::Instance>
 		{
+		public:
 			struct create_info
 			{
 				version m_engine_version = version::m_engine_version;
@@ -26,6 +27,7 @@ namespace lh
 			instance(const lh::window&, const create_info& = {});
 			auto info() const -> lh::string::string_t override;
 
+		private:
 			std::optional<std::pair<validation_layers, debug_messanger>> m_validation;
 			logical_extensions m_extensions;
 			vk::raii::Context m_context;

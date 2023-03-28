@@ -36,9 +36,10 @@ add_executable(
 	${source}/lighthouse/vulkan/extension.cpp
 	${source}/lighthouse/vulkan/instance.cpp
 	${source}/lighthouse/vulkan/debug_messanger.cpp
+	${source}/lighthouse/vulkan/physical_device.cpp
 )
 
-STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+#STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
 
 # Compiler options
@@ -100,6 +101,10 @@ target_compile_definitions(
 	VULKAN_HPP_NO_NODISCARD_WARNINGS
 	VULKAN_HPP_NO_SPACESHIP_OPERATOR
 	VULKAN_HPP_NO_SMART_HANDLE
+
+	# glm definitions
+	GLM_ENABLE_EXPERIMENTAL
+	GLM_FORCE_INTRINSICS
 )
 
 # Include
@@ -129,16 +134,17 @@ target_precompile_headers(
 
 	${include}/vulkan/vulkan_raii.hpp
 
-	${include}/vulkan/glm/fwd.hpp
+	${include}/vulkan/glm/glm.hpp
+	${include}/vulkan/glm/ext.hpp
 )
 
 # Libraries
 target_link_directories(
-	${PROJECT_NAME}
+	${PROJECT_NAME} PRIVATE
 
-	PUBLIC ${library}
-	PUBLIC ${library}/glfw
-	PUBLIC ${library}/vulkan
+	${library}
+	${library}/glfw
+	${library}/vulkan
 )
 
 target_link_libraries(

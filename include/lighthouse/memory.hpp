@@ -12,12 +12,6 @@
 
 #include "system.hpp"
 
-// forward declarations
-namespace vk
-{
-	using DeviceSize = uint64_t;
-}
-
 namespace lh
 {
 

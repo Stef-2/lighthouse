@@ -1,7 +1,5 @@
 #pragma once
 
-#include "vulkan/glm/mat4x4.hpp"
-
 #include <vector>
 
 namespace lh
@@ -28,12 +26,12 @@ namespace lh
 
 		static auto get_world_node() -> node&;
 
-		auto set_parent(node&) -> void;
-		auto get_parent() const -> node&;
+		auto parent(node&) -> void;
+		auto parent() const -> node&;
 
 		auto add_child(node&) -> void;
 		auto remove_child(node&) -> void;
-		auto get_children() -> std::vector<node*>&;
+		auto children() -> std::vector<node*>&;
 
 		auto is_ancestor_of(const node&) -> bool;
 		auto is_descendent_of(const node&) const -> bool;
@@ -41,9 +39,9 @@ namespace lh
 
 		auto operator==(const node&) const -> bool;
 
-		auto set_local_transformation(const transformation_t&) -> void;
-		auto get_local_transformation() const -> transformation_t;
-		auto get_global_transformation() const -> transformation_t;
+		auto local_transformation(const transformation_t&) -> void;
+		auto local_transformation() const -> transformation_t;
+		auto global_transformation() const -> transformation_t;
 
 	private:
 		// remove ourselves from our current parents children list

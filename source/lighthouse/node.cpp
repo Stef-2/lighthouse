@@ -21,19 +21,19 @@ lh::node::~node()
 	{
 		for (auto& child : m_children)
 		{
-			child->set_parent(*m_parent);
+			child->parent(*m_parent);
 			m_parent->add_child(*child);
 		}
 	} else if (m_destruction_mode == destruction_mode::orphanage)
 	{
 		for (auto& child : m_children)
-			child->set_parent(world_node);
+			child->parent(world_node);
 	}
 
 	get_disowned();
 }
 
-auto lh::node::set_parent(node& new_parent) -> void
+auto lh::node::parent(node& new_parent) -> void
 {
 	get_disowned();
 
@@ -41,7 +41,7 @@ auto lh::node::set_parent(node& new_parent) -> void
 	m_parent = &new_parent;
 }
 
-auto lh::node::get_parent() const -> node&
+auto lh::node::parent() const -> node&
 {
 	return *m_parent;
 }
@@ -56,7 +56,7 @@ auto lh::node::remove_child(node& child) -> void
 	std::erase(m_children, &child);
 }
 
-auto lh::node::get_children() -> std::vector<node*>&
+auto lh::node::children() -> std::vector<node*>&
 {
 	return m_children;
 }
@@ -67,7 +67,7 @@ auto lh::node::is_ancestor_of(const node& node) -> bool
 
 	std::function<void(lh::node&, const lh::node&)> traverse_down = [&traverse_down, &result](lh::node& parent,
 																							  const lh::node& node) {
-		for (const auto& child : parent.get_children())
+		for (const auto& child : parent.children())
 		{
 			if (*child == node)
 			{
@@ -76,7 +76,7 @@ auto lh::node::is_ancestor_of(const node& node) -> bool
 			}
 		}
 
-		for (auto& child : parent.get_children())
+		for (auto& child : parent.children())
 			traverse_down(*child, node);
 	};
 
@@ -94,7 +94,7 @@ auto lh::node::is_descendent_of(const node& node) const -> bool
 		if (*parent == node)
 			return true;
 
-		parent = &parent->get_parent();
+		parent = &parent->parent();
 	}
 
 	return false;
@@ -102,29 +102,28 @@ auto lh::node::is_descendent_of(const node& node) const -> bool
 
 auto lh::node::is_sibling_of(const node& node) const -> bool
 {
-	return (std::find(m_parent->get_children().begin(), m_parent->get_children().end(), &node) !=
-			m_parent->get_children().end());
+	return (std::find(m_parent->children().begin(), m_parent->children().end(), &node) != m_parent->children().end());
 }
 
-auto lh::node::set_local_transformation(const transformation_t& transformation) -> void
+auto lh::node::local_transformation(const transformation_t& transformation) -> void
 {
 	m_transformation = transformation;
 }
 
-auto lh::node::get_local_transformation() const -> transformation_t
+auto lh::node::local_transformation() const -> transformation_t
 {
 	return m_transformation;
 }
 
-auto lh::node::get_global_transformation() const -> transformation_t
+auto lh::node::global_transformation() const -> transformation_t
 {
 	auto global_transformation = m_transformation;
 	auto parent = m_parent;
 
 	while (*parent != world_node)
 	{
-		global_transformation *= parent->get_local_transformation();
-		parent = &parent->get_parent();
+		global_transformation *= parent->local_transformation();
+		parent = &parent->parent();
 	}
 
 	return global_transformation;
@@ -137,5 +136,5 @@ auto lh::node::operator==(const node& node) const -> bool
 
 auto lh::node::get_disowned() const -> void
 {
-	std::erase(m_parent->get_children(), this);
+	std::erase(m_parent->children(), this);
 }
