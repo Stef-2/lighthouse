@@ -14,6 +14,7 @@
 #include "lighthouse/vulkan/raii_wrapper.hpp"
 #include "lighthouse/vulkan/extension.hpp"
 #include "lighthouse/vulkan/instance.hpp"
+#include "lighthouse/vulkan/physical_device.hpp"
 #include "lighthouse/window.hpp"
 #include "lighthouse/version.hpp"
 #include "lighthouse/memory.hpp"

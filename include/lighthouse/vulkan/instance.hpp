@@ -25,13 +25,17 @@ namespace lh
 			};
 
 			instance(const lh::window&, const create_info& = {});
+
 			auto info() const -> lh::string::string_t override;
+			auto validation_layers() const -> std::optional<vulkan::validation_layers>;
+			auto extensions() const -> logical_extensions;
+			auto version() const -> lh::version;
 
 		private:
-			std::optional<std::pair<validation_layers, debug_messanger>> m_validation;
+			std::optional<std::pair<vulkan::validation_layers, debug_messanger>> m_validation;
 			logical_extensions m_extensions;
 			vk::raii::Context m_context;
-			version m_vulkan_version;
+			lh::version m_vulkan_version;
 		};
 	}
 }

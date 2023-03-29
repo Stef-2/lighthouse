@@ -82,7 +82,7 @@ namespace lh
 			auto assert_required_extensions() const -> bool;
 			auto info() const -> output::string_t;
 		};
-
+		/*
 		struct physical_device : public vulkan::vk_wrapper<vk::raii::PhysicalDevice>
 		{
 			using performance_score_t = uint64_t;
@@ -105,7 +105,7 @@ namespace lh
 			auto basic_info() const -> output::string_t;
 			auto advanced_info() const -> output::string_t;
 		};
-
+		*/
 		struct logical_device : public vulkan::vk_wrapper<vk::raii::Device>
 		{
 
@@ -115,7 +115,7 @@ namespace lh
 				vk::PhysicalDeviceFeatures2 m_features = vk::PhysicalDeviceFeatures2 {};
 			} static inline const m_defaults;
 
-			logical_device(const physical_device&,
+			logical_device(const vulkan::physical_device&,
 						   const std::vector<vk::DeviceQueueCreateInfo>&,
 						   const vulkan::vk_string_t&,
 						   const create_info& = m_defaults);
@@ -125,7 +125,7 @@ namespace lh
 		struct memory_allocator
 		{
 			memory_allocator(const vk::Instance&,
-							 const physical_device&,
+							 const vulkan::physical_device&,
 							 const logical_device&,
 							 const version& = version::m_engine_version);
 			~memory_allocator();
@@ -145,7 +145,9 @@ namespace lh
 
 			} static inline const m_defaults;
 
-			queue_families(const physical_device&, const vk::raii::SurfaceKHR&, const create_info& = m_defaults);
+			queue_families(const vulkan::physical_device&,
+						   const vk::raii::SurfaceKHR&,
+						   const create_info& = m_defaults);
 
 			index_t m_graphics;
 			index_t m_present;
@@ -173,7 +175,7 @@ namespace lh
 				vk::MemoryPropertyFlagBits m_memory_type = vk::MemoryPropertyFlagBits::eDeviceLocal;
 			} static inline const m_defaults;
 
-			image(const physical_device&,
+			image(const vulkan::physical_device&,
 				  const logical_device&,
 				  const memory_allocator&,
 				  const vk::Extent2D&,
@@ -233,7 +235,7 @@ namespace lh
 
 			} static inline const m_defaults;
 
-			renderpass(const physical_device&,
+			renderpass(const vulkan::physical_device&,
 					   const logical_device&,
 					   const vk::raii::SurfaceKHR&,
 					   const create_info& = m_defaults);
@@ -276,7 +278,7 @@ namespace lh
 				vk::ImageAspectFlagBits m_image_aspect = vk::ImageAspectFlagBits::eColor;
 			} static inline const m_defaults;
 
-			swapchain(const physical_device&,
+			swapchain(const vulkan::physical_device&,
 					  const logical_device&,
 					  const vk::Extent2D&,
 					  const vk::raii::SurfaceKHR&,
@@ -303,7 +305,7 @@ namespace lh
 													   vk::MemoryPropertyFlagBits::eHostCoherent;
 			} static const inline m_defaults;
 
-			buffer(const physical_device&,
+			buffer(const vulkan::physical_device&,
 				   const logical_device&,
 				   const vma::Allocator&,
 				   const vk::DeviceSize&,
@@ -369,7 +371,7 @@ namespace lh
 							 const version& = version::m_vulkan_version,
 							 bool use_validaiton_module = true) -> vk::raii::Instance;
 
-		auto create_physical_device() -> physical_device;
+		auto create_physical_device() -> vulkan::physical_device;
 		auto create_surface(const window&) -> vk::raii::SurfaceKHR;
 		auto create_extent(const window&) -> vk::Extent2D;
 
@@ -433,7 +435,7 @@ namespace lh
 		vulkan::instance m_instance;
 		// vk::raii::Instance m_instance;
 		// std::optional<validation_module> m_validation_module = {std::nullopt};
-		physical_device m_physical_device;
+		vulkan::physical_device m_physical_device;
 
 		vk::raii::SurfaceKHR m_surface;
 		vk::Extent2D m_extent;

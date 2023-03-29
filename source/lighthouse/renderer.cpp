@@ -16,7 +16,7 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 	  m_device {m_physical_device,
 				{vk::DeviceQueueCreateInfo {
 					{}, m_queue_families.m_graphics, 1, &logical_device::m_defaults.m_queue_priority}},
-				m_physical_device.required_extensions()},
+				m_physical_device.extensions().required_extensions()},
 	  m_memory_allocator {**m_instance, m_physical_device, m_device},
 	  // m_command_pool {create_command_pool()},
 	  m_graphics_queue {create_graphics_queue()},
@@ -848,7 +848,7 @@ auto lh::renderer::create_buffer(const data_t& data, const vk::BufferUsageFlagBi
 	buffer_memory.unmapMemory();
 	buffer.bindMemory(*buffer_memory, 0);
 }*/
-
+/*
 auto lh::renderer::physical_device::basic_info() const -> lh::output::string_t
 {
 	const auto properties = m_object.getProperties2();
@@ -878,7 +878,7 @@ auto lh::renderer::physical_device::advanced_info() const -> output::string_t
 
 	return info;
 }
-
+*/
 /*
 auto lh::renderer::physical_device::get_performance_score() const -> performance_score_t
 {
@@ -972,7 +972,7 @@ auto lh::renderer::info(const create_info& create_info) -> output::string_t
 
 	// result += create_info.m_using_validation ? m_validation_module->info() : output::string_t {};
 	result += m_logical_extensions.info();
-	result += m_physical_device.basic_info() + m_physical_device.advanced_info();
+	result += m_physical_device.info();
 
 	return result;
 }
@@ -1035,7 +1035,7 @@ lh::renderer::validation_module::debug_callback(VkDebugUtilsMessageSeverityFlagB
 
 	return false;
 }
-
+/*
 auto lh::renderer::physical_device::required_extensions() const -> vulkan::vk_string_t
 {
 	return m_defaults.m_required_extensions;
@@ -1083,9 +1083,9 @@ auto lh::renderer::physical_device::get_performance_score(const vk::raii::Physic
 
 	return score;
 }
-
+*/
 lh::renderer::memory_allocator::memory_allocator(const vk::Instance& instance,
-												 const physical_device& physical_device,
+												 const vulkan::physical_device& physical_device,
 												 const logical_device& device,
 												 const version& version)
 {
@@ -1107,7 +1107,7 @@ lh::renderer::memory_allocator::operator vma::Allocator&()
 {
 	return m_allocator;
 }
-
+/*
 lh::renderer::physical_device::physical_device(const vk::raii::Instance& instance, const create_info& create_info)
 {
 	// enumerate all vulkan capable physical devices
@@ -1128,8 +1128,8 @@ lh::renderer::physical_device::physical_device(const vk::raii::Instance& instanc
 
 	m_object = std::move(strongest_device);
 }
-
-lh::renderer::swapchain::swapchain(const physical_device& physical_device,
+*/
+lh::renderer::swapchain::swapchain(const vulkan::physical_device& physical_device,
 								   const logical_device& device,
 								   const vk::Extent2D& extent,
 								   const vk::raii::SurfaceKHR& surface,
@@ -1227,12 +1227,12 @@ lh::renderer::swapchain::swapchain(const physical_device& physical_device,
 	}
 }
 
-lh::renderer::logical_device::logical_device(const physical_device& physical_device,
+lh::renderer::logical_device::logical_device(const vulkan::physical_device& physical_device,
 											 const std::vector<vk::DeviceQueueCreateInfo>& queues,
 											 const vulkan::vk_string_t& extensions,
 											 const create_info& create_info)
 {
-	const auto& suported_extensions = physical_device.supported_extensions();
+	const auto& suported_extensions = physical_device.extensions().supported_extensions();
 
 	if (!renderer::assert_required_components(suported_extensions, extensions))
 		output::fatal() << "this system does not support the required vulkan components";
@@ -1243,7 +1243,7 @@ lh::renderer::logical_device::logical_device(const physical_device& physical_dev
 	m_object = {*physical_device, device_info};
 }
 
-lh::renderer::image::image(const physical_device& physical_device,
+lh::renderer::image::image(const vulkan::physical_device& physical_device,
 						   const logical_device& device,
 						   const memory_allocator& allocator,
 						   const vk::Extent2D& extent,
@@ -1277,7 +1277,7 @@ lh::renderer::image::image(const physical_device& physical_device,
 	m_memory = {*device, allocation_info.deviceMemory};
 }
 
-lh::renderer::renderpass::renderpass(const physical_device& physical_device,
+lh::renderer::renderpass::renderpass(const vulkan::physical_device& physical_device,
 									 const logical_device& device,
 									 const vk::raii::SurfaceKHR& surface,
 									 const create_info& create_info)
@@ -1306,7 +1306,7 @@ lh::renderer::renderpass::renderpass(const physical_device& physical_device,
 	m_object = {*device, render_pass_info};
 }
 
-lh::renderer::buffer::buffer(const physical_device& physical_device,
+lh::renderer::buffer::buffer(const vulkan::physical_device& physical_device,
 							 const logical_device& device,
 							 const vma::Allocator& allocator,
 							 const vk::DeviceSize& size,
@@ -1363,7 +1363,7 @@ lh::renderer::framebuffer::framebuffer(const logical_device& device,
 	m_object = {*device, framebuffer_info};
 }
 
-lh::renderer::queue_families::queue_families(const physical_device& physical_device,
+lh::renderer::queue_families::queue_families(const vulkan::physical_device& physical_device,
 											 const vk::raii::SurfaceKHR& surface,
 											 const create_info& create_info)
 	: m_graphics {}, m_present {}, m_compute {}, m_transfer {}

@@ -23,9 +23,10 @@ lh::vulkan::instance::instance(const window& window, const create_info& create_i
 													   create_info.m_vulkan_version};
 	if (using_validation)
 	{
-		m_validation.emplace(std::make_pair(validation_layers {vk::enumerateInstanceLayerProperties(),
-															   {create_info.m_validation_layers.m_required_extensions}},
-											debug_messanger {vk::raii::DebugUtilsMessengerEXT {nullptr}}));
+		m_validation.emplace(
+			std::make_pair(vulkan::validation_layers {vk::enumerateInstanceLayerProperties(),
+													  {create_info.m_validation_layers.m_required_extensions}},
+						   debug_messanger {vk::raii::DebugUtilsMessengerEXT {nullptr}}));
 
 		if (!m_validation->first.assert_required_extensions())
 			output::error() << "this system does not support the required vulkan validation layers";
@@ -50,4 +51,22 @@ lh::vulkan::instance::instance(const window& window, const create_info& create_i
 auto lh::vulkan::instance::info() const -> string::string_t
 {
 	return {};
+}
+
+auto lh::vulkan::instance::validation_layers() const -> std::optional<vulkan::validation_layers>
+{
+	if (m_validation.has_value())
+		return m_validation->first;
+
+	return std::nullopt;
+}
+
+auto lh::vulkan::instance::extensions() const -> logical_extensions
+{
+	return m_extensions;
+}
+
+auto lh::vulkan::instance::version() const -> lh::version
+{
+	return m_vulkan_version;
 }

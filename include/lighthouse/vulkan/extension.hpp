@@ -1,6 +1,7 @@
 #pragma once
 
 #include "lighthouse/string/string.hpp"
+#include "lighthouse/vulkan/string.hpp"
 #include "lighthouse/output.hpp"
 
 #include <numeric>
@@ -9,7 +10,6 @@ namespace lh
 {
 	namespace vulkan
 	{
-		using vk_string_t = const std::vector<const char*>;
 		using vk_layers_t = const std::vector<vk::LayerProperties>;
 		using vk_extensions_t = const std::vector<vk::ExtensionProperties>;
 
