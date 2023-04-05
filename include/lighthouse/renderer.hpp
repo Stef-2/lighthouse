@@ -441,7 +441,8 @@ namespace lh
 		vk::Extent2D m_extent;
 		queue_families m_queue_families;
 
-		logical_device m_device;
+		// logical_device m_device;
+		vulkan::logical_device m_device;
 		memory_allocator m_memory_allocator;
 		command_control m_command_control;
 

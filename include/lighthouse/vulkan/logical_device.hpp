@@ -19,7 +19,8 @@ namespace lh
 		public:
 			struct create_info
 			{
-				std::vector<vk::DeviceQueueCreateInfo> m_queues;
+				float m_queue_priority {1.0f};
+				std::vector<vk::DeviceQueueCreateInfo> m_queues {};
 				vk::PhysicalDeviceFeatures2 m_features = vk::PhysicalDeviceFeatures2 {};
 				vk_string_t m_extensions;
 			};

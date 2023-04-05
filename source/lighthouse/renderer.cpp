@@ -14,9 +14,9 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 	  m_queue_families {m_physical_device, m_surface},
 	  // m_physical_extensions {m_physical_device},
 	  m_device {m_physical_device,
-				{vk::DeviceQueueCreateInfo {
-					{}, m_queue_families.m_graphics, 1, &logical_device::m_defaults.m_queue_priority}},
-				m_physical_device.extensions().required_extensions()},
+				vulkan::logical_device::create_info {
+					.m_queues = {vk::DeviceQueueCreateInfo {{}, m_queue_families.m_graphics, 1}},
+					.m_extensions = m_physical_device.extensions().required_extensions()}},
 	  m_memory_allocator {**m_instance, m_physical_device, m_device},
 	  // m_command_pool {create_command_pool()},
 	  m_graphics_queue {create_graphics_queue()},

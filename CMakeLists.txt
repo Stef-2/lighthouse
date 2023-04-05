@@ -38,6 +38,7 @@ add_executable(
 	${source}/lighthouse/vulkan/debug_messanger.cpp
 	${source}/lighthouse/vulkan/physical_device.cpp
 	${source}/lighthouse/vulkan/logical_device.cpp
+	${source}/lighthouse/vulkan/surface.cpp
 )
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
@@ -62,7 +63,6 @@ if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
 		/INCREMENTAL /CGTHREADS:8 /VERBOSE:INCR /LTCG
 	)
 endif()
-
 
 if(${CMAKE_CXX_COMPILER_ID} MATCHES GNU)
 
@@ -110,7 +110,7 @@ target_compile_definitions(
 
 # Include
 target_include_directories(
-	${PROJECT_NAME} PUBLIC
+	${PROJECT_NAME} PRIVATE
 
 	${include}
 	${include}/lighthouse

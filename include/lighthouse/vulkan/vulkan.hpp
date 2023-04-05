@@ -15,6 +15,8 @@
 #include "lighthouse/vulkan/extension.hpp"
 #include "lighthouse/vulkan/instance.hpp"
 #include "lighthouse/vulkan/physical_device.hpp"
+#include "lighthouse/vulkan/surface.hpp"
+#include "lighthouse/vulkan/logical_device.hpp"
 #include "lighthouse/window.hpp"
 #include "lighthouse/version.hpp"
 #include "lighthouse/memory.hpp"
