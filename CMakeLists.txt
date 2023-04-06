@@ -39,7 +39,7 @@ add_executable(
 	${source}/lighthouse/vulkan/physical_device.cpp
 	${source}/lighthouse/vulkan/logical_device.cpp
 	${source}/lighthouse/vulkan/surface.cpp
-)
+ "source/lighthouse/vulkan/queue_families.cpp")
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")

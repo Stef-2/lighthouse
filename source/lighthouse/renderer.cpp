@@ -2,8 +2,8 @@
 // #include "vulkan/vma/vk_mem_alloc.h"
 
 lh::renderer::renderer(const window& window, const create_info& create_info)
-	: m_version {create_info.m_vulkan_version},
-	  // m_context {create_context()},
+	: // m_version {create_info.m_vulkan_version},
+	  //  m_context {create_context()},
 	  m_instance(window),
 	  /*m_validation_module {create_info.m_using_validation ? validation_module {m_instance}
 														  : decltype(m_validation_module) {std::nullopt}},*/
@@ -948,7 +948,7 @@ auto lh::renderer::render() -> void
 		;
 
 	glm::mat4x4 mvpcMatrix = vk::su::createModelViewProjectionClipMatrix(m_surface.extent());
-	mvpcMatrix = glm::rotate(mvpcMatrix, float(vkfw::getTime().value), glm::vec3 {1.0f, 1.0f, 1.0f});
+	mvpcMatrix = glm::rotate(mvpcMatrix, float(glm::sin(vkfw::getTime().value)), glm::vec3 {1.0f, 1.0f, 1.0f});
 
 	vk::raii::su::copyToDevice(m_uniform_buffer.m_memory, mvpcMatrix);
 
@@ -974,7 +974,7 @@ auto lh::renderer::info(const create_info& create_info) -> output::string_t
 	auto result = output::string_t {"\n======== renderer information: ========\n"};
 
 	// result += create_info.m_using_validation ? m_validation_module->info() : output::string_t {};
-	result += m_logical_extensions.info();
+	result += m_instance.extensions().info();
 	result += m_physical_device.info();
 
 	return result;
@@ -1152,7 +1152,7 @@ lh::renderer::swapchain::swapchain(const vulkan::physical_device& physical_devic
 	  m_surface_format {},
 	  m_present_mode {},
 	  m_image_views {},
-	  m_depth_buffer(physical_device, device, memory_allocator, surface.extent(), depth_buffer::m_defaults) /*,
+	  m_depth_buffer(physical_device, device, memory_allocator, surface, depth_buffer::m_defaults) /*,
 	   m_framebuffers {}*/
 {
 	const auto& vk_physical_device = *physical_device;
@@ -1233,7 +1233,7 @@ lh::renderer::swapchain::swapchain(const vulkan::physical_device& physical_devic
 	{
 		image_view_info.image = image;
 		m_image_views.emplace_back(*device, image_view_info);
-		m_framebuffers.emplace_back(device, renderpass, m_image_views.back(), m_depth_buffer.m_view, surface.extent());
+		m_framebuffers.emplace_back(device, renderpass, m_image_views.back(), m_depth_buffer.m_view, surface);
 	}
 }
 
@@ -1256,14 +1256,14 @@ lh::renderer::logical_device::logical_device(const vulkan::physical_device& phys
 lh::renderer::image::image(const vulkan::physical_device& physical_device,
 						   const vulkan::logical_device& device,
 						   const memory_allocator& allocator,
-						   const vk::Extent2D& extent,
+						   const vulkan::surface& surface,
 						   const create_info& create_info)
 	: m_format(create_info.m_format), m_view {nullptr}, m_memory {nullptr}
 {
 	const auto image_info = vk::ImageCreateInfo {create_info.m_image_create_flags,
 												 create_info.m_image_type,
 												 create_info.m_format,
-												 vk::Extent3D(extent, 1),
+												 vk::Extent3D(surface.extent(), 1),
 												 1,
 												 1,
 												 create_info.m_image_sample_count,
@@ -1353,22 +1353,22 @@ lh::renderer::framebuffer::framebuffer(const vulkan::logical_device& device,
 									   const renderpass& renderpass,
 									   const image& image,
 									   const depth_buffer& depth_buffer,
-									   const vk::Extent2D extent,
+									   const vulkan::surface& surface,
 									   const create_info& create_info)
-	: framebuffer(device, renderpass, image.m_view, depth_buffer.m_view, extent, create_info)
+	: framebuffer(device, renderpass, image.m_view, depth_buffer.m_view, surface, create_info)
 {}
 
 lh::renderer::framebuffer::framebuffer(const vulkan::logical_device& device,
 									   const renderpass& renderpass,
 									   const vk::raii::ImageView& image,
 									   const vk::raii::ImageView& depth_buffer,
-									   const vk::Extent2D extent,
+									   const vulkan::surface& surface,
 									   const create_info& create_info)
 {
 	const auto views = std::array {*image, *depth_buffer};
 
-	const auto framebuffer_info =
-		vk::FramebufferCreateInfo {{}, **renderpass, 2, views.data(), extent.width, extent.height, 1};
+	const auto framebuffer_info = vk::FramebufferCreateInfo {
+		{}, **renderpass, 2, views.data(), surface.extent().width, surface.extent().height, 1};
 
 	m_object = {*device, framebuffer_info};
 }

@@ -175,7 +175,7 @@ namespace lh
 			image(const vulkan::physical_device&,
 				  const vulkan::logical_device&,
 				  const memory_allocator&,
-				  const vk::Extent2D&,
+				  const vulkan::surface&,
 				  const create_info& = m_defaults);
 
 			vk::Format m_format;
@@ -249,14 +249,14 @@ namespace lh
 						const renderpass&,
 						const image&,
 						const depth_buffer&,
-						const vk::Extent2D,
+						const vulkan::surface&,
 						const create_info& = m_defaults);
 
 			framebuffer(const vulkan::logical_device&,
 						const renderpass&,
 						const vk::raii::ImageView&,
 						const vk::raii::ImageView&,
-						const vk::Extent2D,
+						const vulkan::surface&,
 						const create_info& = m_defaults);
 		};
 
@@ -423,9 +423,9 @@ namespace lh
 			return true;
 		};
 
-		version m_version;
+		// version m_version;
 
-		logical_extension_module m_logical_extensions;
+		// logical_extension_module m_logical_extensions;
 
 		// vk::raii::Context m_context;
 		vulkan::instance m_instance;
