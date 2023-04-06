@@ -9,23 +9,22 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 														  : decltype(m_validation_module) {std::nullopt}},*/
 	  m_physical_device {m_instance},
 	  // m_surface_data {create_surface_data(window)},
-	  m_extent {create_extent(window)},
-	  m_surface {create_surface(window)},
+	  // m_extent {create_extent(window)},
+	  m_surface {window, m_instance},
 	  m_queue_families {m_physical_device, m_surface},
 	  // m_physical_extensions {m_physical_device},
 	  m_device {m_physical_device,
 				vulkan::logical_device::create_info {
 					.m_queues = {vk::DeviceQueueCreateInfo {{}, m_queue_families.m_graphics, 1}},
 					.m_extensions = m_physical_device.extensions().required_extensions()}},
-	  m_memory_allocator {**m_instance, m_physical_device, m_device},
+	  m_memory_allocator {m_instance, m_physical_device, m_device},
 	  // m_command_pool {create_command_pool()},
 	  m_graphics_queue {create_graphics_queue()},
 	  m_present_queue {create_present_queue()},
 	  // m_command_buffer {create_command_buffer()},
 	  m_command_control {m_device, m_queue_families},
 	  // m_swapchain {create_swapchain(window)},
-	  m_swapchain {
-		  m_physical_device, m_device, m_extent, m_surface, m_queue_families, m_memory_allocator, m_renderpass},
+	  m_swapchain {m_physical_device, m_device, m_surface, m_queue_families, m_memory_allocator, m_renderpass},
 	  // m_swapchain_data {create_swapchain_data(window)},
 	  //  m_image_views {create_image_views()},
 	  //  m_depth_buffer {create_depth_buffer(window)},
@@ -586,7 +585,7 @@ auto lh::renderer::create_depth_buffer(const window& window) -> vk::raii::ImageV
 
 auto lh::renderer::create_depth_buffer_data(const window&) -> vk::raii::su::DepthBufferData
 {
-	return {m_physical_device, m_device, vk::Format::eD16Unorm, m_extent};
+	return {m_physical_device, m_device, vk::Format::eD16Unorm, m_surface.extent()};
 }
 
 auto lh::renderer::create_uniform_buffer() -> vk::raii::su::BufferData
@@ -595,7 +594,7 @@ auto lh::renderer::create_uniform_buffer() -> vk::raii::su::BufferData
 											   m_device,
 											   sizeof(glm::mat4x4),
 											   vk::BufferUsageFlagBits::eUniformBuffer);
-	glm::mat4x4 mvpcMatrix = vk::su::createModelViewProjectionClipMatrix(m_extent);
+	glm::mat4x4 mvpcMatrix = vk::su::createModelViewProjectionClipMatrix(m_surface.extent());
 	vk::raii::su::copyToDevice(uniformBufferData.deviceMemory, mvpcMatrix);
 
 	return uniformBufferData;
@@ -626,7 +625,7 @@ auto lh::renderer::create_pipeline_layout() -> vk::raii::PipelineLayout
 
 auto lh::renderer::create_format() -> vk::Format
 {
-	return vk::su::pickSurfaceFormat(vk::raii::PhysicalDevice(m_physical_device).getSurfaceFormatsKHR(*m_surface))
+	return vk::su::pickSurfaceFormat(vk::raii::PhysicalDevice(m_physical_device).getSurfaceFormatsKHR(**m_surface))
 		.format;
 }
 
@@ -918,7 +917,7 @@ auto lh::renderer::render() -> void
 	clearValues[1].depthStencil = vk::ClearDepthStencilValue(1.0f, 0);
 	vk::RenderPassBeginInfo renderPassBeginInfo(**m_renderpass,
 												**m_swapchain.m_framebuffers[imageIndex],
-												vk::Rect2D(vk::Offset2D(0, 0), m_extent),
+												vk::Rect2D(vk::Offset2D(0, 0), m_surface.extent()),
 												clearValues);
 	command_buffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
 	command_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_pipeline);
@@ -926,10 +925,14 @@ auto lh::renderer::render() -> void
 		vk::PipelineBindPoint::eGraphics, *m_pipeline_layout, 0, {*m_descriptor_set}, nullptr);
 
 	command_buffer.bindVertexBuffers(0, {*m_vertex_buffer.buffer}, {0});
-	command_buffer.setViewport(
-		0,
-		vk::Viewport(0.0f, 0.0f, static_cast<float>(m_extent.width), static_cast<float>(m_extent.height), 0.0f, 1.0f));
-	command_buffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_extent));
+	command_buffer.setViewport(0,
+							   vk::Viewport(0.0f,
+											0.0f,
+											static_cast<float>(m_surface.extent().width),
+											static_cast<float>(m_surface.extent().height),
+											0.0f,
+											1.0f));
+	command_buffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_surface.extent()));
 
 	command_buffer.draw(12 * 3, 1, 0, 0);
 	command_buffer.endRenderPass();
@@ -944,7 +947,7 @@ auto lh::renderer::render() -> void
 	while (vk::Result::eTimeout == m_device->waitForFences({*drawFence}, VK_TRUE, vk::su::FenceTimeout))
 		;
 
-	glm::mat4x4 mvpcMatrix = vk::su::createModelViewProjectionClipMatrix(m_extent);
+	glm::mat4x4 mvpcMatrix = vk::su::createModelViewProjectionClipMatrix(m_surface.extent());
 	mvpcMatrix = glm::rotate(mvpcMatrix, float(vkfw::getTime().value), glm::vec3 {1.0f, 1.0f, 1.0f});
 
 	vk::raii::su::copyToDevice(m_uniform_buffer.m_memory, mvpcMatrix);
@@ -1084,13 +1087,21 @@ auto lh::renderer::physical_device::get_performance_score(const vk::raii::Physic
 	return score;
 }
 */
-lh::renderer::memory_allocator::memory_allocator(const vk::Instance& instance,
+lh::renderer::memory_allocator::memory_allocator(const vulkan::instance& instance,
 												 const vulkan::physical_device& physical_device,
-												 const logical_device& device,
-												 const version& version)
+												 const vulkan::logical_device& device)
 {
-	auto allocator_info = vma::AllocatorCreateInfo {
-		{}, **physical_device, **device, 0, nullptr, nullptr, nullptr, nullptr, instance, version, nullptr};
+	auto allocator_info = vma::AllocatorCreateInfo {{},
+													**physical_device,
+													**device,
+													0,
+													nullptr,
+													nullptr,
+													nullptr,
+													nullptr,
+													**instance,
+													instance.version(),
+													nullptr};
 
 	auto result = vma::createAllocator(&allocator_info, &m_allocator);
 
@@ -1130,25 +1141,24 @@ lh::renderer::physical_device::physical_device(const vk::raii::Instance& instanc
 }
 */
 lh::renderer::swapchain::swapchain(const vulkan::physical_device& physical_device,
-								   const logical_device& device,
-								   const vk::Extent2D& extent,
-								   const vk::raii::SurfaceKHR& surface,
+								   const vulkan::logical_device& device,
+								   const vulkan::surface& surface,
 								   const queue_families& queue_families,
 								   const memory_allocator& memory_allocator,
 								   const renderpass& renderpass,
 								   const create_info& create_info)
 
-	: m_surface_capabilities {(*physical_device).getSurfaceCapabilities2KHR(*surface)},
+	: m_surface_capabilities {(*physical_device).getSurfaceCapabilities2KHR(**surface)},
 	  m_surface_format {},
 	  m_present_mode {},
 	  m_image_views {},
-	  m_depth_buffer(physical_device, device, memory_allocator, extent, depth_buffer::m_defaults) /*,
+	  m_depth_buffer(physical_device, device, memory_allocator, surface.extent(), depth_buffer::m_defaults) /*,
 	   m_framebuffers {}*/
 {
 	const auto& vk_physical_device = *physical_device;
-	const auto capabilities = vk_physical_device.getSurfaceCapabilities2KHR(*surface);
-	const auto formats = vk_physical_device.getSurfaceFormats2KHR(*surface);
-	const auto present_modes = vk_physical_device.getSurfacePresentModesKHR(*surface);
+	const auto capabilities = vk_physical_device.getSurfaceCapabilities2KHR(**surface);
+	const auto formats = vk_physical_device.getSurfaceFormats2KHR(**surface);
+	const auto present_modes = vk_physical_device.getSurfacePresentModesKHR(**surface);
 
 	m_surface_format = create_info.m_format;
 	m_present_mode = create_info.m_present_mode;
@@ -1179,15 +1189,15 @@ lh::renderer::swapchain::swapchain(const vulkan::physical_device& physical_devic
 	}
 
 	// assert that the extent is within limits supported by the implementation
-	if (extent.width != std::clamp(extent.width,
-								   capabilities.surfaceCapabilities.minImageExtent.width,
-								   capabilities.surfaceCapabilities.maxImageExtent.width))
-		output::fatal() << "this system does not support windows of this width: " << extent.width;
+	if (surface.extent().width != std::clamp(surface.extent().width,
+											 capabilities.surfaceCapabilities.minImageExtent.width,
+											 capabilities.surfaceCapabilities.maxImageExtent.width))
+		output::fatal() << "this system does not support windows of this width: " << surface.extent().width;
 
-	if (extent.height != std::clamp(extent.height,
-									capabilities.surfaceCapabilities.minImageExtent.height,
-									capabilities.surfaceCapabilities.maxImageExtent.height))
-		output::fatal() << "this system does not support windows of this height: " << extent.height;
+	if (surface.extent().height != std::clamp(surface.extent().height,
+											  capabilities.surfaceCapabilities.minImageExtent.height,
+											  capabilities.surfaceCapabilities.maxImageExtent.height))
+		output::fatal() << "this system does not support windows of this height: " << surface.extent().height;
 
 	// clamp the prefered image count between the minimum and maximum supported by implementation
 	image_count = std::clamp(image_count,
@@ -1195,11 +1205,11 @@ lh::renderer::swapchain::swapchain(const vulkan::physical_device& physical_devic
 							 capabilities.surfaceCapabilities.maxImageCount);
 
 	auto swapchain_info = vk::SwapchainCreateInfoKHR {{},
-													  *surface,
+													  **surface,
 													  image_count,
 													  m_surface_format.surfaceFormat.format,
 													  m_surface_format.surfaceFormat.colorSpace,
-													  extent,
+													  surface.extent(),
 													  1,
 													  image_usage,
 													  sharing_mode,
@@ -1223,7 +1233,7 @@ lh::renderer::swapchain::swapchain(const vulkan::physical_device& physical_devic
 	{
 		image_view_info.image = image;
 		m_image_views.emplace_back(*device, image_view_info);
-		m_framebuffers.emplace_back(device, renderpass, m_image_views.back(), m_depth_buffer.m_view, extent);
+		m_framebuffers.emplace_back(device, renderpass, m_image_views.back(), m_depth_buffer.m_view, surface.extent());
 	}
 }
 
@@ -1244,7 +1254,7 @@ lh::renderer::logical_device::logical_device(const vulkan::physical_device& phys
 }
 
 lh::renderer::image::image(const vulkan::physical_device& physical_device,
-						   const logical_device& device,
+						   const vulkan::logical_device& device,
 						   const memory_allocator& allocator,
 						   const vk::Extent2D& extent,
 						   const create_info& create_info)
@@ -1278,7 +1288,7 @@ lh::renderer::image::image(const vulkan::physical_device& physical_device,
 }
 
 lh::renderer::renderpass::renderpass(const vulkan::physical_device& physical_device,
-									 const logical_device& device,
+									 const vulkan::logical_device& device,
 									 const vk::raii::SurfaceKHR& surface,
 									 const create_info& create_info)
 {
@@ -1307,7 +1317,7 @@ lh::renderer::renderpass::renderpass(const vulkan::physical_device& physical_dev
 }
 
 lh::renderer::buffer::buffer(const vulkan::physical_device& physical_device,
-							 const logical_device& device,
+							 const vulkan::logical_device& device,
 							 const vma::Allocator& allocator,
 							 const vk::DeviceSize& size,
 							 const create_info& create_info)
@@ -1325,7 +1335,7 @@ lh::renderer::buffer::buffer(const vulkan::physical_device& physical_device,
 	m_memory = {*device, allocation_info.deviceMemory};
 }
 
-lh::renderer::command_control::command_control(const logical_device& device,
+lh::renderer::command_control::command_control(const vulkan::logical_device& device,
 											   const queue_families& queue_families,
 											   const create_info& create_info)
 	: m_buffers {nullptr}
@@ -1339,7 +1349,7 @@ lh::renderer::command_control::command_control(const logical_device& device,
 	m_buffers = {*device, command_buffers_info};
 }
 
-lh::renderer::framebuffer::framebuffer(const logical_device& device,
+lh::renderer::framebuffer::framebuffer(const vulkan::logical_device& device,
 									   const renderpass& renderpass,
 									   const image& image,
 									   const depth_buffer& depth_buffer,
@@ -1348,7 +1358,7 @@ lh::renderer::framebuffer::framebuffer(const logical_device& device,
 	: framebuffer(device, renderpass, image.m_view, depth_buffer.m_view, extent, create_info)
 {}
 
-lh::renderer::framebuffer::framebuffer(const logical_device& device,
+lh::renderer::framebuffer::framebuffer(const vulkan::logical_device& device,
 									   const renderpass& renderpass,
 									   const vk::raii::ImageView& image,
 									   const vk::raii::ImageView& depth_buffer,
@@ -1391,7 +1401,7 @@ lh::renderer::queue_families::queue_families(const vulkan::physical_device& phys
 		}
 }
 
-lh::renderer::descriptor_set_layout::descriptor_set_layout(const logical_device& device,
+lh::renderer::descriptor_set_layout::descriptor_set_layout(const vulkan::logical_device& device,
 														   const std::vector<binding>& bindings,
 														   const create_info& create_info)
 {

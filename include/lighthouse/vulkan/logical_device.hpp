@@ -22,7 +22,7 @@ namespace lh
 				float m_queue_priority {1.0f};
 				std::vector<vk::DeviceQueueCreateInfo> m_queues {};
 				vk::PhysicalDeviceFeatures2 m_features = vk::PhysicalDeviceFeatures2 {};
-				vk_string_t m_extensions;
+				vk_string_t m_extensions {};
 			};
 
 			logical_device(const physical_device&, const create_info&);

@@ -17,8 +17,8 @@ namespace lh
 		public:
 			struct create_info
 			{
-				version m_engine_version = version::m_engine_version;
-				version m_vulkan_version = version::m_vulkan_version;
+				lh::version m_engine_version = lh::version::m_engine_version;
+				lh::version m_vulkan_version = lh::version::m_vulkan_version;
 				logical_extensions::create_info m_extensions = logical_extensions::m_default_logical_extensions;
 				validation_layers::create_info m_validation_layers = validation_layers::m_default_validation_layers;
 				debug_messanger::create_info m_debug_messanger = {};

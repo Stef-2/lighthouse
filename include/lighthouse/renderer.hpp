@@ -124,10 +124,7 @@ namespace lh
 		// vulkan memory allocator module
 		struct memory_allocator
 		{
-			memory_allocator(const vk::Instance&,
-							 const vulkan::physical_device&,
-							 const logical_device&,
-							 const version& = version::m_engine_version);
+			memory_allocator(const vulkan::instance&, const vulkan::physical_device&, const vulkan::logical_device&);
 			~memory_allocator();
 
 			operator vma::Allocator&();
@@ -176,7 +173,7 @@ namespace lh
 			} static inline const m_defaults;
 
 			image(const vulkan::physical_device&,
-				  const logical_device&,
+				  const vulkan::logical_device&,
 				  const memory_allocator&,
 				  const vk::Extent2D&,
 				  const create_info& = m_defaults);
@@ -236,7 +233,7 @@ namespace lh
 			} static inline const m_defaults;
 
 			renderpass(const vulkan::physical_device&,
-					   const logical_device&,
+					   const vulkan::logical_device&,
 					   const vk::raii::SurfaceKHR&,
 					   const create_info& = m_defaults);
 		};
@@ -248,14 +245,14 @@ namespace lh
 
 			} static inline const m_defaults;
 
-			framebuffer(const logical_device&,
+			framebuffer(const vulkan::logical_device&,
 						const renderpass&,
 						const image&,
 						const depth_buffer&,
 						const vk::Extent2D,
 						const create_info& = m_defaults);
 
-			framebuffer(const logical_device&,
+			framebuffer(const vulkan::logical_device&,
 						const renderpass&,
 						const vk::raii::ImageView&,
 						const vk::raii::ImageView&,
@@ -279,9 +276,8 @@ namespace lh
 			} static inline const m_defaults;
 
 			swapchain(const vulkan::physical_device&,
-					  const logical_device&,
-					  const vk::Extent2D&,
-					  const vk::raii::SurfaceKHR&,
+					  const vulkan::logical_device&,
+					  const vulkan::surface&,
 					  const queue_families&,
 					  const memory_allocator&,
 					  const renderpass&,
@@ -306,7 +302,7 @@ namespace lh
 			} static const inline m_defaults;
 
 			buffer(const vulkan::physical_device&,
-				   const logical_device&,
+				   const vulkan::logical_device&,
 				   const vma::Allocator&,
 				   const vk::DeviceSize&,
 				   const create_info& = m_defaults);
@@ -326,7 +322,7 @@ namespace lh
 
 			} static inline const m_defaults;
 
-			command_control(const logical_device&, const queue_families&, const create_info& = m_defaults);
+			command_control(const vulkan::logical_device&, const queue_families&, const create_info& = m_defaults);
 
 			vk::raii::CommandBuffers m_buffers;
 		};
@@ -350,7 +346,9 @@ namespace lh
 
 			} static inline const m_defaults;
 
-			descriptor_set_layout(const logical_device&, const std::vector<binding>&, const create_info& = m_defaults);
+			descriptor_set_layout(const vulkan::logical_device&,
+								  const std::vector<binding>&,
+								  const create_info& = m_defaults);
 		};
 
 		struct descriptor_pool : public vulkan::vk_wrapper<vk::raii::DescriptorPool>
@@ -400,10 +398,8 @@ namespace lh
 		auto info(const create_info& = {}) -> output::string_t;
 
 		template <typename T>
-			requires std::is_same_v<T, vulkan::vk_layers_t> ||
-					 std::is_same_v<T, vulkan::vk_extensions_t>
-					 static auto assert_required_components(T& supported,
-															const vulkan::vk_string_t& required_components) -> bool
+			requires std::is_same_v<T, vulkan::vk_layers_t> || std::is_same_v<T, vulkan::vk_extensions_t>
+		static auto assert_required_components(T& supported, const vulkan::vk_string_t& required_components) -> bool
 		{
 
 			for (const auto& required : required_components)
@@ -436,9 +432,9 @@ namespace lh
 		// vk::raii::Instance m_instance;
 		// std::optional<validation_module> m_validation_module = {std::nullopt};
 		vulkan::physical_device m_physical_device;
-
-		vk::raii::SurfaceKHR m_surface;
-		vk::Extent2D m_extent;
+		vulkan::surface m_surface;
+		// vk::raii::SurfaceKHR m_surface;
+		// vk::Extent2D m_extent;
 		queue_families m_queue_families;
 
 		// logical_device m_device;

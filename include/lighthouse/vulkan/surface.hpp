@@ -19,9 +19,9 @@ namespace lh
 			struct create_info
 			{};
 
-			surface(const lh::window&, const instance&, const create_info&);
+			surface(const lh::window&, const instance&, const create_info& = {});
 
-			auto extent() const -> vk::Extent2D;
+			auto extent() const -> const vk::Extent2D&;
 
 		private:
 			vk::Extent2D m_extent;

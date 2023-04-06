@@ -110,7 +110,7 @@ target_compile_definitions(
 
 # Include
 target_include_directories(
-	${PROJECT_NAME} PRIVATE
+	${PROJECT_NAME} PUBLIC
 
 	${include}
 	${include}/lighthouse
@@ -120,6 +120,7 @@ target_include_directories(
 	${include}/vulkan/vma
 	${include}/vulkan/glslang
 	${include}/vkfw
+	${include}/lighthouse/vulkan
 )
 
 # Modules
