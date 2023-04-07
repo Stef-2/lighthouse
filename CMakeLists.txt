@@ -39,7 +39,10 @@ add_executable(
 	${source}/lighthouse/vulkan/physical_device.cpp
 	${source}/lighthouse/vulkan/logical_device.cpp
 	${source}/lighthouse/vulkan/surface.cpp
- "source/lighthouse/vulkan/queue_families.cpp")
+	${source}/lighthouse/vulkan/queue_families.cpp
+	${source}/lighthouse/vulkan/memory_allocator.cpp
+	${source}/lighthouse/vulkan/command_control.cpp
+)
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
@@ -135,6 +138,7 @@ target_precompile_headers(
 	${include}/vkfw/vkfw.hpp
 
 	${include}/vulkan/vulkan_raii.hpp
+	${include}/vulkan/vma/vk_mem_alloc.hpp
 
 	${include}/vulkan/glm/glm.hpp
 	${include}/vulkan/glm/ext.hpp

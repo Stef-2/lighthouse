@@ -174,7 +174,7 @@ namespace lh
 
 			image(const vulkan::physical_device&,
 				  const vulkan::logical_device&,
-				  const memory_allocator&,
+				  const vulkan::memory_allocator&,
 				  const vulkan::surface&,
 				  const create_info& = m_defaults);
 
@@ -278,8 +278,8 @@ namespace lh
 			swapchain(const vulkan::physical_device&,
 					  const vulkan::logical_device&,
 					  const vulkan::surface&,
-					  const queue_families&,
-					  const memory_allocator&,
+					  const vulkan::queue_families&,
+					  const vulkan::memory_allocator&,
 					  const renderpass&,
 					  const create_info& = m_defaults);
 
@@ -322,7 +322,9 @@ namespace lh
 
 			} static inline const m_defaults;
 
-			command_control(const vulkan::logical_device&, const queue_families&, const create_info& = m_defaults);
+			command_control(const vulkan::logical_device&,
+							const vulkan::queue_families&,
+							const create_info& = m_defaults);
 
 			vk::raii::CommandBuffers m_buffers;
 		};
@@ -435,12 +437,13 @@ namespace lh
 		vulkan::surface m_surface;
 		// vk::raii::SurfaceKHR m_surface;
 		// vk::Extent2D m_extent;
-		queue_families m_queue_families;
+		// queue_families m_queue_families;
+		vulkan::queue_families m_queue_families;
 
 		// logical_device m_device;
 		vulkan::logical_device m_device;
-		memory_allocator m_memory_allocator;
-		command_control m_command_control;
+		vulkan::memory_allocator m_memory_allocator;
+		vulkan::command_control m_command_control;
 
 		vk::raii::Queue m_graphics_queue;
 		vk::raii::Queue m_present_queue;

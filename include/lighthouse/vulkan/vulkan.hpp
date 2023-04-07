@@ -15,6 +15,8 @@
 #include "lighthouse/vulkan/logical_device.hpp"
 #include "lighthouse/vulkan/surface.hpp"
 #include "lighthouse/vulkan/queue_families.hpp"
+#include "lighthouse/vulkan/memory_allocator.hpp"
+#include "lighthouse/vulkan/command_control.hpp"
 #include "lighthouse/window.hpp"
 #include "lighthouse/version.hpp"
 #include "lighthouse/memory.hpp"

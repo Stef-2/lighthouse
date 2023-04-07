@@ -15,7 +15,7 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 	  // m_physical_extensions {m_physical_device},
 	  m_device {m_physical_device,
 				vulkan::logical_device::create_info {
-					.m_queues = {vk::DeviceQueueCreateInfo {{}, m_queue_families.m_graphics, 1}},
+					.m_queues = {vk::DeviceQueueCreateInfo {{}, m_queue_families.graphics_index(), 1}},
 					.m_extensions = m_physical_device.extensions().required_extensions()}},
 	  m_memory_allocator {m_instance, m_physical_device, m_device},
 	  // m_command_pool {create_command_pool()},
@@ -258,12 +258,12 @@ auto lh::renderer::create_command_pool() -> vk::raii::CommandPool
 */
 auto lh::renderer::create_graphics_queue() -> vk::raii::Queue
 {
-	return {m_device, m_queue_families.m_graphics, 0};
+	return {m_device, m_queue_families.graphics_index(), 0};
 }
 
 auto lh::renderer::create_present_queue() -> vk::raii::Queue
 {
-	return {m_device, m_queue_families.m_present, 0};
+	return {m_device, m_queue_families.present_index(), 0};
 }
 /*
 auto lh::renderer::create_swapchain(const vk::raii::PhysicalDevice& device, window& window) -> swapchain
@@ -902,7 +902,7 @@ auto lh::renderer::render() -> void
 	// Get the index of the next available swapchain image:
 	vk::raii::Semaphore imageAcquiredSemaphore(m_device, vk::SemaphoreCreateInfo());
 
-	const auto& command_buffer = m_command_control.m_buffers.front();
+	const auto& command_buffer = m_command_control.command_buffers().front();
 
 	vk::Result result;
 	uint32_t imageIndex;
@@ -1143,8 +1143,8 @@ lh::renderer::physical_device::physical_device(const vk::raii::Instance& instanc
 lh::renderer::swapchain::swapchain(const vulkan::physical_device& physical_device,
 								   const vulkan::logical_device& device,
 								   const vulkan::surface& surface,
-								   const queue_families& queue_families,
-								   const memory_allocator& memory_allocator,
+								   const vulkan::queue_families& queue_families,
+								   const vulkan::memory_allocator& memory_allocator,
 								   const renderpass& renderpass,
 								   const create_info& create_info)
 
@@ -1168,7 +1168,7 @@ lh::renderer::swapchain::swapchain(const vulkan::physical_device& physical_devic
 	auto transform = create_info.m_transform;
 	auto alpha = create_info.m_alpha;
 
-	auto queue_family_indices = {queue_families.m_graphics, queue_families.m_present};
+	auto queue_family_indices = {queue_families.graphics_index(), queue_families.present_index()};
 
 	// assert that the system supports any formats and present modes
 	if (formats.empty() || present_modes.empty())
@@ -1255,7 +1255,7 @@ lh::renderer::logical_device::logical_device(const vulkan::physical_device& phys
 
 lh::renderer::image::image(const vulkan::physical_device& physical_device,
 						   const vulkan::logical_device& device,
-						   const memory_allocator& allocator,
+						   const vulkan::memory_allocator& allocator,
 						   const vulkan::surface& surface,
 						   const create_info& create_info)
 	: m_format(create_info.m_format), m_view {nullptr}, m_memory {nullptr}
@@ -1276,7 +1276,7 @@ lh::renderer::image::image(const vulkan::physical_device& physical_device,
 	const auto allocation_create_info = vma::AllocationCreateInfo {{}, vma::MemoryUsage::eAuto};
 	auto allocation_info = vma::AllocationInfo {};
 
-	auto [image, allocation] = allocator.m_allocator.createImage(image_info, allocation_create_info, allocation_info);
+	auto [image, allocation] = allocator->createImage(image_info, allocation_create_info, allocation_info);
 
 	m_object = {*device, image};
 
@@ -1336,11 +1336,11 @@ lh::renderer::buffer::buffer(const vulkan::physical_device& physical_device,
 }
 
 lh::renderer::command_control::command_control(const vulkan::logical_device& device,
-											   const queue_families& queue_families,
+											   const vulkan::queue_families& queue_families,
 											   const create_info& create_info)
 	: m_buffers {nullptr}
 {
-	m_object = {*device, {create_info.m_pool_flags, queue_families.m_graphics}};
+	m_object = {*device, {create_info.m_pool_flags, queue_families.graphics_index()}};
 
 	auto command_buffers_info = vk::CommandBufferAllocateInfo {*m_object,
 															   create_info.m_buffer_level,
