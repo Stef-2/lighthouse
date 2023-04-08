@@ -42,6 +42,7 @@ add_executable(
 	${source}/lighthouse/vulkan/queue_families.cpp
 	${source}/lighthouse/vulkan/memory_allocator.cpp
 	${source}/lighthouse/vulkan/command_control.cpp
+	${source}/lighthouse/vulkan/queue.cpp
 )
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")

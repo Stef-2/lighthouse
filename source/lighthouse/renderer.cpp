@@ -19,10 +19,11 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 					.m_extensions = m_physical_device.extensions().required_extensions()}},
 	  m_memory_allocator {m_instance, m_physical_device, m_device},
 	  // m_command_pool {create_command_pool()},
-	  m_graphics_queue {create_graphics_queue()},
-	  m_present_queue {create_present_queue()},
+	  // m_graphics_queue {create_graphics_queue()},
+	  // m_present_queue {create_present_queue()},
 	  // m_command_buffer {create_command_buffer()},
 	  m_command_control {m_device, m_queue_families},
+	  m_queue {m_device, m_queue_families},
 	  // m_swapchain {create_swapchain(window)},
 	  m_swapchain {m_physical_device, m_device, m_surface, m_queue_families, m_memory_allocator, m_renderpass},
 	  // m_swapchain_data {create_swapchain_data(window)},
@@ -942,7 +943,7 @@ auto lh::renderer::render() -> void
 
 	vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
 	vk::SubmitInfo submitInfo(*imageAcquiredSemaphore, waitDestinationStageMask, *command_buffer);
-	m_graphics_queue.submit(submitInfo, *drawFence);
+	m_queue.graphics().submit(submitInfo, *drawFence);
 
 	while (vk::Result::eTimeout == m_device->waitForFences({*drawFence}, VK_TRUE, vk::su::FenceTimeout))
 		;
@@ -953,7 +954,7 @@ auto lh::renderer::render() -> void
 	vk::raii::su::copyToDevice(m_uniform_buffer.m_memory, mvpcMatrix);
 
 	vk::PresentInfoKHR presentInfoKHR(nullptr, **m_swapchain, imageIndex);
-	result = m_present_queue.presentKHR(presentInfoKHR);
+	result = m_queue.present().presentKHR(presentInfoKHR);
 	switch (result)
 	{
 	case vk::Result::eSuccess: break;
@@ -969,13 +970,15 @@ auto lh::renderer::render() -> void
 	m_device->waitIdle();
 }
 
-auto lh::renderer::info(const create_info& create_info) -> output::string_t
+auto lh::renderer::info(const create_info& create_info) -> string::string_t
 {
-	auto result = output::string_t {"\n======== renderer information: ========\n"};
+	auto result = string::string_t {"\n======== renderer information: ========\n"};
 
-	// result += create_info.m_using_validation ? m_validation_module->info() : output::string_t {};
 	result += m_instance.extensions().info();
+	result += m_instance.validation_layers().value().info();
 	result += m_physical_device.info();
+	result += m_physical_device.extensions().info();
+	result += m_device.info();
 
 	return result;
 }

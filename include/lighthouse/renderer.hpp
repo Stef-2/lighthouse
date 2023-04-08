@@ -397,7 +397,7 @@ namespace lh
 		// auto create_image_views() -> std::vector<vk::raii::ImageView>;
 
 		// auto create_buffer(const data_t&, const vk::BufferUsageFlagBits&) -> vk::raii::Buffer;
-		auto info(const create_info& = {}) -> output::string_t;
+		auto info(const create_info& = {}) -> string::string_t;
 
 		template <typename T>
 			requires std::is_same_v<T, vulkan::vk_layers_t> || std::is_same_v<T, vulkan::vk_extensions_t>
@@ -445,8 +445,9 @@ namespace lh
 		vulkan::memory_allocator m_memory_allocator;
 		vulkan::command_control m_command_control;
 
-		vk::raii::Queue m_graphics_queue;
-		vk::raii::Queue m_present_queue;
+		// vk::raii::Queue m_graphics_queue;
+		// vk::raii::Queue m_present_queue;
+		vulkan::queue m_queue;
 
 		renderpass m_renderpass;
 		swapchain m_swapchain;

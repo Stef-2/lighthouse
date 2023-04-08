@@ -17,6 +17,7 @@
 #include "lighthouse/vulkan/queue_families.hpp"
 #include "lighthouse/vulkan/memory_allocator.hpp"
 #include "lighthouse/vulkan/command_control.hpp"
+#include "lighthouse/vulkan/queue.hpp"
 #include "lighthouse/window.hpp"
 #include "lighthouse/version.hpp"
 #include "lighthouse/memory.hpp"
