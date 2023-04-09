@@ -21,10 +21,10 @@ namespace lh
 
 			surface(const lh::window&, const instance&, const create_info& = {});
 
-			auto extent() const -> const vk::Extent2D&;
+			auto area() const -> const vk::Rect2D&;
 
 		private:
-			vk::Extent2D m_extent;
+			vk::Rect2D m_area;
 		};
 	}
 }
