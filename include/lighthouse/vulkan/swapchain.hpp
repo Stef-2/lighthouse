@@ -1,6 +1,7 @@
 #pragma once
 
 #include "lighthouse/vulkan/raii_wrapper.hpp"
+#include "lighthouse/vulkan/image.hpp"
 
 namespace lh
 {
@@ -12,7 +13,6 @@ namespace lh
 		class surface;
 		class queue_families;
 		class memory_allocator;
-		class depth_buffer;
 
 		class swapchain : public vk_wrapper<vk::raii::SwapchainKHR>
 		{

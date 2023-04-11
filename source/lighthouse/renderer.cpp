@@ -10,7 +10,7 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 	  m_physical_device {m_instance},
 	  // m_surface_data {create_surface_data(window)},
 	  // m_extent {create_extent(window)},
-	  m_surface {window, m_instance},
+	  m_surface {window, m_instance, m_physical_device},
 	  m_queue_families {m_physical_device, m_surface},
 	  // m_physical_extensions {m_physical_device},
 	  m_device {m_physical_device,
@@ -20,11 +20,11 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 	  m_memory_allocator {m_instance, m_physical_device, m_device},
 	  // m_command_pool {create_command_pool()},
 	  // m_graphics_queue {create_graphics_queue()},
-	  // m_present_queue {create_present_queue()},
+	  // m_present_queue {create_present_queue()},w
 	  // m_command_buffer {create_command_buffer()},
 	  m_command_control {m_device, m_queue_families},
 	  m_queue {m_device, m_queue_families},
-	  m_dyn_rend_image {m_physical_device, m_device, m_memory_allocator, m_surface},
+	  m_dyn_rend_image {m_physical_device, m_device, m_memory_allocator, m_surface.area().extent},
 	  // m_swapchain {create_swapchain(window)},
 	  m_swapchain {m_physical_device, m_device, m_surface, m_queue_families, m_memory_allocator, m_renderpass},
 	  // m_swapchain_data {create_swapchain_data(window)},
@@ -925,7 +925,7 @@ auto lh::renderer::render() -> void
 	// dynamic rendering
 
 	command_buffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
-	//command_buffer.beginRendering(rendering_info);
+	// command_buffer.beginRendering(rendering_info);
 
 	command_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_pipeline);
 	command_buffer.bindDescriptorSets(
@@ -943,7 +943,7 @@ auto lh::renderer::render() -> void
 
 	command_buffer.draw(12 * 3, 1, 0, 0);
 	command_buffer.endRenderPass();
-	//command_buffer.endRendering();
+	// command_buffer.endRendering();
 	command_buffer.end();
 
 	vk::raii::Fence drawFence(m_device, vk::FenceCreateInfo());
@@ -1300,10 +1300,10 @@ lh::renderer::image::image(const vulkan::physical_device& physical_device,
 
 lh::renderer::renderpass::renderpass(const vulkan::physical_device& physical_device,
 									 const vulkan::logical_device& device,
-									 const vk::raii::SurfaceKHR& surface,
+									 const vulkan::surface& surface,
 									 const create_info& create_info)
 {
-	const auto formats = physical_device->getSurfaceFormatsKHR(*surface);
+	const auto formats = physical_device->getSurfaceFormatsKHR(**surface);
 
 	auto attachments = std::vector<vk::AttachmentDescription> {create_info.m_color_attachment,
 															   create_info.m_depth_attachment};

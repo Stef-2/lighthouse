@@ -234,7 +234,7 @@ namespace lh
 
 			renderpass(const vulkan::physical_device&,
 					   const vulkan::logical_device&,
-					   const vk::raii::SurfaceKHR&,
+					   const vulkan::surface&,
 					   const create_info& = m_defaults);
 		};
 

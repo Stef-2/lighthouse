@@ -36,7 +36,7 @@ namespace lh
 			image(const vulkan::physical_device&,
 				  const vulkan::logical_device&,
 				  const vulkan::memory_allocator&,
-				  const vulkan::surface&,
+				  const vk::Extent2D&,
 				  const create_info& = {});
 
 			auto format() const -> const vk::Format&;
@@ -55,7 +55,7 @@ namespace lh
 			depth_buffer(const vulkan::physical_device&,
 						 const vulkan::logical_device&,
 						 const vulkan::memory_allocator&,
-						 const vulkan::surface&,
+						 const vk::Extent2D&,
 						 const create_info& = {.m_format = vk::Format::eD16Unorm,
 											   .m_image_usage = vk::ImageUsageFlagBits::eDepthStencilAttachment,
 											   .m_image_layout = vk::ImageLayout::eUndefined,

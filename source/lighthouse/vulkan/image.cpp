@@ -7,14 +7,14 @@
 lh::vulkan::image::image(const vulkan::physical_device& physical_device,
 						 const vulkan::logical_device& logical_device,
 						 const vulkan::memory_allocator& memory_allocator,
-						 const vulkan::surface& surface,
+						 const vk::Extent2D& extent,
 						 const create_info& create_info)
 	: m_format(create_info.m_format), m_view {nullptr}, m_memory {nullptr}
 {
 	const auto image_info = vk::ImageCreateInfo {create_info.m_image_create_flags,
 												 create_info.m_image_type,
 												 create_info.m_format,
-												 vk::Extent3D(surface.area().extent, 1),
+												 vk::Extent3D(extent, 1),
 												 1,
 												 1,
 												 create_info.m_image_sample_count,
@@ -56,7 +56,7 @@ auto lh::vulkan::image::memory() const -> const vk::raii::DeviceMemory&
 lh::vulkan::depth_buffer::depth_buffer(const vulkan::physical_device& physical_device,
 									   const vulkan::logical_device& logical_device,
 									   const vulkan::memory_allocator& memory_allocator,
-									   const vulkan::surface& surface,
+									   const vk::Extent2D& extent,
 									   const create_info& create_info)
-	: image(physical_device, logical_device, memory_allocator, surface, create_info)
+	: image(physical_device, logical_device, memory_allocator, extent, create_info)
 {}
