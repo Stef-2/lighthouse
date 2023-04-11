@@ -9,6 +9,7 @@ namespace lh
 	namespace vulkan
 	{
 		class instance;
+		class physical_device;
 	}
 
 	namespace vulkan
@@ -17,14 +18,23 @@ namespace lh
 		{
 		public:
 			struct create_info
-			{};
+			{
+				vk::SurfaceFormat2KHR m_format = {{vk::Format::eB8G8R8A8Srgb, vk::ColorSpaceKHR::eSrgbNonlinear}};
+				vk::PresentModeKHR m_present_mode = vk::PresentModeKHR::eImmediate;
+			};
 
-			surface(const lh::window&, const instance&, const create_info& = {});
+			surface(const lh::window&, const instance&, const physical_device&, const create_info& = {});
 
 			auto area() const -> const vk::Rect2D&;
+			auto format() const -> const vk::SurfaceFormat2KHR&;
+			auto capabilities() const -> const vk::SurfaceCapabilities2KHR&;
+			auto present_mode() const -> const vk::PresentModeKHR&;
 
 		private:
 			vk::Rect2D m_area;
+			vk::SurfaceCapabilities2KHR m_capabilities;
+			vk::PresentModeKHR m_present_mode;
+			vk::SurfaceFormat2KHR m_format;
 		};
 	}
 }

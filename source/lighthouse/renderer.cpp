@@ -24,6 +24,7 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 	  // m_command_buffer {create_command_buffer()},
 	  m_command_control {m_device, m_queue_families},
 	  m_queue {m_device, m_queue_families},
+	  m_dyn_rend_image {m_physical_device, m_device, m_memory_allocator, m_surface},
 	  // m_swapchain {create_swapchain(window)},
 	  m_swapchain {m_physical_device, m_device, m_surface, m_queue_families, m_memory_allocator, m_renderpass},
 	  // m_swapchain_data {create_swapchain_data(window)},
@@ -908,8 +909,6 @@ auto lh::renderer::render() -> void
 	vk::Result result;
 	uint32_t imageIndex;
 	std::tie(result, imageIndex) = m_swapchain->acquireNextImage(vk::su::FenceTimeout, *imageAcquiredSemaphore);
-	// assert(result == vk::Result::eSuccess);
-	// assert(imageIndex < swapChainData.images.size());
 
 	command_buffer.begin({});
 
@@ -920,10 +919,14 @@ auto lh::renderer::render() -> void
 												**m_swapchain.m_framebuffers[imageIndex],
 												vk::Rect2D(vk::Offset2D(0, 0), m_surface.area().extent),
 												clearValues);
-
+	// dynamic rendering
 	const auto color_attachment = vk::RenderingAttachmentInfo {};
 	const auto rendering_info = vk::RenderingInfo {{}, m_surface.area(), 1, 0, color_attachment};
+	// dynamic rendering
+
 	command_buffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
+	//command_buffer.beginRendering(rendering_info);
+
 	command_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_pipeline);
 	command_buffer.bindDescriptorSets(
 		vk::PipelineBindPoint::eGraphics, *m_pipeline_layout, 0, {*m_descriptor_set}, nullptr);
@@ -940,6 +943,7 @@ auto lh::renderer::render() -> void
 
 	command_buffer.draw(12 * 3, 1, 0, 0);
 	command_buffer.endRenderPass();
+	//command_buffer.endRendering();
 	command_buffer.end();
 
 	vk::raii::Fence drawFence(m_device, vk::FenceCreateInfo());

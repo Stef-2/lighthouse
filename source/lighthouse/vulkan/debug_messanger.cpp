@@ -55,7 +55,7 @@ lh::vulkan::debug_messanger::debug_callback(VkDebugUtilsMessageSeverityFlagBitsE
 		break;
 	default: break;
 	}
-
+	std::cout << message;
 	return false;
 }
 
