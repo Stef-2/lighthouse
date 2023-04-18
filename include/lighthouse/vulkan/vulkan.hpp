@@ -19,6 +19,7 @@
 #include "lighthouse/vulkan/command_control.hpp"
 #include "lighthouse/vulkan/queue.hpp"
 #include "lighthouse/vulkan/image.hpp"
+#include "lighthouse/vulkan/swapchain.hpp"
 #include "lighthouse/window.hpp"
 #include "lighthouse/version.hpp"
 #include "lighthouse/memory.hpp"

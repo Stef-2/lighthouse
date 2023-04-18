@@ -25,6 +25,7 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 	  m_command_control {m_device, m_queue_families},
 	  m_queue {m_device, m_queue_families},
 	  m_dyn_rend_image {m_physical_device, m_device, m_memory_allocator, m_surface.extent()},
+	  m_new_swapchain {m_physical_device, m_device, m_surface, m_queue_families, m_memory_allocator},
 	  // m_swapchain {create_swapchain(window)},
 	  m_swapchain {m_physical_device, m_device, m_surface, m_queue_families, m_memory_allocator, m_renderpass},
 	  // m_swapchain_data {create_swapchain_data(window)},

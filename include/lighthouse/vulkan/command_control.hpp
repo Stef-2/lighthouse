@@ -10,6 +10,7 @@ namespace lh
 		class logical_device;
 		class queue_families;
 
+		// e1m4
 		class command_control : public vk_wrapper<vk::raii::CommandPool>
 		{
 		public:
