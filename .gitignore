@@ -26,3 +26,4 @@ src/*
 module/*
 !module/lighthouse
 /.clang-tidy
+/cpp.hint
