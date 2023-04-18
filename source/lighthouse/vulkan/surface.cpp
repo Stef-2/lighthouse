@@ -8,7 +8,7 @@ lh::vulkan::surface::surface(const lh::window& window,
 							 const instance& instance,
 							 const physical_device& physical_device,
 							 const create_info& create_info)
-	: m_area {{0, 0}, window.resolution()},
+	: m_extent {window.resolution()},
 	  vk_wrapper {std::invoke([&instance, &window] {
 		  auto surface = VkSurfaceKHR {};
 		  glfwCreateWindowSurface(static_cast<VkInstance>(**instance), window.vkfw_window(), nullptr, &surface);
@@ -38,9 +38,9 @@ lh::vulkan::surface::surface(const lh::window& window,
 	}
 }
 
-auto lh::vulkan::surface::area() const -> const vk::Rect2D&
+auto lh::vulkan::surface::extent() const -> const vk::Extent2D&
 {
-	return m_area;
+	return m_extent;
 }
 
 auto lh::vulkan::surface::format() const -> const vk::SurfaceFormat2KHR&

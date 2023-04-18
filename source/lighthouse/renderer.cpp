@@ -24,7 +24,7 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 	  // m_command_buffer {create_command_buffer()},
 	  m_command_control {m_device, m_queue_families},
 	  m_queue {m_device, m_queue_families},
-	  m_dyn_rend_image {m_physical_device, m_device, m_memory_allocator, m_surface.area().extent},
+	  m_dyn_rend_image {m_physical_device, m_device, m_memory_allocator, m_surface.extent()},
 	  // m_swapchain {create_swapchain(window)},
 	  m_swapchain {m_physical_device, m_device, m_surface, m_queue_families, m_memory_allocator, m_renderpass},
 	  // m_swapchain_data {create_swapchain_data(window)},
@@ -587,7 +587,7 @@ auto lh::renderer::create_depth_buffer(const window& window) -> vk::raii::ImageV
 
 auto lh::renderer::create_depth_buffer_data(const window&) -> vk::raii::su::DepthBufferData
 {
-	return {m_physical_device, m_device, vk::Format::eD16Unorm, m_surface.area().extent};
+	return {m_physical_device, m_device, vk::Format::eD16Unorm, m_surface.extent()};
 }
 
 auto lh::renderer::create_uniform_buffer() -> vk::raii::su::BufferData
@@ -596,7 +596,7 @@ auto lh::renderer::create_uniform_buffer() -> vk::raii::su::BufferData
 											   m_device,
 											   sizeof(glm::mat4x4),
 											   vk::BufferUsageFlagBits::eUniformBuffer);
-	glm::mat4x4 mvpcMatrix = vk::su::createModelViewProjectionClipMatrix(m_surface.area().extent);
+	glm::mat4x4 mvpcMatrix = vk::su::createModelViewProjectionClipMatrix(m_surface.extent());
 	vk::raii::su::copyToDevice(uniformBufferData.deviceMemory, mvpcMatrix);
 
 	return uniformBufferData;
@@ -917,11 +917,11 @@ auto lh::renderer::render() -> void
 	clearValues[1].depthStencil = vk::ClearDepthStencilValue(1.0f, 0);
 	vk::RenderPassBeginInfo renderPassBeginInfo(**m_renderpass,
 												**m_swapchain.m_framebuffers[imageIndex],
-												vk::Rect2D(vk::Offset2D(0, 0), m_surface.area().extent),
+												vk::Rect2D(vk::Offset2D(0, 0), m_surface.extent()),
 												clearValues);
 	// dynamic rendering
 	const auto color_attachment = vk::RenderingAttachmentInfo {};
-	const auto rendering_info = vk::RenderingInfo {{}, m_surface.area(), 1, 0, color_attachment};
+	const auto rendering_info = vk::RenderingInfo {{}, {{0, 0}, m_surface.extent()}, 1, 0, color_attachment};
 	// dynamic rendering
 
 	command_buffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
@@ -935,11 +935,11 @@ auto lh::renderer::render() -> void
 	command_buffer.setViewport(0,
 							   vk::Viewport(0.0f,
 											0.0f,
-											static_cast<float>(m_surface.area().extent.width),
-											static_cast<float>(m_surface.area().extent.height),
+											static_cast<float>(m_surface.extent().width),
+											static_cast<float>(m_surface.extent().height),
 											0.0f,
 											1.0f));
-	command_buffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_surface.area().extent));
+	command_buffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_surface.extent()));
 
 	command_buffer.draw(12 * 3, 1, 0, 0);
 	command_buffer.endRenderPass();
@@ -955,7 +955,7 @@ auto lh::renderer::render() -> void
 	while (vk::Result::eTimeout == m_device->waitForFences({*drawFence}, VK_TRUE, vk::su::FenceTimeout))
 		;
 
-	glm::mat4x4 mvpcMatrix = vk::su::createModelViewProjectionClipMatrix(m_surface.area().extent);
+	glm::mat4x4 mvpcMatrix = vk::su::createModelViewProjectionClipMatrix(m_surface.extent());
 	mvpcMatrix = glm::rotate(mvpcMatrix, float(glm::sin(vkfw::getTime().value)), glm::vec3 {1.0f, 1.0f, 1.0f});
 
 	vk::raii::su::copyToDevice(m_uniform_buffer.m_memory, mvpcMatrix);
@@ -1199,15 +1199,15 @@ lh::renderer::swapchain::swapchain(const vulkan::physical_device& physical_devic
 	}
 
 	// assert that the extent is within limits supported by the implementation
-	if (surface.area().extent.width != std::clamp(surface.area().extent.width,
-												  capabilities.surfaceCapabilities.minImageExtent.width,
-												  capabilities.surfaceCapabilities.maxImageExtent.width))
-		output::fatal() << "this system does not support windows of this width: " << surface.area().extent.width;
+	if (surface.extent().width != std::clamp(surface.extent().width,
+											 capabilities.surfaceCapabilities.minImageExtent.width,
+											 capabilities.surfaceCapabilities.maxImageExtent.width))
+		output::fatal() << "this system does not support windows of this width: " << surface.extent().width;
 
-	if (surface.area().extent.height != std::clamp(surface.area().extent.height,
-												   capabilities.surfaceCapabilities.minImageExtent.height,
-												   capabilities.surfaceCapabilities.maxImageExtent.height))
-		output::fatal() << "this system does not support windows of this height: " << surface.area().extent.height;
+	if (surface.extent().height != std::clamp(surface.extent().height,
+											  capabilities.surfaceCapabilities.minImageExtent.height,
+											  capabilities.surfaceCapabilities.maxImageExtent.height))
+		output::fatal() << "this system does not support windows of this height: " << surface.extent().height;
 
 	// clamp the prefered image count between the minimum and maximum supported by implementation
 	image_count = std::clamp(image_count,
@@ -1219,7 +1219,7 @@ lh::renderer::swapchain::swapchain(const vulkan::physical_device& physical_devic
 													  image_count,
 													  m_surface_format.surfaceFormat.format,
 													  m_surface_format.surfaceFormat.colorSpace,
-													  surface.area().extent,
+													  surface.extent(),
 													  1,
 													  image_usage,
 													  sharing_mode,
@@ -1274,7 +1274,7 @@ lh::renderer::image::image(const vulkan::physical_device& physical_device,
 	const auto image_info = vk::ImageCreateInfo {create_info.m_image_create_flags,
 												 create_info.m_image_type,
 												 create_info.m_format,
-												 vk::Extent3D(surface.area().extent, 1),
+												 vk::Extent3D(surface.extent(), 1),
 												 1,
 												 1,
 												 create_info.m_image_sample_count,
@@ -1379,7 +1379,7 @@ lh::renderer::framebuffer::framebuffer(const vulkan::logical_device& device,
 	const auto views = std::array {*image, *depth_buffer};
 
 	const auto framebuffer_info = vk::FramebufferCreateInfo {
-		{}, **renderpass, 2, views.data(), surface.area().extent.width, surface.area().extent.height, 1};
+		{}, **renderpass, 2, views.data(), surface.extent().width, surface.extent().height, 1};
 
 	m_object = {*device, framebuffer_info};
 }

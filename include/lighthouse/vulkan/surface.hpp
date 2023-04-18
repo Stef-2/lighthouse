@@ -25,13 +25,13 @@ namespace lh
 
 			surface(const lh::window&, const instance&, const physical_device&, const create_info& = {});
 
-			auto area() const -> const vk::Rect2D&;
+			auto extent() const -> const vk::Extent2D&;
 			auto format() const -> const vk::SurfaceFormat2KHR&;
 			auto capabilities() const -> const vk::SurfaceCapabilities2KHR&;
 			auto present_mode() const -> const vk::PresentModeKHR&;
 
 		private:
-			vk::Rect2D m_area;
+			vk::Extent2D m_extent;
 			vk::SurfaceCapabilities2KHR m_capabilities;
 			vk::PresentModeKHR m_present_mode;
 			vk::SurfaceFormat2KHR m_format;
