@@ -2,8 +2,11 @@
 
 #include "vkfw.hpp"
 
-#include "static.hpp"
+#include "lighthouse/static.hpp"
+#include "lighthouse/string/string.hpp"
+#include "lighthouse/filesystem.hpp"
 
+#include <map>
 #include <unordered_map>
 #include <variant>
 
@@ -24,7 +27,7 @@ namespace lh
 		// make constructible from invocable / callable concepts
 		action(const std::invocable auto& function) : m_action(function), m_guid(counter) { counter++; }
 
-		auto get_id() const -> counter_t;
+		auto get_id() const -> const counter_t&;
 
 		// overlaoded () operator to call the wrapped function
 		auto operator()() const -> void;
@@ -33,13 +36,14 @@ namespace lh
 		auto operator<=>(const action&) const = default;
 
 	private:
-		// global counter guid counter
+		// global guid counter
 		static inline auto counter = counter_t {};
 
 		function_t m_action;
 		counter_t m_guid;
 	};
 
+	// static utiltiy input class, handling keyboard, mouse and file reading
 	class input : static_t
 	{
 	public:
@@ -90,7 +94,30 @@ namespace lh
 				std::unordered_multimap<const key_input, const action, const key_input> {};
 		};
 
+		enum class file_type
+		{
+			text,
+			binary
+		};
+
+		template <file_type type = file_type::text> static auto read_file(const std::filesystem::path& file_path)
+		{
+			if constexpr (type == file_type::text)
+				return read_text_file(file_path);
+
+			if constexpr (type == file_type::binary)
+				return read_binary_file(file_path);
+		}
+
 	private:
 		static auto initialize(const window&) -> void;
+
+		static auto read_text_file(const std::filesystem::path&) -> string::string_t;
+		static auto read_binary_file(const std::filesystem::path&) -> std::vector<std::byte>;
+
+		static auto assert_path_validity(const std::filesystem::path&, const file_type&) -> bool;
+
+		static inline const auto m_valid_file_extensions = std::map<file_type, const std::vector<const char*>> {
+			{file_type::text, {"txt"}}};
 	};
 }

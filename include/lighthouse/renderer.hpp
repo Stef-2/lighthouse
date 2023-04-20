@@ -24,6 +24,7 @@ namespace lh
 		renderer(const window&, const create_info& = {});
 
 		auto render() -> void;
+		auto dynamic_render() -> void;
 
 		// ===========================================================================
 
@@ -460,6 +461,7 @@ namespace lh
 		descriptor_set_layout m_descriptor_set_layout;
 		vk::raii::DescriptorPool m_descriptor_pool;
 		vk::raii::DescriptorSet m_descriptor_set;
+
 		vk::raii::ShaderModule m_shader_modules[2];
 		vk::raii::PipelineLayout m_pipeline_layout;
 		vk::raii::PipelineCache m_pipeline_cache;

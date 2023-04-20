@@ -41,15 +41,16 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 						buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eUniformBuffer}},
 	  m_descriptor_set_layout {m_device, {{0, vk::DescriptorType::eUniformBuffer}}},
 	  // m_descriptor_set_layout {create_descriptor_set_layout()},
-	  m_pipeline_layout {create_pipeline_layout()},
 	  // m_format {create_format()},
 	  m_descriptor_set {create_descriptor_set()},
 	  m_renderpass {m_physical_device, m_device, m_surface},
-	  m_shader_modules {create_shader_module(vk::ShaderStageFlagBits::eVertex),
-						create_shader_module(vk::ShaderStageFlagBits::eFragment)},
 	  m_vertex_buffer {create_vertex_buffer()},
 	  // m_framebuffers {create_framebuffers(window)},
 	  m_descriptor_pool {create_descriptor_pool()},
+
+	  m_shader_modules {create_shader_module(vk::ShaderStageFlagBits::eVertex),
+						create_shader_module(vk::ShaderStageFlagBits::eFragment)},
+	  m_pipeline_layout {create_pipeline_layout()},
 	  m_pipeline_cache {create_pipeline_cache()},
 	  m_pipeline {create_pipeline()}
 
@@ -962,6 +963,88 @@ auto lh::renderer::render() -> void
 	vk::raii::su::copyToDevice(m_uniform_buffer.m_memory, mvpcMatrix);
 
 	vk::PresentInfoKHR presentInfoKHR(nullptr, **m_swapchain, imageIndex);
+	result = m_queue.present().presentKHR(presentInfoKHR);
+	switch (result)
+	{
+	case vk::Result::eSuccess: break;
+	case vk::Result::eSuboptimalKHR:
+		std::cout << "vk::Queue::presentKHR returned vk::Result::eSuboptimalKHR !\n";
+		break;
+	default: assert(false); // an unexpected result is returned !
+	}
+	// std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+	m_device->waitIdle();
+}
+
+auto lh::renderer::dynamic_render() -> void
+{
+	// Get the index of the next available swapchain image:
+	vk::raii::Semaphore imageAcquiredSemaphore(m_device, vk::SemaphoreCreateInfo());
+
+	const auto& command_buffer = m_command_control.command_buffers().front();
+
+	vk::Result result;
+	uint32_t imageIndex;
+	std::tie(result, imageIndex) = m_new_swapchain->acquireNextImage(vk::su::FenceTimeout, *imageAcquiredSemaphore);
+
+	command_buffer.begin({});
+
+	// dynamic rendering
+	const auto color_attachment = vk::RenderingAttachmentInfo {*m_new_swapchain.views()[0],
+															   vk::ImageLayout::eAttachmentOptimal};
+
+	const auto depth_attachment = vk::RenderingAttachmentInfo {*m_dyn_rend_image.view(),
+															   vk::ImageLayout::eDepthAttachmentOptimal};
+
+	const auto formats = std::array {vk::Format::eR8G8B8A8Srgb, vk::Format::eD16Unorm};
+	const auto pipeline_rendering_info = vk::PipelineRenderingCreateInfo {0, formats[0], formats[1]};
+	const auto pipeline_stages =
+		std::array {vk::PipelineShaderStageCreateInfo {{}, vk::ShaderStageFlagBits::eVertex, *m_shader_modules[0]},
+					vk::PipelineShaderStageCreateInfo {{}, vk::ShaderStageFlagBits::eFragment, *m_shader_modules[1]}};
+
+	auto graphics_pipeline_info = vk::GraphicsPipelineCreateInfo {{}, pipeline_stages};
+	graphics_pipeline_info.pNext = &pipeline_rendering_info;
+
+	const auto rendering_info =
+		vk::RenderingInfo {{}, {{0, 0}, m_surface.extent()}, 1, 0, color_attachment, &depth_attachment};
+
+	command_buffer.beginRendering(rendering_info);
+
+	command_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_pipeline);
+	command_buffer.bindDescriptorSets(
+		vk::PipelineBindPoint::eGraphics, *m_pipeline_layout, 0, {*m_descriptor_set}, nullptr);
+
+	command_buffer.bindVertexBuffers(0, {*m_vertex_buffer.buffer}, {0});
+	command_buffer.setViewport(0,
+							   vk::Viewport(0.0f,
+											0.0f,
+											static_cast<float>(m_surface.extent().width),
+											static_cast<float>(m_surface.extent().height),
+											0.0f,
+											1.0f));
+	command_buffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_surface.extent()));
+
+	command_buffer.draw(12 * 3, 1, 0, 0);
+
+	command_buffer.endRendering();
+	command_buffer.end();
+
+	vk::raii::Fence drawFence(m_device, vk::FenceCreateInfo());
+
+	vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
+	vk::SubmitInfo submitInfo(*imageAcquiredSemaphore, waitDestinationStageMask, *command_buffer);
+	m_queue.graphics().submit(submitInfo, *drawFence);
+
+	while (vk::Result::eTimeout == m_device->waitForFences({*drawFence}, VK_TRUE, vk::su::FenceTimeout))
+		;
+
+	glm::mat4x4 mvpcMatrix = vk::su::createModelViewProjectionClipMatrix(m_surface.extent());
+	mvpcMatrix = glm::rotate(mvpcMatrix, float(glm::sin(vkfw::getTime().value)), glm::vec3 {1.0f, 1.0f, 1.0f});
+
+	vk::raii::su::copyToDevice(m_uniform_buffer.m_memory, mvpcMatrix);
+
+	vk::PresentInfoKHR presentInfoKHR(nullptr, **m_new_swapchain, imageIndex);
 	result = m_queue.present().presentKHR(presentInfoKHR);
 	switch (result)
 	{

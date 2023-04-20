@@ -70,6 +70,7 @@ auto lh::file_system::find(std::string_view name) -> std::filesystem::path
 			return dir.path();
 	}
 
-	lh::output::warning() << "could not find the specified path: " << std::move(name);
-	return root_path();
+	lh::output::warning() << "could not find the specified path: " + string::string_t {name};
+
+	return {};
 }

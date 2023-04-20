@@ -1,8 +1,12 @@
 #include "lighthouse/input.hpp"
 
 #include "lighthouse/window.hpp"
+#include "lighthouse/output.hpp"
 
-auto lh::action::get_id() const -> counter_t
+#include <iostream>
+#include <fstream>
+
+auto lh::action::get_id() const -> const counter_t&
 {
 	return m_guid;
 }
@@ -68,6 +72,53 @@ auto lh::input::key_binding::initialize(const window& window) -> void
 		for (auto function = iterator.first; function != iterator.second; ++function)
 			function->second();
 	};
+}
+
+auto lh::input::read_text_file(const std::filesystem::path& file_path) -> string::string_t
+{
+	if (not assert_path_validity(file_path, file_type::text))
+		return {};
+
+	auto stream = std::ifstream {file_path, std::ios::in};
+	auto buffer = std::stringstream {};
+	buffer << stream.rdbuf();
+	stream.close();
+
+	return buffer.str();
+}
+
+auto lh::input::read_binary_file(const std::filesystem::path& file_path) -> std::vector<std::byte>
+{
+	if (not assert_path_validity(file_path, file_type::binary))
+		return {};
+
+	auto stream = std::ifstream {file_path, std::ios::in | std::ios::binary | std::ios::ate};
+	const auto file_size = stream.tellg();
+	stream.seekg(std::ios::beg);
+
+	auto buffer = std::vector<std::byte>(file_size);
+	stream.read(reinterpret_cast<char*>(buffer.data()), file_size);
+
+	stream.close();
+
+	return buffer;
+}
+
+auto lh::input::assert_path_validity(const std::filesystem::path& file_path, const file_type& file_type) -> bool
+{
+	const auto valid_path = not file_path.empty();
+	const auto valid_extension = std::ranges::any_of(m_valid_file_extensions.at(file_type),
+													 [&file_path](const auto& x) {
+														 return x == file_path.extension();
+													 });
+
+	if (valid_path and valid_extension)
+	{
+		lh::output::error() << "invalid file path provided: " + file_path.string();
+		return false;
+	}
+
+	return true;
 }
 
 auto lh::input::key_binding::unbind(const key_input& key, const action& func) -> void
