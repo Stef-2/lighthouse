@@ -12,6 +12,7 @@ _deps
 out
 build
 .vs
+.pdb
 .clang-format
 /CMakePresets.json
 
@@ -27,3 +28,4 @@ module/*
 !module/lighthouse
 /.clang-tidy
 /cpp.hint
+/vc140.pdb
