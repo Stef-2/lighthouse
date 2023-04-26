@@ -12,7 +12,7 @@ _deps
 out
 build
 .vs
-.pdb
+*.pdb
 .clang-format
 /CMakePresets.json
 

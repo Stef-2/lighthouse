@@ -112,10 +112,10 @@ namespace lh
 	private:
 		static auto initialize(const window&) -> void;
 
+		static auto assert_path_validity(const std::filesystem::path&, const file_type&) -> bool;
+
 		static auto read_text_file(const std::filesystem::path&) -> string::string_t;
 		static auto read_binary_file(const std::filesystem::path&) -> std::vector<std::byte>;
-
-		static auto assert_path_validity(const std::filesystem::path&, const file_type&) -> bool;
 
 		static inline const auto m_valid_file_extensions = std::map<file_type, const std::vector<const char*>> {
 			{file_type::text, {"txt"}}};
