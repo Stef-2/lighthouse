@@ -5,7 +5,7 @@
 #include "vulkan/vma/vk_mem_alloc.hpp"
 #include "vulkan/utils/geometries.hpp"
 #include "vulkan/utils/math.hpp"
-#include "vulkan/utils/raii/raii_shaders.hpp"
+// #include "vulkan/utils/raii/raii_shaders.hpp"
 #include "vulkan/utils/raii/raii_utils.hpp"
 
 #include "lighthouse/vulkan/raii_wrapper.hpp"
@@ -20,6 +20,7 @@
 #include "lighthouse/vulkan/queue.hpp"
 #include "lighthouse/vulkan/image.hpp"
 #include "lighthouse/vulkan/swapchain.hpp"
+#include "lighthouse/vulkan/shader_module.hpp"
 #include "lighthouse/window.hpp"
 #include "lighthouse/version.hpp"
 #include "lighthouse/memory.hpp"

@@ -14,7 +14,7 @@ namespace lh
 		{
 		public:
 			using spirv_bytecode_t = std::vector<uint32_t>;
-			using shader_code_t = std::string_view;
+			using shader_code_t = string::string_t;
 
 			struct create_info
 			{

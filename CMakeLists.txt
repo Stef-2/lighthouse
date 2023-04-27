@@ -26,7 +26,7 @@ add_executable(
 	${source}/lighthouse/renderer.cpp
 	${source}/lighthouse/version.cpp
 	${source}/lighthouse/node.cpp
-	${source}/vulkan/shaders.cpp
+	#${source}/vulkan/shaders.cpp
 	${source}/vulkan/utils.cpp
 	${source}/vulkan/math.cpp
 	${source}/lighthouse/system.cpp
@@ -45,7 +45,7 @@ add_executable(
 	${source}/lighthouse/vulkan/queue.cpp
 	${source}/lighthouse/vulkan/image.cpp
 	${source}/lighthouse/vulkan/swapchain.cpp
-	#${source}/lighthouse/vulkan/shader_module.cpp
+	${source}/lighthouse/vulkan/shader_module.cpp
 )
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")

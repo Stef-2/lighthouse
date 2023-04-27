@@ -38,26 +38,19 @@ auto lh::file_system::data_path() -> std::filesystem::path
 		return m_data_dir.first;
 
 	// otherwise, discover, record and return the data path
-	auto current_dir = std::filesystem::current_path();
+	auto current_dir = root_path();
 
-	while (true)
+	for (const auto& dir : std::filesystem::recursive_directory_iterator(current_dir))
 	{
-		if (current_dir.filename() == m_data_dir.second)
+		if (dir.path().filename().wstring() == m_data_dir.second)
 		{
-			m_data_dir.first = current_dir;
-			return current_dir;
-		}
-
-		current_dir = current_dir.parent_path();
-
-		// check if we've reached system root, if we have, something has gone wrong
-		// this could happen if the engine executable is outside of its root directory
-		if (current_dir == current_dir.root_path())
-		{
-			lh::output::warning() << "could not find engine data directory, path queries will not work";
-			return current_dir;
+			m_data_dir.first = dir;
+			return dir.path();
 		}
 	}
+
+	lh::output::warning() << "could not find engine data directory, path queries will not work";
+	return current_dir;
 }
 
 auto lh::file_system::find(std::string_view name) -> std::filesystem::path

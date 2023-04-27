@@ -47,7 +47,7 @@ auto lh::vulkan::shader_module::glsl_to_spirv::translate_shader(const vk::Shader
 {
 	const auto glsl_shader_stage = static_cast<EShLanguage>(translate_shader_stage(shader_stage));
 
-	const char* shader_string[1] {shader_code.data()};
+	const char* shader_string[1] = {shader_code.data()};
 
 	auto glsl_shader = glslang::TShader(glsl_shader_stage);
 	glsl_shader.setStrings(shader_string, 1);

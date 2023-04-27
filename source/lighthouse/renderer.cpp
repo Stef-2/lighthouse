@@ -1,4 +1,5 @@
-#include "renderer.hpp"
+#include "lighthouse/renderer.hpp"
+#include "lighthouse/input.hpp"
 // #include "vulkan/vma/vk_mem_alloc.h"
 
 lh::renderer::renderer(const window& window, const create_info& create_info)
@@ -47,9 +48,15 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 	  m_vertex_buffer {create_vertex_buffer()},
 	  // m_framebuffers {create_framebuffers(window)},
 	  m_descriptor_pool {create_descriptor_pool()},
-
+	  /*
 	  m_shader_modules {create_shader_module(vk::ShaderStageFlagBits::eVertex),
-						create_shader_module(vk::ShaderStageFlagBits::eFragment)},
+						create_shader_module(vk::ShaderStageFlagBits::eFragment)},*/
+	  m_vertex {m_device,
+				lh::input::read_file(file_system::data_path() /= "shaders/basic.vert"),
+				vulkan::shader_module::create_info {.m_shader_stages = vk::ShaderStageFlagBits::eVertex}},
+	  m_fragment {m_device,
+				  lh::input::read_file(file_system::data_path() /= "shaders/basic.frag"),
+				  vulkan::shader_module::create_info {.m_shader_stages = vk::ShaderStageFlagBits::eFragment}},
 	  m_pipeline_layout {create_pipeline_layout()},
 	  m_pipeline_cache {create_pipeline_cache()},
 	  m_pipeline {create_pipeline()}
@@ -669,9 +676,9 @@ auto lh::renderer::create_pipeline() -> vk::raii::Pipeline
 {
 	return vk::raii::su::makeGraphicsPipeline(m_device,
 											  m_pipeline_cache,
-											  m_shader_modules[0],
+											  m_vertex,
 											  nullptr,
-											  m_shader_modules[1],
+											  m_fragment,
 											  nullptr,
 											  vk::su::checked_cast<uint32_t>(sizeof(coloredCubeData[0])),
 											  {{vk::Format::eR32G32B32A32Sfloat, 0},
@@ -715,22 +722,24 @@ auto lh::renderer::create_render_pass(const window& window) -> vk::raii::RenderP
 										m_depth_buffer.m_format);
 }
 */
+/*
 auto lh::renderer::create_shader_module(const vk::ShaderStageFlagBits& stage) -> vk::raii::ShaderModule
-{ /*
-	 glslang::InitializeProcess();
+{
+	   glslang::InitializeProcess();
 
-	 auto vertex_shader_spirv = std::vector<unsigned int> {};
-	 auto shader_code = (stage == vk::ShaderStageFlagBits::eVertex) ? vertexShaderText_PC_C
-	 : fragmentShaderText_C_C;
+	   auto vertex_shader_spirv = std::vector<unsigned int> {};
+	   auto shader_code = (stage == vk::ShaderStageFlagBits::eVertex) ? vertexShaderText_PC_C
+	   : fragmentShaderText_C_C;
 
-	 vk::su::GLSLtoSPV(stage, shader_code, vertex_shader_spirv);
+	   vk::su::GLSLtoSPV(stage, shader_code, vertex_shader_spirv);
 
-	 auto shader_module_info = vk::ShaderModuleCreateInfo({}, vertex_shader_spirv);
-	 auto shader_module = vk::raii::ShaderModule {m_device, shader_module_info};
+	   auto shader_module_info = vk::ShaderModuleCreateInfo({}, vertex_shader_spirv);
+	   auto shader_module = vk::raii::ShaderModule {m_device, shader_module_info};
 
-	 glslang::FinalizeProcess();
+	   glslang::FinalizeProcess();
 
-	 return shader_module;*/
+	   return shader_module;
+
 	glslang::InitializeProcess();
 
 	auto& shader_code = (stage == vk::ShaderStageFlagBits::eVertex) ? vertexShaderText_PC_C : fragmentShaderText_C_C;
@@ -740,6 +749,7 @@ auto lh::renderer::create_shader_module(const vk::ShaderStageFlagBits& stage) ->
 
 	return module;
 }
+*/
 /*
 auto lh::renderer::create_framebuffers(const window& window) -> std::vector<vk::raii::Framebuffer>
 { /*
@@ -966,11 +976,11 @@ auto lh::renderer::render() -> void
 	result = m_queue.present().presentKHR(presentInfoKHR);
 	switch (result)
 	{
-	case vk::Result::eSuccess: break;
-	case vk::Result::eSuboptimalKHR:
-		std::cout << "vk::Queue::presentKHR returned vk::Result::eSuboptimalKHR !\n";
-		break;
-	default: assert(false); // an unexpected result is returned !
+		case vk::Result::eSuccess: break;
+		case vk::Result::eSuboptimalKHR:
+			std::cout << "vk::Queue::presentKHR returned vk::Result::eSuboptimalKHR !\n";
+			break;
+		default: assert(false); // an unexpected result is returned !
 	}
 	// std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
@@ -1000,8 +1010,8 @@ auto lh::renderer::dynamic_render() -> void
 	const auto formats = std::array {vk::Format::eR8G8B8A8Srgb, vk::Format::eD16Unorm};
 	const auto pipeline_rendering_info = vk::PipelineRenderingCreateInfo {0, formats[0], formats[1]};
 	const auto pipeline_stages =
-		std::array {vk::PipelineShaderStageCreateInfo {{}, vk::ShaderStageFlagBits::eVertex, *m_shader_modules[0]},
-					vk::PipelineShaderStageCreateInfo {{}, vk::ShaderStageFlagBits::eFragment, *m_shader_modules[1]}};
+		std::array {vk::PipelineShaderStageCreateInfo {{}, vk::ShaderStageFlagBits::eVertex, **m_vertex},
+					vk::PipelineShaderStageCreateInfo {{}, vk::ShaderStageFlagBits::eFragment, **m_fragment}};
 
 	auto graphics_pipeline_info = vk::GraphicsPipelineCreateInfo {{}, pipeline_stages};
 	graphics_pipeline_info.pNext = &pipeline_rendering_info;
@@ -1048,11 +1058,11 @@ auto lh::renderer::dynamic_render() -> void
 	result = m_queue.present().presentKHR(presentInfoKHR);
 	switch (result)
 	{
-	case vk::Result::eSuccess: break;
-	case vk::Result::eSuboptimalKHR:
-		std::cout << "vk::Queue::presentKHR returned vk::Result::eSuboptimalKHR !\n";
-		break;
-	default: assert(false); // an unexpected result is returned !
+		case vk::Result::eSuccess: break;
+		case vk::Result::eSuboptimalKHR:
+			std::cout << "vk::Queue::presentKHR returned vk::Result::eSuboptimalKHR !\n";
+			break;
+		default: assert(false); // an unexpected result is returned !
 	}
 	// std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
@@ -1116,16 +1126,16 @@ lh::renderer::validation_module::debug_callback(VkDebugUtilsMessageSeverityFlagB
 
 	switch (message_severity)
 	{
-	case VkDebugUtilsMessageSeverityFlagBitsEXT::VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
-		output::log() << message;
-		break;
-	case VkDebugUtilsMessageSeverityFlagBitsEXT::VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
-		output::warning() << message;
-		break;
-	case VkDebugUtilsMessageSeverityFlagBitsEXT::VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
-		output::error() << message;
-		break;
-	default: break;
+		case VkDebugUtilsMessageSeverityFlagBitsEXT::VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+			output::log() << message;
+			break;
+		case VkDebugUtilsMessageSeverityFlagBitsEXT::VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+			output::warning() << message;
+			break;
+		case VkDebugUtilsMessageSeverityFlagBitsEXT::VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+			output::error() << message;
+			break;
+		default: break;
 	}
 
 	return false;
