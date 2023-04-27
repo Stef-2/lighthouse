@@ -13,12 +13,12 @@ namespace lh
 		class shader_module : public vk_wrapper<vk::raii::ShaderModule>
 		{
 		public:
-			using spirv_bytecode_t = std::vector<std::byte>;
+			using spirv_bytecode_t = std::vector<uint32_t>;
 			using shader_code_t = std::string_view;
 
 			struct create_info
 			{
-				vk::ShaderStageFlags m_shader_stages = vk::ShaderStageFlagBits::eAll;
+				vk::ShaderStageFlagBits m_shader_stages = vk::ShaderStageFlagBits::eAll;
 			};
 
 			shader_module(const logical_device&, const shader_code_t&, const create_info& = {});
