@@ -40,7 +40,9 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 						m_memory_allocator,
 						sizeof(glm::mat4x4),
 						buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eUniformBuffer}},
-	  m_descriptor_set_layout {m_device, {{0, vk::DescriptorType::eUniformBuffer}}},
+	  m_descriptor_set_layout {m_device,
+							   vulkan::descriptor_set_layout::create_info {
+								   .m_bindings = {{0, vk::DescriptorType::eUniformBuffer}}}},
 	  // m_descriptor_set_layout {create_descriptor_set_layout()},
 	  // m_format {create_format()},
 	  m_descriptor_set {create_descriptor_set()},

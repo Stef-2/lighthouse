@@ -46,7 +46,7 @@ add_executable(
 	${source}/lighthouse/vulkan/image.cpp
 	${source}/lighthouse/vulkan/swapchain.cpp
 	${source}/lighthouse/vulkan/shader_module.cpp
-)
+ "source/lighthouse/vulkan/descriptor_set_layout.cpp")
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")

@@ -329,7 +329,7 @@ namespace lh
 
 			vk::raii::CommandBuffers m_buffers;
 		};
-		vk::PhysicalDeviceDescriptorBufferPropertiesEXT asd;
+
 		struct descriptor_set_layout : public vulkan::vk_wrapper<vk::raii::DescriptorSetLayout>
 		{
 			using descriptor_count_t = uint32_t;
@@ -458,7 +458,7 @@ namespace lh
 		buffer m_uniform_buffer;
 
 		// vk::raii::DescriptorSetLayout m_descriptor_set_layout;
-		descriptor_set_layout m_descriptor_set_layout;
+		vulkan::descriptor_set_layout m_descriptor_set_layout;
 		vk::raii::DescriptorPool m_descriptor_pool;
 		vk::raii::DescriptorSet m_descriptor_set;
 
