@@ -39,7 +39,7 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 						m_device,
 						m_memory_allocator,
 						sizeof(glm::mat4x4),
-						buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eUniformBuffer}},
+						vulkan::buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eUniformBuffer}},
 	  m_descriptor_set_layout {m_device,
 							   vulkan::descriptor_set_layout::create_info {
 								   .m_bindings = {{0, vk::DescriptorType::eUniformBuffer}}}},
@@ -972,8 +972,8 @@ auto lh::renderer::render() -> void
 	glm::mat4x4 mvpcMatrix = vk::su::createModelViewProjectionClipMatrix(m_surface.extent());
 	mvpcMatrix = glm::rotate(mvpcMatrix, float(glm::sin(vkfw::getTime().value)), glm::vec3 {1.0f, 1.0f, 1.0f});
 
-	vk::raii::su::copyToDevice(m_uniform_buffer.m_memory, mvpcMatrix);
-
+	// vk::raii::su::copyToDevice(m_uniform_buffer.memory(), mvpcMatrix);
+	m_uniform_buffer.data(mvpcMatrix, m_uniform_buffer.memory(), 1);
 	vk::PresentInfoKHR presentInfoKHR(nullptr, **m_swapchain, imageIndex);
 	result = m_queue.present().presentKHR(presentInfoKHR);
 	switch (result)
@@ -1054,7 +1054,7 @@ auto lh::renderer::dynamic_render() -> void
 	glm::mat4x4 mvpcMatrix = vk::su::createModelViewProjectionClipMatrix(m_surface.extent());
 	mvpcMatrix = glm::rotate(mvpcMatrix, float(glm::sin(vkfw::getTime().value)), glm::vec3 {1.0f, 1.0f, 1.0f});
 
-	vk::raii::su::copyToDevice(m_uniform_buffer.m_memory, mvpcMatrix);
+	vk::raii::su::copyToDevice(m_uniform_buffer.memory(), mvpcMatrix);
 
 	vk::PresentInfoKHR presentInfoKHR(nullptr, **m_new_swapchain, imageIndex);
 	result = m_queue.present().presentKHR(presentInfoKHR);

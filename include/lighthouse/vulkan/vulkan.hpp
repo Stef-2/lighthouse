@@ -22,6 +22,7 @@
 #include "lighthouse/vulkan/swapchain.hpp"
 #include "lighthouse/vulkan/shader_module.hpp"
 #include "lighthouse/vulkan/descriptor_set_layout.hpp"
+#include "lighthouse/vulkan/buffer.hpp"
 #include "lighthouse/window.hpp"
 #include "lighthouse/version.hpp"
 #include "lighthouse/memory.hpp"

@@ -123,7 +123,8 @@ namespace lh
 																				   "VK_EXT_memory_budget",
 																				   "VK_KHR_portability_subset",
 																				   "VK_KHR_dynamic_rendering",
-																				   "VK_EXT_descriptor_buffer"}};
+																				   "VK_EXT_descriptor_buffer",
+																				   /*"VK_EXT_shader_object"*/}};
 
 			physical_extensions(const vk_extensions_t& supported,
 								const create_info& create_info = m_default_physical_extensions);

@@ -8,7 +8,6 @@ namespace lh
 {
 	namespace vulkan
 	{
-
 		// forward declarations
 		class logical_device;
 
