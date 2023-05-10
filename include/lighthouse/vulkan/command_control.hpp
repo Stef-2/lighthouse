@@ -19,7 +19,7 @@ namespace lh
 				vk::CommandPoolCreateFlags m_pool_flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
 
 				vk::CommandBufferLevel m_buffer_level = vk::CommandBufferLevel::ePrimary;
-				uint32_t m_num_buffers = {1};
+				decltype(vk::CommandBufferAllocateInfo::commandBufferCount) m_num_buffers = {1};
 			};
 
 			command_control(const vulkan::logical_device&, const vulkan::queue_families&, const create_info& = {});

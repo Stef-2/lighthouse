@@ -11,7 +11,7 @@ namespace lh
 		class queue_families
 		{
 		public:
-			using index_t = uint32_t;
+			using index_t = decltype(vk::QueueFamilyProperties::queueCount);
 
 			struct create_info
 			{};

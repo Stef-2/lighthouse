@@ -9,6 +9,7 @@ namespace lh
 		// forward declarations
 		class physical_device;
 		class logical_device;
+		class memory_allocator;
 
 		class buffer : public vk_wrapper<vk::raii::Buffer>
 		{
@@ -22,20 +23,16 @@ namespace lh
 
 			buffer(const physical_device&,
 				   const logical_device&,
-				   const vma::Allocator&,
+				   const memory_allocator&,
 				   const vk::DeviceSize&,
 				   const create_info& = {});
 
-			auto view() const -> const vk::raii::BufferView&;
 			auto memory() const -> const vk::raii::DeviceMemory&;
 
 			template <typename T>
-			auto data(const T& data,
-					  const vk::raii::DeviceMemory& memory,
-					  const std::size_t& count,
-					  const vk::DeviceSize& stride = sizeof(T))
+			auto map_data(const T& data, const std::size_t& count = 1, const vk::DeviceSize& stride = sizeof(T))
 			{
-				uint8_t* deviceData = static_cast<uint8_t*>(memory.mapMemory(0, count * stride));
+				auto deviceData = static_cast<uint8_t*>(m_memory.mapMemory(0, count * stride));
 
 				if (stride == sizeof(T))
 					memcpy(deviceData, &data, count * sizeof(T));
@@ -47,12 +44,11 @@ namespace lh
 						deviceData += stride;
 					}
 
-				memory.unmapMemory();
+				m_memory.unmapMemory();
 			}
 
 		private:
 			vk::raii::DeviceMemory m_memory;
-			vk::raii::BufferView m_view;
 		};
 	}
 }

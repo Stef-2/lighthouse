@@ -16,12 +16,9 @@ namespace lh
 		public:
 			struct binding
 			{
-				using descriptor_count_t = uint32_t;
-				using binding_location_t = uint32_t;
-
-				binding_location_t m_location {};
+				decltype(vk::DescriptorSetLayoutBinding::binding) m_location {};
 				vk::DescriptorType m_type {};
-				descriptor_count_t m_count {1};
+				decltype(vk::DescriptorSetLayoutBinding::descriptorCount) m_count {1};
 			};
 
 			struct create_info

@@ -10,17 +10,22 @@ lh::vulkan::memory_allocator::memory_allocator(const instance& instance,
 											   const logical_device& logical_device,
 											   const create_info& create_info)
 {
-	auto allocator_info = vma::AllocatorCreateInfo {{},
-													**physical_device,
-													**logical_device,
-													0,
-													nullptr,
-													nullptr,
-													nullptr,
-													nullptr,
-													**instance,
-													instance.version(),
-													nullptr};
+	auto allocator_extensions = vma::AllocatorCreateFlags {};
+
+	if (std::ranges::contains(instance.extensions().required_extensions(), VK_EXT_MEMORY_BUDGET_EXTENSION_NAME))
+		allocator_extensions |= vma::AllocatorCreateFlagBits::eExtMemoryBudget;
+
+	const auto allocator_info = vma::AllocatorCreateInfo {allocator_extensions,
+														  **physical_device,
+														  **logical_device,
+														  0,
+														  nullptr,
+														  nullptr,
+														  nullptr,
+														  nullptr,
+														  **instance,
+														  instance.version(),
+														  nullptr};
 
 	auto result = vma::createAllocator(&allocator_info, &m_object);
 

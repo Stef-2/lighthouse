@@ -5,7 +5,7 @@
 #include "vulkan/vma/vk_mem_alloc.hpp"
 #include "vulkan/utils/geometries.hpp"
 #include "vulkan/utils/math.hpp"
-// #include "vulkan/utils/raii/raii_shaders.hpp"
+
 #include "vulkan/utils/raii/raii_utils.hpp"
 
 #include "lighthouse/vulkan/raii_wrapper.hpp"
@@ -28,15 +28,3 @@
 #include "lighthouse/memory.hpp"
 
 #include <ranges>
-
-namespace lh
-{
-	namespace vulkan
-	{
-		using vk_string_t = const std::vector<const char*>;
-		using vk_layers_t = const std::vector<vk::LayerProperties>;
-		using vk_extensions_t = const std::vector<vk::ExtensionProperties>;
-
-		static inline constexpr auto vk_whole_size = VK_WHOLE_SIZE;
-	}
-}

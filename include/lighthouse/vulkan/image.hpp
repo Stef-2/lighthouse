@@ -27,6 +27,7 @@ namespace lh
 				vk::ImageLayout m_image_layout = vk::ImageLayout::eAttachmentOptimal;
 				vk::ImageTiling m_image_tiling = vk::ImageTiling::eOptimal;
 				vk::ImageAspectFlagBits m_image_aspect = vk::ImageAspectFlagBits::eColor;
+				decltype(vk::ImageCreateInfo::mipLevels) m_mip_levels = {1};
 
 				vk::ImageViewType m_view_type = vk::ImageViewType::e2D;
 

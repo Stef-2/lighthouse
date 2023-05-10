@@ -19,7 +19,7 @@ namespace lh
 		public:
 			struct create_info
 			{
-				uint32_t m_image_count = {2};
+				decltype(vk::SwapchainCreateInfoKHR::minImageCount) m_image_count = {2};
 				vk::ImageUsageFlagBits m_image_usage = vk::ImageUsageFlagBits::eColorAttachment;
 				vk::SharingMode m_sharing_mode = vk::SharingMode::eExclusive;
 				vk::SurfaceTransformFlagBitsKHR m_transform = vk::SurfaceTransformFlagBitsKHR::eIdentity;

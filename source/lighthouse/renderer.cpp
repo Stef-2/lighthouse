@@ -973,7 +973,7 @@ auto lh::renderer::render() -> void
 	mvpcMatrix = glm::rotate(mvpcMatrix, float(glm::sin(vkfw::getTime().value)), glm::vec3 {1.0f, 1.0f, 1.0f});
 
 	// vk::raii::su::copyToDevice(m_uniform_buffer.memory(), mvpcMatrix);
-	m_uniform_buffer.data(mvpcMatrix, m_uniform_buffer.memory(), 1);
+	m_uniform_buffer.map_data(mvpcMatrix);
 	vk::PresentInfoKHR presentInfoKHR(nullptr, **m_swapchain, imageIndex);
 	result = m_queue.present().presentKHR(presentInfoKHR);
 	switch (result)
