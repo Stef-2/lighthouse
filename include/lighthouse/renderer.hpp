@@ -465,6 +465,8 @@ namespace lh
 		// vk::raii::ShaderModule m_shader_modules[2];
 		vulkan::shader_module m_vertex;
 		vulkan::shader_module m_fragment;
+		vulkan::shader_object m_vertex_object;
+		vulkan::shader_object m_fragment_object;
 		vk::raii::PipelineLayout m_pipeline_layout;
 		vk::raii::PipelineCache m_pipeline_cache;
 		vk::raii::Pipeline m_pipeline;

@@ -60,6 +60,17 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 	  m_fragment {m_device,
 				  vulkan::spir_v {lh::input::read_file(file_system::data_path() /= "shaders/basic.frag"),
 								  vulkan::spir_v::create_info {.m_shader_stages = vk::ShaderStageFlagBits::eFragment}}},
+	  m_vertex_object {m_device,
+					   vulkan::spir_v {lh::input::read_file(file_system::data_path() /= "shaders/basic.vert"),
+									   vulkan::spir_v::create_info {
+										   .m_shader_stages = vk::ShaderStageFlagBits::eVertex}},
+					   m_descriptor_set_layout},
+	  m_fragment_object {m_device,
+						 vulkan::spir_v {lh::input::read_file(file_system::data_path() /= "shaders/basic.frag"),
+										 vulkan::spir_v::create_info {
+											 .m_shader_stages = vk::ShaderStageFlagBits::eVertex}},
+						 m_descriptor_set_layout},
+
 	  m_pipeline_layout {create_pipeline_layout()},
 	  m_pipeline_cache {create_pipeline_cache()},
 	  m_pipeline {create_pipeline()}
@@ -928,6 +939,7 @@ auto lh::renderer::render() -> void
 	command_buffer.begin({});
 
 	std::array<vk::ClearValue, 2> clearValues;
+
 	clearValues[0].color = vk::ClearColorValue(0.2f, 0.2f, 0.2f, 0.2f);
 	clearValues[1].depthStencil = vk::ClearDepthStencilValue(1.0f, 0);
 	vk::RenderPassBeginInfo renderPassBeginInfo(**m_renderpass,
@@ -947,6 +959,7 @@ auto lh::renderer::render() -> void
 		vk::PipelineBindPoint::eGraphics, *m_pipeline_layout, 0, {*m_descriptor_set}, nullptr);
 
 	command_buffer.bindVertexBuffers(0, {*m_vertex_buffer.buffer}, {0});
+
 	command_buffer.setViewport(0,
 							   vk::Viewport(0.0f,
 											0.0f,
@@ -1024,11 +1037,16 @@ auto lh::renderer::dynamic_render() -> void
 
 	command_buffer.beginRendering(rendering_info);
 
-	command_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_pipeline);
+	// command_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_pipeline);
 	command_buffer.bindDescriptorSets(
 		vk::PipelineBindPoint::eGraphics, *m_pipeline_layout, 0, {*m_descriptor_set}, nullptr);
 
 	command_buffer.bindVertexBuffers(0, {*m_vertex_buffer.buffer}, {0});
+
+	// shader objects
+	command_buffer.bindShadersEXT(vk::ShaderStageFlagBits::eVertex, **m_vertex_object);
+	command_buffer.bindShadersEXT(vk::ShaderStageFlagBits::eFragment, **m_fragment_object);
+
 	command_buffer.setViewport(0,
 							   vk::Viewport(0.0f,
 											0.0f,

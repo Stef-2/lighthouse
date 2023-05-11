@@ -21,24 +21,17 @@ namespace lh
 			};
 
 			shader_object(const logical_device&, const spir_v&, const descriptor_set_layout&, const create_info& = {});
-
-		private:
 		};
 
 		class shader_objects : public vk_wrapper<vk::raii::ShaderEXTs>
 		{
 		public:
-			struct create_info
-			{
-				vk::ShaderCreateFlagsEXT m_flags = vk::ShaderCreateFlagBitsEXT::eLinkStage;
-				vk::ShaderCodeTypeEXT m_code_type = vk::ShaderCodeTypeEXT::eSpirv;
-			};
+			struct create_info : public shader_object::create_info
+			{};
 
 			shader_objects(const logical_device&,
 						   const std::vector<std::pair<const spir_v&, const descriptor_set_layout&>>,
 						   const create_info& = {});
-
-		private:
 		};
 	}
 }
