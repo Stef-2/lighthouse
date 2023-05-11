@@ -9,7 +9,7 @@ lh::vulkan::image::image(const vulkan::physical_device& physical_device,
 						 const vulkan::memory_allocator& memory_allocator,
 						 const vk::Extent2D& extent,
 						 const create_info& create_info)
-	: m_format(create_info.m_format), m_view {nullptr}, m_memory {nullptr}
+	: m_format(create_info.m_format), m_view {nullptr}, m_memory {nullptr}, m_sampler {logical_device}
 {
 	const auto image_info = vk::ImageCreateInfo {create_info.m_image_create_flags,
 												 create_info.m_image_type,
@@ -21,8 +21,7 @@ lh::vulkan::image::image(const vulkan::physical_device& physical_device,
 												 create_info.m_image_tiling,
 												 create_info.m_image_usage | vk::ImageUsageFlagBits::eSampled,
 												 create_info.m_image_sharing_mode,
-												 {},
-												 create_info.m_image_layout};
+												 {}};
 
 	const auto allocation_create_info = vma::AllocationCreateInfo {{}, vma::MemoryUsage::eAuto};
 	auto allocation_info = vma::AllocationInfo {};

@@ -7,7 +7,7 @@ lh::vulkan::command_control::command_control(const vulkan::logical_device& logic
 											 const create_info& create_info)
 	: m_buffers {nullptr}
 {
-	m_object = {*logical_device, {create_info.m_pool_flags, queue_families.graphics_index()}};
+	m_object = {*logical_device, {create_info.m_pool_flags, queue_families.graphics().m_index}};
 
 	auto command_buffers_info = vk::CommandBufferAllocateInfo {*m_object,
 															   create_info.m_buffer_level,

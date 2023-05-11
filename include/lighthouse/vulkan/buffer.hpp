@@ -16,7 +16,7 @@ namespace lh
 		public:
 			struct create_info
 			{
-				vk::BufferUsageFlags m_usage = {};
+				vk::BufferUsageFlags m_usage = {vk::BufferUsageFlagBits::eUniformBuffer};
 				vk::MemoryPropertyFlags m_properties = vk::MemoryPropertyFlagBits::eHostVisible |
 													   vk::MemoryPropertyFlagBits::eHostCoherent;
 			};

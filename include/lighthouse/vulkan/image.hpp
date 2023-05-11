@@ -1,6 +1,7 @@
 #pragma once
 
 #include "lighthouse/vulkan/raii_wrapper.hpp"
+#include "lighthouse/vulkan/sampler.hpp"
 
 namespace lh
 {
@@ -48,6 +49,7 @@ namespace lh
 			vk::Format m_format;
 			vk::raii::ImageView m_view;
 			vk::raii::DeviceMemory m_memory;
+			sampler m_sampler;
 		};
 
 		class depth_buffer : public image

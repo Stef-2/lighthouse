@@ -102,7 +102,9 @@ namespace lh
 			using vulkan_extension_module::vulkan_extension_module;
 
 			static inline const auto m_default_logical_extensions = create_info {
-				{"VK_EXT_debug_utils", "VK_KHR_get_physical_device_properties2", "VK_KHR_get_surface_capabilities2"}};
+				{VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
+				 VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
+				 VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME}};
 
 			logical_extensions(const vk_extensions_t& supported,
 							   const create_info& create_info = m_default_logical_extensions);
@@ -119,12 +121,12 @@ namespace lh
 		public:
 			using vulkan_extension_module::vulkan_extension_module;
 
-			static inline const auto m_default_physical_extensions = create_info {{"VK_KHR_swapchain",
-																				   "VK_EXT_memory_budget",
-																				   "VK_KHR_portability_subset",
-																				   "VK_KHR_dynamic_rendering",
-																				   "VK_EXT_descriptor_buffer",
-																				   /*"VK_EXT_shader_object"*/}};
+			static inline const auto m_default_physical_extensions = create_info {
+				{VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+				 VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
+				 VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
+				 VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME,
+				 /*VK_EXT_SHADER_OBJECT_EXTENSION_NAME*/}};
 
 			physical_extensions(const vk_extensions_t& supported,
 								const create_info& create_info = m_default_physical_extensions);
@@ -142,8 +144,7 @@ namespace lh
 			static inline const auto m_default_validation_layers = create_info {{"VK_LAYER_KHRONOS_validation",
 																				 "VK_LAYER_NV_optimus",
 																				 "VK_LAYER_KHRONOS_synchronization2",
-																				 "VK_LAYER_LUNARG_monitor",
-																				 "VK_LAYER_KHRONOS_profiles"}};
+																				 "VK_LAYER_LUNARG_monitor"}};
 
 			validation_layers(const vk_layers_t& supported,
 							  const create_info& create_info = m_default_validation_layers);

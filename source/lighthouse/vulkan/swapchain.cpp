@@ -16,7 +16,7 @@ lh::vulkan::swapchain::swapchain(const vulkan::physical_device& physical_device,
 	  m_surface {surface}
 {
 
-	auto queue_family_indices = {queue_families.graphics_index(), queue_families.present_index()};
+	auto queue_family_indices = {queue_families.graphics().m_index, queue_families.present().m_index};
 
 	// clamp the prefered image count between the minimum and maximum supported by implementation
 	const auto image_count = std::clamp(create_info.m_image_count,

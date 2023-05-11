@@ -11,23 +11,35 @@ namespace lh
 		class queue_families
 		{
 		public:
-			using index_t = decltype(vk::QueueFamilyProperties::queueCount);
+			struct queue
+			{
+				using index_t = decltype(vk::DeviceQueueCreateInfo::queueFamilyIndex);
+				using priority_t = decltype(*vk::DeviceQueueCreateInfo::pQueuePriorities);
+
+				index_t m_index {};
+				priority_t m_priority {1.0};
+			};
 
 			struct create_info
-			{};
+			{
+				queue m_graphics = {};
+				queue m_present = {};
+				queue m_compute = {};
+				queue m_transfer = {};
+			};
 
 			queue_families(const physical_device&, const surface&, const create_info& = {});
 
-			auto graphics_index() const -> const index_t&;
-			auto present_index() const -> const index_t&;
-			auto compute_index() const -> const index_t&;
-			auto transfer_index() const -> const index_t&;
+			auto graphics() const -> const queue&;
+			auto present() const -> const queue&;
+			auto compute() const -> const queue&;
+			auto transfer() const -> const queue&;
 
 		private:
-			index_t m_graphics;
-			index_t m_present;
-			index_t m_compute;
-			index_t m_transfer;
+			queue m_graphics;
+			queue m_present;
+			queue m_compute;
+			queue m_transfer;
 		};
 	}
 }
