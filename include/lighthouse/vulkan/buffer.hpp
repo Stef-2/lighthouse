@@ -16,7 +16,7 @@ namespace lh
 		public:
 			struct create_info
 			{
-				vk::BufferUsageFlags m_usage = {vk::BufferUsageFlagBits::eUniformBuffer};
+				vk::BufferUsageFlags m_usage = {};
 				vk::MemoryPropertyFlags m_properties = vk::MemoryPropertyFlagBits::eHostVisible |
 													   vk::MemoryPropertyFlagBits::eHostCoherent;
 			};
@@ -35,12 +35,12 @@ namespace lh
 				auto deviceData = static_cast<uint8_t*>(m_memory.mapMemory(0, count * stride));
 
 				if (stride == sizeof(T))
-					memcpy(deviceData, &data, count * sizeof(T));
+					std::memcpy(deviceData, &data, count * sizeof(T));
 
 				else
 					for (std::size_t i {}; i < count; i++)
 					{
-						memcpy(deviceData, &data[i], sizeof(T));
+						std::memcpy(deviceData, &data[i], sizeof(T));
 						deviceData += stride;
 					}
 

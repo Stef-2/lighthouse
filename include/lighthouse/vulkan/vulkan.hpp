@@ -20,6 +20,7 @@
 #include "lighthouse/vulkan/queue.hpp"
 #include "lighthouse/vulkan/image.hpp"
 #include "lighthouse/vulkan/swapchain.hpp"
+#include "lighthouse/vulkan/spir_v.hpp"
 #include "lighthouse/vulkan/shader_module.hpp"
 #include "lighthouse/vulkan/descriptor_set_layout.hpp"
 #include "lighthouse/vulkan/buffer.hpp"

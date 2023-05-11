@@ -18,17 +18,17 @@ namespace lh
 			vk_wrapper operator=(const T&) = delete;
 
 			auto operator*() -> T& { return m_object; }
-			auto operator*() const -> T& { return m_object; }
+			auto operator*() const -> const T& { return m_object; }
 
 			auto operator->() -> T* { return &m_object; }
-			auto operator->() const -> T* { return &m_object; }
+			auto operator->() const -> const T* { return &m_object; }
 
 			operator T&() { return m_object; }
 
 			virtual auto info() const -> lh::string::string_t { return {}; }
 
 		protected:
-			mutable T m_object;
+			T m_object;
 		};
 	}
 }

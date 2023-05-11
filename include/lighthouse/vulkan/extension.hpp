@@ -101,13 +101,7 @@ namespace lh
 		public:
 			using vulkan_extension_module::vulkan_extension_module;
 
-			static inline const auto m_default_logical_extensions = create_info {
-				{VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
-				 VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
-				 VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME}};
-
-			logical_extensions(const vk_extensions_t& supported,
-							   const create_info& create_info = m_default_logical_extensions);
+			logical_extensions(const vk_extensions_t& supported, const create_info& create_info = {});
 
 		private:
 			auto extension_type() const -> lh::string::string_t override;
@@ -126,7 +120,7 @@ namespace lh
 				 VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
 				 VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
 				 VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME,
-				 /*VK_EXT_SHADER_OBJECT_EXTENSION_NAME*/}};
+				 VK_EXT_SHADER_OBJECT_EXTENSION_NAME}};
 
 			physical_extensions(const vk_extensions_t& supported,
 								const create_info& create_info = m_default_physical_extensions);
@@ -141,13 +135,7 @@ namespace lh
 		class validation_layers : public vulkan_extension_module<vk_layers_t>
 		{
 		public:
-			static inline const auto m_default_validation_layers = create_info {{"VK_LAYER_KHRONOS_validation",
-																				 "VK_LAYER_NV_optimus",
-																				 "VK_LAYER_KHRONOS_synchronization2",
-																				 "VK_LAYER_LUNARG_monitor"}};
-
-			validation_layers(const vk_layers_t& supported,
-							  const create_info& create_info = m_default_validation_layers);
+			validation_layers(const vk_layers_t& supported, const create_info& create_info = {});
 
 		private:
 			auto extension_type() const -> lh::string::string_t override;

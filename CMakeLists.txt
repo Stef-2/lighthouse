@@ -48,7 +48,11 @@ add_executable(
 	${source}/lighthouse/vulkan/shader_module.cpp
 	${source}/lighthouse/vulkan/descriptor_set_layout.cpp
 	${source}/lighthouse/vulkan/buffer.cpp
- "source/lighthouse/vulkan/sampler.cpp")
+	${source}/lighthouse/vulkan/sampler.cpp
+	${source}/lighthouse/vulkan/descriptor_collection.cpp
+	${source}/lighthouse/vulkan/spir_v.cpp
+	${source}/lighthouse/vulkan/shader_object.cpp
+)
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")

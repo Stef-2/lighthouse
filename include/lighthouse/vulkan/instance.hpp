@@ -19,8 +19,15 @@ namespace lh
 			{
 				lh::version m_engine_version = lh::version::m_engine_version;
 				lh::version m_vulkan_version = lh::version::m_vulkan_version;
-				logical_extensions::create_info m_extensions = logical_extensions::m_default_logical_extensions;
-				validation_layers::create_info m_validation_layers = validation_layers::m_default_validation_layers;
+				logical_extensions::create_info m_extensions = {{VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
+																 VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
+																 VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME}
+
+				};
+				validation_layers::create_info m_validation_layers = {{"VK_LAYER_KHRONOS_validation",
+																	   "VK_LAYER_NV_optimus",
+																	   "VK_LAYER_KHRONOS_synchronization2",
+																	   "VK_LAYER_LUNARG_monitor"}};
 				debug_messanger::create_info m_debug_messanger = {};
 			};
 
