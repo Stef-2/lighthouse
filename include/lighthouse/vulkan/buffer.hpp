@@ -28,6 +28,7 @@ namespace lh
 				   const create_info& = {});
 
 			auto memory() const -> const vk::raii::DeviceMemory&;
+			auto address() const -> const vk::DeviceAddress;
 
 			template <typename T>
 			auto map_data(const T& data, const std::size_t& count = 1, const vk::DeviceSize& stride = sizeof(T))

@@ -3,6 +3,7 @@
 
 lh::vulkan::descriptor_set_layout::descriptor_set_layout(const logical_device& logical_device,
 														 const create_info& create_info)
+	: m_bindings {create_info.m_bindings}
 {
 	auto layout_bindings = std::vector<vk::DescriptorSetLayoutBinding> {create_info.m_bindings.size()};
 
@@ -12,4 +13,9 @@ lh::vulkan::descriptor_set_layout::descriptor_set_layout(const logical_device& l
 	const auto layout_info = vk::DescriptorSetLayoutCreateInfo(create_info.m_flags, layout_bindings);
 
 	m_object = {*logical_device, layout_info};
+}
+
+auto lh::vulkan::descriptor_set_layout::bindings() const -> const std::vector<binding>&
+{
+	return m_bindings;
 }

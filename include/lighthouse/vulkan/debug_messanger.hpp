@@ -1,7 +1,6 @@
 #pragma once
 
 #include "lighthouse/vulkan/raii_wrapper.hpp"
-#include "lighthouse/output.hpp"
 
 namespace lh
 {

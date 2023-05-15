@@ -43,7 +43,7 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 						vulkan::buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eUniformBuffer}},
 	  m_descriptor_set_layout {m_device,
 							   vulkan::descriptor_set_layout::create_info {
-								   .m_bindings = {{0, vk::DescriptorType::eUniformBuffer}}}},
+								   .m_flags = {}, .m_bindings = {{0, vk::DescriptorType::eUniformBuffer}}}},
 	  // m_descriptor_set_layout {create_descriptor_set_layout()},
 	  // m_format {create_format()},
 	  m_descriptor_set {create_descriptor_set()},
@@ -1014,6 +1014,12 @@ auto lh::renderer::dynamic_render() -> void
 	uint32_t imageIndex;
 	std::tie(result, imageIndex) = m_new_swapchain->acquireNextImage(vk::su::FenceTimeout, *imageAcquiredSemaphore);
 
+	// const vk::BufferDeviceAddressInfo b {**m_uniform_buffer};
+	// const auto c = (VkBufferDeviceAddressInfo)b;
+	// vk::DeviceAddress a;
+	// a = vkGetBufferDeviceAddress(**m_device, &c);
+	// auto descriptor = vk::DescriptorBufferBindingInfoEXT {a, vk::BufferUsageFlagBits::eUniformBuffer};
+
 	command_buffer.begin({});
 
 	// dynamic rendering
@@ -1037,9 +1043,10 @@ auto lh::renderer::dynamic_render() -> void
 
 	command_buffer.beginRendering(rendering_info);
 
-	// command_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_pipeline);
+	command_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_pipeline);
 	command_buffer.bindDescriptorSets(
 		vk::PipelineBindPoint::eGraphics, *m_pipeline_layout, 0, {*m_descriptor_set}, nullptr);
+	// command_buffer.bindDescriptorBuffersEXT(descriptor);
 
 	command_buffer.bindVertexBuffers(0, {*m_vertex_buffer.buffer}, {0});
 

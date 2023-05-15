@@ -26,3 +26,8 @@ auto lh::vulkan::buffer::memory() const -> const vk::raii::DeviceMemory&
 {
 	return m_memory;
 }
+
+auto lh::vulkan::buffer::address() const -> const vk::DeviceAddress
+{
+	return m_object.getDevice().getBufferAddress(*m_object);
+}

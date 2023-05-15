@@ -23,14 +23,18 @@ namespace lh
 
 			struct create_info
 			{
-				vk::DescriptorSetLayoutCreateFlags m_flags {};
+				vk::DescriptorSetLayoutCreateFlags m_flags {
+					vk::DescriptorSetLayoutCreateFlagBits::eDescriptorBufferEXT};
 				vk::ShaderStageFlagBits m_access = vk::ShaderStageFlagBits::eAll;
 				std::vector<binding> m_bindings {};
 			};
 
 			descriptor_set_layout(const logical_device&, const create_info& = {});
 
+			auto bindings() const -> const std::vector<binding>&;
+
 		private:
+			std::vector<binding> m_bindings;
 		};
 	}
 }

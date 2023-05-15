@@ -9,6 +9,7 @@ namespace lh
 		class logical_device;
 		class memory_allocator;
 		class descriptor_set_layout;
+		class buffer;
 
 		class descriptor_collection
 		{
@@ -29,7 +30,7 @@ namespace lh
 								  const create_info& = {});
 
 		private:
-			vk::raii::ShaderEXTs m_shaders;
+			std::vector<buffer> m_descriptor_buffers;
 		};
 	}
 }

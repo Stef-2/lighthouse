@@ -1,4 +1,5 @@
 #include "lighthouse/vulkan/debug_messanger.hpp"
+#include "lighthouse/output.hpp"
 
 VKAPI_ATTR auto VKAPI_CALL
 lh::vulkan::debug_messanger::debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
@@ -44,16 +45,16 @@ lh::vulkan::debug_messanger::debug_callback(VkDebugUtilsMessageSeverityFlagBitsE
 
 	switch (message_severity)
 	{
-	case VkDebugUtilsMessageSeverityFlagBitsEXT::VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
-		output::log() << message;
-		break;
-	case VkDebugUtilsMessageSeverityFlagBitsEXT::VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
-		output::warning() << message;
-		break;
-	case VkDebugUtilsMessageSeverityFlagBitsEXT::VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
-		output::error() << message;
-		break;
-	default: break;
+		case VkDebugUtilsMessageSeverityFlagBitsEXT::VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+			output::log() << message;
+			break;
+		case VkDebugUtilsMessageSeverityFlagBitsEXT::VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+			output::warning() << message;
+			break;
+		case VkDebugUtilsMessageSeverityFlagBitsEXT::VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+			output::error() << message;
+			break;
+		default: break;
 	}
 	std::cout << message;
 	return false;
