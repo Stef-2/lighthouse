@@ -14,8 +14,10 @@ lh::vulkan::descriptor_collection::descriptor_collection(const physical_device& 
 														 const create_info& create_info)
 	: m_descriptor_buffers {}
 {
-	const auto s = vk::PhysicalDeviceDescriptorBufferPropertiesEXT {};
-	const auto descriptor_size = descriptor_set_layout->getSizeEXT();
+	const auto collection_size = descriptor_set_layout.bindings().size();
+
+	const auto descriptor_buffer_properties = vk::PhysicalDeviceDescriptorBufferPropertiesEXT {};
+	const auto descriptor_layout_size = descriptor_set_layout->getSizeEXT();
 	const auto descriptor_offsets =
 		std::ranges::fold_left(descriptor_set_layout.bindings(),
 							   std::vector<vk::DeviceSize> {},
@@ -24,27 +26,33 @@ lh::vulkan::descriptor_collection::descriptor_collection(const physical_device& 
 								   return offsets;
 							   });
 
-	for (std::size_t i {}; i < descriptor_set_layout.bindings().size(); i++)
+	m_descriptor_buffers.reserve(collection_size);
+
+	for (std::size_t i {}; i < collection_size; i++)
 	{
-		const auto size = i > 0 ? descriptor_offsets[i] - descriptor_offsets[i - 1] : 0;
+		const auto size = descriptor_layout_size; // i > 0 ? descriptor_offsets[i] - descriptor_offsets[i - 1] :
+												  // descriptor_offsets[1];
 
 		const auto usage = vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT |
-						   vk::BufferUsageFlagBits::eUniformBuffer;
+						   vk::BufferUsageFlagBits::eUniformBuffer | vk::BufferUsageFlagBits::eShaderDeviceAddress;
 
-		m_descriptor_buffers.emplace_back(
-			physical_device, logical_device, memory_allocator, size, buffer::create_info {.m_usage = usage});
+		m_descriptor_buffers.push_back(
+			{{physical_device, logical_device, memory_allocator, size, buffer::create_info {.m_usage = usage}},
+			 nullptr});
 
-		m_descriptor_buffers.back().memory().mapMemory(0, VK_WHOLE_SIZE);
+		m_descriptor_buffers.back().first.memory().mapMemory(0, VK_WHOLE_SIZE);
 
-		const auto address = vk::DescriptorAddressInfoEXT {m_descriptor_buffers.back().address(), size};
-		const auto data = vk::DescriptorDataEXT {&address};
+		const auto address = vk::DescriptorAddressInfoEXT {m_descriptor_buffers.back().first.address(), size};
+		const auto data = vk::DescriptorDataEXT {
+			&address,
+		};
 		const auto descriptor_info = vk::DescriptorGetInfoEXT {vk::DescriptorType::eUniformBuffer, data};
 
-		void* p = logical_device->getDescriptorEXT<void*>(descriptor_info);
-
-		auto b = logical_device->getDescriptorEXT<vk::DescriptorType>(descriptor_info);
-		// vkGetDescriptorEXT(**logical_device,&((VkDescriptorGetInfoEXT)descriptor_info),size,)
+		m_descriptor_buffers.back().second = logical_device->getDescriptorEXT<void*>(descriptor_info);
 	}
+}
 
-	//	logical_device->getDescriptorEXT()
+auto lh::vulkan::descriptor_collection::descriptor_buffers() const -> const std::vector<std::pair<buffer, void*>>&
+{
+	return m_descriptor_buffers;
 }

@@ -459,6 +459,7 @@ namespace lh
 
 		// vk::raii::DescriptorSetLayout m_descriptor_set_layout;
 		vulkan::descriptor_set_layout m_descriptor_set_layout;
+		vulkan::descriptor_collection m_descriptor_collection;
 		vk::raii::DescriptorPool m_descriptor_pool;
 		vk::raii::DescriptorSet m_descriptor_set;
 

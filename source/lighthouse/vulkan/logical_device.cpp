@@ -9,16 +9,15 @@ lh::vulkan::logical_device::logical_device(const physical_device& physical_devic
 		output::error() << "this system does not support the required vulkan components";
 
 	auto dynamic_rendering = vk::PhysicalDeviceDynamicRenderingFeatures {true};
-	auto buffer_addressing = vk::PhysicalDeviceBufferDeviceAddressFeatures {true, {}, {}, &dynamic_rendering};
+	auto buffer_addressing = vk::PhysicalDeviceBufferDeviceAddressFeatures {true, false, false, &dynamic_rendering};
 	auto descriptor_buffering =
 		vk::PhysicalDeviceDescriptorBufferFeaturesEXT {true, false, false, true, &buffer_addressing};
 
-	auto device_info = vk::DeviceCreateInfo {{},
-											 create_info.m_queues,
-											 {},
-											 create_info.m_extensions,
-											 &create_info.m_features.features,
-											 &descriptor_buffering};
+	auto features = create_info.m_features;
+	features.pNext = &descriptor_buffering;
+
+	auto device_info = vk::DeviceCreateInfo {
+		{}, create_info.m_queues, {}, create_info.m_extensions, {} /*&features.features*/, &features};
 
 	m_object = {*physical_device, device_info};
 }

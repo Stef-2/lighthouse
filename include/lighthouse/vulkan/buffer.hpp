@@ -16,10 +16,14 @@ namespace lh
 		public:
 			struct create_info
 			{
+
 				vk::BufferUsageFlags m_usage = {};
+				vma::AllocationCreateFlags m_allocation_flags = {vma::AllocationCreateFlagBits::eMapped};
 				vk::MemoryPropertyFlags m_properties = vk::MemoryPropertyFlagBits::eHostVisible |
 													   vk::MemoryPropertyFlagBits::eHostCoherent;
 			};
+
+			using vk_wrapper::vk_wrapper;
 
 			buffer(const physical_device&,
 				   const logical_device&,
@@ -31,7 +35,7 @@ namespace lh
 			auto address() const -> const vk::DeviceAddress;
 
 			template <typename T>
-			auto map_data(const T& data, const std::size_t& count = 1, const vk::DeviceSize& stride = sizeof(T))
+			auto map_data(const T& data, const std::size_t& count = 1, const vk::DeviceSize& stride = sizeof(T)) const
 			{
 				auto deviceData = static_cast<uint8_t*>(m_memory.mapMemory(0, count * stride));
 

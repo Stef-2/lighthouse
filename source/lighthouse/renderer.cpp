@@ -44,6 +44,8 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 	  m_descriptor_set_layout {m_device,
 							   vulkan::descriptor_set_layout::create_info {
 								   .m_flags = {}, .m_bindings = {{0, vk::DescriptorType::eUniformBuffer}}}},
+
+	  m_descriptor_collection {m_physical_device, m_device, m_descriptor_set_layout, m_memory_allocator},
 	  // m_descriptor_set_layout {create_descriptor_set_layout()},
 	  // m_format {create_format()},
 	  m_descriptor_set {create_descriptor_set()},
@@ -955,8 +957,18 @@ auto lh::renderer::render() -> void
 	// command_buffer.beginRendering(rendering_info);
 
 	command_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_pipeline);
-	command_buffer.bindDescriptorSets(
-		vk::PipelineBindPoint::eGraphics, *m_pipeline_layout, 0, {*m_descriptor_set}, nullptr);
+	/*command_buffer.bindDescriptorSets(
+		vk::PipelineBindPoint::eGraphics, *m_pipeline_layout, 0, {*m_descriptor_set}, nullptr);*/
+
+	const auto desc_buffer = vk::DescriptorBufferBindingInfoEXT {
+		m_descriptor_collection.descriptor_buffers()[0].first.address(),
+		vk::BufferUsageFlagBits::eUniformBuffer | vk::BufferUsageFlagBits::eShaderDeviceAddress |
+			vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT};
+
+	auto& b = m_descriptor_collection.descriptor_buffers()[0].first;
+	b.map_data(vk::su::createModelViewProjectionClipMatrix(m_surface.extent()));
+
+	command_buffer.bindDescriptorBuffersEXT(desc_buffer);
 
 	command_buffer.bindVertexBuffers(0, {*m_vertex_buffer.buffer}, {0});
 

@@ -11,6 +11,7 @@ lh::vulkan::buffer::buffer(const physical_device& physical_device,
 	: m_memory {nullptr}
 {
 	const auto buffer_info = vk::BufferCreateInfo({}, size, create_info.m_usage);
+
 	const auto allocation_create_info = vma::AllocationCreateInfo {{},
 																   vma::MemoryUsage::eAuto,
 																   create_info.m_properties};

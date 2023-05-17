@@ -14,14 +14,8 @@ namespace lh
 		class descriptor_collection
 		{
 		public:
-			struct descriptor
-			{};
-
 			struct create_info
-			{
-				vk::ShaderCreateFlagsEXT m_flags = vk::ShaderCreateFlagBitsEXT::eLinkStage;
-				vk::ShaderCodeTypeEXT m_code_type = vk::ShaderCodeTypeEXT::eSpirv;
-			};
+			{};
 
 			descriptor_collection(const physical_device&,
 								  const logical_device&,
@@ -29,8 +23,10 @@ namespace lh
 								  const memory_allocator&,
 								  const create_info& = {});
 
+			auto descriptor_buffers() const -> const std::vector<std::pair<buffer, void*>>&;
+
 		private:
-			std::vector<buffer> m_descriptor_buffers;
+			std::vector<std::pair<buffer, void*>> m_descriptor_buffers;
 		};
 	}
 }
