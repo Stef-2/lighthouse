@@ -52,8 +52,24 @@ namespace lh
 				m_memory.unmapMemory();
 			}
 
-		private:
+		protected:
 			vk::raii::DeviceMemory m_memory;
+			vma::AllocationInfo m_allocation_info;
+			vma::Allocation m_allocation;
+		};
+
+		class mapped_buffer : public buffer
+		{
+		public:
+			mapped_buffer(const physical_device&,
+						  const logical_device&,
+						  const memory_allocator&,
+						  const vk::DeviceSize&,
+						  const buffer::create_info& = {.m_allocation_flags = {vma::AllocationCreateFlagBits::eMapped},
+														.m_properties = vk::MemoryPropertyFlagBits::eHostVisible |
+																		vk::MemoryPropertyFlagBits::eHostCoherent});
+
+		private:
 		};
 	}
 }

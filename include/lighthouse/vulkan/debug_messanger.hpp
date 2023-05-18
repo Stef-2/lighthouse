@@ -31,6 +31,8 @@ namespace lh
 															 VkDebugUtilsMessageTypeFlagsEXT,
 															 const VkDebugUtilsMessengerCallbackDataEXT*,
 															 void* user_data) -> VkBool32;
+
+			static inline constexpr auto m_abort_on_error = false;
 		};
 	}
 }

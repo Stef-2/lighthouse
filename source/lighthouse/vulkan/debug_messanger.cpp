@@ -1,6 +1,10 @@
 #include "lighthouse/vulkan/debug_messanger.hpp"
 #include "lighthouse/output.hpp"
 
+lh::vulkan::debug_messanger::debug_messanger(const vk::raii::Instance& instance, const create_info& create_info)
+	: vk_wrapper(instance.createDebugUtilsMessengerEXT(create_info.m_debug_info))
+{}
+
 VKAPI_ATTR auto VKAPI_CALL
 lh::vulkan::debug_messanger::debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
 											VkDebugUtilsMessageTypeFlagsEXT message_type,
@@ -53,13 +57,11 @@ lh::vulkan::debug_messanger::debug_callback(VkDebugUtilsMessageSeverityFlagBitsE
 			break;
 		case VkDebugUtilsMessageSeverityFlagBitsEXT::VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
 			output::error() << message;
+			if constexpr (debug_messanger::m_abort_on_error)
+				abort();
 			break;
 		default: break;
 	}
 	std::cout << message;
 	return false;
 }
-
-lh::vulkan::debug_messanger::debug_messanger(const vk::raii::Instance& instance, const create_info& create_info)
-	: vk_wrapper(instance.createDebugUtilsMessengerEXT(create_info.m_debug_info))
-{}
