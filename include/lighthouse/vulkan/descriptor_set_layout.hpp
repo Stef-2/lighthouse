@@ -19,6 +19,7 @@ namespace lh
 				decltype(vk::DescriptorSetLayoutBinding::binding) m_location {};
 				vk::DescriptorType m_type {};
 				decltype(vk::DescriptorSetLayoutBinding::descriptorCount) m_count {1};
+				vk::DeviceSize m_size = {};
 			};
 
 			struct create_info

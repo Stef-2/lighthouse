@@ -6,10 +6,19 @@
 lh::vulkan::physical_device::physical_device(const instance& instance, const create_info& create_info)
 	: m_extensions {preferred_device(instance, create_info).enumerateDeviceExtensionProperties(),
 					create_info.m_extensions},
-	  m_performance_score {0}
+	  m_performance_score {0},
+	  m_properties {},
+	  m_descriptor_buffer_properties {}
 {
 	m_object = preferred_device(instance, create_info);
 	m_performance_score = performance_score(m_object);
+	m_properties = m_object.getProperties2();
+
+	const auto properties = m_object.getProperties2<vk::PhysicalDeviceDescriptorBufferPropertiesEXT,
+													vk::PhysicalDeviceShaderObjectPropertiesEXT>();
+
+	m_descriptor_buffer_properties = properties.get<vk::PhysicalDeviceDescriptorBufferPropertiesEXT>();
+	m_shader_object_properties = properties.get<vk::PhysicalDeviceShaderObjectPropertiesEXT>();
 }
 
 auto lh::vulkan::physical_device::extensions() const -> physical_extensions
@@ -56,6 +65,12 @@ auto lh::vulkan::physical_device::performance_score(const vk::raii::PhysicalDevi
 								  properties.properties.limits.maxFramebufferHeight};
 
 	return score;
+}
+
+auto lh::vulkan::physical_device::descriptor_buffer_properties() const
+	-> const vk::PhysicalDeviceDescriptorBufferPropertiesEXT
+{
+	return m_descriptor_buffer_properties;
 }
 
 auto lh::vulkan::physical_device::performance_score() const -> performance_score_t

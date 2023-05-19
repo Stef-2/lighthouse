@@ -9,7 +9,7 @@ namespace lh
 		class logical_device;
 		class memory_allocator;
 		class descriptor_set_layout;
-		class buffer;
+		class mapped_buffer;
 
 		class descriptor_collection
 		{
@@ -23,10 +23,12 @@ namespace lh
 								  const memory_allocator&,
 								  const create_info& = {});
 
-			auto descriptor_buffers() const -> const std::vector<std::pair<buffer, void*>>&;
+			auto descriptor_buffers() -> std::vector<mapped_buffer>&;
+			auto data_buffers() -> std::vector<mapped_buffer>&;
 
 		private:
-			std::vector<std::pair<buffer, void*>> m_descriptor_buffers;
+			std::vector<mapped_buffer> m_descriptor_buffers;
+			std::vector<mapped_buffer> m_data_buffers;
 		};
 	}
 }

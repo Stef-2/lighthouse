@@ -455,7 +455,7 @@ namespace lh
 		renderpass m_renderpass;
 		swapchain m_swapchain;
 
-		vulkan::buffer m_uniform_buffer;
+		vulkan::mapped_buffer m_uniform_buffer;
 
 		// vk::raii::DescriptorSetLayout m_descriptor_set_layout;
 		vulkan::descriptor_set_layout m_descriptor_set_layout;

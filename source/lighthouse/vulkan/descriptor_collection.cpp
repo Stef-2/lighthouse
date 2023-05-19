@@ -7,13 +7,16 @@
 #include "lighthouse/vulkan/descriptor_set_layout.hpp"
 #include "lighthouse/vulkan/buffer.hpp"
 
+#pragma optimize("", off)
 lh::vulkan::descriptor_collection::descriptor_collection(const physical_device& physical_device,
 														 const logical_device& logical_device,
 														 const descriptor_set_layout& descriptor_set_layout,
 														 const memory_allocator& memory_allocator,
 														 const create_info& create_info)
-	: m_descriptor_buffers {}
+	: m_data_buffers {}, m_descriptor_buffers {}
 {
+	VkPhysicalDeviceDescriptorBufferPropertiesEXT b;
+	std::cout << b.uniformBufferDescriptorSize;
 	const auto collection_size = descriptor_set_layout.bindings().size();
 
 	const auto descriptor_buffer_properties = vk::PhysicalDeviceDescriptorBufferPropertiesEXT {};
@@ -26,33 +29,61 @@ lh::vulkan::descriptor_collection::descriptor_collection(const physical_device& 
 								   return offsets;
 							   });
 
+	m_data_buffers.reserve(collection_size);
 	m_descriptor_buffers.reserve(collection_size);
 
 	for (std::size_t i {}; i < collection_size; i++)
 	{
-		const auto size = descriptor_layout_size; // i > 0 ? descriptor_offsets[i] - descriptor_offsets[i - 1] :
-												  // descriptor_offsets[1];
+		const auto descriptor_size = descriptor_layout_size; // i > 0 ? descriptor_offsets[i] - descriptor_offsets[i -
+															 // 1] : descriptor_offsets[1];
 
-		const auto usage = vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT |
-						   vk::BufferUsageFlagBits::eUniformBuffer | vk::BufferUsageFlagBits::eShaderDeviceAddress;
+		const auto descriptor_memory_properties = vk::MemoryPropertyFlagBits::eHostVisible |
+												  vk::MemoryPropertyFlagBits::eHostCoherent;
 
-		m_descriptor_buffers.push_back(
-			{{physical_device, logical_device, memory_allocator, size, buffer::create_info {.m_usage = usage}},
-			 nullptr});
+		const auto data_buffer_usage = vk::BufferUsageFlagBits::eUniformBuffer |
+									   vk::BufferUsageFlagBits::eShaderDeviceAddress;
 
-		m_descriptor_buffers.back().first.memory().mapMemory(0, VK_WHOLE_SIZE);
+		const auto descriptor_buffer_usage = vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT |
+											 vk::BufferUsageFlagBits::eUniformBuffer |
+											 vk::BufferUsageFlagBits::eShaderDeviceAddress;
 
-		const auto address = vk::DescriptorAddressInfoEXT {m_descriptor_buffers.back().first.address(), size};
-		const auto data = vk::DescriptorDataEXT {
+		m_data_buffers.emplace_back(physical_device,
+									logical_device,
+									memory_allocator,
+									descriptor_set_layout.bindings()[i].m_size,
+									mapped_buffer::create_info {.m_usage = data_buffer_usage});
+
+		m_descriptor_buffers.push_back({physical_device,
+										logical_device,
+										memory_allocator,
+										descriptor_size,
+										mapped_buffer::create_info {.m_usage = descriptor_buffer_usage}});
+
+		const auto address = vk::DescriptorAddressInfoEXT {m_data_buffers.back().address(), descriptor_size};
+		const auto descriptor_data = vk::DescriptorDataEXT {
 			&address,
 		};
-		const auto descriptor_info = vk::DescriptorGetInfoEXT {vk::DescriptorType::eUniformBuffer, data};
+		const auto descriptor_info = vk::DescriptorGetInfoEXT {vk::DescriptorType::eUniformBuffer, descriptor_data};
 
-		m_descriptor_buffers.back().second = logical_device->getDescriptorEXT<void*>(descriptor_info);
+		const auto vk_descriptor_info = static_cast<VkDescriptorGetInfoEXT>(descriptor_info);
+		auto vk_buffer = static_cast<VkBuffer>((**m_descriptor_buffers.back()));
+		/*
+		m_descriptor_buffers.back().allocation_info().pMappedData = logical_device->getDescriptorEXT<void*>(
+			descriptor_info);*/
+
+		logical_device->getDispatcher()->vkGetDescriptorEXT(**logical_device,
+															&vk_descriptor_info,
+															descriptor_size,
+															&vk_buffer);
 	}
 }
 
-auto lh::vulkan::descriptor_collection::descriptor_buffers() const -> const std::vector<std::pair<buffer, void*>>&
+auto lh::vulkan::descriptor_collection::descriptor_buffers() -> std::vector<mapped_buffer>&
 {
 	return m_descriptor_buffers;
+}
+
+auto lh::vulkan::descriptor_collection::data_buffers() -> std::vector<mapped_buffer>&
+{
+	return m_data_buffers;
 }

@@ -18,20 +18,31 @@ namespace lh
 
 			struct create_info
 			{
-				physical_extensions::create_info m_extensions = {{VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-																  VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
-																  VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
-																  VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
-																  VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME,
-																  VK_EXT_SHADER_OBJECT_EXTENSION_NAME,
-																  VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME}};
+				physical_extensions::create_info m_extensions {{VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+																VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
+																VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
+																VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
+																VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME,
+																VK_EXT_SHADER_OBJECT_EXTENSION_NAME,
+																VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME}};
+
 				performance_score_t m_minimum_accepted_score {0xFFFFFFFF};
+			};
+
+			struct properties
+			{
+				vk::PhysicalDeviceProperties2 m_properties {};
+
+				vk::PhysicalDeviceDescriptorBufferPropertiesEXT m_descriptor_buffer_properties {};
+				vk::PhysicalDeviceShaderObjectPropertiesEXT m_shader_object_properties {};
 			};
 
 			physical_device(const instance&, const create_info& = {});
 
 			auto extensions() const -> physical_extensions;
 			auto performance_score() const -> performance_score_t;
+			auto properties() const -> const properties&;
+
 			auto info() const -> lh::string::string_t override;
 
 		private:
@@ -40,6 +51,7 @@ namespace lh
 
 			physical_extensions m_extensions;
 			performance_score_t m_performance_score;
+			physical_device::properties m_properties;
 		};
 	}
 }
