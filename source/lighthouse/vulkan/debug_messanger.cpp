@@ -58,7 +58,10 @@ lh::vulkan::debug_messanger::debug_callback(VkDebugUtilsMessageSeverityFlagBitsE
 		case VkDebugUtilsMessageSeverityFlagBitsEXT::VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
 			output::error() << message;
 			if constexpr (debug_messanger::m_abort_on_error)
+			{
+				std::cout << message;
 				abort();
+			}
 			break;
 		default: break;
 	}

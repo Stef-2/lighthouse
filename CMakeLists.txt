@@ -74,6 +74,8 @@ if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
 		${PROJECT_NAME} PRIVATE
 		# MSVC linker settings
 		/INCREMENTAL /CGTHREADS:8 /VERBOSE:INCR /LTCG
+		# No console
+		#/SUBSYSTEM:windows /ENTRY:mainCRTStartup
 	)
 endif()
 

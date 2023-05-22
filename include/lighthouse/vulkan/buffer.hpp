@@ -16,7 +16,7 @@ namespace lh
 		public:
 			struct create_info
 			{
-				vk::BufferUsageFlags m_usage = {};
+				vk::BufferUsageFlags m_usage = {vk::BufferUsageFlagBits::eShaderDeviceAddress};
 				vma::AllocationCreateFlags m_allocation_flags = {};
 				vk::MemoryPropertyFlags m_properties = {};
 			};
@@ -30,11 +30,12 @@ namespace lh
 			auto allocation_info() const -> const vma::AllocationInfo&;
 			auto allocation_info() -> vma::AllocationInfo&;
 			auto allocation() const -> const vma::Allocation&;
-			auto address() const -> const vk::DeviceAddress;
+			auto address() const -> const vk::DeviceAddress&;
 
 		protected:
 			vma::AllocationInfo m_allocation_info;
 			vma::Allocation m_allocation;
+			vk::DeviceAddress m_address;
 		};
 
 		class mapped_buffer : public buffer

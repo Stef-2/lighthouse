@@ -16,8 +16,7 @@ lh::vulkan::logical_device::logical_device(const physical_device& physical_devic
 	auto features = create_info.m_features;
 	features.pNext = &descriptor_buffering;
 
-	auto device_info = vk::DeviceCreateInfo {
-		{}, create_info.m_queues, {}, create_info.m_extensions, {} /*&features.features*/, &features};
+	auto device_info = vk::DeviceCreateInfo {{}, create_info.m_queues, {}, create_info.m_extensions, {}, &features};
 
 	m_object = {*physical_device, device_info};
 }

@@ -29,7 +29,7 @@ namespace lh
 				performance_score_t m_minimum_accepted_score {0xFFFFFFFF};
 			};
 
-			struct properties
+			struct physical_properties
 			{
 				vk::PhysicalDeviceProperties2 m_properties {};
 
@@ -41,7 +41,7 @@ namespace lh
 
 			auto extensions() const -> physical_extensions;
 			auto performance_score() const -> performance_score_t;
-			auto properties() const -> const properties&;
+			auto properties() const -> const physical_properties&;
 
 			auto info() const -> lh::string::string_t override;
 
@@ -51,7 +51,7 @@ namespace lh
 
 			physical_extensions m_extensions;
 			performance_score_t m_performance_score;
-			physical_device::properties m_properties;
+			physical_properties m_properties;
 		};
 	}
 }

@@ -29,6 +29,7 @@ namespace lh
 		private:
 			std::vector<mapped_buffer> m_descriptor_buffers;
 			std::vector<mapped_buffer> m_data_buffers;
+			VkBuffer b;
 		};
 	}
 }
