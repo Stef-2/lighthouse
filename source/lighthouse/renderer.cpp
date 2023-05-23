@@ -27,9 +27,9 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 	  m_command_control {m_device, m_queue_families},
 	  m_queue {m_device, m_queue_families},
 	  m_dyn_rend_image {m_physical_device, m_device, m_memory_allocator, m_surface.extent()},
-	  m_new_swapchain {m_physical_device, m_device, m_surface, m_queue_families, m_memory_allocator},
+	  m_swapchain {m_physical_device, m_device, m_surface, m_queue_families, m_memory_allocator},
 	  // m_swapchain {create_swapchain(window)},
-	  m_swapchain {m_physical_device, m_device, m_surface, m_queue_families, m_memory_allocator, m_renderpass},
+	  // m_swapchain {m_physical_device, m_device, m_surface, m_queue_families, m_memory_allocator, m_renderpass},
 	  // m_swapchain_data {create_swapchain_data(window)},
 	  //  m_image_views {create_image_views()},
 	  //  m_depth_buffer {create_depth_buffer(window)},
@@ -81,7 +81,8 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 
 	  m_pipeline_layout {create_pipeline_layout()},
 	  m_pipeline_cache {create_pipeline_cache()},
-	  m_pipeline {create_pipeline()}
+	  m_pipeline {create_pipeline()},
+	  m_depth_buffer {**m_physical_device, **m_device, vk::Format::eD32SfloatS8Uint, window.resolution()}
 
 {
 	if (create_info.m_using_validation)
@@ -950,17 +951,17 @@ auto lh::renderer::render() -> void
 
 	clearValues[0].color = vk::ClearColorValue(0.2f, 0.2f, 0.2f, 0.2f);
 	clearValues[1].depthStencil = vk::ClearDepthStencilValue(1.0f, 0);
-	vk::RenderPassBeginInfo renderPassBeginInfo(**m_renderpass,
+	/*vk::RenderPassBeginInfo renderPassBeginInfo(**m_renderpass,
 												**m_swapchain.m_framebuffers[imageIndex],
 												vk::Rect2D(vk::Offset2D(0, 0), m_surface.extent()),
-												clearValues);
+												clearValues);*/
 	// dynamic rendering
 	const auto color_attachment = vk::RenderingAttachmentInfo {};
 	const auto rendering_info = vk::RenderingInfo {{}, {{0, 0}, m_surface.extent()}, 1, 0, color_attachment};
 	// dynamic rendering
 
-	command_buffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
-	// command_buffer.beginRendering(rendering_info);
+	// command_buffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
+	//  command_buffer.beginRendering(rendering_info);
 
 	command_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_pipeline);
 	command_buffer.bindDescriptorSets(
@@ -1031,50 +1032,73 @@ auto lh::renderer::dynamic_render() -> void
 
 	vk::Result result;
 	uint32_t imageIndex;
-	std::tie(result, imageIndex) = m_new_swapchain->acquireNextImage(vk::su::FenceTimeout, *imageAcquiredSemaphore);
+	std::tie(result, imageIndex) = m_swapchain->acquireNextImage(vk::su::FenceTimeout, *imageAcquiredSemaphore);
 
 	command_buffer.begin({});
 
 	// transition to renderable image layout
-	auto barrier = vk::ImageMemoryBarrier {{},
-										   vk::AccessFlagBits::eColorAttachmentWrite,
-										   vk::ImageLayout::eUndefined,
-										   vk::ImageLayout::eColorAttachmentOptimal,
-										   0,
-										   0,
-										   m_new_swapchain->getImages()[imageIndex],
-										   vk::ImageSubresourceRange {vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1}};
-	command_buffer.pipelineBarrier(
-		vk::PipelineStageFlagBits::eTopOfPipe, vk::PipelineStageFlagBits::eColorAttachmentOutput, {}, {}, {}, barrier);
+	auto color_barrier =
+		vk::ImageMemoryBarrier {{},
+								vk::AccessFlagBits::eColorAttachmentWrite,
+								vk::ImageLayout::eUndefined,
+								vk::ImageLayout::eColorAttachmentOptimal,
+								0,
+								0,
+								m_swapchain->getImages()[imageIndex],
+								vk::ImageSubresourceRange {vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1}};
+	command_buffer.pipelineBarrier(vk::PipelineStageFlagBits::eTopOfPipe,
+								   vk::PipelineStageFlagBits::eColorAttachmentOutput,
+								   {},
+								   {},
+								   {},
+								   color_barrier);
+
+	auto ds_barrier = vk::ImageMemoryBarrier {
+		{},
+		vk::AccessFlagBits::eDepthStencilAttachmentWrite,
+		vk::ImageLayout::eUndefined,
+		vk::ImageLayout::eDepthStencilAttachmentOptimal,
+		0,
+		0,
+		m_depth_buffer.image,
+		vk::ImageSubresourceRange {vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil, 0, 1, 0, 1}};
+	command_buffer.pipelineBarrier(vk::PipelineStageFlagBits::eTopOfPipe,
+								   vk::PipelineStageFlagBits::eEarlyFragmentTests |
+									   vk::PipelineStageFlagBits::eLateFragmentTests,
+								   {},
+								   {},
+								   {},
+								   ds_barrier);
 
 	std::array<vk::ClearValue, 2> clearValues;
 
 	clearValues[0].color = vk::ClearColorValue(0.2f, 0.2f, 0.2f, 0.2f);
 	clearValues[1].depthStencil = vk::ClearDepthStencilValue(1.0f, 0);
 	/*vk::RenderPassBeginInfo renderPassBeginInfo(**m_renderpass,
-												**m_new_swapchain.m_framebuffers[imageIndex],
+												**m_swapchain.m_framebuffers[imageIndex],
 												vk::Rect2D(vk::Offset2D(0, 0), m_surface.extent()),
 												clearValues);*/
 	// dynamic rendering
-	const auto color_attachment = vk::RenderingAttachmentInfo {*m_new_swapchain.views()[imageIndex],
+	const auto color_attachment = vk::RenderingAttachmentInfo {*m_swapchain.views()[imageIndex],
 															   vk::ImageLayout::eAttachmentOptimal,
 															   {},
 															   {},
 															   {},
-															   {},
-															   {},
+															   vk::AttachmentLoadOp::eClear,
+															   vk::AttachmentStoreOp::eStore,
 															   vk::ClearColorValue {0.5f, 0.5f, 0.5f, 0.5f}};
 
-	const auto depth_attachment = vk::RenderingAttachmentInfo {*m_new_swapchain.depth_stencil_buffer().view(),
-															   vk::ImageLayout::eAttachmentOptimal};
+	const auto ds_attachment = vk::RenderingAttachmentInfo {m_depth_buffer.imageView,
+															vk::ImageLayout::eDepthStencilAttachmentOptimal,
+															{},
+															{},
+															{},
+															vk::AttachmentLoadOp::eClear,
+															vk::AttachmentStoreOp::eStore,
+															vk::ClearDepthStencilValue {1.0f, 1}};
 
-	const auto rendering_info = vk::RenderingInfo {vk::RenderingFlagBits {},
-												   {{0, 0}, m_surface.extent()},
-												   1,
-												   0,
-												   color_attachment,
-												   &depth_attachment,
-												   &depth_attachment};
+	const auto rendering_info = vk::RenderingInfo {
+		vk::RenderingFlagBits {}, {{0, 0}, m_surface.extent()}, 1, 0, color_attachment, &ds_attachment, &ds_attachment};
 	// dynamic rendering
 
 	// command_buffer.beginRenderPass2(renderPassBeginInfo, vk::SubpassContents::eInline);
@@ -1133,20 +1157,37 @@ auto lh::renderer::dynamic_render() -> void
 	// const auto& image = m_swapchain->getImages()[imageIndex];
 	//  change layout for presentation
 
-	barrier = vk::ImageMemoryBarrier {{},
-									  vk::AccessFlagBits::eColorAttachmentWrite,
-									  vk::ImageLayout::eColorAttachmentOptimal,
-									  vk::ImageLayout::ePresentSrcKHR,
-									  0,
-									  0,
-									  m_new_swapchain->getImages()[imageIndex],
-									  vk::ImageSubresourceRange {vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1}};
+	color_barrier = vk::ImageMemoryBarrier {{},
+											vk::AccessFlagBits::eColorAttachmentWrite,
+											vk::ImageLayout::eColorAttachmentOptimal,
+											vk::ImageLayout::ePresentSrcKHR,
+											0,
+											0,
+											m_swapchain->getImages()[imageIndex],
+											vk::ImageSubresourceRange {vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1}};
 	command_buffer.pipelineBarrier(vk::PipelineStageFlagBits::eBottomOfPipe,
 								   vk::PipelineStageFlagBits::eColorAttachmentOutput,
 								   {},
 								   {},
 								   {},
-								   barrier);
+								   color_barrier);
+
+	ds_barrier = vk::ImageMemoryBarrier {
+		{},
+		vk::AccessFlagBits::eDepthStencilAttachmentWrite,
+		vk::ImageLayout::eDepthStencilAttachmentOptimal,
+		vk::ImageLayout::ePresentSrcKHR,
+		0,
+		0,
+		m_depth_buffer.image,
+		vk::ImageSubresourceRange {vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil, 0, 1, 0, 1}};
+	command_buffer.pipelineBarrier(vk::PipelineStageFlagBits::eBottomOfPipe,
+								   vk::PipelineStageFlagBits::eEarlyFragmentTests |
+									   vk::PipelineStageFlagBits::eLateFragmentTests,
+								   {},
+								   {},
+								   {},
+								   ds_barrier);
 
 	command_buffer.end();
 
@@ -1163,7 +1204,7 @@ auto lh::renderer::dynamic_render() -> void
 	mvpcMatrix = glm::rotate(mvpcMatrix, float(glm::sin(vkfw::getTime().value)), glm::vec3 {1.0f, 1.0f, 1.0f});
 	m_descriptor_collection.data_buffers()[0].map_data(mvpcMatrix);
 
-	vk::PresentInfoKHR presentInfoKHR(nullptr, **m_new_swapchain, imageIndex);
+	vk::PresentInfoKHR presentInfoKHR(nullptr, **m_swapchain, imageIndex);
 	result = m_queue.present().presentKHR(presentInfoKHR);
 	switch (result)
 	{

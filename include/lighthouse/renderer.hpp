@@ -450,20 +450,20 @@ namespace lh
 
 		// vk::raii::Queue m_graphics_queue;
 		// vk::raii::Queue m_present_queue;
-
+		vk::su::DepthBufferData m_depth_buffer;
 		vulkan::queue m_queue;
 		vulkan::image m_dyn_rend_image;
-		vulkan::swapchain m_new_swapchain;
+		vulkan::swapchain m_swapchain;
 		renderpass m_renderpass;
-		swapchain m_swapchain;
+		// swapchain m_swapchain;
 
 		vulkan::mapped_buffer m_uniform_buffer;
 
 		// vk::raii::DescriptorSetLayout m_descriptor_set_layout;
 		vulkan::descriptor_set_layout m_descriptor_set_layout;
 		vulkan::descriptor_set_layout m_temp_buffered_dsl;
-
 		vulkan::descriptor_collection m_descriptor_collection;
+
 		vk::raii::DescriptorPool m_descriptor_pool;
 		vk::raii::DescriptorSet m_descriptor_set;
 
