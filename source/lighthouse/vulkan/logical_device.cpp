@@ -12,9 +12,11 @@ lh::vulkan::logical_device::logical_device(const physical_device& physical_devic
 	auto buffer_addressing = vk::PhysicalDeviceBufferDeviceAddressFeatures {true, false, false, &dynamic_rendering};
 	auto descriptor_buffering =
 		vk::PhysicalDeviceDescriptorBufferFeaturesEXT {true, false, false, true, &buffer_addressing};
+	auto shader_object = vk::PhysicalDeviceShaderObjectFeaturesEXT {true, &descriptor_buffering};
 
 	auto features = create_info.m_features;
-	features.pNext = &descriptor_buffering;
+
+	features.pNext = &shader_object;
 
 	auto device_info = vk::DeviceCreateInfo {{}, create_info.m_queues, {}, create_info.m_extensions, {}, &features};
 

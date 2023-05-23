@@ -23,6 +23,7 @@ namespace lh
 			shader_object(const logical_device&, const spir_v&, const descriptor_set_layout&, const create_info& = {});
 		};
 
+		// ==========================================================================
 		class shader_objects : public vk_wrapper<vk::raii::ShaderEXTs>
 		{
 		public:

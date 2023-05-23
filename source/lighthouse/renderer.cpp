@@ -1044,11 +1044,11 @@ auto lh::renderer::dynamic_render() -> void
 												vk::Rect2D(vk::Offset2D(0, 0), m_surface.extent()),
 												clearValues);
 	// dynamic rendering
-	const auto color_attachment = vk::RenderingAttachmentInfo {};
+	const auto color_attachment = vk::RenderingAttachmentInfo {*m_swapchain.m_image_views[imageIndex]};
 	const auto rendering_info = vk::RenderingInfo {{}, {{0, 0}, m_surface.extent()}, 1, 0, color_attachment};
 	// dynamic rendering
 
-	command_buffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
+	command_buffer.beginRenderPass2(renderPassBeginInfo, vk::SubpassContents::eInline);
 	// command_buffer.beginRendering(rendering_info);
 
 	command_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_pipeline);
@@ -1060,22 +1060,47 @@ auto lh::renderer::dynamic_render() -> void
 		vk::DescriptorBufferBindingInfoEXT {m_descriptor_collection.descriptor_buffers()[0].address(),
 											vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT};
 
-	// m_descriptor_collection.data_buffers()[0].map_data(vk::su::createModelViewProjectionClipMatrix(m_surface.extent()));
+	// vertex buffer
+	/*
+	vk::VertexInputBindingDescription2EXT vbd {0, sizeof(coloredCubeData)};
+	std::vector<vk::VertexInputAttributeDescription2EXT> vad {
+		vk::VertexInputAttributeDescription2EXT(0, 0, vk::Format::eR32G32B32A32Sfloat, 0),
+		vk::VertexInputAttributeDescription2EXT(1, 0, vk::Format::eR32G32B32A32Sfloat, 4)};
 
-	command_buffer.bindVertexBuffers(0, {*m_vertex_buffer.buffer}, {0});
+	command_buffer.setVertexInputEXT(vbd, vad);
+	*/
 
-	command_buffer.setViewport(0,
-							   vk::Viewport(0.0f,
-											0.0f,
-											static_cast<float>(m_surface.extent().width),
-											static_cast<float>(m_surface.extent().height),
-											0.0f,
-											1.0f));
-	command_buffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_surface.extent()));
-	// ==================
+	// shader object setup
+	command_buffer.setViewportWithCountEXT(vk::Viewport(0.0f,
+														0.0f,
+														static_cast<float>(m_surface.extent().width),
+														static_cast<float>(m_surface.extent().height),
+														0.0f,
+														1.0f));
+
+	command_buffer.setScissorWithCountEXT(vk::Rect2D(vk::Offset2D(0, 0), m_surface.extent()));
+	command_buffer.setCullModeEXT(vk::CullModeFlagBits::eBack);
+	command_buffer.setFrontFaceEXT(vk::FrontFace::eClockwise);
+	command_buffer.setDepthTestEnableEXT(true);
+	command_buffer.setDepthWriteEnableEXT(true);
+	command_buffer.setDepthCompareOpEXT(vk::CompareOp::eLessOrEqual);
+	command_buffer.setPrimitiveTopologyEXT(vk::PrimitiveTopology::eTriangleList);
+
+	command_buffer.bindVertexBuffers2(0, {*m_vertex_buffer.buffer}, {0});
+	//  ==================
 	command_buffer.bindDescriptorBuffersEXT(desc_buffer);
 	command_buffer.setDescriptorBufferOffsetsEXT(vk::PipelineBindPoint::eGraphics, *m_pipeline_layout, 0, {0}, {0});
+
 	// ==================
+	/*
+	command_buffer.bindShadersEXT({vk::ShaderStageFlagBits::eVertex, vk::ShaderStageFlagBits::eFragment},
+								  {**m_vertex_object, **m_fragment_object});*/
+	/*
+	command_buffer.bindShadersEXT({vk::ShaderStageFlagBits::eTessellationControl,
+								   vk::ShaderStageFlagBits::eTessellationEvaluation,
+								   vk::ShaderStageFlagBits::eGeometry},
+								  {nullptr, nullptr, nullptr});*/
+
 	command_buffer.draw(12 * 3, 1, 0, 0);
 	command_buffer.endRenderPass();
 	// command_buffer.endRendering();
@@ -1092,8 +1117,7 @@ auto lh::renderer::dynamic_render() -> void
 
 	glm::mat4x4 mvpcMatrix = vk::su::createModelViewProjectionClipMatrix(m_surface.extent());
 	mvpcMatrix = glm::rotate(mvpcMatrix, float(glm::sin(vkfw::getTime().value)), glm::vec3 {1.0f, 1.0f, 1.0f});
-
-	// vk::raii::su::copyToDevice(m_uniform_buffer.memory(), mvpcMatrix);
+	m_descriptor_collection.data_buffers()[0].map_data(mvpcMatrix);
 
 	vk::PresentInfoKHR presentInfoKHR(nullptr, **m_swapchain, imageIndex);
 	result = m_queue.present().presentKHR(presentInfoKHR);
@@ -1106,7 +1130,7 @@ auto lh::renderer::dynamic_render() -> void
 		default: assert(false); // an unexpected result is returned !
 	}
 	// std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-	m_descriptor_collection.data_buffers()[0].map_data(mvpcMatrix);
+
 	m_device->waitIdle();
 }
 

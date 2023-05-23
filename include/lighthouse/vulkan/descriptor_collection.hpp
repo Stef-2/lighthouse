@@ -27,9 +27,10 @@ namespace lh
 			auto data_buffers() -> std::vector<mapped_buffer>&;
 
 		private:
+			auto descriptor_size(const physical_device&, const vk::DescriptorType&) -> const std::size_t;
+
 			std::vector<mapped_buffer> m_descriptor_buffers;
 			std::vector<mapped_buffer> m_data_buffers;
-			VkBuffer b;
 		};
 	}
 }
