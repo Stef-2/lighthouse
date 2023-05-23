@@ -1035,6 +1035,18 @@ auto lh::renderer::dynamic_render() -> void
 
 	command_buffer.begin({});
 
+	// transition to renderable image layout
+	auto barrier = vk::ImageMemoryBarrier {{},
+										   vk::AccessFlagBits::eColorAttachmentWrite,
+										   vk::ImageLayout::eUndefined,
+										   vk::ImageLayout::eColorAttachmentOptimal,
+										   0,
+										   0,
+										   m_swapchain->getImages()[imageIndex],
+										   vk::ImageSubresourceRange {vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1}};
+	command_buffer.pipelineBarrier(
+		vk::PipelineStageFlagBits::eTopOfPipe, vk::PipelineStageFlagBits::eColorAttachmentOutput, {}, {}, {}, barrier);
+
 	std::array<vk::ClearValue, 2> clearValues;
 
 	clearValues[0].color = vk::ClearColorValue(0.2f, 0.2f, 0.2f, 0.2f);
@@ -1044,12 +1056,17 @@ auto lh::renderer::dynamic_render() -> void
 												vk::Rect2D(vk::Offset2D(0, 0), m_surface.extent()),
 												clearValues);
 	// dynamic rendering
-	const auto color_attachment = vk::RenderingAttachmentInfo {*m_swapchain.m_image_views[imageIndex]};
-	const auto rendering_info = vk::RenderingInfo {{}, {{0, 0}, m_surface.extent()}, 1, 0, color_attachment};
+	const auto color_attachment = vk::RenderingAttachmentInfo {*m_swapchain.m_image_views[imageIndex],
+															   vk::ImageLayout::eAttachmentOptimal};
+	const auto depth_attachment = vk::RenderingAttachmentInfo {*m_swapchain.m_depth_buffer.m_view,
+															   vk::ImageLayout::eAttachmentOptimal};
+
+	const auto rendering_info = vk::RenderingInfo {
+		vk::RenderingFlagBits {}, {{0, 0}, m_surface.extent()}, 1, 0, color_attachment /*, &depth_attachment*/};
 	// dynamic rendering
 
-	command_buffer.beginRenderPass2(renderPassBeginInfo, vk::SubpassContents::eInline);
-	// command_buffer.beginRendering(rendering_info);
+	// command_buffer.beginRenderPass2(renderPassBeginInfo, vk::SubpassContents::eInline);
+	command_buffer.beginRendering(rendering_info);
 
 	command_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_pipeline);
 
@@ -1059,16 +1076,6 @@ auto lh::renderer::dynamic_render() -> void
 	const auto desc_buffer =
 		vk::DescriptorBufferBindingInfoEXT {m_descriptor_collection.descriptor_buffers()[0].address(),
 											vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT};
-
-	// vertex buffer
-	/*
-	vk::VertexInputBindingDescription2EXT vbd {0, sizeof(coloredCubeData)};
-	std::vector<vk::VertexInputAttributeDescription2EXT> vad {
-		vk::VertexInputAttributeDescription2EXT(0, 0, vk::Format::eR32G32B32A32Sfloat, 0),
-		vk::VertexInputAttributeDescription2EXT(1, 0, vk::Format::eR32G32B32A32Sfloat, 4)};
-
-	command_buffer.setVertexInputEXT(vbd, vad);
-	*/
 
 	// shader object setup
 	command_buffer.setViewportWithCountEXT(vk::Viewport(0.0f,
@@ -1086,29 +1093,54 @@ auto lh::renderer::dynamic_render() -> void
 	command_buffer.setDepthCompareOpEXT(vk::CompareOp::eLessOrEqual);
 	command_buffer.setPrimitiveTopologyEXT(vk::PrimitiveTopology::eTriangleList);
 
+	vk::VertexInputBindingDescription2EXT vbd {0, sizeof(VertexPC), vk::VertexInputRate::eVertex, 1};
+	std::vector<vk::VertexInputAttributeDescription2EXT> vad {
+		vk::VertexInputAttributeDescription2EXT(0, 0, vk::Format::eR32G32B32A32Sfloat, 0),
+		vk::VertexInputAttributeDescription2EXT(1, 0, vk::Format::eR32G32B32A32Sfloat, offsetof(VertexPC, r))};
+
+	command_buffer.setVertexInputEXT(vbd, vad);
 	command_buffer.bindVertexBuffers2(0, {*m_vertex_buffer.buffer}, {0});
-	//  ==================
+	//   ==================
 	command_buffer.bindDescriptorBuffersEXT(desc_buffer);
 	command_buffer.setDescriptorBufferOffsetsEXT(vk::PipelineBindPoint::eGraphics, *m_pipeline_layout, 0, {0}, {0});
 
 	// ==================
 	/*
 	command_buffer.bindShadersEXT({vk::ShaderStageFlagBits::eVertex, vk::ShaderStageFlagBits::eFragment},
-								  {**m_vertex_object, **m_fragment_object});*/
-	/*
+								  {**m_vertex_object, **m_fragment_object});
+
 	command_buffer.bindShadersEXT({vk::ShaderStageFlagBits::eTessellationControl,
 								   vk::ShaderStageFlagBits::eTessellationEvaluation,
 								   vk::ShaderStageFlagBits::eGeometry},
 								  {nullptr, nullptr, nullptr});*/
 
 	command_buffer.draw(12 * 3, 1, 0, 0);
-	command_buffer.endRenderPass();
-	// command_buffer.endRendering();
+	// command_buffer.endRenderPass();
+	command_buffer.endRendering();
+
+	// const auto& image = m_swapchain->getImages()[imageIndex];
+	//  change layout for presentation
+
+	barrier = vk::ImageMemoryBarrier {{},
+									  vk::AccessFlagBits::eColorAttachmentWrite,
+									  vk::ImageLayout::eColorAttachmentOptimal,
+									  vk::ImageLayout::ePresentSrcKHR,
+									  0,
+									  0,
+									  m_swapchain->getImages()[imageIndex],
+									  vk::ImageSubresourceRange {vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1}};
+	command_buffer.pipelineBarrier(vk::PipelineStageFlagBits::eBottomOfPipe,
+								   vk::PipelineStageFlagBits::eColorAttachmentOutput,
+								   {},
+								   {},
+								   {},
+								   barrier);
+
 	command_buffer.end();
 
 	vk::raii::Fence drawFence(m_device, vk::FenceCreateInfo());
 
-	vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
+	vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eBottomOfPipe);
 	vk::SubmitInfo submitInfo(*imageAcquiredSemaphore, waitDestinationStageMask, *command_buffer);
 	m_queue.graphics().submit(submitInfo, *drawFence);
 
@@ -1373,7 +1405,7 @@ lh::renderer::swapchain::swapchain(const vulkan::physical_device& physical_devic
 							 capabilities.surfaceCapabilities.minImageCount,
 							 capabilities.surfaceCapabilities.maxImageCount);
 
-	auto swapchain_info = vk::SwapchainCreateInfoKHR {{},
+	auto swapchain_info = vk::SwapchainCreateInfoKHR {vk::SwapchainCreateFlagBitsKHR {},
 													  **surface,
 													  image_count,
 													  m_surface_format.surfaceFormat.format,

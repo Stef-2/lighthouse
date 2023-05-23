@@ -274,6 +274,8 @@ namespace lh
 				vk::CompositeAlphaFlagBitsKHR m_alpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
 				vk::ImageViewType m_image_view_type = vk::ImageViewType::e2D;
 				vk::ImageAspectFlagBits m_image_aspect = vk::ImageAspectFlagBits::eColor;
+				vk::ImageLayout m_color_layout = vk::ImageLayout::eColorAttachmentOptimal;
+				vk::ImageLayout m_depth_buffer_layout = vk::ImageLayout::eDepthAttachmentOptimal;
 			} static inline const m_defaults;
 
 			swapchain(const vulkan::physical_device&,

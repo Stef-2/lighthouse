@@ -8,7 +8,6 @@ lh::vulkan::shader_object::shader_object(const logical_device& logical_device,
 										 const descriptor_set_layout& descriptor_set_layout,
 										 const create_info& create_info)
 {
-
 	const auto shader_create_info = vk::ShaderCreateInfoEXT {create_info.m_flags,
 															 spir_v.stage(),
 															 {},

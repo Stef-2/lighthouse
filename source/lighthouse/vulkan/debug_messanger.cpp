@@ -11,6 +11,10 @@ lh::vulkan::debug_messanger::debug_callback(VkDebugUtilsMessageSeverityFlagBitsE
 											const VkDebugUtilsMessengerCallbackDataEXT* callback_data,
 											void* user_data) -> VkBool32
 {
+	if constexpr (debug_messanger::m_only_report_once)
+		if (std::ranges::contains(debug_messanger::m_previously_reported_messages, callback_data->messageIdNumber))
+			return false;
+
 	auto message = lh::string::string_t {};
 
 	message += vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(message_severity)) + ": " +
@@ -66,5 +70,7 @@ lh::vulkan::debug_messanger::debug_callback(VkDebugUtilsMessageSeverityFlagBitsE
 		default: break;
 	}
 	std::cout << message;
+
+	debug_messanger::m_previously_reported_messages.push_back(callback_data->messageIdNumber);
 	return false;
 }
