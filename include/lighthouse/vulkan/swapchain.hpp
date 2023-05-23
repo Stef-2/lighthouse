@@ -26,6 +26,8 @@ namespace lh
 				vk::CompositeAlphaFlagBitsKHR m_alpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
 				vk::ImageViewType m_image_view_type = vk::ImageViewType::e2D;
 				vk::ImageAspectFlagBits m_image_aspect = vk::ImageAspectFlagBits::eColor;
+
+				vk::ClearColorValue m_clear_color = {0.2f, 0.2f, 0.2f, 0.2f};
 			};
 
 			swapchain(const physical_device&,
@@ -37,13 +39,15 @@ namespace lh
 
 			auto surface() const -> const surface&;
 			auto views() const -> const std::vector<vk::raii::ImageView>&;
-			auto depth_buffer() const -> const depth_buffer&;
+			auto depth_stencil_buffer() const -> const image&;
 
 		private:
 			const vulkan::surface& m_surface;
 
 			std::vector<vk::raii::ImageView> m_views;
-			vulkan::depth_buffer m_depth_buffer;
+			vulkan::image m_depth_stencil_buffer;
+
+			vk::ClearColorValue m_clear_color;
 		};
 	}
 }

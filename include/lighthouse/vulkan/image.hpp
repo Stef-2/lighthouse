@@ -27,7 +27,7 @@ namespace lh
 				vk::SharingMode m_image_sharing_mode = vk::SharingMode::eExclusive;
 				vk::ImageLayout m_image_layout = vk::ImageLayout::eAttachmentOptimal;
 				vk::ImageTiling m_image_tiling = vk::ImageTiling::eOptimal;
-				vk::ImageAspectFlagBits m_image_aspect = vk::ImageAspectFlagBits::eColor;
+				vk::ImageAspectFlags m_image_aspect = vk::ImageAspectFlagBits::eColor;
 				decltype(vk::ImageCreateInfo::mipLevels) m_mip_levels = {1};
 
 				vk::ImageViewType m_view_type = vk::ImageViewType::e2D;
@@ -50,20 +50,6 @@ namespace lh
 			vk::raii::ImageView m_view;
 			vk::raii::DeviceMemory m_memory;
 			sampler m_sampler;
-		};
-
-		class depth_buffer : public image
-		{
-		public:
-			depth_buffer(const vulkan::physical_device&,
-						 const vulkan::logical_device&,
-						 const vulkan::memory_allocator&,
-						 const vk::Extent2D&,
-						 const create_info& = {.m_format = vk::Format::eD16Unorm,
-											   .m_image_usage = vk::ImageUsageFlagBits::eDepthStencilAttachment,
-											   .m_image_layout = vk::ImageLayout::eUndefined,
-											   .m_image_tiling = vk::ImageTiling::eOptimal,
-											   .m_image_aspect = vk::ImageAspectFlagBits::eDepth});
 		};
 	}
 }

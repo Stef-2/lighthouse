@@ -71,6 +71,7 @@ lh::vulkan::debug_messanger::debug_callback(VkDebugUtilsMessageSeverityFlagBitsE
 	}
 	std::cout << message;
 
-	debug_messanger::m_previously_reported_messages.push_back(callback_data->messageIdNumber);
+	if constexpr (debug_messanger::m_only_report_once)
+		debug_messanger::m_previously_reported_messages.push_back(callback_data->messageIdNumber);
 	return false;
 }

@@ -12,8 +12,18 @@ lh::vulkan::swapchain::swapchain(const vulkan::physical_device& physical_device,
 								 const vulkan::memory_allocator& memory_allocator,
 								 const create_info& create_info)
 	: m_views {},
-	  m_depth_buffer {physical_device, logical_device, memory_allocator, surface.extent()},
-	  m_surface {surface}
+	  m_depth_stencil_buffer {physical_device,
+							  logical_device,
+							  memory_allocator,
+							  surface.extent(),
+							  image::create_info {.m_format = vk::Format::eD32SfloatS8Uint,
+												  .m_image_usage = vk::ImageUsageFlagBits::eDepthStencilAttachment,
+												  .m_image_layout = vk::ImageLayout::eUndefined,
+												  .m_image_tiling = vk::ImageTiling::eOptimal,
+												  .m_image_aspect = vk::ImageAspectFlagBits::eDepth |
+																	vk::ImageAspectFlagBits::eStencil}},
+	  m_surface {surface},
+	  m_clear_color {create_info.m_clear_color}
 {
 
 	auto queue_family_indices = {queue_families.graphics().m_index, queue_families.present().m_index};
@@ -65,7 +75,7 @@ auto lh::vulkan::swapchain::views() const -> const std::vector<vk::raii::ImageVi
 	return m_views;
 }
 
-auto lh::vulkan::swapchain::depth_buffer() const -> const vulkan::depth_buffer&
+auto lh::vulkan::swapchain::depth_stencil_buffer() const -> const vulkan::image&
 {
-	return m_depth_buffer;
+	return m_depth_stencil_buffer;
 }

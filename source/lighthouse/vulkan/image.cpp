@@ -51,11 +51,3 @@ auto lh::vulkan::image::memory() const -> const vk::raii::DeviceMemory&
 {
 	return m_memory;
 }
-
-lh::vulkan::depth_buffer::depth_buffer(const vulkan::physical_device& physical_device,
-									   const vulkan::logical_device& logical_device,
-									   const vulkan::memory_allocator& memory_allocator,
-									   const vk::Extent2D& extent,
-									   const create_info& create_info)
-	: image(physical_device, logical_device, memory_allocator, extent, create_info)
-{}

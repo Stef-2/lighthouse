@@ -189,7 +189,7 @@ namespace lh
 			using image::image;
 
 			static inline const create_info m_defaults {
-				.m_format = vk::Format::eD16Unorm,
+				.m_format = vk::Format::eD32SfloatS8Uint,
 				.m_image_usage = vk::ImageUsageFlagBits::eDepthStencilAttachment,
 				.m_image_layout = vk::ImageLayout::eUndefined,
 				.m_image_tiling = vk::ImageTiling::eOptimal,
@@ -216,7 +216,7 @@ namespace lh
 																vk::ImageLayout::ePresentSrcKHR};
 
 				vk::AttachmentDescription m_depth_attachment = {{},
-																vk::Format::eD16Unorm,
+																vk::Format::eD32SfloatS8Uint,
 																m_sample_count,
 																m_load_operation,
 																vk::AttachmentStoreOp::eDontCare,

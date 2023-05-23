@@ -32,8 +32,8 @@ namespace lh
 															 const VkDebugUtilsMessengerCallbackDataEXT*,
 															 void* user_data) -> VkBool32;
 
-			static inline constexpr auto m_abort_on_error = false;
-			static inline constexpr auto m_only_report_once = true;
+			static inline constexpr auto m_abort_on_error = true;
+			static inline constexpr auto m_only_report_once = false;
 
 			static inline auto m_previously_reported_messages =
 				std::vector<decltype(vk::DebugUtilsMessengerCallbackDataEXT::messageIdNumber)> {};
