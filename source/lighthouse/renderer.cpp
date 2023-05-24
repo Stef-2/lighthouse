@@ -72,12 +72,12 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 					   vulkan::spir_v {lh::input::read_file(file_system::data_path() /= "shaders/basic.vert"),
 									   vulkan::spir_v::create_info {
 										   .m_shader_stages = vk::ShaderStageFlagBits::eVertex}},
-					   m_descriptor_set_layout},
+					   m_temp_buffered_dsl},
 	  m_fragment_object {m_device,
 						 vulkan::spir_v {lh::input::read_file(file_system::data_path() /= "shaders/basic.frag"),
 										 vulkan::spir_v::create_info {
-											 .m_shader_stages = vk::ShaderStageFlagBits::eVertex}},
-						 m_descriptor_set_layout},
+											 .m_shader_stages = vk::ShaderStageFlagBits::eFragment}},
+						 m_temp_buffered_dsl},
 
 	  m_pipeline_layout {create_pipeline_layout()},
 	  m_pipeline_cache {create_pipeline_cache()},
@@ -1037,11 +1037,7 @@ auto lh::renderer::dynamic_render() -> void
 
 	command_buffer.beginRendering(render_info);
 
-	command_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_pipeline);
-
-	const auto desc_buffer =
-		vk::DescriptorBufferBindingInfoEXT {m_descriptor_collection.descriptor_buffers()[0].address(),
-											vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT};
+	// command_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_pipeline);
 
 	// shader object setup
 	command_buffer.setViewportWithCountEXT(vk::Viewport(0.0f,
@@ -1065,15 +1061,23 @@ auto lh::renderer::dynamic_render() -> void
 		vk::VertexInputAttributeDescription2EXT(1, 0, vk::Format::eR32G32B32A32Sfloat, offsetof(VertexPC, r))};
 
 	command_buffer.setVertexInputEXT(vbd, vad);
-	command_buffer.bindVertexBuffers2(0, {*m_vertex_buffer.buffer}, {0});
+	command_buffer.bindVertexBuffers(0, {*m_vertex_buffer.buffer}, {0});
+
 	//    ==================
+	const auto desc_buffer =
+		vk::DescriptorBufferBindingInfoEXT {m_descriptor_collection.descriptor_buffers()[0].address(),
+											vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT};
+	glm::mat4x4 mvpcMatrix = vk::su::createModelViewProjectionClipMatrix(m_surface.extent());
+	mvpcMatrix = glm::rotate(mvpcMatrix, float(glm::sin(vkfw::getTime().value)), glm::vec3 {1.0f, 1.0f, 1.0f});
+	m_descriptor_collection.data_buffers()[0].map_data(mvpcMatrix);
+
 	command_buffer.bindDescriptorBuffersEXT(desc_buffer);
 	command_buffer.setDescriptorBufferOffsetsEXT(vk::PipelineBindPoint::eGraphics, *m_pipeline_layout, 0, {0}, {0});
 
 	// ==================
-	/*
+
 	command_buffer.bindShadersEXT({vk::ShaderStageFlagBits::eVertex, vk::ShaderStageFlagBits::eFragment},
-								  {**m_vertex_object, **m_fragment_object});*/
+								  {**m_vertex_object, **m_fragment_object});
 	/*
 	command_buffer.bindShadersEXT({vk::ShaderStageFlagBits::eTessellationControl,
 								   vk::ShaderStageFlagBits::eTessellationEvaluation,
@@ -1094,10 +1098,6 @@ auto lh::renderer::dynamic_render() -> void
 
 	while (vk::Result::eTimeout == m_device->waitForFences({*drawFence}, VK_TRUE, vk::su::FenceTimeout))
 		;
-
-	glm::mat4x4 mvpcMatrix = vk::su::createModelViewProjectionClipMatrix(m_surface.extent());
-	mvpcMatrix = glm::rotate(mvpcMatrix, float(glm::sin(vkfw::getTime().value)), glm::vec3 {1.0f, 1.0f, 1.0f});
-	m_descriptor_collection.data_buffers()[0].map_data(mvpcMatrix);
 
 	vk::PresentInfoKHR presentInfoKHR(nullptr, **m_swapchain, image_index);
 	m_queue.present().presentKHR(presentInfoKHR);

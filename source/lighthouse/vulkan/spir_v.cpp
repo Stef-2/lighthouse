@@ -72,7 +72,7 @@ auto lh::vulkan::spir_v::glsl_to_spirv::translate_shader(const vk::ShaderStageFl
 	const auto link = program.link(message_types);
 
 	if (not parse or not link)
-		lh::output::error() << glsl_shader.getInfoLog() << glsl_shader.getInfoDebugLog();
+		std::cerr << glsl_shader.getInfoLog() << glsl_shader.getInfoDebugLog();
 
 	auto spirv_bytecode = spir_v_bytecode_t {};
 	glslang::GlslangToSpv(*program.getIntermediate(glsl_shader_stage), spirv_bytecode);

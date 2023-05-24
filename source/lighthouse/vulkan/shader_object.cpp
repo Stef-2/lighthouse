@@ -10,7 +10,9 @@ lh::vulkan::shader_object::shader_object(const logical_device& logical_device,
 {
 	const auto shader_create_info = vk::ShaderCreateInfoEXT {create_info.m_flags,
 															 spir_v.stage(),
-															 {},
+															 spir_v.stage() == vk::ShaderStageFlagBits::eVertex
+																 ? vk::ShaderStageFlagBits::eFragment
+																 : vk::ShaderStageFlags {0},
 															 create_info.m_code_type,
 															 spir_v.code().size() *
 																 sizeof(spir_v::spir_v_bytecode_t::value_type),
