@@ -81,9 +81,7 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 
 	  m_pipeline_layout {create_pipeline_layout()},
 	  m_pipeline_cache {create_pipeline_cache()},
-	  m_pipeline {create_pipeline()},
-	  m_depth_buffer {**m_physical_device, **m_device, vk::Format::eD32SfloatS8Uint, window.resolution()}
-
+	  m_pipeline {create_pipeline()}
 {
 	if (create_info.m_using_validation)
 		output::log() << info();
@@ -942,8 +940,8 @@ auto lh::renderer::render() -> void
 	const auto& command_buffer = m_command_control.command_buffers().front();
 
 	vk::Result result;
-	uint32_t imageIndex;
-	std::tie(result, imageIndex) = m_swapchain->acquireNextImage(vk::su::FenceTimeout, *imageAcquiredSemaphore);
+	uint32_t image_index;
+	std::tie(result, image_index) = m_swapchain->acquireNextImage(vk::su::FenceTimeout, *imageAcquiredSemaphore);
 
 	command_buffer.begin({});
 
@@ -1008,7 +1006,7 @@ auto lh::renderer::render() -> void
 
 	// vk::raii::su::copyToDevice(m_uniform_buffer.memory(), mvpcMatrix);
 	m_uniform_buffer.map_data(mvpcMatrix);
-	vk::PresentInfoKHR presentInfoKHR(nullptr, **m_swapchain, imageIndex);
+	vk::PresentInfoKHR presentInfoKHR(nullptr, **m_swapchain, image_index);
 	result = m_queue.present().presentKHR(presentInfoKHR);
 	switch (result)
 	{
@@ -1023,91 +1021,23 @@ auto lh::renderer::render() -> void
 	m_device->waitIdle();
 }
 
+// ============================================================================
+// ============================================================================
+// ============================================================================
+#pragma optimize("", off)
 auto lh::renderer::dynamic_render() -> void
 {
-	// Get the index of the next available swapchain image:
-	vk::raii::Semaphore imageAcquiredSemaphore(m_device, vk::SemaphoreCreateInfo());
+	vk::raii::Semaphore semaphore(m_device, vk::SemaphoreCreateInfo());
 
 	const auto& command_buffer = m_command_control.command_buffers().front();
 
-	vk::Result result;
-	uint32_t imageIndex;
-	std::tie(result, imageIndex) = m_swapchain->acquireNextImage(vk::su::FenceTimeout, *imageAcquiredSemaphore);
-
 	command_buffer.begin({});
 
-	// transition to renderable image layout
-	auto color_barrier =
-		vk::ImageMemoryBarrier {{},
-								vk::AccessFlagBits::eColorAttachmentWrite,
-								vk::ImageLayout::eUndefined,
-								vk::ImageLayout::eColorAttachmentOptimal,
-								0,
-								0,
-								m_swapchain->getImages()[imageIndex],
-								vk::ImageSubresourceRange {vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1}};
-	command_buffer.pipelineBarrier(vk::PipelineStageFlagBits::eTopOfPipe,
-								   vk::PipelineStageFlagBits::eColorAttachmentOutput,
-								   {},
-								   {},
-								   {},
-								   color_barrier);
+	auto [result, image_index, render_info] = m_swapchain.next_image_info(command_buffer, semaphore);
 
-	auto ds_barrier = vk::ImageMemoryBarrier {
-		{},
-		vk::AccessFlagBits::eDepthStencilAttachmentWrite,
-		vk::ImageLayout::eUndefined,
-		vk::ImageLayout::eDepthStencilAttachmentOptimal,
-		0,
-		0,
-		m_depth_buffer.image,
-		vk::ImageSubresourceRange {vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil, 0, 1, 0, 1}};
-	command_buffer.pipelineBarrier(vk::PipelineStageFlagBits::eTopOfPipe,
-								   vk::PipelineStageFlagBits::eEarlyFragmentTests |
-									   vk::PipelineStageFlagBits::eLateFragmentTests,
-								   {},
-								   {},
-								   {},
-								   ds_barrier);
-
-	std::array<vk::ClearValue, 2> clearValues;
-
-	clearValues[0].color = vk::ClearColorValue(0.2f, 0.2f, 0.2f, 0.2f);
-	clearValues[1].depthStencil = vk::ClearDepthStencilValue(1.0f, 0);
-	/*vk::RenderPassBeginInfo renderPassBeginInfo(**m_renderpass,
-												**m_swapchain.m_framebuffers[imageIndex],
-												vk::Rect2D(vk::Offset2D(0, 0), m_surface.extent()),
-												clearValues);*/
-	// dynamic rendering
-	const auto color_attachment = vk::RenderingAttachmentInfo {*m_swapchain.views()[imageIndex],
-															   vk::ImageLayout::eAttachmentOptimal,
-															   {},
-															   {},
-															   {},
-															   vk::AttachmentLoadOp::eClear,
-															   vk::AttachmentStoreOp::eStore,
-															   vk::ClearColorValue {0.5f, 0.5f, 0.5f, 0.5f}};
-
-	const auto ds_attachment = vk::RenderingAttachmentInfo {m_depth_buffer.imageView,
-															vk::ImageLayout::eDepthStencilAttachmentOptimal,
-															{},
-															{},
-															{},
-															vk::AttachmentLoadOp::eClear,
-															vk::AttachmentStoreOp::eStore,
-															vk::ClearDepthStencilValue {1.0f, 1}};
-
-	const auto rendering_info = vk::RenderingInfo {
-		vk::RenderingFlagBits {}, {{0, 0}, m_surface.extent()}, 1, 0, color_attachment, &ds_attachment, &ds_attachment};
-	// dynamic rendering
-
-	// command_buffer.beginRenderPass2(renderPassBeginInfo, vk::SubpassContents::eInline);
-	command_buffer.beginRendering(rendering_info);
+	command_buffer.beginRendering(render_info);
 
 	command_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_pipeline);
-
-	// 	command_buffer.bindDescriptorSets(
-	// 		vk::PipelineBindPoint::eGraphics, *m_pipeline_layout, 0, {*m_descriptor_set}, nullptr);
 
 	const auto desc_buffer =
 		vk::DescriptorBufferBindingInfoEXT {m_descriptor_collection.descriptor_buffers()[0].address(),
@@ -1136,65 +1066,30 @@ auto lh::renderer::dynamic_render() -> void
 
 	command_buffer.setVertexInputEXT(vbd, vad);
 	command_buffer.bindVertexBuffers2(0, {*m_vertex_buffer.buffer}, {0});
-	//   ==================
+	//    ==================
 	command_buffer.bindDescriptorBuffersEXT(desc_buffer);
 	command_buffer.setDescriptorBufferOffsetsEXT(vk::PipelineBindPoint::eGraphics, *m_pipeline_layout, 0, {0}, {0});
 
 	// ==================
 	/*
 	command_buffer.bindShadersEXT({vk::ShaderStageFlagBits::eVertex, vk::ShaderStageFlagBits::eFragment},
-								  {**m_vertex_object, **m_fragment_object});
-
+								  {**m_vertex_object, **m_fragment_object});*/
+	/*
 	command_buffer.bindShadersEXT({vk::ShaderStageFlagBits::eTessellationControl,
 								   vk::ShaderStageFlagBits::eTessellationEvaluation,
 								   vk::ShaderStageFlagBits::eGeometry},
 								  {nullptr, nullptr, nullptr});*/
 
 	command_buffer.draw(12 * 3, 1, 0, 0);
-	// command_buffer.endRenderPass();
 	command_buffer.endRendering();
 
-	// const auto& image = m_swapchain->getImages()[imageIndex];
-	//  change layout for presentation
-
-	color_barrier = vk::ImageMemoryBarrier {{},
-											vk::AccessFlagBits::eColorAttachmentWrite,
-											vk::ImageLayout::eColorAttachmentOptimal,
-											vk::ImageLayout::ePresentSrcKHR,
-											0,
-											0,
-											m_swapchain->getImages()[imageIndex],
-											vk::ImageSubresourceRange {vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1}};
-	command_buffer.pipelineBarrier(vk::PipelineStageFlagBits::eBottomOfPipe,
-								   vk::PipelineStageFlagBits::eColorAttachmentOutput,
-								   {},
-								   {},
-								   {},
-								   color_barrier);
-
-	ds_barrier = vk::ImageMemoryBarrier {
-		{},
-		vk::AccessFlagBits::eDepthStencilAttachmentWrite,
-		vk::ImageLayout::eDepthStencilAttachmentOptimal,
-		vk::ImageLayout::ePresentSrcKHR,
-		0,
-		0,
-		m_depth_buffer.image,
-		vk::ImageSubresourceRange {vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil, 0, 1, 0, 1}};
-	command_buffer.pipelineBarrier(vk::PipelineStageFlagBits::eBottomOfPipe,
-								   vk::PipelineStageFlagBits::eEarlyFragmentTests |
-									   vk::PipelineStageFlagBits::eLateFragmentTests,
-								   {},
-								   {},
-								   {},
-								   ds_barrier);
-
+	m_swapchain.transition_layout_for_presentation(command_buffer);
 	command_buffer.end();
 
 	vk::raii::Fence drawFence(m_device, vk::FenceCreateInfo());
 
 	vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eBottomOfPipe);
-	vk::SubmitInfo submitInfo(*imageAcquiredSemaphore, waitDestinationStageMask, *command_buffer);
+	vk::SubmitInfo submitInfo(*semaphore, waitDestinationStageMask, *command_buffer);
 	m_queue.graphics().submit(submitInfo, *drawFence);
 
 	while (vk::Result::eTimeout == m_device->waitForFences({*drawFence}, VK_TRUE, vk::su::FenceTimeout))
@@ -1204,17 +1099,8 @@ auto lh::renderer::dynamic_render() -> void
 	mvpcMatrix = glm::rotate(mvpcMatrix, float(glm::sin(vkfw::getTime().value)), glm::vec3 {1.0f, 1.0f, 1.0f});
 	m_descriptor_collection.data_buffers()[0].map_data(mvpcMatrix);
 
-	vk::PresentInfoKHR presentInfoKHR(nullptr, **m_swapchain, imageIndex);
-	result = m_queue.present().presentKHR(presentInfoKHR);
-	switch (result)
-	{
-		case vk::Result::eSuccess: break;
-		case vk::Result::eSuboptimalKHR:
-			std::cout << "vk::Queue::presentKHR returned vk::Result::eSuboptimalKHR !\n";
-			break;
-		default: assert(false); // an unexpected result is returned !
-	}
-	// std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	vk::PresentInfoKHR presentInfoKHR(nullptr, **m_swapchain, image_index);
+	m_queue.present().presentKHR(presentInfoKHR);
 
 	m_device->waitIdle();
 }

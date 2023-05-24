@@ -23,7 +23,24 @@ lh::vulkan::swapchain::swapchain(const vulkan::physical_device& physical_device,
 												  .m_image_aspect = vk::ImageAspectFlagBits::eDepth |
 																	vk::ImageAspectFlagBits::eStencil}},
 	  m_surface {surface},
-	  m_clear_color {create_info.m_clear_color}
+	  m_current_image_index {},
+	  m_next_image_timeout {create_info.m_next_image_timeout},
+	  m_color_attachment {{},
+						  vk::ImageLayout::eAttachmentOptimal,
+						  {},
+						  {},
+						  {},
+						  vk::AttachmentLoadOp::eClear,
+						  vk::AttachmentStoreOp::eStore,
+						  create_info.m_clear_color},
+	  m_depth_stencil_attachment {*m_depth_stencil_buffer.view(),
+								  vk::ImageLayout::eDepthStencilAttachmentOptimal,
+								  {},
+								  {},
+								  {},
+								  vk::AttachmentLoadOp::eClear,
+								  vk::AttachmentStoreOp::eStore,
+								  create_info.m_clear_depth_stencil}
 {
 
 	auto queue_family_indices = {queue_families.graphics().m_index, queue_families.present().m_index};
@@ -75,7 +92,102 @@ auto lh::vulkan::swapchain::views() const -> const std::vector<vk::raii::ImageVi
 	return m_views;
 }
 
-auto lh::vulkan::swapchain::depth_stencil_buffer() const -> const vulkan::image&
+auto lh::vulkan::swapchain::depth_stencil_buffer() const -> const image&
 {
 	return m_depth_stencil_buffer;
+}
+
+auto lh::vulkan::swapchain::next_image_info(const vk::raii::CommandBuffer& command_buffer,
+											const vk::raii::Semaphore& semaphore)
+	-> const std::tuple<vk::Result, image_index_t, vk::RenderingInfo>
+{
+	auto [result, image_index] = m_object.acquireNextImage(m_next_image_timeout, *semaphore);
+
+	m_current_image_index = image_index;
+	m_color_attachment.imageView = *m_views[m_current_image_index];
+
+	transition_layout_for_rendering(command_buffer);
+
+	return {result,
+			m_current_image_index,
+			vk::RenderingInfo {vk::RenderingFlagBits {},
+							   {{0, 0}, m_surface.extent()},
+							   1,
+							   0,
+							   m_color_attachment,
+							   &m_depth_stencil_attachment,
+							   &m_depth_stencil_attachment}};
+}
+
+auto lh::vulkan::swapchain::transition_layout_for_rendering(const vk::raii::CommandBuffer& command_buffer) const -> void
+{
+	const auto color_barrier =
+		vk::ImageMemoryBarrier {{},
+								vk::AccessFlagBits::eColorAttachmentWrite,
+								vk::ImageLayout::eUndefined,
+								vk::ImageLayout::eColorAttachmentOptimal,
+								0,
+								0,
+								m_object.getImages()[m_current_image_index],
+								vk::ImageSubresourceRange {vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1}};
+	command_buffer.pipelineBarrier(vk::PipelineStageFlagBits::eTopOfPipe,
+								   vk::PipelineStageFlagBits::eColorAttachmentOutput,
+								   {},
+								   {},
+								   {},
+								   color_barrier);
+
+	const auto depth_stencil_barrier = vk::ImageMemoryBarrier {
+		{},
+		vk::AccessFlagBits::eDepthStencilAttachmentWrite,
+		vk::ImageLayout::eUndefined,
+		vk::ImageLayout::eDepthStencilAttachmentOptimal,
+		0,
+		0,
+		**m_depth_stencil_buffer,
+		vk::ImageSubresourceRange {vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil, 0, 1, 0, 1}};
+	command_buffer.pipelineBarrier(vk::PipelineStageFlagBits::eTopOfPipe,
+								   vk::PipelineStageFlagBits::eEarlyFragmentTests |
+									   vk::PipelineStageFlagBits::eLateFragmentTests,
+								   {},
+								   {},
+								   {},
+								   depth_stencil_barrier);
+}
+
+auto lh::vulkan::swapchain::transition_layout_for_presentation(const vk::raii::CommandBuffer& command_buffer) const
+	-> void
+{
+	const auto color_barrier =
+		vk::ImageMemoryBarrier {{},
+								vk::AccessFlagBits::eColorAttachmentWrite,
+								vk::ImageLayout::eColorAttachmentOptimal,
+								vk::ImageLayout::ePresentSrcKHR,
+								0,
+								0,
+								m_object.getImages()[m_current_image_index],
+								vk::ImageSubresourceRange {vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1}};
+	command_buffer.pipelineBarrier(vk::PipelineStageFlagBits::eBottomOfPipe,
+								   vk::PipelineStageFlagBits::eColorAttachmentOutput,
+								   {},
+								   {},
+								   {},
+								   color_barrier);
+
+	const auto depth_stencil_barrier = vk::ImageMemoryBarrier {
+		{},
+		vk::AccessFlagBits::eDepthStencilAttachmentWrite,
+		vk::ImageLayout::eDepthStencilAttachmentOptimal,
+		vk::ImageLayout::ePresentSrcKHR,
+		0,
+		0,
+		**m_depth_stencil_buffer,
+		vk::ImageSubresourceRange {vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil, 0, 1, 0, 1}};
+	command_buffer.pipelineBarrier(vk::PipelineStageFlagBits::eBottomOfPipe,
+								   vk::PipelineStageFlagBits::eEarlyFragmentTests |
+									   vk::PipelineStageFlagBits::eLateFragmentTests,
+								   {},
+								   {},
+								   {},
+								   depth_stencil_barrier);
 }

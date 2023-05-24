@@ -13,7 +13,7 @@ namespace lh
 		class memory_allocator;
 		class surface;
 
-		class image : vk_wrapper<vk::raii::Image>
+		class image : public vk_wrapper<vk::raii::Image>
 		{
 		public:
 			struct create_info

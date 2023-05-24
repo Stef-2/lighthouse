@@ -24,6 +24,7 @@ namespace lh
 			auto operator->() const -> const T* { return &m_object; }
 
 			operator T&() { return m_object; }
+			operator const T&() const { return m_object; };
 
 			virtual auto info() const -> lh::string::string_t { return {}; }
 

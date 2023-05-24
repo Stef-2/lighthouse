@@ -450,7 +450,7 @@ namespace lh
 
 		// vk::raii::Queue m_graphics_queue;
 		// vk::raii::Queue m_present_queue;
-		vk::su::DepthBufferData m_depth_buffer;
+
 		vulkan::queue m_queue;
 		vulkan::image m_dyn_rend_image;
 		vulkan::swapchain m_swapchain;
