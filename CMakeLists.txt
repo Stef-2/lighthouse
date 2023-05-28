@@ -177,4 +177,9 @@ target_link_libraries(
 	MachineIndependent.lib
 	OGLCompiler.lib
 	OSDependent.lib
+
+	spirv-cross-core
+	spirv-cross-cpp.lib
+	spirv-cross-glsl.lib
+	spirv-cross-reflect.lib
 )

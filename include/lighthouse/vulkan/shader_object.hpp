@@ -21,18 +21,12 @@ namespace lh
 			};
 
 			shader_object(const logical_device&, const spir_v&, const descriptor_set_layout&, const create_info& = {});
+
+			auto stage() const -> const vk::ShaderStageFlagBits&;
+
+		private:
+			vk::ShaderStageFlagBits m_shader_stage;
 		};
 
-		// ==========================================================================
-		class shader_objects : public vk_wrapper<vk::raii::ShaderEXTs>
-		{
-		public:
-			struct create_info : public shader_object::create_info
-			{};
-
-			shader_objects(const logical_device&,
-						   const std::vector<std::pair<const spir_v&, const descriptor_set_layout&>>,
-						   const create_info& = {});
-		};
 	}
 }

@@ -3,16 +3,17 @@
 #include "lighthouse/vulkan/descriptor_set_layout.hpp"
 #include "lighthouse/vulkan/spir_v.hpp"
 
+#include <iostream>
+
 lh::vulkan::shader_object::shader_object(const logical_device& logical_device,
 										 const spir_v& spir_v,
 										 const descriptor_set_layout& descriptor_set_layout,
 										 const create_info& create_info)
+	: m_shader_stage {spir_v.stage()}
 {
 	const auto shader_create_info = vk::ShaderCreateInfoEXT {create_info.m_flags,
-															 spir_v.stage(),
-															 spir_v.stage() == vk::ShaderStageFlagBits::eVertex
-																 ? vk::ShaderStageFlagBits::eFragment
-																 : vk::ShaderStageFlags {0},
+															 m_shader_stage,
+															 {},
 															 create_info.m_code_type,
 															 spir_v.code().size() *
 																 sizeof(spir_v::spir_v_bytecode_t::value_type),
@@ -24,24 +25,7 @@ lh::vulkan::shader_object::shader_object(const logical_device& logical_device,
 	m_object = {*logical_device, shader_create_info};
 }
 
-lh::vulkan::shader_objects::shader_objects(
-	const logical_device& logical_device,
-	const std::vector<std::pair<const spir_v&, const descriptor_set_layout&>> shaders,
-	const create_info& create_info)
-
+auto lh::vulkan::shader_object::stage() const -> const vk::ShaderStageFlagBits&
 {
-	auto shaders_create_info = std::vector<vk::ShaderCreateInfoEXT> {shaders.size()};
-
-	for (std::size_t i {0}; i < shaders.size(); i++)
-		shaders_create_info.push_back({create_info.m_flags,
-									   shaders[i].first.stage(),
-									   {},
-									   create_info.m_code_type,
-									   shaders[i].first.code().size() * sizeof(spir_v::spir_v_bytecode_t::value_type),
-									   shaders[i].first.code().data(),
-									   "main",
-									   1,
-									   &(**shaders[i].second)});
-
-	m_object = vk::raii::ShaderEXTs {*logical_device, shaders_create_info};
+	return m_shader_stage;
 }
