@@ -5,6 +5,7 @@
 #include "lighthouse/static.hpp"
 #include "lighthouse/string/string.hpp"
 #include "lighthouse/filesystem.hpp"
+#include "lighthouse/file_type.hpp"
 
 #include <map>
 #include <unordered_map>
@@ -94,13 +95,8 @@ namespace lh
 				std::unordered_multimap<const key_input, const action, const key_input> {};
 		};
 
-		enum class file_type
-		{
-			text,
-			binary
-		};
-
-		template <file_type type = file_type::text> static auto read_file(const std::filesystem::path& file_path)
+		template <file_type type = file_type::text>
+		static auto read_file(const std::filesystem::path& file_path)
 		{
 			if constexpr (type == file_type::text)
 				return read_text_file(file_path);

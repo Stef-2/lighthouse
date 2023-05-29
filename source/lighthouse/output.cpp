@@ -1,4 +1,5 @@
-#include "output.hpp"
+#include "lighthouse/output.hpp"
+#include "lighthouse/filesystem.hpp"
 
 auto lh::output::log() -> buffer&
 {
@@ -28,11 +29,11 @@ auto lh::output::initialize() -> void
 
 auto lh::output::dump_logs(std::ostream& stream) -> void
 {
-	if (not m_log.get_data().empty())
+	if (not m_log.data().empty())
 		stream << "\n======== program log: ========\n" << m_log;
-	if (not m_warning.get_data().empty())
+	if (not m_warning.data().empty())
 		stream << "\n======== program warning: ========\n" << m_warning;
-	if (not m_error.get_data().empty())
+	if (not m_error.data().empty())
 		stream << "\n======== program error: ========\n" << m_error;
 }
 
@@ -43,12 +44,12 @@ auto lh::output::exit() -> void
 	std::exit(0xDEAD);
 }
 
-auto lh::output::buffer::get_data() const -> std::string_view
+auto lh::output::buffer::data() const -> std::string_view
 {
 	return m_buffer;
 }
 
-auto lh::output::buffer::get_last_line() const -> std::string_view
+auto lh::output::buffer::last_line() const -> std::string_view
 {
 	auto view = std::string_view {m_buffer};
 

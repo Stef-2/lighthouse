@@ -3,6 +3,14 @@
 #include "lighthouse/static.hpp"
 #include "lighthouse/string/string.hpp"
 #include "lighthouse/string/string_convertible.hpp"
+#include "lighthouse/file_type.hpp"
+
+// forward declarations
+namespace std::filesystem
+{
+
+	class path;
+}
 
 namespace lh
 {
@@ -13,15 +21,12 @@ namespace lh
 	public:
 		friend class engine;
 
-		// string type to be used as the internal buffer
-		using string_t = lh::string::string_t;
-
 		// custom buffer
 		class buffer
 		{
 		public:
-			auto get_data() const -> std::string_view;
-			auto get_last_line() const -> std::string_view;
+			auto data() const -> std::string_view;
+			auto last_line() const -> std::string_view;
 
 			static constexpr auto to_string(const string::string_convertible auto& data) -> lh::string::string_t
 			{
@@ -61,6 +66,11 @@ namespace lh
 			lh::string::string_t m_buffer {};
 		};
 
+		template <typename T>
+		static auto write_file(const std::filesystem::path&,
+							   const T& data,
+							   const std::iostream::openmode& = std::iostream::out | std::iostream::trunc) -> void;
+
 		static auto log() -> buffer&;
 		static auto warning() -> buffer&;
 		static auto error() -> buffer&;
@@ -83,7 +93,8 @@ namespace lh
 	auto operator<<(std::ostream& stream, lh::output::buffer& buffer) -> std::ostream&;
 
 	// utility function that allows printing of any container holding string convertible types
-	template <lh::string::string_convertible_input_range T> auto to_string(const T& range)
+	template <lh::string::string_convertible_input_range T>
+	auto to_string(const T& range)
 	{
 		auto buffer = lh::output::buffer {};
 

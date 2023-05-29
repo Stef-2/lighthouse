@@ -1,10 +1,24 @@
 #include "lighthouse/vulkan/spir_v.hpp"
+#include "lighthouse/filesystem.hpp"
 #include "lighthouse/output.hpp"
 
 #include "vulkan/glslang/SPIRV/GlslangToSpv.h"
 #include "vulkan/utils/StandAlone.hpp"
 
 #include "vulkan/spirv_cross/spirv_reflect.hpp"
+
+#include <fstream>
+
+template <>
+void lh::output::write_file<std::vector<lh::vulkan::spir_v::shader_input>>(
+	const std::filesystem::path& file_path,
+	const std::vector<lh::vulkan::spir_v::shader_input>& data,
+	const std::iostream::openmode& open_mode)
+{
+	auto output = std::ofstream {file_path, open_mode};
+	output << "alright lets see here";
+	output.close();
+}
 
 lh::vulkan::spir_v::spir_v(const glsl_code_t& glsl_code, const create_info& create_info)
 	: m_stage {create_info.m_shader_stages}
@@ -14,14 +28,19 @@ lh::vulkan::spir_v::spir_v(const glsl_code_t& glsl_code, const create_info& crea
 	m_code = glsl_to_spirv::translate_shader(create_info.m_shader_stages, glsl_code);
 
 	glslang::FinalizeProcess();
-	constexpr auto wtf = vk::ShaderStageFlagBits::eVertex;
-	reflection();
-}
 
-auto lh::vulkan::spir_v::reflection() const -> std::vector<shader_input>
+	output::write_file(file_system::data_path() /= "wtf.txt", reflect_shader_input());
+}
+#pragma optimize("", off)
+auto lh::vulkan::spir_v::reflect_shader_input() const -> std::vector<shader_input>
 {
-	const auto compiler = spirv_cross::CompilerGLSL(m_code);
-	const auto resources = compiler.get_shader_resources();
+	constexpr auto remove_inactive_inputs = true;
+	auto compiler = spirv_cross::CompilerGLSL(m_code);
+
+	const auto active_inputs = compiler.get_active_interface_variables();
+	const auto resources = compiler.get_shader_resources(active_inputs);
+	if constexpr (remove_inactive_inputs)
+		compiler.set_enabled_interface_variables(std::move(active_inputs));
 
 	auto shader_inputs = std::vector<shader_input> {};
 
@@ -42,7 +61,7 @@ auto lh::vulkan::spir_v::reflection() const -> std::vector<shader_input>
 		}
 	};
 
-	const auto input =
+	const auto create_input =
 		[this, &compiler, &translate_data_type](const spirv_cross::Resource& resource,
 												const shader_input::input_type& input_type) -> shader_input {
 		const auto set = compiler.get_decoration(resource.id, spv::Decoration::DecorationDescriptorSet);
@@ -52,58 +71,52 @@ auto lh::vulkan::spir_v::reflection() const -> std::vector<shader_input>
 		const auto data_type = compiler.get_type_from_variable(resource.id).basetype;
 		const auto rows = compiler.get_type_from_variable(resource.id).vecsize;
 		const auto columns = compiler.get_type_from_variable(resource.id).columns;
+		const auto array_dimension = compiler.get_type(resource.type_id).array.empty()
+										 ? 1
+										 : compiler.get_type(resource.type_id).array[0];
 		const auto size = compiler.get_type_from_variable(resource.id).width;
 
-		auto input =
-			shader_input {set, location, binding, input_type, translate_data_type(data_type), rows, columns, size};
+		auto input = shader_input {set,
+								   location,
+								   binding,
+								   input_type,
+								   translate_data_type(data_type),
+								   static_cast<std::uint8_t>(rows),
+								   static_cast<std::uint8_t>(columns),
+								   array_dimension,
+								   size};
 
 		for (std::size_t i {}; const auto& member : compiler.get_type(resource.base_type_id).member_types)
 		{
-			const auto data_type = compiler.get_type(member).basetype;
-			const auto rows = compiler.get_type(member).vecsize;
-			const auto columns = compiler.get_type(member).columns;
-			const auto size = compiler.get_type(member).width;
-			const auto offset = compiler.type_struct_member_offset(compiler.get_type(member), i);
+			const auto member_data_type = compiler.get_type(member).basetype;
+			const auto member_rows = compiler.get_type(member).vecsize;
+			const auto member_columns = compiler.get_type(member).columns;
+			const auto member_array_dimension = compiler.get_type(member).array.empty()
+													? 1
+													: compiler.get_type(member).array[0];
+			const auto member_size = compiler.get_type(member).width;
+			const auto member_offset = compiler.type_struct_member_offset(compiler.get_type(resource.base_type_id), i);
 
-			input.m_members.emplace_back(translate_data_type(data_type), rows, columns, size, offset);
+			input.m_members.emplace_back(translate_data_type(member_data_type),
+										 member_rows,
+										 member_columns,
+										 member_array_dimension,
+										 member_size,
+										 member_offset);
 		}
 
 		return input;
 	};
 
-	for (auto& uniform_buffer : resources.uniform_buffers)
-	{
-		const auto set = compiler.get_decoration(uniform_buffer.id, spv::Decoration::DecorationDescriptorSet);
-		const auto location = compiler.get_decoration(uniform_buffer.id, spv::Decoration::DecorationLocation);
-		const auto binding = compiler.get_decoration(uniform_buffer.id, spv::Decoration::DecorationBinding);
+	shader_inputs.reserve(resources.stage_inputs.size() + resources.uniform_buffers.size());
 
-		const auto data_type = compiler.get_type_from_variable(uniform_buffer.id).basetype;
-		const auto rows = compiler.get_type_from_variable(uniform_buffer.id).vecsize;
-		const auto size = compiler.get_declared_struct_size(compiler.get_type_from_variable(uniform_buffer.id));
+	std::ranges::for_each(resources.stage_inputs, [&shader_inputs, &create_input](const auto& r) {
+		shader_inputs.emplace_back(create_input(r, shader_input::input_type::stage_input));
+	});
 
-		auto members = compiler.get_type_from_variable(uniform_buffer.id).member_types;
-
-		std::cout << "descriptor size: " << size;
-	}
-
-	if (m_stage == vk::ShaderStageFlagBits::eVertex)
-		for (auto& vertex_input : resources.stage_inputs)
-		{
-			const auto set = compiler.get_decoration(vertex_input.id, spv::Decoration::DecorationDescriptorSet);
-			const auto binding = compiler.get_decoration(vertex_input.id, spv::Decoration::DecorationBinding);
-
-			std::cout << "\n==================================" << vertex_input.name << " << name\n";
-			std::cout << binding << " << binding\n";
-			std::cout << compiler.get_type_from_variable(vertex_input.id).width << " << width\n";
-			std::cout << compiler.get_type_from_variable(vertex_input.id).vecsize << " << vector size\n";
-			std::cout << compiler.get_type_from_variable(vertex_input.id).columns << " << columns\n";
-			std::cout << compiler.get_type_from_variable(vertex_input.id).basetype << " << type\n";
-		}
-
-	for (auto& builtin : resources.builtin_inputs)
-	{
-		std::cout << builtin.resource.name << " builtin";
-	}
+	std::ranges::for_each(resources.uniform_buffers, [&shader_inputs, &create_input](const auto& r) {
+		shader_inputs.emplace_back(create_input(r, shader_input::input_type::uniform_buffer));
+	});
 
 	return shader_inputs;
 }

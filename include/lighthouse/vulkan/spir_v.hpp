@@ -35,10 +35,11 @@ namespace lh
 				struct struct_member
 				{
 					data_type m_data_type;
-					uint32_t m_rows;
-					uint32_t m_colums;
-					uint32_t m_size;
-					uint32_t m_offset;
+					std::uint8_t m_rows;
+					std::uint8_t m_colums;
+					std::uint32_t m_array_dimension;
+					vk::DeviceSize m_size;
+					vk::DeviceSize m_offset;
 				};
 
 				uint32_t m_descriptor_set;
@@ -47,9 +48,10 @@ namespace lh
 
 				input_type m_type;
 				data_type m_data_type;
-				uint32_t m_rows;
-				uint32_t m_columns;
-				uint32_t m_size;
+				std::uint8_t m_rows;
+				std::uint8_t m_columns;
+				std::uint32_t m_array_dimension;
+				vk::DeviceSize m_size;
 
 				std::vector<struct_member> m_members;
 			};
@@ -61,7 +63,7 @@ namespace lh
 
 			spir_v(const glsl_code_t&, const create_info& = {});
 
-			auto reflection() const -> std::vector<shader_input>;
+			auto reflect_shader_input() const -> std::vector<shader_input>;
 
 			auto code() const -> const spir_v_bytecode_t&;
 			auto stage() const -> const vk::ShaderStageFlagBits&;
