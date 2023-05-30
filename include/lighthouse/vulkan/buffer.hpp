@@ -16,7 +16,7 @@ namespace lh
 		public:
 			struct create_info
 			{
-				vk::BufferUsageFlags m_usage = {vk::BufferUsageFlagBits::eShaderDeviceAddress};
+				vk::BufferUsageFlags m_usage = {};
 				vma::AllocationCreateFlags m_allocation_flags = {};
 				vk::MemoryPropertyFlags m_properties = {};
 			};
@@ -43,7 +43,7 @@ namespace lh
 		public:
 			struct create_info
 			{
-				vk::BufferUsageFlags m_usage = {};
+				vk::BufferUsageFlags m_usage = {vk::BufferUsageFlagBits::eShaderDeviceAddress};
 				vma::AllocationCreateFlags m_allocation_flags = {vma::AllocationCreateFlagBits::eMapped};
 				vk::MemoryPropertyFlags m_properties = {vk::MemoryPropertyFlagBits::eHostVisible |
 														vk::MemoryPropertyFlagBits::eHostCoherent};

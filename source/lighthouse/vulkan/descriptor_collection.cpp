@@ -13,7 +13,7 @@ lh::vulkan::descriptor_collection::descriptor_collection(const physical_device& 
 														 const descriptor_set_layout& descriptor_set_layout,
 														 const memory_allocator& memory_allocator,
 														 const create_info& create_info)
-	: m_data_buffers {}, m_descriptor_buffers {}
+	: m_data_buffers {}, m_descriptor_buffers {}, m_binding_info {}
 {
 	const auto collection_size = descriptor_set_layout.bindings().size();
 
@@ -69,6 +69,8 @@ lh::vulkan::descriptor_collection::descriptor_collection(const physical_device& 
 			&descriptor_info,
 			descriptor_collection::descriptor_size(physical_device, descriptor_set_layout.bindings()[i].m_type),
 			m_descriptor_buffers.back().allocation_info().pMappedData);
+
+		m_binding_info = {descriptor_buffers()[0].address(), vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT};
 	}
 }
 
@@ -80,6 +82,13 @@ auto lh::vulkan::descriptor_collection::descriptor_buffers() -> std::vector<mapp
 auto lh::vulkan::descriptor_collection::data_buffers() -> std::vector<mapped_buffer>&
 {
 	return m_data_buffers;
+}
+
+auto lh::vulkan::descriptor_collection::bind(const vk::raii::CommandBuffer& command_buffer,
+											 const vk::raii::PipelineLayout& pipeline_layout) const -> void
+{
+	command_buffer.bindDescriptorBuffersEXT(m_binding_info);
+	command_buffer.setDescriptorBufferOffsetsEXT(vk::PipelineBindPoint::eGraphics, *pipeline_layout, 0, {0}, {0});
 }
 
 auto lh::vulkan::descriptor_collection::descriptor_size(const physical_device& physical_device,

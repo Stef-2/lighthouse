@@ -29,3 +29,8 @@ auto lh::vulkan::shader_object::stage() const -> const vk::ShaderStageFlagBits&
 {
 	return m_shader_stage;
 }
+
+auto lh::vulkan::shader_object::bind(const vk::raii::CommandBuffer& command_buffer) const -> void
+{
+	command_buffer.bindShadersEXT(m_shader_stage, *m_object);
+}

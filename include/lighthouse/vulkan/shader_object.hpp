@@ -24,6 +24,8 @@ namespace lh
 
 			auto stage() const -> const vk::ShaderStageFlagBits&;
 
+			auto bind(const vk::raii::CommandBuffer&) const -> void;
+
 		private:
 			vk::ShaderStageFlagBits m_shader_stage;
 		};

@@ -25,9 +25,12 @@ namespace lh
 
 			auto descriptor_buffers() -> std::vector<mapped_buffer>&;
 			auto data_buffers() -> std::vector<mapped_buffer>&;
+			auto bind(const vk::raii::CommandBuffer&, const vk::raii::PipelineLayout&) const -> void;
 
 		private:
 			auto descriptor_size(const physical_device&, const vk::DescriptorType&) -> const std::size_t;
+
+			vk::DescriptorBufferBindingInfoEXT m_binding_info;
 
 			std::vector<mapped_buffer> m_descriptor_buffers;
 			std::vector<mapped_buffer> m_data_buffers;

@@ -32,6 +32,7 @@ namespace lh
 
 			auto vertex_input() const -> const vertex_input_description&;
 			auto data() const -> const mapped_buffer&;
+			auto bind(const vk::raii::CommandBuffer&) const -> void;
 
 		private:
 			vertex_input_description m_vertex_input;
