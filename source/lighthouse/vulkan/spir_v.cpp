@@ -31,39 +31,34 @@ lh::vulkan::spir_v::spir_v(const glsl_code_t& glsl_code, const create_info& crea
 
 	output::write_file(file_system::data_path() /= "wtf.txt", reflect_shader_input());
 }
-#pragma optimize("", off)
-auto lh::vulkan::spir_v::reflect_shader_input() const -> std::vector<shader_input>
+
+namespace
 {
-	constexpr auto remove_inactive_inputs = true;
-	auto compiler = spirv_cross::CompilerGLSL(m_code);
+	auto translate_data_type(const spirv_cross::SPIRType::BaseType& spirv_type)
+	{
+		using return_type = lh::vulkan::spir_v::shader_input::data_type;
 
-	const auto active_inputs = compiler.get_active_interface_variables();
-	const auto resources = compiler.get_shader_resources(active_inputs);
-	if constexpr (remove_inactive_inputs)
-		compiler.set_enabled_interface_variables(std::move(active_inputs));
-
-	auto shader_inputs = std::vector<shader_input> {};
-
-	const auto translate_data_type = [](const spirv_cross::SPIRType::BaseType& spirv_type) {
 		switch (spirv_type)
 		{
-			case spirv_cross::SPIRType::BaseType::Boolean: return shader_input::data_type::boolean; break;
+			case spirv_cross::SPIRType::BaseType::Boolean: return return_type::boolean; break;
 			case spirv_cross::SPIRType::BaseType::Int:
-			case spirv_cross::SPIRType::BaseType::Int64: return shader_input ::data_type::integer; break;
+			case spirv_cross::SPIRType::BaseType::Int64: return return_type::integer; break;
 			case spirv_cross::SPIRType::BaseType::UInt:
-			case spirv_cross::SPIRType::BaseType::UInt64: return shader_input::data_type::unsigned_integer; break;
-			case spirv_cross::SPIRType::BaseType::Float: return shader_input::data_type::floating; break;
-			case spirv_cross::SPIRType::BaseType::Struct: return shader_input::data_type::structure; break;
-			case spirv_cross::SPIRType::BaseType::Image: return shader_input::data_type::image; break;
-			case spirv_cross::SPIRType::BaseType::SampledImage: return shader_input::data_type::sampled_image; break;
-			case spirv_cross::SPIRType::BaseType::Sampler: return shader_input::data_type::sampler; break;
-			default: break;
+			case spirv_cross::SPIRType::BaseType::UInt64: return return_type::unsigned_integer; break;
+			case spirv_cross::SPIRType::BaseType::Float: return return_type::floating; break;
+			case spirv_cross::SPIRType::BaseType::Struct: return return_type::structure; break;
+			case spirv_cross::SPIRType::BaseType::Image: return return_type::image; break;
+			case spirv_cross::SPIRType::BaseType::SampledImage: return return_type::sampled_image; break;
+			case spirv_cross::SPIRType::BaseType::Sampler: return return_type::sampler; break;
+			default: lh::output::warning() << "unrecognized spir_v base type: " + spirv_type; break;
 		}
-	};
+	}
 
-	const auto create_input =
-		[this, &compiler, &translate_data_type](const spirv_cross::Resource& resource,
-												const shader_input::input_type& input_type) -> shader_input {
+	auto create_shader_input(const spirv_cross::CompilerGLSL& compiler,
+							 const spirv_cross::Resource& resource,
+							 const lh::vulkan::spir_v::shader_input::input_type& input_type)
+
+	{
 		const auto set = compiler.get_decoration(resource.id, spv::Decoration::DecorationDescriptorSet);
 		const auto location = compiler.get_decoration(resource.id, spv::Decoration::DecorationLocation);
 		const auto binding = compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding);
@@ -76,15 +71,15 @@ auto lh::vulkan::spir_v::reflect_shader_input() const -> std::vector<shader_inpu
 										 : compiler.get_type(resource.type_id).array[0];
 		const auto size = compiler.get_type_from_variable(resource.id).width;
 
-		auto input = shader_input {set,
-								   location,
-								   binding,
-								   input_type,
-								   translate_data_type(data_type),
-								   static_cast<std::uint8_t>(rows),
-								   static_cast<std::uint8_t>(columns),
-								   array_dimension,
-								   size};
+		auto input = lh::vulkan::spir_v::shader_input {set,
+													   location,
+													   binding,
+													   input_type,
+													   translate_data_type(data_type),
+													   static_cast<std::uint8_t>(rows),
+													   static_cast<std::uint8_t>(columns),
+													   array_dimension,
+													   size};
 
 		for (std::size_t i {}; const auto& member : compiler.get_type(resource.base_type_id).member_types)
 		{
@@ -106,17 +101,30 @@ auto lh::vulkan::spir_v::reflect_shader_input() const -> std::vector<shader_inpu
 		}
 
 		return input;
-	};
+	}
+}
+#pragma optimize("", off)
+auto lh::vulkan::spir_v::reflect_shader_input() const -> std::vector<shader_input>
+{
+	auto compiler = spirv_cross::CompilerGLSL(m_code);
+	auto resources = compiler.get_shader_resources();
 
+	if constexpr (shader_input::remove_inactive_inputs)
+	{
+		const auto interface_variables = compiler.get_active_interface_variables();
+		resources = compiler.get_shader_resources(interface_variables);
+
+		compiler.set_enabled_interface_variables(std::move(interface_variables));
+	}
+
+	auto shader_inputs = std::vector<shader_input> {};
 	shader_inputs.reserve(resources.stage_inputs.size() + resources.uniform_buffers.size());
 
-	std::ranges::for_each(resources.stage_inputs, [&shader_inputs, &create_input](const auto& r) {
-		shader_inputs.emplace_back(create_input(r, shader_input::input_type::stage_input));
-	});
+	for (const auto& resource : resources.stage_inputs)
+		shader_inputs.emplace_back(create_shader_input(compiler, resource, shader_input::input_type::stage_input));
 
-	std::ranges::for_each(resources.uniform_buffers, [&shader_inputs, &create_input](const auto& r) {
-		shader_inputs.emplace_back(create_input(r, shader_input::input_type::uniform_buffer));
-	});
+	for (const auto& resource : resources.uniform_buffers)
+		shader_inputs.emplace_back(create_shader_input(compiler, resource, shader_input::input_type::uniform_buffer));
 
 	return shader_inputs;
 }
@@ -179,7 +187,7 @@ auto lh::vulkan::spir_v::glsl_to_spirv::translate_shader(const vk::ShaderStageFl
 	const auto link = program.link(message_types);
 
 	if (not parse or not link)
-		output::error() << glsl_shader.getInfoLog() << glsl_shader.getInfoDebugLog();
+		output::error() << glsl_shader.getInfoLog() << glsl_shader.getInfoDebugLog(), std::cerr << output::error();
 
 	auto spirv_bytecode = spir_v_bytecode_t {};
 	glslang::GlslangToSpv(*program.getIntermediate(glsl_shader_stage), spirv_bytecode);

@@ -25,8 +25,8 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 						vulkan::mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eUniformBuffer |
 																	   vk::BufferUsageFlagBits::eShaderDeviceAddress}},
 	  m_descriptor_set_layout {m_logical_device,
-							   vulkan::descriptor_set_layout::create_info {
-								   .m_bindings = {{0, vk::DescriptorType::eUniformBuffer, 1, sizeof(glm::mat4x4)}}}},
+							   {{0, vk::DescriptorType::eUniformBuffer, 1, sizeof(glm::mat4x4)},
+								{1, vk::DescriptorType::eUniformBuffer, 1, sizeof(float)}}},
 
 	  m_descriptor_collection {m_physical_device, m_logical_device, m_descriptor_set_layout, m_memory_allocator},
 

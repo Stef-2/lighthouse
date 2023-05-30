@@ -1,19 +1,4 @@
 #pragma once
-
-// glm to_string
-// #include "vulkan/glm/gtx/string_cast.hpp"
-
-// vulkan to_string
-#ifndef VULKAN_HPP_NO_TO_STRING
-// #include "vulkan/vulkan.h"
-// #include "vulkan/vulkan_enums.hpp"
-// #include "vulkan/vulkan_to_string.hpp"
-#endif
-
-// vkfw to_string
-// #include "vkfw.hpp"
-
-// std to_string
 #include <iostream>
 #include <string>
 #include <string_view>

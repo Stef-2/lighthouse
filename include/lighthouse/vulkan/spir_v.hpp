@@ -14,6 +14,8 @@ namespace lh
 
 			struct shader_input
 			{
+				static inline constexpr auto remove_inactive_inputs = true;
+
 				enum class input_type
 				{
 					stage_input,

@@ -26,7 +26,7 @@ namespace lh
 			pipeline(const physical_device&,
 					 const logical_device&,
 					 const memory_allocator&,
-					 const std::vector<spir_v, descriptor_set_layout>&,
+					 const std::vector<std::pair<spir_v, descriptor_set_layout>>&,
 					 const create_info& = {});
 
 			auto bind() const -> void;

@@ -6,6 +6,7 @@
 #include "lighthouse/vulkan/memory_allocator.hpp"
 #include "lighthouse/vulkan/descriptor_set_layout.hpp"
 #include "lighthouse/vulkan/buffer.hpp"
+#include "lighthouse/vulkan/utility.hpp"
 
 #pragma optimize("", off)
 lh::vulkan::descriptor_collection::descriptor_collection(const physical_device& physical_device,

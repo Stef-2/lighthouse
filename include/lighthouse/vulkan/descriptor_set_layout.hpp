@@ -27,10 +27,9 @@ namespace lh
 				vk::DescriptorSetLayoutCreateFlags m_flags {
 					vk::DescriptorSetLayoutCreateFlagBits::eDescriptorBufferEXT};
 				vk::ShaderStageFlagBits m_access = vk::ShaderStageFlagBits::eAll;
-				std::vector<binding> m_bindings {};
 			};
 
-			descriptor_set_layout(const logical_device&, const create_info& = {});
+			descriptor_set_layout(const logical_device&, const std::vector<binding>&, const create_info& = {});
 
 			auto bindings() const -> const std::vector<binding>&;
 
