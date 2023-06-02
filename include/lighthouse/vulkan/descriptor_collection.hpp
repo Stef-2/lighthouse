@@ -19,8 +19,8 @@ namespace lh
 
 			descriptor_collection(const physical_device&,
 								  const logical_device&,
-								  const descriptor_set_layout&,
 								  const memory_allocator&,
+								  const descriptor_set_layout&,
 								  const create_info& = {});
 
 			auto descriptor_buffers() -> std::vector<mapped_buffer>&;

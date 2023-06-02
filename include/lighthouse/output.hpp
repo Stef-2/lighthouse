@@ -5,12 +5,8 @@
 #include "lighthouse/string/string_convertible.hpp"
 #include "lighthouse/file_type.hpp"
 
-// forward declarations
-namespace std::filesystem
-{
-
-	class path;
-}
+#include <filesystem>
+#include <fstream>
 
 namespace lh
 {
@@ -67,9 +63,16 @@ namespace lh
 		};
 
 		template <typename T>
-		static auto write_file(const std::filesystem::path&,
-							   const T& data,
-							   const std::iostream::openmode& = std::iostream::out | std::iostream::trunc) -> void;
+		static auto write_file(const std::filesystem::path& path,
+							   const std::span<T>& data,
+							   const std::iostream::openmode& open_mode = std::iostream::out | std::iostream::trunc)
+			-> void
+		{
+			auto file_stream = std::ofstream {path, open_mode};
+
+			file_stream.write(reinterpret_cast<char*>(data.data()), data.size());
+			file_stream.close();
+		}
 
 		static auto log() -> buffer&;
 		static auto warning() -> buffer&;

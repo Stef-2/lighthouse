@@ -2,6 +2,12 @@
 
 #include "lighthouse/vulkan/raii_wrapper.hpp"
 
+// forward declarations
+namespace std::filesystem
+{
+	class path;
+}
+
 namespace lh
 {
 	namespace vulkan
@@ -23,11 +29,13 @@ namespace lh
 			shader_object(const logical_device&, const spir_v&, const descriptor_set_layout&, const create_info& = {});
 
 			auto stage() const -> const vk::ShaderStageFlagBits&;
-
+			auto cache_binary_data(const std::filesystem::path&) const -> void;
 			auto bind(const vk::raii::CommandBuffer&) const -> void;
 
 		private:
 			vk::ShaderStageFlagBits m_shader_stage;
+
+			static inline constexpr auto common_shader_entrypoint = "main";
 		};
 
 	}

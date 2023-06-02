@@ -28,7 +28,7 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 							   {{0, vk::DescriptorType::eUniformBuffer, 1, sizeof(glm::mat4x4)},
 								{1, vk::DescriptorType::eUniformBuffer, 1, sizeof(float)}}},
 
-	  m_descriptor_collection {m_physical_device, m_logical_device, m_descriptor_set_layout, m_memory_allocator},
+	  m_descriptor_collection {m_physical_device, m_logical_device, m_memory_allocator, m_descriptor_set_layout},
 
 	  m_vertex_buffer {m_physical_device,
 					   m_logical_device,
@@ -48,7 +48,16 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 											 .m_shader_stages = vk::ShaderStageFlagBits::eFragment}},
 						 m_descriptor_set_layout},
 
-	  m_pipeline_layout {m_logical_device, {{}, **m_descriptor_set_layout}}
+	  m_pipeline_layout {m_logical_device, {{}, **m_descriptor_set_layout}},
+	  m_shader_object_pipeline {
+		  m_physical_device,
+		  m_logical_device,
+		  m_memory_allocator,
+		  {vulkan::spir_v {lh::input::read_file(file_system::data_path() /= "shaders/basic.vert"),
+						   vulkan::spir_v::create_info {.m_shader_stages = vk::ShaderStageFlagBits::eVertex}},
+		   vulkan::spir_v {lh::input::read_file(file_system::data_path() /= "shaders/basic.frag"),
+						   vulkan::spir_v::create_info {.m_shader_stages = vk::ShaderStageFlagBits::eFragment}}},
+		  m_descriptor_set_layout}
 {
 	m_vertex_buffer.map_data(coloredCubeData);
 

@@ -2,6 +2,7 @@
 #include "lighthouse/vulkan/shader_object.hpp"
 #include "lighthouse/vulkan/descriptor_set_layout.hpp"
 #include "lighthouse/vulkan/spir_v.hpp"
+#include "lighthouse/output.hpp"
 
 #include <iostream>
 
@@ -18,7 +19,7 @@ lh::vulkan::shader_object::shader_object(const logical_device& logical_device,
 															 spir_v.code().size() *
 																 sizeof(spir_v::spir_v_bytecode_t::value_type),
 															 spir_v.code().data(),
-															 "main",
+															 common_shader_entrypoint,
 															 1,
 															 &(**descriptor_set_layout)};
 
@@ -28,6 +29,16 @@ lh::vulkan::shader_object::shader_object(const logical_device& logical_device,
 auto lh::vulkan::shader_object::stage() const -> const vk::ShaderStageFlagBits&
 {
 	return m_shader_stage;
+}
+
+auto lh::vulkan::shader_object::cache_binary_data(const std::filesystem::path& path) const -> void
+{
+
+	auto binary_data = m_object.getBinaryData();
+
+	lh::output::write_file(path,
+						   std::span<uint8_t> {binary_data.begin(), binary_data.end()},
+						   std::iostream::out | std::iostream::binary | std::iostream::trunc);
 }
 
 auto lh::vulkan::shader_object::bind(const vk::raii::CommandBuffer& command_buffer) const -> void

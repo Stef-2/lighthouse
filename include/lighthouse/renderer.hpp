@@ -46,9 +46,11 @@ namespace lh
 
 		vulkan::descriptor_set_layout m_descriptor_set_layout;
 		vulkan::descriptor_collection m_descriptor_collection;
+		// vulkan::descriptor_collection m_common_descriptor_collection;
 
 		vulkan::shader_object m_vertex_object;
 		vulkan::shader_object m_fragment_object;
+		vulkan::shader_object_pipeline m_shader_object_pipeline;
 
 		vk::raii::PipelineLayout m_pipeline_layout;
 

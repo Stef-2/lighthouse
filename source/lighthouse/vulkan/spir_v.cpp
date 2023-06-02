@@ -8,7 +8,7 @@
 #include "vulkan/spirv_cross/spirv_reflect.hpp"
 
 #include <fstream>
-
+/*
 template <>
 void lh::output::write_file<std::vector<lh::vulkan::spir_v::shader_input>>(
 	const std::filesystem::path& file_path,
@@ -19,7 +19,7 @@ void lh::output::write_file<std::vector<lh::vulkan::spir_v::shader_input>>(
 	output << "alright lets see here";
 	output.close();
 }
-
+*/
 lh::vulkan::spir_v::spir_v(const glsl_code_t& glsl_code, const create_info& create_info)
 	: m_stage {create_info.m_shader_stages}
 {
@@ -29,7 +29,7 @@ lh::vulkan::spir_v::spir_v(const glsl_code_t& glsl_code, const create_info& crea
 
 	glslang::FinalizeProcess();
 
-	output::write_file(file_system::data_path() /= "wtf.txt", reflect_shader_input());
+	// output::write_file(file_system::data_path() /= "wtf.txt", reflect_shader_input());
 }
 
 namespace

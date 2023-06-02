@@ -8,11 +8,13 @@
 #include "lighthouse/vulkan/buffer.hpp"
 #include "lighthouse/vulkan/utility.hpp"
 
+#include "vulkan/utils/math.hpp"
+
 #pragma optimize("", off)
 lh::vulkan::descriptor_collection::descriptor_collection(const physical_device& physical_device,
 														 const logical_device& logical_device,
-														 const descriptor_set_layout& descriptor_set_layout,
 														 const memory_allocator& memory_allocator,
+														 const descriptor_set_layout& descriptor_set_layout,
 														 const create_info& create_info)
 	: m_data_buffers {}, m_descriptor_buffers {}, m_binding_info {}
 {
@@ -70,8 +72,6 @@ lh::vulkan::descriptor_collection::descriptor_collection(const physical_device& 
 			&descriptor_info,
 			descriptor_collection::descriptor_size(physical_device, descriptor_set_layout.bindings()[i].m_type),
 			m_descriptor_buffers.back().allocation_info().pMappedData);
-
-		m_binding_info = {descriptor_buffers()[0].address(), vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT};
 	}
 }
 
