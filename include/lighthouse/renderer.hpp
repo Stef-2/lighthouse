@@ -42,7 +42,8 @@ namespace lh
 		vulkan::queue m_queue;
 		vulkan::swapchain m_swapchain;
 
-		vulkan::mapped_buffer m_uniform_buffer;
+		vulkan::mapped_buffer m_mvp_buffer;
+		vulkan::mapped_buffer m_time_buffer;
 
 		vulkan::descriptor_set_layout m_descriptor_set_layout;
 		vulkan::descriptor_collection m_descriptor_collection;

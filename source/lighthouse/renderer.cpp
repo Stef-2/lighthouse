@@ -18,17 +18,29 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 	  m_queue {m_logical_device, m_queue_families},
 	  m_swapchain {m_physical_device, m_logical_device, m_surface, m_queue_families, m_memory_allocator},
 
-	  m_uniform_buffer {m_physical_device,
-						m_logical_device,
-						m_memory_allocator,
-						sizeof(glm::mat4x4),
-						vulkan::mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eUniformBuffer |
-																	   vk::BufferUsageFlagBits::eShaderDeviceAddress}},
+	  m_mvp_buffer {m_physical_device,
+					m_logical_device,
+					m_memory_allocator,
+					sizeof(glm::mat4x4),
+					vulkan::mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eUniformBuffer |
+																   vk::BufferUsageFlagBits::eShaderDeviceAddress,
+														.m_allocation_flags = vma::AllocationCreateFlagBits::eMapped}},
+	  m_time_buffer {m_physical_device,
+					 m_logical_device,
+					 m_memory_allocator,
+					 sizeof(glm::vec4),
+					 vulkan::mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eUniformBuffer |
+																	vk::BufferUsageFlagBits::eShaderDeviceAddress,
+														 .m_allocation_flags = vma::AllocationCreateFlagBits::eMapped}},
 	  m_descriptor_set_layout {m_logical_device,
 							   {{0, vk::DescriptorType::eUniformBuffer, 1, sizeof(glm::mat4x4)},
-								{1, vk::DescriptorType::eUniformBuffer, 1, sizeof(float)}}},
+								{1, vk::DescriptorType::eUniformBuffer, 1, sizeof(glm::vec4)}}},
 
-	  m_descriptor_collection {m_physical_device, m_logical_device, m_memory_allocator, m_descriptor_set_layout},
+	  m_descriptor_collection {m_physical_device,
+							   m_logical_device,
+							   m_memory_allocator,
+							   m_descriptor_set_layout,
+							   {&m_mvp_buffer, &m_time_buffer}},
 
 	  m_vertex_buffer {m_physical_device,
 					   m_logical_device,
@@ -100,15 +112,13 @@ auto lh::renderer::render() -> void
 	command_buffer.setVertexInputEXT(vbd, vad);
 	command_buffer.bindVertexBuffers(0, {**m_vertex_buffer}, {0});
 
-	const auto desc_buffer =
-		vk::DescriptorBufferBindingInfoEXT {m_descriptor_collection.descriptor_buffers()[0].address(),
-											vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT};
 	glm::mat4x4 mvpcMatrix = vk::su::createModelViewProjectionClipMatrix(m_surface.extent());
 	mvpcMatrix = glm::rotate(mvpcMatrix, float(glm::sin(vkfw::getTime().value)), glm::vec3 {1.0f, 1.0f, 1.0f});
-	m_descriptor_collection.data_buffers()[0].map_data(mvpcMatrix);
+	m_mvp_buffer.map_data(mvpcMatrix);
+	glm::vec4 color {1, 1, 1, 1};
+	m_time_buffer.map_data(color);
 
-	command_buffer.bindDescriptorBuffersEXT(desc_buffer);
-	command_buffer.setDescriptorBufferOffsetsEXT(vk::PipelineBindPoint::eGraphics, *m_pipeline_layout, 0, {0}, {0});
+	m_descriptor_collection.bind(command_buffer, m_pipeline_layout);
 
 	// ==================
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "lighthouse/utility.hpp"
+
 namespace lh
 {
 	namespace vulkan
@@ -21,19 +23,17 @@ namespace lh
 								  const logical_device&,
 								  const memory_allocator&,
 								  const descriptor_set_layout&,
-								  const create_info& = {});
+								  const std::vector<non_owning_ptr<mapped_buffer>>&,
+								  const const create_info& = {});
 
 			auto descriptor_buffers() -> std::vector<mapped_buffer>&;
-			auto data_buffers() -> std::vector<mapped_buffer>&;
 			auto bind(const vk::raii::CommandBuffer&, const vk::raii::PipelineLayout&) const -> void;
 
 		private:
 			auto descriptor_size(const physical_device&, const vk::DescriptorType&) -> const std::size_t;
 
-			vk::DescriptorBufferBindingInfoEXT m_binding_info;
-
 			std::vector<mapped_buffer> m_descriptor_buffers;
-			std::vector<mapped_buffer> m_data_buffers;
+			std::vector<vk::DescriptorBufferBindingInfoEXT> m_binding_infos;
 		};
 	}
 }

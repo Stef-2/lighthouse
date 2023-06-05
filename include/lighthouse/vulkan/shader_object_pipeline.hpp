@@ -1,7 +1,5 @@
 #pragma once
 
-#include "lighthouse/vulkan/descriptor_collection.hpp"
-
 #include <vector>
 
 namespace lh
@@ -33,12 +31,12 @@ namespace lh
 								   const create_info& = {});
 
 			auto shader_objects() const -> const std::vector<shader_object>&;
+			auto pipeline_layout() const -> const vk::raii::PipelineLayout&;
 			auto bind(const vk::raii::CommandBuffer&) const -> void;
 
 		private:
 			vk::raii::PipelineLayout m_pipeline_layout;
 			std::vector<shader_object> m_shader_objects;
-			descriptor_collection m_descriptor_collection;
 		};
 	}
 };

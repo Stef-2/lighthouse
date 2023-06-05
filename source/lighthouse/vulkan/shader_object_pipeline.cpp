@@ -13,9 +13,7 @@ lh::vulkan::shader_object_pipeline::shader_object_pipeline(const physical_device
 														   const std::vector<spir_v>& shaders,
 														   const descriptor_set_layout& descriptor_set_layout,
 														   const create_info& create_info)
-	: m_pipeline_layout {logical_device, {{}, **descriptor_set_layout}},
-	  m_shader_objects {},
-	  m_descriptor_collection {physical_device, logical_device, memory_allocator, descriptor_set_layout}
+	: m_pipeline_layout {logical_device, {{}, **descriptor_set_layout}}, m_shader_objects {}
 {
 	m_shader_objects.reserve(shaders.size());
 
@@ -32,10 +30,13 @@ auto lh::vulkan::shader_object_pipeline::shader_objects() const -> const std::ve
 	return m_shader_objects;
 }
 
+auto lh::vulkan::shader_object_pipeline::pipeline_layout() const -> const vk::raii::PipelineLayout&
+{
+	return m_pipeline_layout;
+}
+
 auto lh::vulkan::shader_object_pipeline::bind(const vk::raii::CommandBuffer& command_buffer) const -> void
 {
 	for (const auto& shader_object : m_shader_objects)
 		shader_object.bind(command_buffer);
-
-	m_descriptor_collection.bind(command_buffer, m_pipeline_layout);
 }

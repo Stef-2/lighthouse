@@ -8,7 +8,7 @@ lh::vulkan::buffer::buffer(const physical_device& physical_device,
 						   const memory_allocator& allocator,
 						   const vk::DeviceSize& size,
 						   const create_info& create_info)
-	: m_allocation_info {}, m_address {}
+	: m_allocation_info {}, m_address {}, m_size {size}
 {
 	const auto buffer_info = vk::BufferCreateInfo({}, size, create_info.m_usage);
 
@@ -41,6 +41,11 @@ auto lh::vulkan::buffer::allocation_info() -> vma::AllocationInfo&
 auto lh::vulkan::buffer::address() const -> const vk::DeviceAddress&
 {
 	return m_address;
+}
+
+auto lh::vulkan::buffer::size() const -> const vk::DeviceSize&
+{
+	return m_size;
 }
 
 lh::vulkan::mapped_buffer::mapped_buffer(const physical_device& physical_device,

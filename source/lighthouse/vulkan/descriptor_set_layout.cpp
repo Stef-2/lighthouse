@@ -6,7 +6,8 @@ lh::vulkan::descriptor_set_layout::descriptor_set_layout(const logical_device& l
 														 const create_info& create_info)
 	: m_bindings {bindings}
 {
-	auto layout_bindings = std::vector<vk::DescriptorSetLayoutBinding> {bindings.size()};
+	auto layout_bindings = std::vector<vk::DescriptorSetLayoutBinding> {};
+	layout_bindings.reserve(bindings.size());
 
 	for (const auto& binding : bindings)
 		layout_bindings.emplace_back(binding.m_location, binding.m_type, binding.m_count, create_info.m_access);
