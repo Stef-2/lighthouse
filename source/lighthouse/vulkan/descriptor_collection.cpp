@@ -8,8 +8,6 @@
 #include "lighthouse/vulkan/buffer.hpp"
 #include "lighthouse/vulkan/utility.hpp"
 
-#include "vulkan/utils/math.hpp"
-
 #pragma optimize("", off)
 lh::vulkan::descriptor_collection::descriptor_collection(const physical_device& physical_device,
 														 const logical_device& logical_device,
@@ -27,8 +25,8 @@ lh::vulkan::descriptor_collection::descriptor_collection(const physical_device& 
 		std::ranges::fold_left(descriptor_set_layout.bindings(),
 							   std::vector<vk::DeviceSize> {},
 							   [&descriptor_set_layout](auto offsets, const auto& binding) {
-								   offsets.push_back(descriptor_set_layout->getBindingOffsetEXT(binding.m_location));
-								   return offsets;
+								   offsets.push_back(descriptor_set_layout->getBindingOffsetEXT(binding.m_binding));
+								   return std::move(offsets);
 							   });
 
 	m_descriptor_buffers.reserve(collection_size);
@@ -36,8 +34,9 @@ lh::vulkan::descriptor_collection::descriptor_collection(const physical_device& 
 
 	for (std::size_t i {}; i < collection_size; i++)
 	{
-		const auto descriptor_size = descriptor_layout_size +
-									 descriptor_offsets[i]; // i > 0 ? descriptor_offsets[i] - descriptor_offsets[i -
+		const auto descriptor_size =
+		descriptor_layout_size; /*+
+									 descriptor_offsets[i];*/ // i > 0 ? descriptor_offsets[i] - descriptor_offsets[i -
 															// 1] : descriptor_offsets[1];
 
 		const auto descriptor_memory_properties = vk::MemoryPropertyFlagBits::eHostVisible |
@@ -52,7 +51,11 @@ lh::vulkan::descriptor_collection::descriptor_collection(const physical_device& 
 										  descriptor_size,
 										  mapped_buffer::create_info {.m_usage = descriptor_buffer_usage});
 
-		m_binding_infos.emplace_back(m_descriptor_buffers.back().address(), descriptor_buffer_usage);
+		offset = vulkan::utility::aligned_size(descriptor_buffer_properties.uniformBufferDescriptorSize,
+											   descriptor_buffer_properties.descriptorBufferOffsetAlignment);
+
+		m_binding_infos.emplace_back(m_descriptor_buffers.back().address(),
+									 vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT);
 
 		const auto data_address_info = vk::DescriptorAddressInfoEXT {data[i]->address(), data[i]->size()};
 
@@ -65,7 +68,7 @@ lh::vulkan::descriptor_collection::descriptor_collection(const physical_device& 
 			**logical_device,
 			&descriptor_info,
 			descriptor_collection::descriptor_size(physical_device, descriptor_set_layout.bindings()[i].m_type),
-			m_descriptor_buffers.back().allocation_info().pMappedData);
+			m_descriptor_buffers[i].allocation_info().pMappedData);
 	}
 }
 
@@ -78,10 +81,23 @@ auto lh::vulkan::descriptor_collection::bind(const vk::raii::CommandBuffer& comm
 											 const vk::raii::PipelineLayout& pipeline_layout) const -> void
 {
 	command_buffer.bindDescriptorBuffersEXT(m_binding_infos);
-	for (auto i = uint32_t {}; const auto& binding : m_binding_infos)
-	{
-		command_buffer.setDescriptorBufferOffsetsEXT(vk::PipelineBindPoint::eGraphics, *pipeline_layout, 0, {0}, {0});
-	}
+	/*
+	command_buffer.setDescriptorBufferOffsetsEXT(vk::PipelineBindPoint::eGraphics, *pipeline_layout, 0, {0}, {0});
+
+	command_buffer.bindDescriptorBuffersEXT(m_binding_infos[1]);
+	command_buffer.setDescriptorBufferOffsetsEXT(vk::PipelineBindPoint::eGraphics, *pipeline_layout, 0, {0}, {0});*/
+
+	const uint32_t indices[] = {0, 1};
+	const VkDeviceSize offsets[] = {0, 512};
+
+	command_buffer.getDispatcher()->vkCmdSetDescriptorBufferOffsetsEXT(
+		*command_buffer,
+		VkPipelineBindPoint::VK_PIPELINE_BIND_POINT_GRAPHICS,
+		*pipeline_layout,
+		0,
+		1,
+		indices,
+		offsets);
 }
 
 auto lh::vulkan::descriptor_collection::descriptor_size(const physical_device& physical_device,

@@ -34,6 +34,7 @@ namespace lh
 
 			std::vector<mapped_buffer> m_descriptor_buffers;
 			std::vector<vk::DescriptorBufferBindingInfoEXT> m_binding_infos;
+			vk::DeviceSize offset;
 		};
 	}
 }

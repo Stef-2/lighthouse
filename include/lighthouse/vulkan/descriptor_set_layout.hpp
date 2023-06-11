@@ -16,7 +16,7 @@ namespace lh
 		public:
 			struct binding
 			{
-				decltype(vk::DescriptorSetLayoutBinding::binding) m_location {};
+				decltype(vk::DescriptorSetLayoutBinding::binding) m_binding {};
 				vk::DescriptorType m_type {};
 				decltype(vk::DescriptorSetLayoutBinding::descriptorCount) m_count {1};
 				vk::DeviceSize m_size = {};

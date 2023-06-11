@@ -62,19 +62,11 @@ namespace lh
 						  const mapped_buffer::create_info& = {});
 
 			template <typename T>
-			auto map_data(const T& data, const std::size_t& count = 1, const vk::DeviceSize& stride = sizeof(T)) const
+			auto map_data(const T& data, const std::size_t& offset = 0) const
 			{
-				auto map = static_cast<uint8_t*>(m_allocation_info.pMappedData);
+				const auto map = static_cast<uint8_t*>(m_allocation_info.pMappedData) + offset;
 
-				if (stride == sizeof(T))
-					std::memcpy(map, &data, count * sizeof(T));
-
-				else
-					for (std::size_t i {}; i < count; i++)
-					{
-						std::memcpy(map, &data[i], sizeof(T));
-						map += stride;
-					}
+				std::memcpy(map, &data, sizeof(T));
 			}
 
 		private:

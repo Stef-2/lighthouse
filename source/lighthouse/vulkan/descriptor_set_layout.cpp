@@ -10,7 +10,7 @@ lh::vulkan::descriptor_set_layout::descriptor_set_layout(const logical_device& l
 	layout_bindings.reserve(bindings.size());
 
 	for (const auto& binding : bindings)
-		layout_bindings.emplace_back(binding.m_location, binding.m_type, binding.m_count, create_info.m_access);
+		layout_bindings.emplace_back(binding.m_binding, binding.m_type, binding.m_count, create_info.m_access);
 
 	const auto layout_info = vk::DescriptorSetLayoutCreateInfo(create_info.m_flags, layout_bindings);
 
