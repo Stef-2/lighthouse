@@ -33,8 +33,7 @@ namespace lh
 			auto descriptor_size(const physical_device&, const vk::DescriptorType&) -> const std::size_t;
 
 			std::vector<mapped_buffer> m_descriptor_buffers;
-			std::vector<vk::DescriptorBufferBindingInfoEXT> m_binding_infos;
-			vk::DeviceSize offset;
+			std::vector<vk::DescriptorBufferBindingInfoEXT> m_binding_info;
 		};
 	}
 }
