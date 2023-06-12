@@ -1,6 +1,7 @@
 #pragma once
 
 #include "lighthouse/vulkan/raii_wrapper.hpp"
+#include "lighthouse/utility.hpp"
 
 namespace lh
 {
@@ -14,6 +15,8 @@ namespace lh
 		class buffer : public vk_wrapper<vk::raii::Buffer>
 		{
 		public:
+			using vk_wrapper::vk_wrapper;
+
 			struct create_info
 			{
 				vk::BufferUsageFlags m_usage = {};
@@ -33,6 +36,7 @@ namespace lh
 
 			auto address() const -> const vk::DeviceAddress&;
 			auto size() const -> const vk::DeviceSize&;
+			auto create_information() const -> const create_info&;
 
 		protected:
 			vma::AllocationInfo m_allocation_info;
@@ -41,12 +45,14 @@ namespace lh
 			vk::DeviceAddress m_address;
 			vk::DeviceSize m_size;
 
-			static constexpr inline auto wtf = sizeof(vma::Allocation);
+			create_info m_create_info;
 		};
 
 		class mapped_buffer : public buffer
 		{
 		public:
+			using buffer::buffer;
+
 			struct create_info
 			{
 				vk::BufferUsageFlags m_usage = {vk::BufferUsageFlagBits::eShaderDeviceAddress};
@@ -70,6 +76,12 @@ namespace lh
 			}
 
 		private:
+		};
+
+		struct buffer_subdata
+		{
+			non_owning_ptr<mapped_buffer> m_buffer;
+			std::vector<std::pair<vk::DeviceAddress, vk::DeviceSize>> m_subdata;
 		};
 	}
 }

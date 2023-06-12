@@ -17,35 +17,29 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 	  m_command_control {m_logical_device, m_queue_families},
 	  m_queue {m_logical_device, m_queue_families},
 	  m_swapchain {m_physical_device, m_logical_device, m_surface, m_queue_families, m_memory_allocator},
-	  /*
-		m_mvp_buffer {m_physical_device,
-					  m_logical_device,
-					  m_memory_allocator,
-					  sizeof(glm::mat4x4),
-					  vulkan::mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eUniformBuffer |
-																	 vk::BufferUsageFlagBits::eShaderDeviceAddress,
-														  .m_allocation_flags =
-		vma::AllocationCreateFlagBits::eMapped}}, m_time_buffer {m_physical_device, m_logical_device,
-					   m_memory_allocator,
-					   sizeof(glm::mat4),
-					   vulkan::mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eUniformBuffer |
-																	  vk::BufferUsageFlagBits::eShaderDeviceAddress,
-														   .m_allocation_flags =
-		vma::AllocationCreateFlagBits::eMapped}},*/
-	  m_common {m_physical_device,
-				m_logical_device,
-				m_memory_allocator,
-				sizeof(glm::mat4x4) + sizeof(float),
-				vulkan::mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eUniformBuffer |
-															   vk::BufferUsageFlagBits::eShaderDeviceAddress,
-													.m_allocation_flags = vma::AllocationCreateFlagBits::eMapped}},
+
+	  m_common_descriptor_data {
+		  m_physical_device,
+		  m_logical_device,
+		  m_memory_allocator,
+		  sizeof(glm::mat4x4) + sizeof(float),
+		  vulkan::mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eUniformBuffer |
+														 vk::BufferUsageFlagBits::eShaderDeviceAddress,
+											  .m_allocation_flags = vma::AllocationCreateFlagBits::eMapped}},
+	  m_test {m_physical_device,
+			  m_logical_device,
+			  m_memory_allocator,
+			  512,
+			  vulkan::mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eUniformBuffer |
+															 vk::BufferUsageFlagBits::eShaderDeviceAddress,
+												  .m_allocation_flags = vma::AllocationCreateFlagBits::eMapped}},
+
 	  m_descriptor_set_layout {m_logical_device,
-							   {
-								   {0, vk::DescriptorType::eUniformBuffer, 1, sizeof(common)},
-							   }},
+							   {{0, vk::DescriptorType::eUniformBuffer, 1, sizeof(glm::mat4x4)},
+								{1, vk::DescriptorType::eUniformBuffer, 1, sizeof(float)}}},
 
 	  m_descriptor_collection {
-		  m_physical_device, m_logical_device, m_memory_allocator, m_descriptor_set_layout, {&m_common}},
+		  m_physical_device, m_logical_device, m_memory_allocator, m_descriptor_set_layout, {&m_test}},
 
 	  m_vertex_buffer {m_physical_device,
 					   m_logical_device,
@@ -123,7 +117,9 @@ auto lh::renderer::render() -> void
 	// m_mvp_buffer.map_data(mvpcMatrix);
 
 	common omg = {mvpcMatrix, sin(time)};
-	m_common.map_data(omg);
+	m_common_descriptor_data.map_data(omg);
+	m_test.map_data(mvpcMatrix);
+	m_test.map_data(sin(time), 256);
 	glm::mat4 wtf {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 	// m_time_buffer.map_data(wtf);
 

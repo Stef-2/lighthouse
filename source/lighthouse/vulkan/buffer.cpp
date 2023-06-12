@@ -8,7 +8,7 @@ lh::vulkan::buffer::buffer(const physical_device& physical_device,
 						   const memory_allocator& allocator,
 						   const vk::DeviceSize& size,
 						   const create_info& create_info)
-	: m_allocation_info {}, m_address {}, m_size {size}
+	: m_allocation_info {}, m_address {}, m_size {size}, m_create_info {create_info}
 {
 	const auto buffer_info = vk::BufferCreateInfo({}, size, create_info.m_usage);
 
@@ -48,6 +48,11 @@ auto lh::vulkan::buffer::size() const -> const vk::DeviceSize&
 	return m_size;
 }
 
+auto lh::vulkan::buffer::create_information() const -> const create_info&
+{
+	return m_create_info;
+}
+
 lh::vulkan::mapped_buffer::mapped_buffer(const physical_device& physical_device,
 										 const logical_device& logical_device,
 										 const memory_allocator& allocator,
@@ -60,4 +65,10 @@ lh::vulkan::mapped_buffer::mapped_buffer(const physical_device& physical_device,
 			 buffer::create_info {.m_usage = create_info.m_usage,
 								  .m_allocation_flags = create_info.m_allocation_flags,
 								  .m_properties = create_info.m_properties})
-{}
+
+{
+	/*
+	std::vector<uint8_t> data;
+	data.assign(m_size, 1);
+	map_data(data);*/
+}

@@ -7,11 +7,12 @@ namespace lh
 	namespace vulkan
 	{
 
-		template <typename T> class vk_wrapper
+		template <typename T>
+		class vk_wrapper
 		{
 		public:
 			vk_wrapper(T&& object) noexcept : m_object(std::move(object)) {};
-			vk_wrapper(nullptr_t null = nullptr) : m_object(null) {};
+			vk_wrapper(std::nullptr_t null = nullptr) : m_object(null) {};
 
 			// disallow copy constructors, in line with vulkan raii types
 			vk_wrapper(const T&) = delete;

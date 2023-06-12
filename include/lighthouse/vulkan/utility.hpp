@@ -1,5 +1,7 @@
 #pragma once
 
+#include "lighthouse/utility.hpp"
+
 namespace lh
 {
 	namespace vulkan
@@ -13,6 +15,7 @@ namespace lh
 			{
 				return (value + alignment - 1) & ~(alignment - 1);
 			}
+
 		}
 	}
 }
