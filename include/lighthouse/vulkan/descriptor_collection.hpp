@@ -19,7 +19,9 @@ namespace lh
 		public:
 			struct create_info
 			{
-				vk::PipelineBindPoint m_bind_point
+				vk::PipelineBindPoint m_bind_point;
+				vk::MemoryPropertyFlags descriptor_collection_memory_properties =
+					vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
 			};
 
 			descriptor_collection(const physical_device&,
@@ -34,7 +36,7 @@ namespace lh
 
 		private:
 			auto descriptor_size(const physical_device&, const vk::DescriptorType&) -> const std::size_t;
-			auto descriptor_usage(const descriptor_set_layout&) -> const vk::BufferUsageFlags;
+			auto descriptor_buffer_usage(const descriptor_set_layout&) -> const vk::BufferUsageFlags;
 
 			std::unique_ptr<mapped_buffer> m_descriptor_buffer;
 			std::vector<vk::DescriptorBufferBindingInfoEXT> m_binding_info;

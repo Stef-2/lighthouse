@@ -42,7 +42,7 @@ namespace lh
 		vulkan::queue m_queue;
 		vulkan::swapchain m_swapchain;
 
-		vulkan::mapped_buffer m_common_descriptor_data;
+		// vulkan::mapped_buffer m_common_descriptor_data;
 		vulkan::mapped_buffer m_test;
 
 		vulkan::descriptor_set_layout m_descriptor_set_layout;

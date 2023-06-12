@@ -80,8 +80,14 @@ namespace lh
 
 		struct buffer_subdata
 		{
+			struct subdata
+			{
+				vk::DeviceAddress m_offset;
+				vk::DeviceSize m_size;
+			};
+
 			non_owning_ptr<mapped_buffer> m_buffer;
-			std::vector<std::pair<vk::DeviceAddress, vk::DeviceSize>> m_subdata;
+			std::vector<subdata> m_subdata;
 		};
 	}
 }
