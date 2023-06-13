@@ -30,7 +30,7 @@ namespace lh
 				vk::ImageViewType m_image_view_type = vk::ImageViewType::e2D;
 				vk::ImageAspectFlagBits m_image_aspect = vk::ImageAspectFlagBits::eColor;
 
-				vk::ClearColorValue m_clear_color = {0.5f, 0.5f, 0.5f, 0.5f};
+				vk::ClearColorValue m_clear_color = {1.0f, 1.0f, 1.0f, 1.0f};
 				vk::ClearDepthStencilValue m_clear_depth_stencil = {1.0f, 1u};
 
 				image_timeout_t m_next_image_timeout = 100000000;

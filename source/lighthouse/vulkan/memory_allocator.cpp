@@ -3,6 +3,8 @@
 #include "lighthouse/vulkan/physical_device.hpp"
 #include "lighthouse/vulkan/logical_device.hpp"
 
+#include <ranges>
+
 #define VMA_IMPLEMENTATION
 
 lh::vulkan::memory_allocator::memory_allocator(const instance& instance,
@@ -12,11 +14,15 @@ lh::vulkan::memory_allocator::memory_allocator(const instance& instance,
 {
 	auto allocator_extensions = vma::AllocatorCreateFlags {};
 
+	const auto assert_version_above_1_2 = instance.version() >= lh::version {1, 2, 0};
+
 	if (std::ranges::contains(physical_device.extensions().required_extensions(), VK_EXT_MEMORY_BUDGET_EXTENSION_NAME))
 		allocator_extensions |= vma::AllocatorCreateFlagBits::eExtMemoryBudget;
 
 	if (std::ranges::contains(physical_device.extensions().required_extensions(),
-							  VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME))
+							  VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME) or
+		assert_version_above_1_2)
+
 		allocator_extensions |= vma::AllocatorCreateFlagBits::eBufferDeviceAddress;
 
 	const auto allocator_info = vma::AllocatorCreateInfo {allocator_extensions,

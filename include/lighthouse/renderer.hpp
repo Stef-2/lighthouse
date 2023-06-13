@@ -15,18 +15,20 @@ namespace lh
 	public:
 		struct create_info
 		{
-			version m_engine_version = version::m_engine_version;
-			version m_vulkan_version = version::m_vulkan_version;
+			version m_engine_version;
+			version m_vulkan_version;
 
 			bool m_using_validation = true;
 		};
 
-		renderer(const window&, const create_info& = {});
+		renderer(const window&, const create_info&);
 
 		auto render() -> void;
 
 	private:
-		auto info(const create_info& = {}) -> string::string_t;
+		auto info(const create_info&) -> string::string_t;
+
+		create_info m_create_info;
 
 		vulkan::instance m_instance;
 

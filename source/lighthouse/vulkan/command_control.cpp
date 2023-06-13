@@ -20,7 +20,17 @@ auto lh::vulkan::command_control::command_buffers() const -> const vk::raii::Com
 	return m_buffers;
 }
 
+auto lh::vulkan::command_control::first_command_buffer() const -> const vk::raii::CommandBuffer&
+{
+	return m_buffers.front();
+}
+
 auto lh::vulkan::command_control::usage_flags() const -> const vk::CommandBufferUsageFlags&
 {
 	return m_usage_flags;
+}
+
+auto lh::vulkan::command_control::reset() const -> void
+{
+	m_object.reset(vk::CommandPoolResetFlagBits::eReleaseResources);
 }

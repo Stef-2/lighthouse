@@ -12,7 +12,13 @@ namespace lh
 	class engine
 	{
 	public:
-		engine(std::unique_ptr<window>, const renderer::create_info& = {});
+		struct create_info
+		{
+			lh::version m_engine_version {0, 1, 6};
+			lh::version m_renderer_version {1, 3, 250};
+		};
+
+		engine(std::unique_ptr<window>, const create_info& = {});
 
 		~engine();
 

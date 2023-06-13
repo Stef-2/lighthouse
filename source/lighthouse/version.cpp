@@ -1,8 +1,5 @@
 #include "lighthouse/version.hpp"
 
-const lh::version lh::version::m_engine_version = {0, 2, 0};
-const lh::version lh::version::m_vulkan_version = {1, 3, 0};
-
 lh::version::operator lh::string::string_t() const
 {
 	return std::to_string(major()) + ':' + std::to_string(minor()) + ':' + std::to_string(patch());

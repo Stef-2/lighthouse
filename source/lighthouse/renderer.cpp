@@ -2,7 +2,10 @@
 #include "lighthouse/input.hpp"
 
 lh::renderer::renderer(const window& window, const create_info& create_info)
-	: m_instance(window),
+	: m_create_info {create_info},
+	  m_instance(window,
+				 vulkan::instance::create_info {.m_engine_version = create_info.m_engine_version,
+												.m_vulkan_version = create_info.m_vulkan_version}),
 	  m_physical_device {m_instance},
 	  m_surface {window, m_instance, m_physical_device},
 	  m_queue_families {m_physical_device, m_surface},
@@ -20,7 +23,7 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 		  m_physical_device,
 		  m_logical_device,
 		  m_memory_allocator,
-		  sizeof(glm::mat4x4) + sizeof(float),
+		  256, // sizeof(glm::mat4x4) + sizeof(float),
 		  vulkan::mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eUniformBuffer |
 														 vk::BufferUsageFlagBits::eShaderDeviceAddress,
 											  .m_allocation_flags = vma::AllocationCreateFlagBits::eMapped}},
@@ -68,15 +71,16 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 {
 	m_vertex_buffer.map_data(coloredCubeData);
 
-	if (create_info.m_using_validation)
-		output::log() << info();
+	if (m_create_info.m_using_validation)
+		output::log() << info(m_create_info);
 }
 
 auto lh::renderer::render() -> void
 {
 	vk::raii::Semaphore semaphore(m_logical_device, vk::SemaphoreCreateInfo());
 
-	const auto& command_buffer = m_command_control.command_buffers().front();
+	m_command_control.reset();
+	const auto& command_buffer = m_command_control.first_command_buffer();
 	command_buffer.begin({m_command_control.usage_flags()});
 
 	auto [result, image_index, render_info] = m_swapchain.next_image_info(command_buffer, semaphore);

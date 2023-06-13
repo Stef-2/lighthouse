@@ -2,6 +2,8 @@
 
 #include "lighthouse/string/string.hpp"
 
+#include <compare>
+
 namespace lh
 {
 	struct version
@@ -23,11 +25,10 @@ namespace lh
 		// implicit conversion to a readable string format
 		operator lh::string::string_t() const;
 
-		static const version m_engine_version;
-		static const version m_vulkan_version;
+		auto operator<=>(const version&) const = default;
 
 	private:
 		packed_version_t m_version {};
-		static inline int m_pack_offset = 0xFF;
+		static inline constexpr auto m_pack_offset = 0xFF;
 	};
 }

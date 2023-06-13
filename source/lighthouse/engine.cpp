@@ -3,8 +3,11 @@
 #include "lighthouse/version.hpp"
 #include "lighthouse/input.hpp"
 
-lh::engine::engine(std::unique_ptr<lh::window> window, const renderer::create_info& create_info)
-	: m_window(std::move(window)), m_version(create_info.m_engine_version), m_renderer(*m_window, create_info)
+lh::engine::engine(std::unique_ptr<lh::window> window, const create_info& engine_create_info)
+	: m_window(std::move(window)),
+	  m_version(engine_create_info.m_engine_version),
+	  m_renderer(*m_window,
+				 renderer::create_info {engine_create_info.m_engine_version, engine_create_info.m_renderer_version})
 {
 	engine::initialize();
 	input::initialize(*m_window);

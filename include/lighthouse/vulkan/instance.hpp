@@ -17,8 +17,8 @@ namespace lh
 		public:
 			struct create_info
 			{
-				lh::version m_engine_version = lh::version::m_engine_version;
-				lh::version m_vulkan_version = lh::version::m_vulkan_version;
+				lh::version m_engine_version;
+				lh::version m_vulkan_version;
 				logical_extensions::create_info m_extensions = {
 					{VK_EXT_DEBUG_UTILS_EXTENSION_NAME, VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME}
 
@@ -30,7 +30,7 @@ namespace lh
 				debug_messanger::create_info m_debug_messanger = {};
 			};
 
-			instance(const lh::window&, const create_info& = {});
+			instance(const lh::window&, const create_info&);
 
 			auto info() const -> lh::string::string_t override;
 			auto validation_layers() const -> std::optional<vulkan::validation_layers>;

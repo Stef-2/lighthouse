@@ -66,9 +66,4 @@ lh::vulkan::mapped_buffer::mapped_buffer(const physical_device& physical_device,
 								  .m_allocation_flags = create_info.m_allocation_flags,
 								  .m_properties = create_info.m_properties})
 
-{
-	/*
-	std::vector<uint8_t> data;
-	data.assign(m_size, 1);
-	map_data(data);*/
-}
+{}
