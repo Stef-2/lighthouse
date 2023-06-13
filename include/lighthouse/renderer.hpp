@@ -17,7 +17,7 @@ namespace lh
 		{
 			version m_engine_version = version::m_engine_version;
 			version m_vulkan_version = version::m_vulkan_version;
-			uint32_t m_frames_in_flight = 2;
+
 			bool m_using_validation = true;
 		};
 
@@ -42,11 +42,10 @@ namespace lh
 		vulkan::queue m_queue;
 		vulkan::swapchain m_swapchain;
 
-		// vulkan::mapped_buffer m_common_descriptor_data;
-		vulkan::mapped_buffer m_test;
+		vulkan::mapped_buffer m_common_descriptor_data;
 
 		vulkan::descriptor_set_layout m_descriptor_set_layout;
-		vulkan::descriptor_collection m_descriptor_collection;
+		vulkan::descriptor_buffer m_descriptor_buffer;
 
 		vulkan::shader_object m_vertex_object;
 		vulkan::shader_object m_fragment_object;
@@ -55,11 +54,5 @@ namespace lh
 		vk::raii::PipelineLayout m_pipeline_layout;
 
 		vulkan::mapped_buffer m_vertex_buffer;
-
-		struct common
-		{
-			glm::mat4x4 mvp;
-			float time;
-		};
 	};
 }

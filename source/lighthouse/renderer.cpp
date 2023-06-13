@@ -16,32 +16,24 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 	  m_command_control {m_logical_device, m_queue_families},
 	  m_queue {m_logical_device, m_queue_families},
 	  m_swapchain {m_physical_device, m_logical_device, m_surface, m_queue_families, m_memory_allocator},
-	  /*
-		m_common_descriptor_data {
-			m_physical_device,
-			m_logical_device,
-			m_memory_allocator,
-			sizeof(glm::mat4x4) + sizeof(float),
-			vulkan::mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eUniformBuffer |
-														   vk::BufferUsageFlagBits::eShaderDeviceAddress,
-												.m_allocation_flags = vma::AllocationCreateFlagBits::eMapped}},*/
-	  m_test {m_physical_device,
-			  m_logical_device,
-			  m_memory_allocator,
-			  128,
-			  vulkan::mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eUniformBuffer |
-															 vk::BufferUsageFlagBits::eShaderDeviceAddress,
-												  .m_allocation_flags = vma::AllocationCreateFlagBits::eMapped}},
+	  m_common_descriptor_data {
+		  m_physical_device,
+		  m_logical_device,
+		  m_memory_allocator,
+		  sizeof(glm::mat4x4) + sizeof(float),
+		  vulkan::mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eUniformBuffer |
+														 vk::BufferUsageFlagBits::eShaderDeviceAddress,
+											  .m_allocation_flags = vma::AllocationCreateFlagBits::eMapped}},
 
 	  m_descriptor_set_layout {m_logical_device,
 							   {{0, vk::DescriptorType::eUniformBuffer, 1},
 								{1, vk::DescriptorType::eUniformBuffer, 1}}},
 
-	  m_descriptor_collection {m_physical_device,
-							   m_logical_device,
-							   m_memory_allocator,
-							   m_descriptor_set_layout,
-							   vulkan::buffer_subdata {&m_test, {{0, 64}, {64, 4}}}},
+	  m_descriptor_buffer {m_physical_device,
+						   m_logical_device,
+						   m_memory_allocator,
+						   m_descriptor_set_layout,
+						   vulkan::buffer_subdata {&m_common_descriptor_data, {{0, 64}, {64, 4}}}},
 
 	  m_vertex_buffer {
 		  m_physical_device,
@@ -85,8 +77,7 @@ auto lh::renderer::render() -> void
 	vk::raii::Semaphore semaphore(m_logical_device, vk::SemaphoreCreateInfo());
 
 	const auto& command_buffer = m_command_control.command_buffers().front();
-
-	command_buffer.begin({});
+	command_buffer.begin({m_command_control.usage_flags()});
 
 	auto [result, image_index, render_info] = m_swapchain.next_image_info(command_buffer, semaphore);
 
@@ -119,10 +110,10 @@ auto lh::renderer::render() -> void
 	glm::mat4x4 mvpcMatrix = vk::su::createModelViewProjectionClipMatrix(m_surface.extent());
 	mvpcMatrix = glm::rotate(mvpcMatrix, glm::sin(time), glm::vec3 {1.0f, 1.0f, 1.0f});
 
-	m_test.map_data(mvpcMatrix);
-	m_test.map_data(sin(time), 64);
+	m_common_descriptor_data.map_data(mvpcMatrix);
+	m_common_descriptor_data.map_data(sin(time), 64);
 
-	m_descriptor_collection.bind(command_buffer, m_pipeline_layout);
+	m_descriptor_buffer.bind(command_buffer, m_pipeline_layout);
 
 	// ==================
 

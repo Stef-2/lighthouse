@@ -1,6 +1,6 @@
 #pragma once
 
-#include "lighthouse/vulkan/descriptor_collection.hpp"
+#include "lighthouse/vulkan/descriptor_buffer.hpp"
 #include "lighthouse/vulkan/physical_device.hpp"
 #include "lighthouse/vulkan/logical_device.hpp"
 #include "lighthouse/vulkan/memory_allocator.hpp"
@@ -9,31 +9,34 @@
 #include "lighthouse/vulkan/utility.hpp"
 
 #pragma optimize("", off)
-lh::vulkan::descriptor_collection::descriptor_collection(const physical_device& physical_device,
-														 const logical_device& logical_device,
-														 const memory_allocator& memory_allocator,
-														 const descriptor_set_layout& descriptor_set_layout,
-														 const buffer_subdata& data,
-														 const create_info& create_info)
+lh::vulkan::descriptor_buffer::descriptor_buffer(const physical_device& physical_device,
+												 const logical_device& logical_device,
+												 const memory_allocator& memory_allocator,
+												 const descriptor_set_layout& descriptor_set_layout,
+												 const buffer_subdata& data,
+												 const create_info& create_info)
 	: m_descriptor_buffer {}, m_binding_info {}, m_bind_point {create_info.m_bind_point}
 {
-	const auto assert_binding_and_data_matching = descriptor_set_layout.bindings().size() == data.m_subdata.size();
+	const auto binding_count = descriptor_set_layout.bindings().size();
+
+	const auto assert_binding_and_data_matching = binding_count == data.m_subdata.size();
 	if (not assert_binding_and_data_matching)
 		output::error() << "descriptor set layout bindings and provided buffer data do not match";
 
 	const auto descriptor_buffer_properties = physical_device.properties().m_descriptor_buffer_properties;
-	m_binding_info.reserve(descriptor_set_layout.bindings().size());
+	m_binding_info.reserve(binding_count);
 
 	m_descriptor_buffer = std::make_unique<mapped_buffer>(
 		physical_device,
 		logical_device,
 		memory_allocator,
-		descriptor_set_layout->getSizeEXT() * descriptor_set_layout.bindings().size(),
+		descriptor_set_layout->getSizeEXT() * binding_count,
 		mapped_buffer::create_info {.m_usage = descriptor_buffer_usage(descriptor_set_layout),
 									.m_properties = create_info.descriptor_collection_memory_properties});
 
-	for (std::size_t i {}; const auto& binding : descriptor_set_layout.bindings())
+	for (std::size_t i {}; i < binding_count; i++)
 	{
+		const auto& binding = descriptor_set_layout.bindings()[i];
 		const auto binding_offset = descriptor_set_layout->getBindingOffsetEXT(binding.m_binding);
 
 		m_binding_info.emplace_back(
@@ -51,26 +54,25 @@ lh::vulkan::descriptor_collection::descriptor_collection(const physical_device& 
 		logical_device->getDispatcher()->vkGetDescriptorEXT(
 			**logical_device,
 			&descriptor_info,
-			descriptor_collection::descriptor_size(physical_device, binding.m_type),
+			descriptor_buffer::descriptor_size(physical_device, binding.m_type),
 			static_cast<std::byte*>(m_descriptor_buffer->allocation_info().pMappedData) + binding_offset);
-		i++;
 	}
 }
 
-auto lh::vulkan::descriptor_collection::descriptor_buffer() -> const mapped_buffer&
+auto lh::vulkan::descriptor_buffer::buffer() -> const mapped_buffer&
 {
 	return *m_descriptor_buffer;
 }
 
-auto lh::vulkan::descriptor_collection::bind(const vk::raii::CommandBuffer& command_buffer,
-											 const vk::raii::PipelineLayout& pipeline_layout) const -> void
+auto lh::vulkan::descriptor_buffer::bind(const vk::raii::CommandBuffer& command_buffer,
+										 const vk::raii::PipelineLayout& pipeline_layout) const -> void
 {
 	command_buffer.bindDescriptorBuffersEXT(m_binding_info);
 	command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point, *pipeline_layout, 0, {0}, {0});
 }
 
-auto lh::vulkan::descriptor_collection::descriptor_size(const physical_device& physical_device,
-														const vk::DescriptorType& descriptor_type) -> const std::size_t
+auto lh::vulkan::descriptor_buffer::descriptor_size(const physical_device& physical_device,
+													const vk::DescriptorType& descriptor_type) -> const std::size_t
 {
 	const auto& descriptor_properties = physical_device.properties().m_descriptor_buffer_properties;
 
@@ -85,7 +87,7 @@ auto lh::vulkan::descriptor_collection::descriptor_size(const physical_device& p
 	std::unreachable();
 }
 
-auto lh::vulkan::descriptor_collection::descriptor_buffer_usage(const descriptor_set_layout& descriptor_set_layout)
+auto lh::vulkan::descriptor_buffer::descriptor_buffer_usage(const descriptor_set_layout& descriptor_set_layout)
 	-> const vk::BufferUsageFlags
 {
 	auto usage = vk::BufferUsageFlags {vk::BufferUsageFlagBits::eShaderDeviceAddress};

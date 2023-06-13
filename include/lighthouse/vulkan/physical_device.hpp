@@ -20,8 +20,6 @@ namespace lh
 			{
 				physical_extensions::create_info m_extensions {{VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 																VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
-																VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
-																VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
 																VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME,
 																VK_EXT_SHADER_OBJECT_EXTENSION_NAME,
 																VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME,

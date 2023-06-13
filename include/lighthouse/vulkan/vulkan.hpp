@@ -25,7 +25,7 @@
 #include "lighthouse/vulkan/shader_module.hpp"
 #include "lighthouse/vulkan/shader_object.hpp"
 #include "lighthouse/vulkan/descriptor_set_layout.hpp"
-#include "lighthouse/vulkan/descriptor_collection.hpp"
+#include "lighthouse/vulkan/descriptor_buffer.hpp"
 #include "lighthouse/vulkan/shader_object_pipeline.hpp"
 #include "lighthouse/vulkan/utility.hpp"
 #include "lighthouse/window.hpp"

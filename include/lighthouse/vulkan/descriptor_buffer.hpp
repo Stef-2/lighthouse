@@ -14,7 +14,7 @@ namespace lh
 		class mapped_buffer;
 		struct buffer_subdata;
 
-		class descriptor_collection
+		class descriptor_buffer
 		{
 		public:
 			struct create_info
@@ -24,14 +24,14 @@ namespace lh
 					vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
 			};
 
-			descriptor_collection(const physical_device&,
-								  const logical_device&,
-								  const memory_allocator&,
-								  const descriptor_set_layout&,
-								  const buffer_subdata&,
-								  const create_info& = {});
+			descriptor_buffer(const physical_device&,
+							  const logical_device&,
+							  const memory_allocator&,
+							  const descriptor_set_layout&,
+							  const buffer_subdata&,
+							  const create_info& = {});
 
-			auto descriptor_buffer() -> const mapped_buffer&;
+			auto buffer() -> const mapped_buffer&;
 			auto bind(const vk::raii::CommandBuffer&, const vk::raii::PipelineLayout&) const -> void;
 
 		private:

@@ -17,6 +17,7 @@ namespace lh
 			struct create_info
 			{
 				vk::CommandPoolCreateFlags m_pool_flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
+				vk::CommandBufferUsageFlags m_usage_flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
 
 				vk::CommandBufferLevel m_buffer_level = vk::CommandBufferLevel::ePrimary;
 				decltype(vk::CommandBufferAllocateInfo::commandBufferCount) m_num_buffers = {1};
@@ -25,9 +26,11 @@ namespace lh
 			command_control(const vulkan::logical_device&, const vulkan::queue_families&, const create_info& = {});
 
 			auto command_buffers() const -> const vk::raii::CommandBuffers&;
+			auto usage_flags() const -> const vk::CommandBufferUsageFlags&;
 
 		private:
 			vk::raii::CommandBuffers m_buffers;
+			vk::CommandBufferUsageFlags m_usage_flags;
 		};
 	}
 }
