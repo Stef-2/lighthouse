@@ -135,7 +135,8 @@ auto lh::renderer::render() -> void
 	command_buffer.draw(12 * 3, 1, 0, 0);
 	command_buffer.endRendering();
 
-	m_swapchain.transition_layout_for_presentation(command_buffer);
+	// m_swapchain.transition_layout_for_presentation(command_buffer);
+	m_swapchain.transition_layout<vulkan::swapchain::layout_state::presentation>(command_buffer);
 	command_buffer.end();
 
 	vk::raii::Fence drawFence(m_logical_device, vk::FenceCreateInfo());

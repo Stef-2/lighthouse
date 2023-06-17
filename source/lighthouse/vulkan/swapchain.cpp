@@ -26,21 +26,21 @@ lh::vulkan::swapchain::swapchain(const vulkan::physical_device& physical_device,
 	  m_current_image_index {},
 	  m_next_image_timeout {create_info.m_next_image_timeout},
 	  m_color_attachment {{},
-						  vk::ImageLayout::eAttachmentOptimal,
+						  create_info.m_color_attachment_create_info.m_layout,
 						  {},
 						  {},
 						  {},
-						  vk::AttachmentLoadOp::eClear,
-						  vk::AttachmentStoreOp::eStore,
-						  create_info.m_clear_color},
+						  create_info.m_color_attachment_create_info.m_load_operation,
+						  create_info.m_color_attachment_create_info.m_store_operation,
+						  create_info.m_color_attachment_create_info.m_clear_color},
 	  m_depth_stencil_attachment {*m_depth_stencil_buffer.view(),
-								  vk::ImageLayout::eDepthStencilAttachmentOptimal,
+								  create_info.m_depth_stencil_attachment_create_info.m_layout,
 								  {},
 								  {},
 								  {},
-								  vk::AttachmentLoadOp::eClear,
-								  vk::AttachmentStoreOp::eStore,
-								  create_info.m_clear_depth_stencil}
+								  create_info.m_depth_stencil_attachment_create_info.m_load_operation,
+								  create_info.m_depth_stencil_attachment_create_info.m_store_operation,
+								  create_info.m_depth_stencil_attachment_create_info.m_clear_value}
 {
 
 	auto queue_family_indices = {queue_families.graphics().m_index, queue_families.present().m_index};
@@ -96,7 +96,72 @@ auto lh::vulkan::swapchain::depth_stencil_buffer() const -> const image&
 {
 	return m_depth_stencil_buffer;
 }
+/*
+template <lh::vulkan::swapchain::layout_state state>
+auto lh::vulkan::swapchain::transition_layout(const vk::raii::CommandBuffer& command_buffer) const -> void
+{
+	constexpr auto queue_ownership = uint32_t {0};
 
+	constexpr auto top_of_pipe = vk::PipelineStageFlagBits2::eTopOfPipe;
+	constexpr auto bottom_of_pipe = vk::PipelineStageFlagBits2::eBottomOfPipe;
+
+	constexpr auto undefined_layout = vk::ImageLayout::eUndefined;
+	constexpr auto present_layout = vk::ImageLayout::ePresentSrcKHR;
+
+	constexpr auto color_layout = vk::ImageLayout::eColorAttachmentOptimal;
+	constexpr auto depth_stencil_layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+
+	constexpr auto color_aspect = vk::ImageAspectFlagBits::eColor;
+	constexpr auto depth_stencil_aspect = vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil;
+
+	constexpr auto color_access = vk::AccessFlags2 {vk::AccessFlagBits2::eColorAttachmentWrite};
+	constexpr auto depth_stencil_access = vk::AccessFlags2 {vk::AccessFlagBits2::eDepthStencilAttachmentWrite};
+
+	constexpr auto color_subresource_range = vk::ImageSubresourceRange {color_aspect, 0, 1, 0, 1};
+	constexpr auto depth_stencil_subresource_range = vk::ImageSubresourceRange {depth_stencil_aspect, 0, 1, 0, 1};
+
+	constexpr auto color_output_stage = vk::PipelineStageFlagBits2::eColorAttachmentOutput;
+	constexpr auto depth_stencil_output_stage = vk::PipelineStageFlagBits2::eEarlyFragmentTests |
+												vk::PipelineStageFlagBits2::eLateFragmentTests;
+
+	constexpr auto pipeline_stage = (state == layout_state::rendering) ? top_of_pipe : bottom_of_pipe;
+
+	constexpr auto color_transition_to_rendering = (state == layout_state::rendering) ? undefined_layout : color_layout;
+	constexpr auto depth_stencil_transition_to_rendering = (state == layout_state::rendering) ? undefined_layout
+																							  : depth_stencil_layout;
+
+	constexpr auto color_transition_to_presentation = (state == layout_state::presentation) ? color_layout
+																							: present_layout;
+	constexpr auto depth_stencil_transition_to_presentation = (state == layout_state::presentation)
+																  ? depth_stencil_layout
+																  : present_layout;
+
+	const auto color_image_barrier = vk::ImageMemoryBarrier2 {pipeline_stage,
+															  color_access,
+															  color_output_stage,
+															  color_access,
+															  color_transition_to_rendering,
+															  color_transition_to_presentation,
+															  queue_ownership,
+															  queue_ownership,
+															  m_object.getImages()[m_current_image_index],
+															  color_subresource_range};
+
+	const auto depth_stencil_barrier = vk::ImageMemoryBarrier2 {pipeline_stage,
+																depth_stencil_access,
+																depth_stencil_output_stage,
+																depth_stencil_access,
+																depth_stencil_transition_to_rendering,
+																depth_stencil_transition_to_presentation,
+																queue_ownership,
+																queue_ownership,
+																**m_depth_stencil_buffer,
+																depth_stencil_subresource_range};
+
+const auto dependency_info = vk::DependencyInfo {{}, {}, {}, {color_image_barrier , depth_stencil_barrier}};
+command_buffer.pipelineBarrier2(dependency_info);
+}
+*/
 auto lh::vulkan::swapchain::next_image_info(const vk::raii::CommandBuffer& command_buffer,
 											const vk::raii::Semaphore& semaphore)
 	-> const std::tuple<vk::Result, image_index_t, vk::RenderingInfo>
@@ -106,7 +171,8 @@ auto lh::vulkan::swapchain::next_image_info(const vk::raii::CommandBuffer& comma
 	m_current_image_index = image_index;
 	m_color_attachment.imageView = *m_views[m_current_image_index];
 
-	transition_layout_for_rendering(command_buffer);
+	// transition_layout_for_rendering(command_buffer);
+	transition_layout<layout_state::rendering>(command_buffer);
 
 	return {result,
 			m_current_image_index,
