@@ -1,6 +1,6 @@
 #pragma once
 
-#include "lighthouse/renderer.hpp"
+#include "lighthouse/renderer/renderer.hpp"
 
 namespace lh
 {

@@ -1,5 +1,5 @@
-#include "window.hpp"
-#include "output.hpp"
+#include "lighthouse/window.hpp"
+#include "lighthouse/output.hpp"
 
 lh::window::window(const create_info& create_info) : m_title(create_info.m_name)
 {

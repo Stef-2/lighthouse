@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vkfw.hpp"
+#include "vkfw/vkfw.hpp"
 
 #include "lighthouse/static.hpp"
 #include "lighthouse/string/string.hpp"

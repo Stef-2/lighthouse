@@ -1,4 +1,4 @@
-#include "node.hpp"
+#include "lighthouse/node.hpp"
 
 #include <functional>
 

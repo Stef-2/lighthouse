@@ -15,7 +15,7 @@ cmake_path(SET library ${CMAKE_CURRENT_SOURCE_DIR}/library)
 # Add source to this project's executable.
 add_executable(
 	${PROJECT_NAME} 
-	#${module}/lighthouse/vulkan/vulkan.ixx ${source}/../vulkan/vulkan.cpp
+	#${module}/lighthouse/renderer/vulkan/vulkan.ixx ${source}/../vulkan/vulkan.cpp
 	#${module}/std/std.ixx ${source}/../std/std.cpp
 	${source}/lighthouse/lightHouse.cpp
 	${source}/lighthouse/window.cpp
@@ -23,7 +23,7 @@ add_executable(
 	${source}/lighthouse/input.cpp
 	${source}/lighthouse/filesystem.cpp
 	${source}/lighthouse/engine.cpp
-	${source}/lighthouse/renderer.cpp
+	${source}/lighthouse/renderer/renderer.cpp
 	${source}/lighthouse/version.cpp
 	${source}/lighthouse/node.cpp
 	#${source}/vulkan/shaders.cpp
@@ -32,28 +32,28 @@ add_executable(
 	${source}/lighthouse/system.cpp
 	${source}/lighthouse/memory.cpp
 	${source}/vulkan/vma_implementation.cpp
-	${source}/lighthouse/vulkan/vulkan.cpp
-	${source}/lighthouse/vulkan/extension.cpp
-	${source}/lighthouse/vulkan/instance.cpp
-	${source}/lighthouse/vulkan/debug_messanger.cpp
-	${source}/lighthouse/vulkan/physical_device.cpp
-	${source}/lighthouse/vulkan/logical_device.cpp
-	${source}/lighthouse/vulkan/surface.cpp
-	${source}/lighthouse/vulkan/queue_families.cpp
-	${source}/lighthouse/vulkan/memory_allocator.cpp
-	${source}/lighthouse/vulkan/command_control.cpp
-	${source}/lighthouse/vulkan/queue.cpp
-	${source}/lighthouse/vulkan/image.cpp
-	${source}/lighthouse/vulkan/swapchain.cpp
-	${source}/lighthouse/vulkan/shader_module.cpp
-	${source}/lighthouse/vulkan/descriptor_set_layout.cpp
-	${source}/lighthouse/vulkan/buffer.cpp
-	${source}/lighthouse/vulkan/sampler.cpp
-	${source}/lighthouse/vulkan/descriptor_buffer.cpp
-	${source}/lighthouse/vulkan/spir_v.cpp
-	${source}/lighthouse/vulkan/shader_object.cpp
-	${source}/lighthouse/vulkan/vertex_buffer.cpp
-	${source}/lighthouse/vulkan/shader_object_pipeline.cpp
+	${source}/lighthouse/renderer/vulkan/vulkan.cpp
+	${source}/lighthouse/renderer/vulkan/extension.cpp
+	${source}/lighthouse/renderer/vulkan/instance.cpp
+	${source}/lighthouse/renderer/vulkan/debug_messanger.cpp
+	${source}/lighthouse/renderer/vulkan/physical_device.cpp
+	${source}/lighthouse/renderer/vulkan/logical_device.cpp
+	${source}/lighthouse/renderer/vulkan/surface.cpp
+	${source}/lighthouse/renderer/vulkan/queue_families.cpp
+	${source}/lighthouse/renderer/vulkan/memory_allocator.cpp
+	${source}/lighthouse/renderer/vulkan/command_control.cpp
+	${source}/lighthouse/renderer/vulkan/queue.cpp
+	${source}/lighthouse/renderer/vulkan/image.cpp
+	${source}/lighthouse/renderer/vulkan/swapchain.cpp
+	${source}/lighthouse/renderer/vulkan/shader_module.cpp
+	${source}/lighthouse/renderer/vulkan/descriptor_set_layout.cpp
+	${source}/lighthouse/renderer/vulkan/buffer.cpp
+	${source}/lighthouse/renderer/vulkan/sampler.cpp
+	${source}/lighthouse/renderer/vulkan/descriptor_buffer.cpp
+	${source}/lighthouse/renderer/vulkan/spir_v.cpp
+	${source}/lighthouse/renderer/vulkan/shader_object.cpp
+	${source}/lighthouse/renderer/vulkan/vertex_buffer.cpp
+	${source}/lighthouse/renderer/vulkan/shader_object_pipeline.cpp
 )
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
@@ -137,15 +137,13 @@ target_include_directories(
 	${include}/vulkan
 	${include}/vulkan/vma
 	${include}/vulkan/glslang
-	${include}/vkfw
-	${include}/lighthouse/vulkan
 )
 
 # Modules
 set(CMAKE_MODULE_PATH
 	${module}/std
 	${module}/lighthouse
-	${module}/lighthouse/vulkan
+	${module}/lighthouse/renderer/vulkan
 )
 
 target_precompile_headers(
@@ -166,6 +164,7 @@ target_link_directories(
 	${library}
 	${library}/glfw
 	${library}/vulkan
+	${library}/assimp
 )
 
 target_link_libraries(
@@ -185,4 +184,6 @@ target_link_libraries(
 	spirv-cross-cpp.lib
 	spirv-cross-glsl.lib
 	spirv-cross-reflect.lib
+
+	assimp-vc143-mt.lib
 )
