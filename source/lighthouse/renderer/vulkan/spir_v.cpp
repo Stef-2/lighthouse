@@ -1,4 +1,5 @@
 #include "lighthouse/renderer/vulkan/spir_v.hpp"
+#include "lighthouse/renderer/vulkan/shader_input.hpp"
 #include "lighthouse/filesystem.hpp"
 #include "lighthouse/output.hpp"
 
@@ -7,19 +8,6 @@
 
 #include "vulkan/spirv_cross/spirv_reflect.hpp"
 
-#include <fstream>
-/*
-template <>
-void lh::output::write_file<std::vector<lh::vulkan::spir_v::shader_input>>(
-	const std::filesystem::path& file_path,
-	const std::vector<lh::vulkan::spir_v::shader_input>& data,
-	const std::iostream::openmode& open_mode)
-{
-	auto output = std::ofstream {file_path, open_mode};
-	output << "alright lets see here";
-	output.close();
-}
-*/
 lh::vulkan::spir_v::spir_v(const glsl_code_t& glsl_code, const create_info& create_info)
 	: m_stage {create_info.m_shader_stages}
 {
@@ -28,15 +16,17 @@ lh::vulkan::spir_v::spir_v(const glsl_code_t& glsl_code, const create_info& crea
 	m_code = glsl_to_spirv::translate_shader(create_info.m_shader_stages, glsl_code);
 
 	glslang::FinalizeProcess();
-
-	// output::write_file(file_system::data_path() /= "wtf.txt", reflect_shader_input());
 }
+
+lh::vulkan::spir_v::spir_v(const spir_v_bytecode_t& spir_v_code, const create_info& create_info)
+	: m_code {spir_v_code}, m_stage {create_info.m_shader_stages}
+{}
 
 namespace
 {
 	auto translate_data_type(const spirv_cross::SPIRType::BaseType& spirv_type)
 	{
-		using return_type = lh::vulkan::spir_v::shader_input::data_type;
+		using return_type = lh::vulkan::shader_input::data_type;
 
 		switch (spirv_type)
 		{
@@ -56,7 +46,7 @@ namespace
 
 	auto create_shader_input(const spirv_cross::CompilerGLSL& compiler,
 							 const spirv_cross::Resource& resource,
-							 const lh::vulkan::spir_v::shader_input::input_type& input_type)
+							 const lh::vulkan::shader_input::input_type& input_type)
 
 	{
 		const auto set = compiler.get_decoration(resource.id, spv::Decoration::DecorationDescriptorSet);
@@ -71,15 +61,15 @@ namespace
 										 : compiler.get_type(resource.type_id).array[0];
 		const auto size = compiler.get_type_from_variable(resource.id).width;
 
-		auto input = lh::vulkan::spir_v::shader_input {set,
-													   location,
-													   binding,
-													   input_type,
-													   translate_data_type(data_type),
-													   static_cast<std::uint8_t>(rows),
-													   static_cast<std::uint8_t>(columns),
-													   array_dimension,
-													   size};
+		auto input = lh::vulkan::shader_input {set,
+											   location,
+											   binding,
+											   input_type,
+											   translate_data_type(data_type),
+											   static_cast<std::uint8_t>(rows),
+											   static_cast<std::uint8_t>(columns),
+											   array_dimension,
+											   size};
 
 		for (std::size_t i {}; const auto& member : compiler.get_type(resource.base_type_id).member_types)
 		{
@@ -111,7 +101,7 @@ auto lh::vulkan::spir_v::reflect_shader_input() const -> std::vector<shader_inpu
 
 	if constexpr (shader_input::remove_inactive_inputs)
 	{
-		const auto interface_variables = compiler.get_active_interface_variables();
+		auto interface_variables = compiler.get_active_interface_variables();
 		resources = compiler.get_shader_resources(interface_variables);
 
 		compiler.set_enabled_interface_variables(std::move(interface_variables));

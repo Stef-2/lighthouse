@@ -4,6 +4,7 @@
 #include "lighthouse/renderer/vulkan/shader_object.hpp"
 #include "lighthouse/renderer/vulkan/buffer.hpp"
 #include "lighthouse/renderer/vulkan/spir_v.hpp"
+#include "lighthouse/renderer/vulkan/shader_input.hpp"
 
 #include <numeric>
 
@@ -22,7 +23,7 @@ lh::vulkan::shader_object_pipeline::shader_object_pipeline(const physical_device
 
 		const auto bindings = std::ranges::fold_left(
 			shader_inputs, std::vector<descriptor_set_layout::binding> {}, [](auto bindings, const auto& shader_input) {
-				if (shader_input.m_type == spir_v::shader_input::input_type::uniform_buffer)
+				if (shader_input.m_type == shader_input::input_type::uniform_buffer)
 					bindings.emplace_back(shader_input.m_descriptor_binding, vk::DescriptorType::eUniformBuffer);
 				return std::move(bindings);
 			});

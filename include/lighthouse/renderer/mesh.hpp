@@ -1,6 +1,7 @@
 #pragma once
 
 #include "lighthouse/utility.hpp"
+#include "lighthouse/renderer/index_format.hpp"
 
 #include <vector>
 
@@ -17,8 +18,6 @@ namespace lh
 	class mesh
 	{
 	public:
-		using index_buffer_t = uint32_t;
-
 		struct create_info
 		{};
 
@@ -26,7 +25,7 @@ namespace lh
 
 	private:
 		non_owning_ptr<node> m_node;
-		std::unique_ptr<vertex_buffer> m_vertex_buffer;
-		std::vector<index_buffer_t> m_index_buffer;
+		std::unique_ptr<vulkan::vertex_buffer> m_vertex_buffer;
+		std::vector<index_format_t> m_index_buffer;
 	};
 }

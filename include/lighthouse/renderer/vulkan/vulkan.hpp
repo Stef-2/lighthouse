@@ -1,14 +1,10 @@
 #pragma once
 
-#include "vulkan/glslang/SPIRV/GlslangToSpv.h"
-
-#include "vulkan/vma/vk_mem_alloc.hpp"
 #include "vulkan/utils/geometries.hpp"
 #include "vulkan/utils/math.hpp"
 
 #include "vulkan/utils/raii/raii_utils.hpp"
 
-#include "lighthouse/renderer/vulkan/raii_wrapper.hpp"
 #include "lighthouse/renderer/vulkan/extension.hpp"
 #include "lighthouse/renderer/vulkan/instance.hpp"
 #include "lighthouse/renderer/vulkan/physical_device.hpp"
@@ -28,8 +24,8 @@
 #include "lighthouse/renderer/vulkan/descriptor_buffer.hpp"
 #include "lighthouse/renderer/vulkan/shader_object_pipeline.hpp"
 #include "lighthouse/renderer/vulkan/utility.hpp"
+#include "lighthouse/renderer/vulkan/vertex_buffer.hpp"
 #include "lighthouse/window.hpp"
 #include "lighthouse/version.hpp"
-#include "lighthouse/memory.hpp"
 
 #include <ranges>

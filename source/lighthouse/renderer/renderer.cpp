@@ -66,12 +66,15 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 		  {vulkan::spir_v {lh::input::read_file(file_system::data_path() /= "shaders/basic.vert"),
 						   vulkan::spir_v::create_info {.m_shader_stages = vk::ShaderStageFlagBits::eVertex}},
 		   vulkan::spir_v {lh::input::read_file(file_system::data_path() /= "shaders/basic.frag"),
-						   vulkan::spir_v::create_info {.m_shader_stages = vk::ShaderStageFlagBits::eFragment}}}}
+						   vulkan::spir_v::create_info {.m_shader_stages = vk::ShaderStageFlagBits::eFragment}}}},
+	  m_new_vb {m_physical_device, m_logical_device, m_memory_allocator, {}}
 {
 	m_vertex_buffer.map_data(coloredCubeData);
 
 	if (m_create_info.m_using_validation)
 		output::log() << info(m_create_info);
+
+	m_new_vb = vulkan::vertex_buffer {m_physical_device, m_logical_device, m_memory_allocator, {}};
 }
 
 auto lh::renderer::render() -> void

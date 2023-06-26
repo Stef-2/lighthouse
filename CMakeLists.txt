@@ -11,6 +11,7 @@ cmake_path(SET source ${CMAKE_CURRENT_SOURCE_DIR}/source)
 cmake_path(SET include ${CMAKE_CURRENT_SOURCE_DIR}/include)
 cmake_path(SET module ${CMAKE_CURRENT_SOURCE_DIR}/module)
 cmake_path(SET library ${CMAKE_CURRENT_SOURCE_DIR}/library)
+cmake_path(SET dynamic ${CMAKE_CURRENT_SOURCE_DIR}/library)
 
 # Add source to this project's executable.
 add_executable(
@@ -22,6 +23,7 @@ add_executable(
 	${source}/lighthouse/output.cpp
 	${source}/lighthouse/input.cpp
 	${source}/lighthouse/filesystem.cpp
+	${source}/lighthouse/operating_system/dynamic_linking.cpp
 	${source}/lighthouse/engine.cpp
 	${source}/lighthouse/renderer/renderer.cpp
 	${source}/lighthouse/version.cpp
@@ -30,7 +32,7 @@ add_executable(
 	${source}/vulkan/utils.cpp
 	${source}/vulkan/math.cpp
 	${source}/lighthouse/system.cpp
-	${source}/lighthouse/memory.cpp
+	${source}/lighthouse/operating_system/memory.cpp
 	${source}/vulkan/vma_implementation.cpp
 	${source}/lighthouse/renderer/vulkan/vulkan.cpp
 	${source}/lighthouse/renderer/vulkan/extension.cpp
@@ -54,7 +56,8 @@ add_executable(
 	${source}/lighthouse/renderer/vulkan/shader_object.cpp
 	${source}/lighthouse/renderer/vulkan/vertex_buffer.cpp
 	${source}/lighthouse/renderer/vulkan/shader_object_pipeline.cpp
-)
+	${source}/lighthouse/renderer/scene_loader.cpp
+ "source/lighthouse/renderer/shader_registry.cpp")
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
@@ -124,6 +127,8 @@ target_compile_definitions(
 	# glm definitions
 	GLM_ENABLE_EXPERIMENTAL
 	GLM_FORCE_INTRINSICS
+
+	DYNAMIC_LINK_DIRECTORY="${dynamic}"
 )
 
 # Include

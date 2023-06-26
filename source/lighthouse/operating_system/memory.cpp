@@ -1,4 +1,4 @@
-#include "lighthouse/memory.hpp"
+#include "lighthouse/operating_system/memory.hpp"
 
 auto lh::memory::physical_device_memory(const vk::raii::PhysicalDevice& physical_device)
 	-> memory::physical_device_memory_info
