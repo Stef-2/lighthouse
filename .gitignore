@@ -19,6 +19,7 @@ build
 data
 library
 tools
+vcpkg
 
 include/*
 !include/lighthouse
@@ -29,3 +30,4 @@ module/*
 /.clang-tidy
 /cpp.hint
 /vc140.pdb
+/vcpkg.json
