@@ -36,6 +36,8 @@ namespace lh
 				vk::DeviceSize m_offset;
 			};
 
+			auto hash() const -> const std::size_t;
+
 			uint32_t m_descriptor_set;
 			uint32_t m_descriptor_layout;
 			uint32_t m_descriptor_binding;

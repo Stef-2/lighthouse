@@ -57,7 +57,7 @@ add_executable(
 	${source}/lighthouse/renderer/vulkan/vertex_buffer.cpp
 	${source}/lighthouse/renderer/vulkan/shader_object_pipeline.cpp
 	${source}/lighthouse/renderer/scene_loader.cpp
- "source/lighthouse/renderer/shader_registry.cpp")
+  "source/lighthouse/renderer/vulkan/shader_input.cpp")
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
