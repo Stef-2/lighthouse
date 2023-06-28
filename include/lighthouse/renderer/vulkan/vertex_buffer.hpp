@@ -2,6 +2,7 @@
 
 #include "lighthouse/renderer/vulkan/raii_wrapper.hpp"
 #include "lighthouse/renderer/vulkan/buffer.hpp"
+#include "lighthouse/renderer/vulkan/vertex_input_description.hpp"
 
 #include <vector>
 
@@ -13,17 +14,10 @@ namespace lh
 		class physical_device;
 		class logical_device;
 		class memory_allocator;
-		class shader_object;
 
 		class vertex_buffer
 		{
 		public:
-			struct vertex_input_description
-			{
-				vk::VertexInputBindingDescription2EXT m_bindings;
-				std::vector<vk::VertexInputAttributeDescription2EXT> m_attributes;
-			};
-
 			struct create_info
 			{};
 

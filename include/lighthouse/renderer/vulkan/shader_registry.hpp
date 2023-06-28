@@ -17,8 +17,9 @@ namespace lh
 		class mapped_buffer;
 		class spir_v;
 
-		class pipeline_resource_genertor
+		class shader_registry
 		{
+		public:
 			using pipeline_spir_v_code = std::vector<vulkan::spir_v>;
 
 			struct shader_resources
@@ -34,11 +35,13 @@ namespace lh
 			struct create_info
 			{};
 
-			pipeline_resource_genertor(const physical_device&,
-									   const logical_device&,
-									   const memory_allocator&,
-									   const pipeline_spir_v_code&,
-									   const create_info& = {});
+			shader_registry(const physical_device&,
+							const logical_device&,
+							const memory_allocator&,
+							const std::vector<pipeline_spir_v_code>&,
+							const create_info& = {});
+
+		private:
 		};
 	}
 }

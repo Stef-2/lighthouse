@@ -4,6 +4,7 @@ namespace lh
 {
 	namespace vulkan
 	{
+
 		struct shader_input
 		{
 			static inline constexpr auto remove_inactive_inputs = true;
