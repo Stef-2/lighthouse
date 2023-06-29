@@ -1,6 +1,10 @@
 #include "lighthouse/renderer/vulkan/shader_object_pipeline.hpp"
+#include "lighthouse/renderer/vulkan/physical_device.hpp"
 #include "lighthouse/renderer/vulkan/logical_device.hpp"
+#include "lighthouse/renderer/vulkan/memory_allocator.hpp"
 #include "lighthouse/renderer/vulkan/descriptor_set_layout.hpp"
+#include "lighthouse/renderer/vulkan/vertex_input_description.hpp"
+#include "lighthouse/renderer/vulkan/descriptor_buffer.hpp"
 #include "lighthouse/renderer/vulkan/shader_object.hpp"
 #include "lighthouse/renderer/vulkan/buffer.hpp"
 #include "lighthouse/renderer/vulkan/spir_v.hpp"
@@ -28,7 +32,7 @@ lh::vulkan::shader_object_pipeline::shader_object_pipeline(const physical_device
 				return std::move(bindings);
 			});
 
-		m_descriptor_set_layout = std::make_unique<descriptor_set_layout>(logical_device, bindings);
+		m_descriptor_set_layout = std::make_unique<vulkan::descriptor_set_layout>(logical_device, bindings);
 
 		m_shader_objects.emplace_back(logical_device,
 									  spir_v,
@@ -48,6 +52,21 @@ auto lh::vulkan::shader_object_pipeline::shader_objects() const -> const std::ve
 auto lh::vulkan::shader_object_pipeline::pipeline_layout() const -> const vk::raii::PipelineLayout&
 {
 	return m_pipeline_layout;
+}
+
+auto lh::vulkan::shader_object_pipeline::descriptor_set_layout() const -> const vulkan::descriptor_set_layout&
+{
+	return *m_descriptor_set_layout;
+}
+
+auto lh::vulkan::shader_object_pipeline::descriptor_buffer() const -> const vulkan::descriptor_buffer&
+{
+	return *m_descriptor_buffer;
+}
+
+auto lh::vulkan::shader_object_pipeline::vertex_input_description() const -> const vulkan::vertex_input_description&
+{
+	return *m_vertex_input_description;
 }
 
 auto lh::vulkan::shader_object_pipeline::bind(const vk::raii::CommandBuffer& command_buffer) const -> void

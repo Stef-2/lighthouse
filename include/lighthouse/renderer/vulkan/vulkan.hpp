@@ -24,6 +24,7 @@
 #include "lighthouse/renderer/vulkan/descriptor_buffer.hpp"
 #include "lighthouse/renderer/vulkan/shader_object_pipeline.hpp"
 #include "lighthouse/renderer/vulkan/utility.hpp"
+#include "lighthouse/renderer/vulkan/vertex_input_description.hpp"
 #include "lighthouse/renderer/vulkan/vertex_buffer.hpp"
 #include "lighthouse/window.hpp"
 #include "lighthouse/version.hpp"

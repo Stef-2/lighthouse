@@ -1,5 +1,6 @@
 #include "lighthouse/renderer/vulkan/spir_v.hpp"
 #include "lighthouse/renderer/vulkan/shader_input.hpp"
+#include "lighthouse/renderer/vulkan/vertex_input_description.hpp"
 #include "lighthouse/filesystem.hpp"
 #include "lighthouse/output.hpp"
 
@@ -31,11 +32,18 @@ namespace
 		switch (spirv_type)
 		{
 			case spirv_cross::SPIRType::BaseType::Boolean: return return_type::boolean; break;
-			case spirv_cross::SPIRType::BaseType::Int:
-			case spirv_cross::SPIRType::BaseType::Int64: return return_type::integer; break;
-			case spirv_cross::SPIRType::BaseType::UInt:
-			case spirv_cross::SPIRType::BaseType::UInt64: return return_type::unsigned_integer; break;
-			case spirv_cross::SPIRType::BaseType::Float: return return_type::floating; break;
+
+			case spirv_cross::SPIRType::BaseType::Short: return return_type::integer_16;
+			case spirv_cross::SPIRType::BaseType::UShort: return return_type::unsigned_integer_16;
+			case spirv_cross::SPIRType::BaseType::Int: return return_type::integer_32;
+			case spirv_cross::SPIRType::BaseType::UInt: return return_type::unsigned_integer_32;
+			case spirv_cross::SPIRType::BaseType::Int64: return return_type::integer_64; break;
+			case spirv_cross::SPIRType::BaseType::UInt64: return return_type::unsigned_integer_64; break;
+
+			case spirv_cross::SPIRType::BaseType::Half: return return_type::float_16; break;
+			case spirv_cross::SPIRType::BaseType::Float: return return_type::float_32; break;
+			case spirv_cross::SPIRType::BaseType::Double: return return_type::float_64; break;
+
 			case spirv_cross::SPIRType::BaseType::Struct: return return_type::structure; break;
 			case spirv_cross::SPIRType::BaseType::Image: return return_type::image; break;
 			case spirv_cross::SPIRType::BaseType::SampledImage: return return_type::sampled_image; break;
@@ -88,6 +96,7 @@ namespace
 										 member_array_dimension,
 										 member_size,
 										 member_offset);
+			i++;
 		}
 
 		return input;
@@ -112,6 +121,9 @@ auto lh::vulkan::spir_v::reflect_shader_input() const -> std::vector<shader_inpu
 
 	for (const auto& resource : resources.stage_inputs)
 		shader_inputs.emplace_back(create_shader_input(compiler, resource, shader_input::input_type::stage_input));
+
+	std::ranges::sort(shader_inputs,
+					  [](const auto& x, const auto& y) { return x.m_descriptor_location < y.m_descriptor_location; });
 
 	for (const auto& resource : resources.uniform_buffers)
 		shader_inputs.emplace_back(create_shader_input(compiler, resource, shader_input::input_type::uniform_buffer));

@@ -4,6 +4,9 @@ namespace lh
 {
 	namespace vulkan
 	{
+		// forward declarations
+		class descriptor_set_layout;
+		struct vertex_input_description;
 
 		struct shader_input
 		{
@@ -18,9 +21,15 @@ namespace lh
 			enum class data_type
 			{
 				boolean,
-				integer,
-				unsigned_integer,
-				floating,
+				integer_16,
+				unsigned_integer_16,
+				integer_32,
+				unsigned_integer_32,
+				integer_64,
+				unsigned_integer_64,
+				float_16,
+				float_32,
+				float_64,
 				structure,
 				image,
 				sampled_image,
@@ -38,9 +47,12 @@ namespace lh
 			};
 
 			auto hash() const -> const std::size_t;
+			auto translate_format() const -> const vk::Format;
+			static auto vertex_input_description(const std::vector<shader_input>&) -> const vertex_input_description;
+			// static auto descriptor_set_layout(const std::vector<shader_input>&) -> const descriptor_set_layout;
 
 			uint32_t m_descriptor_set;
-			uint32_t m_descriptor_layout;
+			uint32_t m_descriptor_location;
 			uint32_t m_descriptor_binding;
 
 			input_type m_type;

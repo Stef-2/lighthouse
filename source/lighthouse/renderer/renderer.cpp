@@ -46,27 +46,22 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 		  vulkan::mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eVertexBuffer |
 														 vk::BufferUsageFlagBits::eShaderDeviceAddress,
 											  .m_allocation_flags = vma::AllocationCreateFlagBits::eMapped}},
+	  m_vertex_spirv {lh::input::read_file(file_system::data_path() /= "shaders/basic.vert"),
+					  vulkan::spir_v::create_info {.m_shader_stages = vk::ShaderStageFlagBits::eVertex}},
 
-	  m_vertex_object {m_logical_device,
-					   vulkan::spir_v {lh::input::read_file(file_system::data_path() /= "shaders/basic.vert"),
-									   vulkan::spir_v::create_info {
-										   .m_shader_stages = vk::ShaderStageFlagBits::eVertex}},
-					   m_descriptor_set_layout},
-	  m_fragment_object {m_logical_device,
-						 vulkan::spir_v {lh::input::read_file(file_system::data_path() /= "shaders/basic.frag"),
-										 vulkan::spir_v::create_info {
-											 .m_shader_stages = vk::ShaderStageFlagBits::eFragment}},
-						 m_descriptor_set_layout},
+	  m_fragment_spirv {lh::input::read_file(file_system::data_path() /= "shaders/basic.frag"),
+						vulkan::spir_v::create_info {.m_shader_stages = vk::ShaderStageFlagBits::eFragment}},
+	  m_vertex_input_description {
+		  vulkan::shader_input::vertex_input_description(m_vertex_spirv.reflect_shader_input())},
+
+	  m_vertex_object {m_logical_device, m_vertex_spirv, m_descriptor_set_layout},
+	  m_fragment_object {m_logical_device, m_fragment_spirv, m_descriptor_set_layout},
 
 	  m_pipeline_layout {m_logical_device, {{}, **m_descriptor_set_layout}},
-	  m_shader_object_pipeline {
-		  m_physical_device,
-		  m_logical_device,
-		  m_memory_allocator,
-		  {vulkan::spir_v {lh::input::read_file(file_system::data_path() /= "shaders/basic.vert"),
-						   vulkan::spir_v::create_info {.m_shader_stages = vk::ShaderStageFlagBits::eVertex}},
-		   vulkan::spir_v {lh::input::read_file(file_system::data_path() /= "shaders/basic.frag"),
-						   vulkan::spir_v::create_info {.m_shader_stages = vk::ShaderStageFlagBits::eFragment}}}},
+	  m_shader_object_pipeline {m_physical_device,
+								m_logical_device,
+								m_memory_allocator,
+								{m_vertex_spirv, m_fragment_spirv}},
 	  m_new_vb {m_physical_device, m_logical_device, m_memory_allocator, {}}
 {
 	m_vertex_buffer.map_data(coloredCubeData);
@@ -109,7 +104,9 @@ auto lh::renderer::render() -> void
 		vk::VertexInputAttributeDescription2EXT(0, 0, vk::Format::eR32G32B32A32Sfloat, 0),
 		vk::VertexInputAttributeDescription2EXT(1, 0, vk::Format::eR32G32B32A32Sfloat, offsetof(VertexPC, r))};
 
-	command_buffer.setVertexInputEXT(vbd, vad);
+	// command_buffer.setVertexInputEXT(vbd, vad);
+
+	command_buffer.setVertexInputEXT(m_vertex_input_description.m_bindings, m_vertex_input_description.m_attributes);
 	command_buffer.bindVertexBuffers(0, {**m_vertex_buffer}, {0});
 
 	const auto time = static_cast<float>(vkfw::getTime().value);

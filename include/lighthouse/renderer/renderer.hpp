@@ -49,6 +49,10 @@ namespace lh
 		vulkan::descriptor_set_layout m_descriptor_set_layout;
 		vulkan::descriptor_buffer m_descriptor_buffer;
 
+		vulkan::spir_v m_vertex_spirv;
+		vulkan::spir_v m_fragment_spirv;
+		vulkan::vertex_input_description m_vertex_input_description;
+
 		vulkan::shader_object m_vertex_object;
 		vulkan::shader_object m_fragment_object;
 		vulkan::shader_object_pipeline m_shader_object_pipeline;
