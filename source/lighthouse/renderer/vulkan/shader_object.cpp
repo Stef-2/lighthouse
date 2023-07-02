@@ -30,7 +30,7 @@ auto lh::vulkan::shader_object::stage() const -> const vk::ShaderStageFlagBits&
 	return m_shader_stage;
 }
 
-auto lh::vulkan::shader_object::shader_inputs() const -> const std::vector<shader_input>&
+auto lh::vulkan::shader_object::shader_inputs() const -> const vulkan::shader_inputs&
 {
 	return m_shader_inputs;
 }

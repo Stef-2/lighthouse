@@ -48,8 +48,6 @@ namespace lh
 
 			auto hash() const -> const std::size_t;
 			auto translate_format() const -> const vk::Format;
-			static auto vertex_input_description(const std::vector<shader_input>&) -> const vertex_input_description;
-			// static auto descriptor_set_layout(const std::vector<shader_input>&) -> const descriptor_set_layout;
 
 			uint32_t m_descriptor_set;
 			uint32_t m_descriptor_location;
@@ -63,6 +61,20 @@ namespace lh
 			vk::DeviceSize m_size;
 
 			std::vector<struct_member> m_members;
+		};
+
+		class shader_inputs
+		{
+		public:
+			shader_inputs(const std::vector<shader_input>&, const vk::ShaderStageFlags&);
+
+			auto vertex_input_description() -> const vertex_input_description;
+			auto descriptor_set_layout() -> const vk::raii::DescriptorSetLayout;
+			auto stage() const -> const vk::ShaderStageFlags;
+
+		private:
+			std::vector<shader_input> m_shader_inputs;
+			vk::ShaderStageFlags m_shader_stage;
 		};
 	}
 }

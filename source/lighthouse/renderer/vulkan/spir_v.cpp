@@ -54,7 +54,8 @@ namespace
 
 	auto create_shader_input(const spirv_cross::CompilerGLSL& compiler,
 							 const spirv_cross::Resource& resource,
-							 const lh::vulkan::shader_input::input_type& input_type)
+							 const lh::vulkan::shader_input::input_type& input_type,
+							 const vk::ShaderStageFlags& shader_stage)
 
 	{
 		const auto set = compiler.get_decoration(resource.id, spv::Decoration::DecorationDescriptorSet);
@@ -102,8 +103,8 @@ namespace
 		return input;
 	}
 }
-#pragma optimize("", off)
-auto lh::vulkan::spir_v::reflect_shader_input() const -> std::vector<shader_input>
+// #pragma optimize("", off)
+auto lh::vulkan::spir_v::reflect_shader_input() const -> shader_inputs
 {
 	auto compiler = spirv_cross::CompilerGLSL(m_code);
 	auto resources = compiler.get_shader_resources();
@@ -120,15 +121,17 @@ auto lh::vulkan::spir_v::reflect_shader_input() const -> std::vector<shader_inpu
 	shader_inputs.reserve(resources.stage_inputs.size() + resources.uniform_buffers.size());
 
 	for (const auto& resource : resources.stage_inputs)
-		shader_inputs.emplace_back(create_shader_input(compiler, resource, shader_input::input_type::stage_input));
+		shader_inputs.emplace_back(
+			create_shader_input(compiler, resource, shader_input::input_type::stage_input, m_stage));
 
 	std::ranges::sort(shader_inputs,
 					  [](const auto& x, const auto& y) { return x.m_descriptor_location < y.m_descriptor_location; });
 
 	for (const auto& resource : resources.uniform_buffers)
-		shader_inputs.emplace_back(create_shader_input(compiler, resource, shader_input::input_type::uniform_buffer));
+		shader_inputs.emplace_back(
+			create_shader_input(compiler, resource, shader_input::input_type::uniform_buffer, m_stage));
 
-	return shader_inputs;
+	return {shader_inputs, m_stage};
 }
 
 auto lh::vulkan::spir_v::code() const -> const spir_v_bytecode_t&

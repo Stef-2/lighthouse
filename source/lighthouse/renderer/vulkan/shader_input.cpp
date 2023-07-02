@@ -132,33 +132,41 @@ auto lh::vulkan::shader_input::translate_format() const -> const vk::Format
 	return format;
 }
 
-auto lh::vulkan::shader_input::vertex_input_description(const std::vector<shader_input>& shader_input)
-	-> const vulkan::vertex_input_description
+auto lh::vulkan::shader_inputs::vertex_input_description() -> const vulkan::vertex_input_description
 {
+	if (not(m_shader_stage == vk::ShaderStageFlagBits::eVertex))
+		return {};
+
+	constexpr auto byte_divisor = uint8_t {8};
+
 	auto vertex_bindings = vk::VertexInputBindingDescription2EXT {};
 	auto vertex_attributes = std::vector<vk::VertexInputAttributeDescription2EXT> {};
 
 	auto vertex_description_size = std::uint32_t {};
 	auto offset = std::uint32_t {};
 
-	for (const auto& vertex_input : shader_input)
-		if (vertex_input.m_type == input_type::stage_input)
+	for (const auto& vertex_input : m_shader_inputs)
+		if (vertex_input.m_type == shader_input::input_type::stage_input)
 		{
-			vertex_description_size += vertex_input.m_size * vertex_input.m_rows / 8;
+			vertex_description_size += vertex_input.m_size * vertex_input.m_rows / byte_divisor;
 
 			vertex_attributes.emplace_back(vertex_input.m_descriptor_location,
 										   vertex_input.m_descriptor_binding,
 										   vertex_input.translate_format(),
 										   offset);
-			offset = vertex_input.m_size * vertex_input.m_rows / 8;
+			offset = vertex_input.m_size * vertex_input.m_rows / byte_divisor;
 		}
 	vertex_bindings = {0, vertex_description_size, vk::VertexInputRate::eVertex, 1};
 
 	return {vertex_bindings, vertex_attributes};
 }
-/*
-auto lh::vulkan::shader_input::descriptor_set_layout(const std::vector<shader_input>&)
-	-> const vulkan::descriptor_set_layout
+
+auto lh::vulkan::shader_inputs::stage() const -> const vk::ShaderStageFlags
 {
-	;
-}*/
+	return m_shader_stage;
+}
+
+lh::vulkan::shader_inputs::shader_inputs(const std::vector<shader_input>& shader_inputs,
+										 const vk::ShaderStageFlags& stage_flags)
+	: m_shader_inputs {shader_inputs}, m_shader_stage {stage_flags}
+{}

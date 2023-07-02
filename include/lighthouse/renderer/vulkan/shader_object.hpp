@@ -33,13 +33,13 @@ namespace lh
 			shader_object(const logical_device&, const spir_v&, const descriptor_set_layout&, const create_info& = {});
 
 			auto stage() const -> const vk::ShaderStageFlagBits&;
-			auto shader_inputs() const -> const std::vector<shader_input>&;
+			auto shader_inputs() const -> const shader_inputs&;
 			auto cache_binary_data(const std::filesystem::path&) const -> void;
 			auto bind(const vk::raii::CommandBuffer&) const -> void;
 
 		private:
 			vk::ShaderStageFlagBits m_shader_stage;
-			std::vector<vulkan::shader_input> m_shader_inputs;
+			vulkan::shader_inputs m_shader_inputs;
 
 			static inline constexpr auto common_shader_entrypoint = "main";
 		};

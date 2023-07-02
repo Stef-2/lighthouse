@@ -51,8 +51,7 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 
 	  m_fragment_spirv {lh::input::read_file(file_system::data_path() /= "shaders/basic.frag"),
 						vulkan::spir_v::create_info {.m_shader_stages = vk::ShaderStageFlagBits::eFragment}},
-	  m_vertex_input_description {
-		  vulkan::shader_input::vertex_input_description(m_vertex_spirv.reflect_shader_input())},
+	  m_vertex_input_description {m_vertex_spirv.reflect_shader_input().vertex_input_description()},
 
 	  m_vertex_object {m_logical_device, m_vertex_spirv, m_descriptor_set_layout},
 	  m_fragment_object {m_logical_device, m_fragment_spirv, m_descriptor_set_layout},
@@ -158,7 +157,8 @@ auto lh::renderer::info(const create_info& create_info) -> string::string_t
 	auto result = string::string_t {"\n======== renderer information: ========\n"};
 
 	result += m_instance.extensions().info();
-	result += m_instance.validation_layers().value().info();
+	result += m_instance.validation_layers().has_value() ? m_instance.validation_layers().value().info()
+														 : string::string_t {};
 	result += m_physical_device.info();
 	result += m_physical_device.extensions().info();
 	result += m_logical_device.info();

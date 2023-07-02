@@ -20,7 +20,8 @@ lh::vulkan::logical_device::logical_device(const physical_device& physical_devic
 
 	features.pNext = &synchronization2;
 
-	auto device_info = vk::DeviceCreateInfo {{}, create_info.m_queues, {}, create_info.m_extensions, {}, &features};
+	auto device_info = vk::DeviceCreateInfo {
+		{}, create_info.m_queues, {}, create_info.m_extensions, &features.features, &synchronization2};
 
 	m_object = {*physical_device, device_info};
 }
