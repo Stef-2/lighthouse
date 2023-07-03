@@ -13,11 +13,12 @@ namespace lh
 		class descriptor_set_layout;
 		class descriptor_buffer;
 		class shader_object;
-		class vertex_buffer;
 		class mapped_buffer;
 		class spir_v;
+		struct shader_input;
+		struct vertex_input_description;
 
-		class shader_registry
+		class pipeline_resource_generator
 		{
 		public:
 			using pipeline_spir_v_code = std::vector<vulkan::spir_v>;
@@ -35,13 +36,17 @@ namespace lh
 			struct create_info
 			{};
 
-			shader_registry(const physical_device&,
-							const logical_device&,
-							const memory_allocator&,
-							const std::vector<pipeline_spir_v_code>&,
-							const create_info& = {});
+			pipeline_resource_generator(const physical_device&,
+										const logical_device&,
+										const memory_allocator&,
+										const pipeline_spir_v_code,
+										const create_info& = {});
 
 		private:
+			auto shader_input_hash(const shader_input&) const -> const std::size_t;
+			auto translate_shader_input_format(const shader_input&) const -> const vk::Format;
+			auto vertex_input_description(const std::vector<shader_input>&) -> const vertex_input_description;
+			auto descriptor_set_layout(const shader_input&) -> const vk::raii::DescriptorSetLayout;
 		};
 	}
 }

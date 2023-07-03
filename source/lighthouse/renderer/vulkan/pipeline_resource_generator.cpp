@@ -1,20 +1,32 @@
-#include "lighthouse/renderer/vulkan/shader_input.hpp"
-#include "lighthouse/renderer/vulkan/vertex_input_description.hpp"
+#include "lighthouse/renderer/vulkan/pipeline_resource_generator.hpp"
+#include "lighthouse/renderer/vulkan/physical_device.hpp"
+#include "lighthouse/renderer/vulkan/logical_device.hpp"
+#include "lighthouse/renderer/vulkan/memory_allocator.hpp"
+#include "lighthouse/renderer/vulkan/spir_v.hpp"
+#include "lighthouse/renderer/vulkan/buffer.hpp"
 #include "lighthouse/renderer/vulkan/descriptor_set_layout.hpp"
-#include "lighthouse/string/string.hpp"
-#include "lighthouse/output.hpp"
+#include "lighthouse/renderer/vulkan/shader_object.hpp"
+#include "lighthouse/renderer/vulkan/descriptor_buffer.hpp"
+#include "lighthouse/renderer/vulkan/vertex_input_description.hpp"
 
-#include <functional>
+lh::vulkan::pipeline_resource_generator::pipeline_resource_generator(const physical_device& physical_device,
+																	 const logical_device& logical_device,
+																	 const memory_allocator& memory_allocator,
+																	 const pipeline_spir_v_code spir_v_code,
+																	 const create_info& create_info)
+{}
 
-auto lh::vulkan::shader_input::hash() const -> const std::size_t
+auto lh::vulkan::pipeline_resource_generator::shader_input_hash(const shader_input& shader_input) const
+	-> const std::size_t
 {
 	auto combined_input = string::string_t {
-		std::to_string(m_descriptor_set) + std::to_string(m_descriptor_location) +
-		std::to_string(m_descriptor_binding) + std::to_string(std::to_underlying(m_type)) +
-		std::to_string(std::to_underlying(m_data_type)) + std::to_string(m_rows) + std::to_string(m_columns) +
-		std::to_string(m_array_dimension) + std::to_string(m_size)};
+		std::to_string(shader_input.m_descriptor_set) + std::to_string(shader_input.m_descriptor_location) +
+		std::to_string(shader_input.m_descriptor_binding) + std::to_string(std::to_underlying(shader_input.m_type)) +
+		std::to_string(std::to_underlying(shader_input.m_data_type)) + std::to_string(shader_input.m_rows) +
+		std::to_string(shader_input.m_columns) + std::to_string(shader_input.m_array_dimension) +
+		std::to_string(shader_input.m_size)};
 
-	for (const auto& member : m_members)
+	for (const auto& member : shader_input.m_members)
 		combined_input += std::to_string(std::to_underlying(member.m_data_type)) + std::to_string(member.m_rows) +
 						  std::to_string(member.m_colums) + std::to_string(member.m_array_dimension) +
 						  std::to_string(member.m_size) + std::to_string(member.m_offset);
@@ -22,16 +34,17 @@ auto lh::vulkan::shader_input::hash() const -> const std::size_t
 	return std::hash<string::string_t> {}(combined_input);
 }
 
-auto lh::vulkan::shader_input::translate_format() const -> const vk::Format
+auto lh::vulkan::pipeline_resource_generator::translate_shader_input_format(const shader_input& shader_input) const
+	-> const vk::Format
 {
 	auto format = vk::Format {};
 
-	switch (m_data_type)
+	switch (shader_input.m_data_type)
 	{
-		case data_type::boolean: break;
+		case shader_input::data_type::boolean: break;
 
-		case data_type::integer_16:
-			switch (m_rows)
+		case shader_input::data_type::integer_16:
+			switch (shader_input.m_rows)
 			{
 				case 1: format = vk::Format::eR16Sint; break;
 				case 2: format = vk::Format::eR16G16Sint; break;
@@ -40,8 +53,8 @@ auto lh::vulkan::shader_input::translate_format() const -> const vk::Format
 				default: break;
 			}
 			break;
-		case data_type::unsigned_integer_16:
-			switch (m_rows)
+		case shader_input::data_type::unsigned_integer_16:
+			switch (shader_input.m_rows)
 			{
 				case 1: format = vk::Format::eR16Uint; break;
 				case 2: format = vk::Format::eR16G16Uint; break;
@@ -50,8 +63,8 @@ auto lh::vulkan::shader_input::translate_format() const -> const vk::Format
 				default: break;
 			}
 			break;
-		case data_type::integer_32:
-			switch (m_rows)
+		case shader_input::data_type::integer_32:
+			switch (shader_input.m_rows)
 			{
 				case 1: format = vk::Format::eR32Sint; break;
 				case 2: format = vk::Format::eR32G32Sint; break;
@@ -60,8 +73,8 @@ auto lh::vulkan::shader_input::translate_format() const -> const vk::Format
 				default: break;
 			}
 			break;
-		case data_type::unsigned_integer_32:
-			switch (m_rows)
+		case shader_input::data_type::unsigned_integer_32:
+			switch (shader_input.m_rows)
 			{
 				case 1: format = vk::Format::eR32Uint; break;
 				case 2: format = vk::Format::eR32G32Uint; break;
@@ -70,8 +83,8 @@ auto lh::vulkan::shader_input::translate_format() const -> const vk::Format
 				default: break;
 			}
 			break;
-		case data_type::integer_64:
-			switch (m_rows)
+		case shader_input::data_type::integer_64:
+			switch (shader_input.m_rows)
 			{
 				case 1: format = vk::Format::eR64Sint; break;
 				case 2: format = vk::Format::eR64G64Sint; break;
@@ -80,8 +93,8 @@ auto lh::vulkan::shader_input::translate_format() const -> const vk::Format
 				default: break;
 			}
 			break;
-		case data_type::unsigned_integer_64:
-			switch (m_rows)
+		case shader_input::data_type::unsigned_integer_64:
+			switch (shader_input.m_rows)
 			{
 				case 1: format = vk::Format::eR64Uint; break;
 				case 2: format = vk::Format::eR64G64Uint; break;
@@ -91,8 +104,8 @@ auto lh::vulkan::shader_input::translate_format() const -> const vk::Format
 			}
 			break;
 
-		case data_type::float_16:
-			switch (m_rows)
+		case shader_input::data_type::float_16:
+			switch (shader_input.m_rows)
 			{
 				case 1: format = vk::Format::eR16Sfloat; break;
 				case 2: format = vk::Format::eR16G16Sfloat; break;
@@ -101,8 +114,8 @@ auto lh::vulkan::shader_input::translate_format() const -> const vk::Format
 				default: break;
 			}
 			break;
-		case data_type::float_32:
-			switch (m_rows)
+		case shader_input::data_type::float_32:
+			switch (shader_input.m_rows)
 			{
 				case 1: format = vk::Format::eR32Sfloat; break;
 				case 2: format = vk::Format::eR32G32Sfloat; break;
@@ -111,8 +124,8 @@ auto lh::vulkan::shader_input::translate_format() const -> const vk::Format
 				default: break;
 			}
 			break;
-		case data_type::float_64:
-			switch (m_rows)
+		case shader_input::data_type::float_64:
+			switch (shader_input.m_rows)
 			{
 				case 1: format = vk::Format::eR64Sfloat; break;
 				case 2: format = vk::Format::eR64G64Sfloat; break;
@@ -122,21 +135,18 @@ auto lh::vulkan::shader_input::translate_format() const -> const vk::Format
 			}
 			break;
 
-		case data_type::structure: break;
-		case data_type::image: break;
-		case data_type::sampled_image: break;
-		case data_type::sampler: break;
+		case shader_input::data_type::structure: break;
+		case shader_input::data_type::image: break;
+		case shader_input::data_type::sampled_image: break;
+		case shader_input::data_type::sampler: break;
 		default: break;
 	}
 
 	return format;
 }
-
-auto lh::vulkan::shader_inputs::vertex_input_description() -> const vulkan::vertex_input_description
+auto lh::vulkan::pipeline_resource_generator::vertex_input_description(const std::vector<shader_input>& shader_inputs)
+	-> const vulkan::vertex_input_description
 {
-	if (not(m_shader_stage == vk::ShaderStageFlagBits::eVertex))
-		return {};
-
 	constexpr auto byte_divisor = uint8_t {8};
 
 	auto vertex_bindings = vk::VertexInputBindingDescription2EXT {};
@@ -145,7 +155,7 @@ auto lh::vulkan::shader_inputs::vertex_input_description() -> const vulkan::vert
 	auto vertex_description_size = std::uint32_t {};
 	auto offset = std::uint32_t {};
 
-	for (const auto& vertex_input : m_shader_inputs)
+	for (const auto& vertex_input : shader_inputs)
 		if (vertex_input.m_type == shader_input::input_type::stage_input)
 		{
 			vertex_description_size += vertex_input.m_size * vertex_input.m_rows / byte_divisor;
@@ -161,12 +171,6 @@ auto lh::vulkan::shader_inputs::vertex_input_description() -> const vulkan::vert
 	return {vertex_bindings, vertex_attributes};
 }
 
-auto lh::vulkan::shader_inputs::stage() const -> const vk::ShaderStageFlags
-{
-	return m_shader_stage;
-}
-
-lh::vulkan::shader_inputs::shader_inputs(const std::vector<shader_input>& shader_inputs,
-										 const vk::ShaderStageFlags& stage_flags)
-	: m_shader_inputs {shader_inputs}, m_shader_stage {stage_flags}
+auto lh::vulkan::pipeline_resource_generator::descriptor_set_layout(const shader_input&)
+	-> const vk::raii::DescriptorSetLayout
 {}
