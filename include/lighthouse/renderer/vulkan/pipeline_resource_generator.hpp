@@ -44,7 +44,7 @@ namespace lh
 										const create_info& = {});
 
 			auto vertex_input_description() const -> const vulkan::vertex_input_description&;
-			auto descriptor_set_layouts() const -> const std::vector<vulkan::descriptor_set_layout>&;
+			auto descriptor_set_layout() const -> const descriptor_set_layout&;
 			auto pipeline_layout() const -> const vk::raii::PipelineLayout&;
 			auto shader_objects() const -> const std::vector<shader_object>&;
 
@@ -55,7 +55,7 @@ namespace lh
 				-> const vulkan::vertex_input_description;
 
 			std::unique_ptr<vulkan::vertex_input_description> m_vertex_input_description;
-			std::vector<vulkan::descriptor_set_layout> m_descriptor_set_layouts;
+			std::unique_ptr<vulkan::descriptor_set_layout> m_descriptor_set_layout;
 			vk::raii::PipelineLayout m_pipeline_layout;
 			std::vector<shader_object> m_shader_objects;
 			std::unique_ptr<mapped_buffer> m_uniform_buffers;

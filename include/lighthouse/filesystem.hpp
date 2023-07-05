@@ -21,7 +21,7 @@ namespace lh
 	private:
 		// once any of these paths are found, they are recorded here for faster retrieval after
 		static inline auto m_engine_root_dir =
-			std::pair<std::filesystem::path, const std::filesystem::path::string_type> {{}, L"LightHouse"};
+			std::pair<std::filesystem::path, const std::filesystem::path::string_type> {{}, L"lighthouse"};
 		static inline auto m_data_dir =
 			std::pair<std::filesystem::path, const std::filesystem::path::string_type> {{}, L"data"};
 	};
