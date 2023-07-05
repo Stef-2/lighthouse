@@ -122,21 +122,27 @@ auto lh::vulkan::spir_v::reflect_shader_input() const -> std::vector<shader_inpu
 		compiler->set_enabled_interface_variables(std::move(interface_variables));
 	}
 
-	auto shader_inputss = std::vector<shader_input> {};
-	shader_inputss.reserve(resources.stage_inputs.size() + resources.uniform_buffers.size());
+	auto shader_inputs = std::vector<shader_input> {};
+	shader_inputs.reserve(resources.stage_inputs.size() + resources.uniform_buffers.size());
 
 	for (const auto& resource : resources.stage_inputs)
-		shader_inputss.emplace_back(
+		shader_inputs.emplace_back(
 			create_shader_input(*compiler, resource, shader_input::input_type::stage_input, m_stage));
 
-	std::ranges::sort(shader_inputss,
-					  [](const auto& x, const auto& y) { return x.m_descriptor_location < y.m_descriptor_location; });
-
 	for (const auto& resource : resources.uniform_buffers)
-		shader_inputss.emplace_back(
+		shader_inputs.emplace_back(
 			create_shader_input(*compiler, resource, shader_input::input_type::uniform_buffer, m_stage));
 
-	return shader_inputss;
+	std::ranges::sort(shader_inputs, [](const auto& x, const auto& y) {
+		switch (x.m_type)
+		{
+			case shader_input::input_type::stage_input: return (x.m_descriptor_location < y.m_descriptor_location);
+			case shader_input::input_type::uniform_buffer: return (x.m_descriptor_binding < y.m_descriptor_binding);
+			default: break;
+		}
+	});
+
+	return shader_inputs;
 }
 
 auto lh::vulkan::spir_v::code() const -> const spir_v_bytecode_t&

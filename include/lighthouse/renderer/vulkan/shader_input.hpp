@@ -42,6 +42,9 @@ namespace lh
 				vk::DeviceSize m_offset;
 			};
 
+			auto operator()(const shader_input&) const -> std::size_t;
+			auto operator==(const shader_input&) const -> bool;
+
 			uint32_t m_descriptor_set;
 			uint32_t m_descriptor_location;
 			uint32_t m_descriptor_binding;

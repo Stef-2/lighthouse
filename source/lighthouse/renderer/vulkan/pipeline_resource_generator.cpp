@@ -10,6 +10,8 @@
 #include "lighthouse/renderer/vulkan/vertex_input_description.hpp"
 #include "lighthouse/renderer/vulkan/shader_input.hpp"
 
+#include <unordered_set>
+
 namespace
 {
 	auto generate_descriptor_set_bindings(const std::vector<lh::vulkan::shader_input>& shader_inputs)
@@ -25,7 +27,7 @@ namespace
 		return bindings;
 	}
 }
-
+#pragma optimize("", off)
 lh::vulkan::pipeline_resource_generator::pipeline_resource_generator(const physical_device& physical_device,
 																	 const logical_device& logical_device,
 																	 const memory_allocator& memory_allocator,
@@ -36,8 +38,11 @@ lh::vulkan::pipeline_resource_generator::pipeline_resource_generator(const physi
 	  m_pipeline_layout {nullptr},
 	  m_shader_objects {},
 	  m_uniform_buffers {},
+	  m_uniform_buffer_subdata {std::make_unique<vulkan::buffer_subdata>()},
 	  m_descriptor_buffer {nullptr}
 {
+	auto unique_uniform_buffers = std::vector<shader_input> {};
+
 	for (const auto& shader_stage : spir_v_code)
 	{
 		const auto shader_inputs = shader_stage.reflect_shader_input();
@@ -45,6 +50,11 @@ lh::vulkan::pipeline_resource_generator::pipeline_resource_generator(const physi
 		if (shader_stage.stage() == vk::ShaderStageFlagBits::eVertex)
 			m_vertex_input_description = std::make_unique<vulkan::vertex_input_description>(
 				generate_vertex_input_description(shader_inputs));
+
+		for (const auto& shader_input : shader_inputs)
+			if (shader_input.m_type == shader_input::input_type::uniform_buffer and
+				not std::ranges::contains(unique_uniform_buffers, shader_input))
+				unique_uniform_buffers.emplace_back(shader_input);
 
 		m_descriptor_set_layouts.emplace_back(logical_device, generate_descriptor_set_bindings(shader_inputs));
 	}
@@ -58,9 +68,34 @@ lh::vulkan::pipeline_resource_generator::pipeline_resource_generator(const physi
 	m_pipeline_layout = {*logical_device, {{}, vk_descriptor_layouts}};
 
 	for (const auto& shader_stage : spir_v_code)
-	{
 		m_shader_objects.emplace_back(logical_device, shader_stage, m_descriptor_set_layouts);
+
+	const auto uniform_buffers_size = std::ranges::fold_left(unique_uniform_buffers,
+															 vk::DeviceSize {},
+															 [](auto size, const auto& element) {
+																 size += element.m_size;
+																 return std::move(size);
+															 });
+
+	m_uniform_buffers = std::make_unique<mapped_buffer>(
+		physical_device,
+		logical_device,
+		memory_allocator,
+		uniform_buffers_size,
+		vulkan::mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eUniformBuffer |
+													   vk::BufferUsageFlagBits::eShaderDeviceAddress,
+											.m_allocation_flags = vma::AllocationCreateFlagBits::eMapped});
+
+	m_uniform_buffer_subdata->m_buffer = m_uniform_buffers.get();
+
+	for (auto buffer_offset = vk::DeviceSize {}; const auto& uniform_buffer : unique_uniform_buffers)
+	{
+		m_uniform_buffer_subdata->m_subdata.emplace_back(buffer_offset, uniform_buffer.m_size);
+		buffer_offset += uniform_buffer.m_size;
 	}
+
+	m_descriptor_buffer = std::make_unique<vulkan::descriptor_buffer>(
+		physical_device, logical_device, memory_allocator, m_descriptor_set_layouts[0], *m_uniform_buffer_subdata);
 }
 
 auto lh::vulkan::pipeline_resource_generator::vertex_input_description() const

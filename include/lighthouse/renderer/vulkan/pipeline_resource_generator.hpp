@@ -17,6 +17,7 @@ namespace lh
 		class spir_v;
 		struct shader_input;
 		struct vertex_input_description;
+		struct buffer_subdata;
 
 		class pipeline_resource_generator
 		{
@@ -57,7 +58,8 @@ namespace lh
 			std::vector<vulkan::descriptor_set_layout> m_descriptor_set_layouts;
 			vk::raii::PipelineLayout m_pipeline_layout;
 			std::vector<shader_object> m_shader_objects;
-			std::vector<mapped_buffer> m_uniform_buffers;
+			std::unique_ptr<mapped_buffer> m_uniform_buffers;
+			std::unique_ptr<buffer_subdata> m_uniform_buffer_subdata;
 			std::unique_ptr<vulkan::descriptor_buffer> m_descriptor_buffer;
 		};
 	}
