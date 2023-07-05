@@ -58,8 +58,8 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 
 	  m_vertex_input_description {m_resource_generator.vertex_input_description()},
 
-	  m_vertex_object {m_logical_device, m_vertex_spirv, m_descriptor_set_layout},
-	  m_fragment_object {m_logical_device, m_fragment_spirv, m_descriptor_set_layout},
+	  m_vertex_object {m_logical_device, m_vertex_spirv, m_resource_generator.descriptor_set_layouts()},
+	  m_fragment_object {m_logical_device, m_fragment_spirv, m_resource_generator.descriptor_set_layouts()},
 
 	  m_pipeline_layout {m_logical_device, {{}, **m_descriptor_set_layout}},
 	  m_shader_object_pipeline {m_physical_device,

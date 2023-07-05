@@ -31,16 +31,12 @@ lh::vulkan::pipeline_resource_generator::pipeline_resource_generator(const physi
 																	 const memory_allocator& memory_allocator,
 																	 const pipeline_spir_v_code spir_v_code,
 																	 const create_info& create_info)
-	: m_vertex_input_description {}
-/*m_descriptor_set_layouts {nullptr, nullptr, nullptr, nullptr}*/ /*{std::invoke([this, &spir_v_code, &logical_device]
-{ return std::forward<std::vector<descriptor_set_layout>>(std::ranges::fold_left( spir_v_code,
-		std::vector<descriptor_set_layout> {},
-		[this, &spir_v_code, &logical_device](std::vector<descriptor_set_layout&&> layouts, const auto& element) {
-			layouts.emplace_back(logical_device,
-								 generate_descriptor_set_bindings(element.reflect_shader_input()));
-			return std::move(layouts);
-		}));
-})}*/
+	: m_vertex_input_description {},
+	  m_descriptor_set_layouts {},
+	  m_pipeline_layout {nullptr},
+	  m_shader_objects {},
+	  m_uniform_buffers {},
+	  m_descriptor_buffer {nullptr}
 {
 	for (const auto& shader_stage : spir_v_code)
 	{
@@ -52,19 +48,43 @@ lh::vulkan::pipeline_resource_generator::pipeline_resource_generator(const physi
 
 		m_descriptor_set_layouts.emplace_back(logical_device, generate_descriptor_set_bindings(shader_inputs));
 	}
+
+	const auto vk_descriptor_layouts = std::ranges::fold_left(m_descriptor_set_layouts,
+															  std::vector<vk::DescriptorSetLayout> {},
+															  [this](auto layouts, const auto& element) {
+																  layouts.push_back(**element);
+																  return std::move(layouts);
+															  });
+	m_pipeline_layout = {*logical_device, {{}, vk_descriptor_layouts}};
+
+	for (const auto& shader_stage : spir_v_code)
+	{
+		m_shader_objects.emplace_back(logical_device, shader_stage, m_descriptor_set_layouts);
+	}
 }
 
-auto lh::vulkan::pipeline_resource_generator::vertex_input_description() const -> const vulkan::vertex_input_description
+auto lh::vulkan::pipeline_resource_generator::vertex_input_description() const
+	-> const vulkan::vertex_input_description&
 {
 	return *m_vertex_input_description;
 }
-/*
+
 auto lh::vulkan::pipeline_resource_generator::descriptor_set_layouts() const
-	-> const std::vector<vulkan::descriptor_set_layout>
+	-> const std::vector<vulkan::descriptor_set_layout>&
 {
 	return m_descriptor_set_layouts;
 }
-*/
+
+auto lh::vulkan::pipeline_resource_generator::pipeline_layout() const -> const vk::raii::PipelineLayout&
+{
+	return m_pipeline_layout;
+}
+
+auto lh::vulkan::pipeline_resource_generator::shader_objects() const -> const std::vector<shader_object>&
+{
+	return m_shader_objects;
+}
+
 auto lh::vulkan::pipeline_resource_generator::shader_input_hash(const shader_input& shader_input) const
 	-> const std::size_t
 {
@@ -196,8 +216,6 @@ auto lh::vulkan::pipeline_resource_generator::translate_shader_input_format(cons
 auto lh::vulkan::pipeline_resource_generator::generate_vertex_input_description(
 	const std::vector<shader_input>& shader_inputs) -> const vulkan::vertex_input_description
 {
-	constexpr auto byte_divisor = uint8_t {8};
-
 	auto vertex_bindings = vk::VertexInputBindingDescription2EXT {};
 	auto vertex_attributes = std::vector<vk::VertexInputAttributeDescription2EXT> {};
 
@@ -207,13 +225,13 @@ auto lh::vulkan::pipeline_resource_generator::generate_vertex_input_description(
 	for (const auto& vertex_input : shader_inputs)
 		if (vertex_input.m_type == shader_input::input_type::stage_input)
 		{
-			vertex_description_size += vertex_input.m_size * vertex_input.m_rows / byte_divisor;
+			vertex_description_size += vertex_input.m_size;
 
 			vertex_attributes.emplace_back(vertex_input.m_descriptor_location,
 										   vertex_input.m_descriptor_binding,
 										   translate_shader_input_format(vertex_input),
 										   offset);
-			offset = vertex_input.m_size * vertex_input.m_rows / byte_divisor;
+			offset = vertex_input.m_size;
 		}
 	vertex_bindings = {0, vertex_description_size, vk::VertexInputRate::eVertex, 1};
 

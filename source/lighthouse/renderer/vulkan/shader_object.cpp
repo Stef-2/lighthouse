@@ -7,10 +7,17 @@
 
 lh::vulkan::shader_object::shader_object(const logical_device& logical_device,
 										 const spir_v& spir_v,
-										 const descriptor_set_layout& descriptor_set_layout,
+										 const std::vector<descriptor_set_layout>& descriptor_set_layouts,
 										 const create_info& create_info)
 	: m_shader_stage {spir_v.stage()}
 {
+	const auto vk_descriptor_layouts = std::ranges::fold_left(descriptor_set_layouts,
+															  std::vector<vk::DescriptorSetLayout> {},
+															  [this](auto layouts, const auto& element) {
+																  layouts.push_back(**element);
+																  return std::move(layouts);
+															  });
+
 	const auto shader_create_info = vk::ShaderCreateInfoEXT {create_info.m_flags,
 															 m_shader_stage,
 															 {},
@@ -19,8 +26,8 @@ lh::vulkan::shader_object::shader_object(const logical_device& logical_device,
 																 sizeof(spir_v::spir_v_bytecode_t::value_type),
 															 spir_v.code().data(),
 															 common_shader_entrypoint,
-															 1,
-															 &(**descriptor_set_layout)};
+															 static_cast<std::uint32_t>(vk_descriptor_layouts.size()),
+															 vk_descriptor_layouts.data()};
 
 	m_object = {*logical_device, shader_create_info};
 }

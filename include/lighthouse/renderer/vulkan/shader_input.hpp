@@ -4,10 +4,6 @@ namespace lh
 {
 	namespace vulkan
 	{
-		// forward declarations
-		class descriptor_set_layout;
-		struct vertex_input_description;
-
 		struct shader_input
 		{
 			static inline constexpr auto remove_inactive_inputs = true;
