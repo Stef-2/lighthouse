@@ -42,11 +42,17 @@ namespace lh
 										const pipeline_spir_v_code,
 										const create_info& = {});
 
+			auto vertex_input_description() const -> const vulkan::vertex_input_description;
+			auto descriptor_set_layouts() const -> const std::vector<vulkan::descriptor_set_layout>;
+
 		private:
 			auto shader_input_hash(const shader_input&) const -> const std::size_t;
 			auto translate_shader_input_format(const shader_input&) const -> const vk::Format;
-			auto vertex_input_description(const std::vector<shader_input>&) -> const vertex_input_description;
-			auto descriptor_set_layout(const shader_input&) -> const vk::raii::DescriptorSetLayout;
+			auto generate_vertex_input_description(const std::vector<shader_input>&)
+				-> const vulkan::vertex_input_description;
+
+			std::unique_ptr<vulkan::vertex_input_description> m_vertex_input_description;
+			std::vector<vulkan::descriptor_set_layout> m_descriptor_set_layouts;
 		};
 	}
 }

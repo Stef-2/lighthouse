@@ -103,18 +103,21 @@ namespace
 		return input;
 	}
 }
-// #pragma optimize("", off)
-auto lh::vulkan::spir_v::reflect_shader_input() const -> shader_inputs
+
+auto lh::vulkan::spir_v::reflect_shader_input() const -> std::vector<shader_input>
 {
-	auto compiler = spirv_cross::CompilerGLSL(m_code);
-	auto resources = compiler.get_shader_resources();
+	auto compiler = std::make_unique<spirv_cross::CompilerGLSL>(m_code);
+	auto resources = compiler->get_shader_resources();
+
+	// needed due to internal linkage
+	const auto create_input_function = std::function {create_shader_input};
 
 	if constexpr (shader_input::remove_inactive_inputs)
 	{
-		auto interface_variables = compiler.get_active_interface_variables();
-		resources = compiler.get_shader_resources(interface_variables);
+		auto interface_variables = compiler->get_active_interface_variables();
+		resources = compiler->get_shader_resources(interface_variables);
 
-		compiler.set_enabled_interface_variables(std::move(interface_variables));
+		compiler->set_enabled_interface_variables(std::move(interface_variables));
 	}
 
 	auto shader_inputs = std::vector<shader_input> {};
@@ -122,16 +125,16 @@ auto lh::vulkan::spir_v::reflect_shader_input() const -> shader_inputs
 
 	for (const auto& resource : resources.stage_inputs)
 		shader_inputs.emplace_back(
-			create_shader_input(compiler, resource, shader_input::input_type::stage_input, m_stage));
+			create_input_function(*compiler, resource, shader_input::input_type::stage_input, m_stage));
 
 	std::ranges::sort(shader_inputs,
 					  [](const auto& x, const auto& y) { return x.m_descriptor_location < y.m_descriptor_location; });
 
 	for (const auto& resource : resources.uniform_buffers)
 		shader_inputs.emplace_back(
-			create_shader_input(compiler, resource, shader_input::input_type::uniform_buffer, m_stage));
+			create_input_function(*compiler, resource, shader_input::input_type::uniform_buffer, m_stage));
 
-	return {shader_inputs, m_stage};
+	return shader_inputs;
 }
 
 auto lh::vulkan::spir_v::code() const -> const spir_v_bytecode_t&

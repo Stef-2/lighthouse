@@ -16,7 +16,7 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 							.m_extensions = m_physical_device.extensions().required_extensions()}},
 	  m_memory_allocator {m_instance, m_physical_device, m_logical_device},
 
-	  m_command_control {m_logical_device, m_queue_families},
+	  e1m4 {m_logical_device, m_queue_families},
 	  m_queue {m_logical_device, m_queue_families},
 	  m_swapchain {m_physical_device, m_logical_device, m_surface, m_queue_families, m_memory_allocator},
 	  m_common_descriptor_data {
@@ -51,7 +51,12 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 
 	  m_fragment_spirv {lh::input::read_file(file_system::data_path() /= "shaders/basic.frag"),
 						vulkan::spir_v::create_info {.m_shader_stages = vk::ShaderStageFlagBits::eFragment}},
-	  m_vertex_input_description {m_vertex_spirv.reflect_shader_input().vertex_input_description()},
+	  m_resource_generator {m_physical_device,
+							m_logical_device,
+							m_memory_allocator,
+							{m_vertex_spirv, m_fragment_spirv}},
+
+	  m_vertex_input_description {m_resource_generator.vertex_input_description()},
 
 	  m_vertex_object {m_logical_device, m_vertex_spirv, m_descriptor_set_layout},
 	  m_fragment_object {m_logical_device, m_fragment_spirv, m_descriptor_set_layout},
@@ -75,9 +80,9 @@ auto lh::renderer::render() -> void
 {
 	vk::raii::Semaphore semaphore(m_logical_device, vk::SemaphoreCreateInfo());
 
-	m_command_control.reset();
-	const auto& command_buffer = m_command_control.first_command_buffer();
-	command_buffer.begin({m_command_control.usage_flags()});
+	e1m4.reset();
+	const auto& command_buffer = e1m4.first_command_buffer();
+	command_buffer.begin({e1m4.usage_flags()});
 
 	auto [result, image_index, render_info] = m_swapchain.next_image_info(command_buffer, semaphore);
 

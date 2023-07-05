@@ -9,7 +9,7 @@ lh::vulkan::shader_object::shader_object(const logical_device& logical_device,
 										 const spir_v& spir_v,
 										 const descriptor_set_layout& descriptor_set_layout,
 										 const create_info& create_info)
-	: m_shader_stage {spir_v.stage()}, m_shader_inputs {spir_v.reflect_shader_input()}
+	: m_shader_stage {spir_v.stage()}
 {
 	const auto shader_create_info = vk::ShaderCreateInfoEXT {create_info.m_flags,
 															 m_shader_stage,
@@ -28,11 +28,6 @@ lh::vulkan::shader_object::shader_object(const logical_device& logical_device,
 auto lh::vulkan::shader_object::stage() const -> const vk::ShaderStageFlagBits&
 {
 	return m_shader_stage;
-}
-
-auto lh::vulkan::shader_object::shader_inputs() const -> const vulkan::shader_inputs&
-{
-	return m_shader_inputs;
 }
 
 auto lh::vulkan::shader_object::cache_binary_data(const std::filesystem::path& path) const -> void

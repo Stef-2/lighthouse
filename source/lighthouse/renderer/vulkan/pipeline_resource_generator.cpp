@@ -1,21 +1,70 @@
 #include "lighthouse/renderer/vulkan/pipeline_resource_generator.hpp"
+#include "lighthouse/renderer/vulkan/spir_v.hpp"
 #include "lighthouse/renderer/vulkan/physical_device.hpp"
 #include "lighthouse/renderer/vulkan/logical_device.hpp"
 #include "lighthouse/renderer/vulkan/memory_allocator.hpp"
-#include "lighthouse/renderer/vulkan/spir_v.hpp"
 #include "lighthouse/renderer/vulkan/buffer.hpp"
 #include "lighthouse/renderer/vulkan/descriptor_set_layout.hpp"
 #include "lighthouse/renderer/vulkan/shader_object.hpp"
 #include "lighthouse/renderer/vulkan/descriptor_buffer.hpp"
 #include "lighthouse/renderer/vulkan/vertex_input_description.hpp"
+#include "lighthouse/renderer/vulkan/shader_input.hpp"
+
+namespace
+{
+	auto generate_descriptor_set_bindings(const std::vector<lh::vulkan::shader_input>& shader_inputs)
+	{
+		auto bindings = std::vector<lh::vulkan::descriptor_set_layout::binding> {};
+
+		for (const auto& shader_input : shader_inputs)
+			if (shader_input.m_type == lh::vulkan::shader_input::input_type::uniform_buffer)
+				bindings.emplace_back(shader_input.m_descriptor_binding,
+									  vk::DescriptorType::eUniformBuffer,
+									  shader_input.m_array_dimension);
+
+		return bindings;
+	}
+}
 
 lh::vulkan::pipeline_resource_generator::pipeline_resource_generator(const physical_device& physical_device,
 																	 const logical_device& logical_device,
 																	 const memory_allocator& memory_allocator,
 																	 const pipeline_spir_v_code spir_v_code,
 																	 const create_info& create_info)
-{}
+	: m_vertex_input_description {}
+/*m_descriptor_set_layouts {nullptr, nullptr, nullptr, nullptr}*/ /*{std::invoke([this, &spir_v_code, &logical_device]
+{ return std::forward<std::vector<descriptor_set_layout>>(std::ranges::fold_left( spir_v_code,
+		std::vector<descriptor_set_layout> {},
+		[this, &spir_v_code, &logical_device](std::vector<descriptor_set_layout&&> layouts, const auto& element) {
+			layouts.emplace_back(logical_device,
+								 generate_descriptor_set_bindings(element.reflect_shader_input()));
+			return std::move(layouts);
+		}));
+})}*/
+{
+	for (const auto& shader_stage : spir_v_code)
+	{
+		const auto shader_inputs = shader_stage.reflect_shader_input();
 
+		if (shader_stage.stage() == vk::ShaderStageFlagBits::eVertex)
+			m_vertex_input_description = std::make_unique<vulkan::vertex_input_description>(
+				generate_vertex_input_description(shader_inputs));
+
+		m_descriptor_set_layouts.emplace_back(logical_device, generate_descriptor_set_bindings(shader_inputs));
+	}
+}
+
+auto lh::vulkan::pipeline_resource_generator::vertex_input_description() const -> const vulkan::vertex_input_description
+{
+	return *m_vertex_input_description;
+}
+/*
+auto lh::vulkan::pipeline_resource_generator::descriptor_set_layouts() const
+	-> const std::vector<vulkan::descriptor_set_layout>
+{
+	return m_descriptor_set_layouts;
+}
+*/
 auto lh::vulkan::pipeline_resource_generator::shader_input_hash(const shader_input& shader_input) const
 	-> const std::size_t
 {
@@ -144,8 +193,8 @@ auto lh::vulkan::pipeline_resource_generator::translate_shader_input_format(cons
 
 	return format;
 }
-auto lh::vulkan::pipeline_resource_generator::vertex_input_description(const std::vector<shader_input>& shader_inputs)
-	-> const vulkan::vertex_input_description
+auto lh::vulkan::pipeline_resource_generator::generate_vertex_input_description(
+	const std::vector<shader_input>& shader_inputs) -> const vulkan::vertex_input_description
 {
 	constexpr auto byte_divisor = uint8_t {8};
 
@@ -162,7 +211,7 @@ auto lh::vulkan::pipeline_resource_generator::vertex_input_description(const std
 
 			vertex_attributes.emplace_back(vertex_input.m_descriptor_location,
 										   vertex_input.m_descriptor_binding,
-										   vertex_input.translate_format(),
+										   translate_shader_input_format(vertex_input),
 										   offset);
 			offset = vertex_input.m_size * vertex_input.m_rows / byte_divisor;
 		}
@@ -170,7 +219,3 @@ auto lh::vulkan::pipeline_resource_generator::vertex_input_description(const std
 
 	return {vertex_bindings, vertex_attributes};
 }
-
-auto lh::vulkan::pipeline_resource_generator::descriptor_set_layout(const shader_input&)
-	-> const vk::raii::DescriptorSetLayout
-{}

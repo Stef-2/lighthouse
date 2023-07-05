@@ -12,7 +12,7 @@ namespace lh
 		{
 		public:
 			vk_wrapper(T&& object) noexcept : m_object(std::move(object)) {};
-			vk_wrapper(std::nullptr_t null = nullptr) : m_object(null) {};
+			vk_wrapper(std::nullptr_t null = nullptr) : m_object(std::forward<std::nullptr_t>(null)) {};
 
 			// disallow copy constructors, in line with vulkan raii types
 			vk_wrapper(const T&) = delete;

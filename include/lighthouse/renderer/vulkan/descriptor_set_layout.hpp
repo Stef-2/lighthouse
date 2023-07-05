@@ -14,6 +14,8 @@ namespace lh
 		class descriptor_set_layout : public vk_wrapper<vk::raii::DescriptorSetLayout>
 		{
 		public:
+			// using vk_wrapper::vk_wrapper;
+
 			struct binding
 			{
 				decltype(vk::DescriptorSetLayoutBinding::binding) m_binding {};

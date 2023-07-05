@@ -23,7 +23,7 @@ lh::vulkan::shader_object_pipeline::shader_object_pipeline(const physical_device
 
 	for (const auto& spir_v : shaders)
 	{
-		const auto shader_inputs = spir_v.reflect_shader_input();
+		// const auto shader_inputs = spir_v.reflect_shader_input();
 		/*
 		const auto bindings = std::ranges::fold_left(
 			shader_inputs, std::vector<descriptor_set_layout::binding> {}, [](auto bindings, const auto& shader_input) {

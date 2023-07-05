@@ -39,7 +39,7 @@ namespace lh
 
 		vulkan::logical_device m_logical_device;
 		vulkan::memory_allocator m_memory_allocator;
-		vulkan::command_control m_command_control;
+		vulkan::command_control e1m4;
 
 		vulkan::queue m_queue;
 		vulkan::swapchain m_swapchain;
@@ -51,6 +51,8 @@ namespace lh
 
 		vulkan::spir_v m_vertex_spirv;
 		vulkan::spir_v m_fragment_spirv;
+		vulkan::pipeline_resource_generator m_resource_generator;
+
 		vulkan::vertex_input_description m_vertex_input_description;
 
 		vulkan::shader_object m_vertex_object;

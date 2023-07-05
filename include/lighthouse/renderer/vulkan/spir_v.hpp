@@ -7,7 +7,7 @@ namespace lh
 	namespace vulkan
 	{
 		// forward declarations
-		class shader_inputs;
+		struct shader_input;
 
 		class spir_v
 		{
@@ -23,7 +23,7 @@ namespace lh
 			spir_v(const glsl_code_t&, const create_info& = {});
 			spir_v(const spir_v_bytecode_t&, const create_info& = {});
 
-			auto reflect_shader_input() const -> shader_inputs;
+			auto reflect_shader_input() const -> std::vector<shader_input>;
 
 			auto code() const -> const spir_v_bytecode_t&;
 			auto stage() const -> const vk::ShaderStageFlagBits&;
