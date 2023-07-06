@@ -1,6 +1,6 @@
 #pragma once
 
-#include "lighthouse/renderer/index_format.hpp"
+#include "lighthouse/renderer/vulkan/index_format.hpp"
 
 // forward declarations
 namespace std

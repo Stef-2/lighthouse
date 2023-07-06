@@ -47,9 +47,11 @@ namespace lh
 			auto descriptor_set_layout() const -> const descriptor_set_layout&;
 			auto pipeline_layout() const -> const vk::raii::PipelineLayout&;
 			auto shader_objects() const -> const std::vector<shader_object>&;
+			auto uniform_buffers() const -> const mapped_buffer&;
+			auto uniform_buffer_subdata() const -> const buffer_subdata&;
+			auto descriptor_buffer() const -> const descriptor_buffer&;
 
 		private:
-			auto shader_input_hash(const shader_input&) const -> const std::size_t;
 			auto translate_shader_input_format(const shader_input&) const -> const vk::Format;
 			auto generate_vertex_input_description(const std::vector<shader_input>&)
 				-> const vulkan::vertex_input_description;

@@ -65,15 +65,12 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 	  m_shader_object_pipeline {m_physical_device,
 								m_logical_device,
 								m_memory_allocator,
-								{m_vertex_spirv, m_fragment_spirv}},
-	  m_new_vb {m_physical_device, m_logical_device, m_memory_allocator, {}}
+								{m_vertex_spirv, m_fragment_spirv}}
 {
 	m_vertex_buffer.map_data(coloredCubeData);
 
 	if (m_create_info.m_using_validation)
 		output::log() << info(m_create_info);
-
-	m_new_vb = vulkan::vertex_buffer {m_physical_device, m_logical_device, m_memory_allocator, {}};
 }
 
 auto lh::renderer::render() -> void
@@ -110,7 +107,8 @@ auto lh::renderer::render() -> void
 
 	// command_buffer.setVertexInputEXT(vbd, vad);
 
-	command_buffer.setVertexInputEXT(m_vertex_input_description.m_bindings, m_vertex_input_description.m_attributes);
+	command_buffer.setVertexInputEXT(m_resource_generator.vertex_input_description().m_bindings,
+									 m_resource_generator.vertex_input_description().m_attributes);
 	command_buffer.bindVertexBuffers(0, {**m_vertex_buffer}, {0});
 
 	const auto time = static_cast<float>(vkfw::getTime().value);
@@ -120,15 +118,17 @@ auto lh::renderer::render() -> void
 	m_common_descriptor_data.map_data(mvpcMatrix);
 	m_common_descriptor_data.map_data(sin(time), 64);
 
-	m_descriptor_buffer.bind(command_buffer, m_pipeline_layout);
+	m_resource_generator.uniform_buffers().map_data(mvpcMatrix);
+	m_resource_generator.uniform_buffers().map_data(sin(time), 64);
 
+	// m_descriptor_buffer.bind(command_buffer, m_pipeline_layout);
+	m_resource_generator.descriptor_buffer().bind(command_buffer, m_resource_generator.pipeline_layout());
 	// ==================
 
-	command_buffer.bindShadersEXT({vk::ShaderStageFlagBits::eVertex, vk::ShaderStageFlagBits::eFragment},
-								  {**m_vertex_object, **m_fragment_object});
-
-	command_buffer.bindShadersEXT({m_vertex_object.stage(), m_fragment_object.stage()},
-								  {**m_vertex_object, **m_fragment_object});
+	command_buffer.bindShadersEXT({m_resource_generator.shader_objects()[0].stage(),
+								   m_resource_generator.shader_objects()[1].stage()},
+								  {**m_resource_generator.shader_objects()[0],
+								   **m_resource_generator.shader_objects()[1]});
 	/*
 	command_buffer.bindShadersEXT({vk::ShaderStageFlagBits::eTessellationControl,
 								   vk::ShaderStageFlagBits::eTessellationEvaluation,

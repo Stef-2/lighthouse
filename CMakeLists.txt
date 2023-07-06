@@ -34,7 +34,6 @@ add_executable(
 	${source}/lighthouse/system.cpp
 	${source}/lighthouse/operating_system/memory.cpp
 	${source}/vulkan/vma_implementation.cpp
-	${source}/lighthouse/renderer/vulkan/vulkan.cpp
 	${source}/lighthouse/renderer/vulkan/extension.cpp
 	${source}/lighthouse/renderer/vulkan/instance.cpp
 	${source}/lighthouse/renderer/vulkan/debug_messanger.cpp
@@ -58,7 +57,8 @@ add_executable(
 	${source}/lighthouse/renderer/vulkan/shader_object_pipeline.cpp
 	${source}/lighthouse/renderer/scene_loader.cpp
 	${source}/lighthouse/renderer/vulkan/pipeline_resource_generator.cpp
- "source/lighthouse/renderer/vulkan/shader_input.cpp")
+	${source}/lighthouse/renderer/vulkan/shader_input.cpp
+)
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")

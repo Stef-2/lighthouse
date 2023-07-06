@@ -62,6 +62,5 @@ namespace lh
 		vk::raii::PipelineLayout m_pipeline_layout;
 
 		vulkan::mapped_buffer m_vertex_buffer;
-		vulkan::vertex_buffer m_new_vb;
 	};
 }

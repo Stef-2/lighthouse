@@ -30,7 +30,6 @@ namespace
 	}
 }
 
-// #pragma optimize("", off)
 lh::vulkan::pipeline_resource_generator::pipeline_resource_generator(const physical_device& physical_device,
 																	 const logical_device& logical_device,
 																	 const memory_allocator& memory_allocator,
@@ -116,22 +115,19 @@ auto lh::vulkan::pipeline_resource_generator::shader_objects() const -> const st
 	return m_shader_objects;
 }
 
-auto lh::vulkan::pipeline_resource_generator::shader_input_hash(const shader_input& shader_input) const
-	-> const std::size_t
+auto lh::vulkan::pipeline_resource_generator::uniform_buffers() const -> const mapped_buffer&
 {
-	auto combined_input = string::string_t {
-		std::to_string(shader_input.m_descriptor_set) + std::to_string(shader_input.m_descriptor_location) +
-		std::to_string(shader_input.m_descriptor_binding) + std::to_string(std::to_underlying(shader_input.m_type)) +
-		std::to_string(std::to_underlying(shader_input.m_data_type)) + std::to_string(shader_input.m_rows) +
-		std::to_string(shader_input.m_columns) + std::to_string(shader_input.m_array_dimension) +
-		std::to_string(shader_input.m_size)};
+	return *m_uniform_buffers;
+}
 
-	for (const auto& member : shader_input.m_members)
-		combined_input += std::to_string(std::to_underlying(member.m_data_type)) + std::to_string(member.m_rows) +
-						  std::to_string(member.m_colums) + std::to_string(member.m_array_dimension) +
-						  std::to_string(member.m_size) + std::to_string(member.m_offset);
+auto lh::vulkan::pipeline_resource_generator::uniform_buffer_subdata() const -> const buffer_subdata&
+{
+	return *m_uniform_buffer_subdata;
+}
 
-	return std::hash<string::string_t> {}(combined_input);
+auto lh::vulkan::pipeline_resource_generator::descriptor_buffer() const -> const vulkan::descriptor_buffer&
+{
+	return *m_descriptor_buffer;
 }
 
 auto lh::vulkan::pipeline_resource_generator::translate_shader_input_format(const shader_input& shader_input) const
