@@ -38,8 +38,6 @@ namespace lh
 
 		private:
 			vk::ShaderStageFlagBits m_shader_stage;
-
-			static inline constexpr auto common_shader_entrypoint = "main";
 		};
 	}
 }

@@ -57,40 +57,21 @@ auto lh::node::remove_child(node& child) -> void
 	std::erase(m_children, &child);
 }
 
-auto lh::node::children() -> std::vector<node*>&
+auto lh::node::children() const -> const std::vector<node*>&
 {
 	return m_children;
 }
 
 auto lh::node::is_ancestor_of(const node& node) -> bool
 {
-	auto result = false;
-
-	std::function<void(lh::node&, const lh::node&)> traverse_down = [&traverse_down, &result](lh::node& parent,
-																							  const lh::node& node) {
-		for (const auto& child : parent.children())
-		{
-			if (*child == node)
-			{
-				result = true;
-				return;
-			}
-		}
-
-		for (auto& child : parent.children())
-			traverse_down(*child, node);
-	};
-
-	traverse_down(*this, node);
-
-	return result;
+	return node.is_descendent_of(*this);
 }
 
 auto lh::node::is_descendent_of(const node& node) const -> bool
 {
 	auto parent = m_parent;
 
-	while (*parent == s_root_node)
+	while (*parent != s_root_node)
 	{
 		if (*parent == node)
 			return true;
@@ -110,17 +91,7 @@ auto lh::node::descendent_count() const -> const std::size_t
 {
 	auto descendent_count = std::size_t {};
 
-	auto count = [this](std::size_t& count) { return count++; };
-
-	std::function<std::size_t(std::size_t)> func = [this](std::size_t count) { return count++; };
-
-	// auto wtf = std::invoke(count, descendent_count);
-	// auto omg = std::invoke(func, descendent_count);
-	// auto lol = std::invoke([this](std::size_t count) { return count++; }, descendent_count);
-
-	// this->traverse_down([this](std::size_t count) { return count++; }, descendent_count);
-	// traverse_down<decltype(func), size_t>(func, descendent_count);
-	traverse_down<decltype(count), size_t>(count, descendent_count, std::reference_wrapper(descendent_count));
+	traverse_down([&descendent_count](const auto&...) { descendent_count++; }, *this);
 
 	return descendent_count;
 }
@@ -154,7 +125,7 @@ auto lh::node::operator==(const node& node) const -> bool
 	return this == &node;
 }
 
-auto lh::node::get_disowned() const -> void
+auto lh::node::get_disowned() -> void
 {
-	std::erase(m_parent->children(), this);
+	std::erase(const_cast<std::vector<node*>&>(m_parent->children()), this);
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-
+#include <iostream>
 namespace lh
 {
 	class node
@@ -31,7 +31,7 @@ namespace lh
 
 		auto add_child(node&) -> void;
 		auto remove_child(node&) -> void;
-		auto children() -> std::vector<node*>&;
+		auto children() const -> const std::vector<node*>&;
 
 		auto is_ancestor_of(const node&) -> bool;
 		auto is_descendent_of(const node&) const -> bool;
@@ -44,24 +44,20 @@ namespace lh
 		auto local_transformation() const -> transformation_t;
 		auto global_transformation() const -> transformation_t;
 
-		auto test() -> void;
-
 	private:
 		// remove ourselves from our current parents children list
 		// this must be followed with acquisition of a new parent, unless called from the destructor
-		auto get_disowned() const -> void;
+		auto get_disowned() -> void;
 
-		template <typename F, typename R, typename... A>
-		auto traverse_down(const F& function, R& ret, A... args) const -> R
+		template <typename F>
+		auto traverse_down(const F& function, const node& node) const -> void
 		{
-			for (const auto& child : m_children)
+			for (auto child : node.children())
 			{
-				std::invoke(function, args...);
+				std::invoke(function, *child);
 
-				child->traverse_down(function, ret, args...);
+				child->traverse_down(function, *child);
 			}
-
-			return ret;
 		}
 
 		node* m_parent;

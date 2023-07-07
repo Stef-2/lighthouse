@@ -17,7 +17,7 @@ namespace lh
 
 			struct create_info
 			{
-				vk::ShaderStageFlagBits m_shader_stages = vk::ShaderStageFlagBits::eAll;
+				vk::ShaderStageFlagBits m_shader_stage = vk::ShaderStageFlagBits::eAll;
 			};
 
 			spir_v(const glsl_code_t&, const create_info& = {});
@@ -27,10 +27,13 @@ namespace lh
 
 			auto code() const -> const spir_v_bytecode_t&;
 			auto stage() const -> const vk::ShaderStageFlagBits&;
+			auto entrypoint() const -> const string::string_t;
 
 			operator const spir_v_bytecode_t&();
 
 		private:
+			auto reflect_shader_entrypoint() const -> string::string_t;
+
 			struct glsl_to_spirv
 			{
 				static auto translate_shader_stage(const vk::ShaderStageFlagBits&) -> uint32_t;
@@ -38,6 +41,7 @@ namespace lh
 			};
 
 			spir_v_bytecode_t m_code;
+			string::string_t m_entrypoint;
 			vk::ShaderStageFlagBits m_stage;
 		};
 	}

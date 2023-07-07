@@ -10,17 +10,19 @@
 #include "vulkan/spirv_cross/spirv_reflect.hpp"
 
 lh::vulkan::spir_v::spir_v(const glsl_code_t& glsl_code, const create_info& create_info)
-	: m_stage {create_info.m_shader_stages}
+	: m_code {}, m_entrypoint {}, m_stage {create_info.m_shader_stage}
 {
 	glslang::InitializeProcess();
 
-	m_code = glsl_to_spirv::translate_shader(create_info.m_shader_stages, glsl_code);
+	m_code = glsl_to_spirv::translate_shader(create_info.m_shader_stage, glsl_code);
 
 	glslang::FinalizeProcess();
+
+	m_entrypoint = reflect_shader_entrypoint();
 }
 
 lh::vulkan::spir_v::spir_v(const spir_v_bytecode_t& spir_v_code, const create_info& create_info)
-	: m_code {spir_v_code}, m_stage {create_info.m_shader_stages}
+	: m_code {spir_v_code}, m_stage {create_info.m_shader_stage}
 {}
 
 namespace
@@ -31,23 +33,24 @@ namespace
 
 		switch (spirv_type)
 		{
-			case spirv_cross::SPIRType::BaseType::Boolean: return return_type::boolean; break;
+			case spirv_cross::SPIRType::BaseType::Boolean: return return_type::boolean;
 
 			case spirv_cross::SPIRType::BaseType::Short: return return_type::integer_16;
 			case spirv_cross::SPIRType::BaseType::UShort: return return_type::unsigned_integer_16;
 			case spirv_cross::SPIRType::BaseType::Int: return return_type::integer_32;
 			case spirv_cross::SPIRType::BaseType::UInt: return return_type::unsigned_integer_32;
-			case spirv_cross::SPIRType::BaseType::Int64: return return_type::integer_64; break;
-			case spirv_cross::SPIRType::BaseType::UInt64: return return_type::unsigned_integer_64; break;
+			case spirv_cross::SPIRType::BaseType::Int64: return return_type::integer_64;
+			case spirv_cross::SPIRType::BaseType::UInt64: return return_type::unsigned_integer_64;
 
-			case spirv_cross::SPIRType::BaseType::Half: return return_type::float_16; break;
-			case spirv_cross::SPIRType::BaseType::Float: return return_type::float_32; break;
-			case spirv_cross::SPIRType::BaseType::Double: return return_type::float_64; break;
+			case spirv_cross::SPIRType::BaseType::Half: return return_type::float_16;
+			case spirv_cross::SPIRType::BaseType::Float: return return_type::float_32;
+			case spirv_cross::SPIRType::BaseType::Double: return return_type::float_64;
 
-			case spirv_cross::SPIRType::BaseType::Struct: return return_type::structure; break;
-			case spirv_cross::SPIRType::BaseType::Image: return return_type::image; break;
-			case spirv_cross::SPIRType::BaseType::SampledImage: return return_type::sampled_image; break;
-			case spirv_cross::SPIRType::BaseType::Sampler: return return_type::sampler; break;
+			case spirv_cross::SPIRType::BaseType::Struct: return return_type::structure;
+			case spirv_cross::SPIRType::BaseType::Image: return return_type::image;
+			case spirv_cross::SPIRType::BaseType::SampledImage: return return_type::sampled_image;
+			case spirv_cross::SPIRType::BaseType::Sampler: return return_type::sampler;
+
 			default: lh::output::warning() << "unrecognized spir_v base type: " + spirv_type; break;
 		}
 	}
@@ -145,6 +148,14 @@ auto lh::vulkan::spir_v::reflect_shader_input() const -> std::vector<shader_inpu
 	return shader_inputs;
 }
 
+auto lh::vulkan::spir_v::reflect_shader_entrypoint() const -> string::string_t
+{
+	const auto compiler = spirv_cross::CompilerGLSL {m_code};
+	const auto shader_stage_and_entrypoint = compiler.get_entry_points_and_stages();
+
+	return shader_stage_and_entrypoint[0].name;
+}
+
 auto lh::vulkan::spir_v::code() const -> const spir_v_bytecode_t&
 {
 	return m_code;
@@ -153,6 +164,11 @@ auto lh::vulkan::spir_v::code() const -> const spir_v_bytecode_t&
 auto lh::vulkan::spir_v::stage() const -> const vk::ShaderStageFlagBits&
 {
 	return m_stage;
+}
+
+auto lh::vulkan::spir_v::entrypoint() const -> const string::string_t
+{
+	return m_entrypoint;
 }
 
 lh::vulkan::spir_v::operator const spir_v_bytecode_t&()

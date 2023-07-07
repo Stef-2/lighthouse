@@ -19,7 +19,7 @@ lh::vulkan::shader_object::shader_object(const logical_device& logical_device,
 															 spir_v.code().size() *
 																 sizeof(spir_v::spir_v_bytecode_t::value_type),
 															 spir_v.code().data(),
-															 common_shader_entrypoint,
+															 spir_v.entrypoint().c_str(),
 															 1,
 															 &**descriptor_set_layout};
 

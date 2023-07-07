@@ -45,10 +45,10 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 														 vk::BufferUsageFlagBits::eShaderDeviceAddress,
 											  .m_allocation_flags = vma::AllocationCreateFlagBits::eMapped}},
 	  m_vertex_spirv {lh::input::read_file(file_system::data_path() /= "shaders/basic.vert"),
-					  vulkan::spir_v::create_info {.m_shader_stages = vk::ShaderStageFlagBits::eVertex}},
+					  vulkan::spir_v::create_info {.m_shader_stage = vk::ShaderStageFlagBits::eVertex}},
 
 	  m_fragment_spirv {lh::input::read_file(file_system::data_path() /= "shaders/basic.frag"),
-						vulkan::spir_v::create_info {.m_shader_stages = vk::ShaderStageFlagBits::eFragment}},
+						vulkan::spir_v::create_info {.m_shader_stage = vk::ShaderStageFlagBits::eFragment}},
 	  m_resource_generator {m_physical_device,
 							m_logical_device,
 							m_memory_allocator,
