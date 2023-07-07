@@ -20,7 +20,6 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 	  m_queue {m_logical_device, m_queue_families},
 	  m_swapchain {m_physical_device, m_logical_device, m_surface, m_queue_families, m_memory_allocator},
 	  m_common_descriptor_data {
-		  m_physical_device,
 		  m_logical_device,
 		  m_memory_allocator,
 		  256, // sizeof(glm::mat4x4) + sizeof(float),
@@ -39,7 +38,6 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 						   vulkan::buffer_subdata {&m_common_descriptor_data, {{0, 64}, {64, 4}}}},
 
 	  m_vertex_buffer {
-		  m_physical_device,
 		  m_logical_device,
 		  m_memory_allocator,
 		  sizeof(coloredCubeData),

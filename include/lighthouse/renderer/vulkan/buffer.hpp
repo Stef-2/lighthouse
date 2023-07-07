@@ -8,7 +8,6 @@ namespace lh
 	namespace vulkan
 	{
 		// forward declarations
-		class physical_device;
 		class logical_device;
 		class memory_allocator;
 
@@ -24,11 +23,7 @@ namespace lh
 				vk::MemoryPropertyFlags m_properties = {};
 			};
 
-			buffer(const physical_device&,
-				   const logical_device&,
-				   const memory_allocator&,
-				   const vk::DeviceSize&,
-				   const create_info& = {});
+			buffer(const logical_device&, const memory_allocator&, const vk::DeviceSize&, const create_info& = {});
 
 			auto allocation_info() const -> const vma::AllocationInfo&;
 			auto allocation_info() -> vma::AllocationInfo&;
@@ -61,8 +56,7 @@ namespace lh
 														vk::MemoryPropertyFlagBits::eHostCoherent};
 			};
 
-			mapped_buffer(const physical_device&,
-						  const logical_device&,
+			mapped_buffer(const logical_device&,
 						  const memory_allocator&,
 						  const vk::DeviceSize&,
 						  const mapped_buffer::create_info& = {});

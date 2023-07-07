@@ -1,6 +1,5 @@
 #include "lighthouse/renderer/vulkan/pipeline_resource_generator.hpp"
 #include "lighthouse/renderer/vulkan/spir_v.hpp"
-#include "lighthouse/renderer/vulkan/physical_device.hpp"
 #include "lighthouse/renderer/vulkan/logical_device.hpp"
 #include "lighthouse/renderer/vulkan/memory_allocator.hpp"
 #include "lighthouse/renderer/vulkan/buffer.hpp"
@@ -9,8 +8,6 @@
 #include "lighthouse/renderer/vulkan/descriptor_buffer.hpp"
 #include "lighthouse/renderer/vulkan/vertex_input_description.hpp"
 #include "lighthouse/renderer/vulkan/shader_input.hpp"
-
-#include <unordered_set>
 
 namespace
 {
@@ -74,7 +71,6 @@ lh::vulkan::pipeline_resource_generator::pipeline_resource_generator(const physi
 															 });
 
 	m_uniform_buffers = std::make_unique<mapped_buffer>(
-		physical_device,
 		logical_device,
 		memory_allocator,
 		uniform_buffers_size,

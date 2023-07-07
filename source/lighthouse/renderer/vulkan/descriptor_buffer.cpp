@@ -27,7 +27,6 @@ lh::vulkan::descriptor_buffer::descriptor_buffer(const physical_device& physical
 	m_binding_info.reserve(binding_count);
 
 	m_descriptor_buffer = std::make_unique<mapped_buffer>(
-		physical_device,
 		logical_device,
 		memory_allocator,
 		descriptor_set_layout->getSizeEXT() * binding_count,

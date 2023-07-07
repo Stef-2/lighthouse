@@ -10,7 +10,6 @@ namespace lh
 	namespace vulkan
 	{
 		// forward declarations
-		class physical_device;
 		class logical_device;
 		class memory_allocator;
 		class buffer;
@@ -25,8 +24,7 @@ namespace lh
 			struct create_info
 			{};
 
-			vertex_buffer(const physical_device&,
-						  const logical_device&,
+			vertex_buffer(const logical_device&,
 						  const memory_allocator&,
 						  const std::vector<vertex>&,
 						  const std::vector<vertex_index_t>&,
@@ -34,14 +32,14 @@ namespace lh
 						  const create_info& = {});
 
 			auto vertex_input_description() const -> const vertex_input_description&;
-			auto vertices() const -> const buffer_subdata&;
-			auto indices() const -> const buffer_subdata&;
+			auto vertices() const -> const buffer_subdata;
+			auto indices() const -> const buffer_subdata;
 			auto bind(const vk::raii::CommandBuffer&) const -> void;
 
 		private:
 			std::unique_ptr<vulkan::vertex_input_description> m_vertex_input_description;
 			std::unique_ptr<mapped_buffer> m_vertex_and_index_buffer;
-			std::vector<buffer_subdata> m_vertex_and_index_suballocations;
+			std::unique_ptr<buffer_subdata> m_vertex_and_index_suballocations;
 		};
 	}
 }

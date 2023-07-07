@@ -9,4 +9,12 @@ lh::scene_loader::scene_loader(const std::filesystem::path& file_path, const cre
 	: m_importer {std::make_unique<Assimp::Importer>()}
 {
 	m_importer->ReadFile(file_path.generic_string(), 0);
+
+	const auto scene = m_importer->GetScene();
+
+	if (scene->HasMeshes())
+		for (auto i = std::size_t {}; i < scene->mNumMeshes; ++i)
+		{
+			const auto& mesh = *scene->mMeshes[i];
+		}
 }
