@@ -36,6 +36,8 @@ namespace lh
 		vulkan::physical_device m_physical_device;
 		vulkan::surface m_surface;
 
+		glm::mat4 m_fake_camera;
+
 		vulkan::queue_families m_queue_families;
 
 		vulkan::logical_device m_logical_device;

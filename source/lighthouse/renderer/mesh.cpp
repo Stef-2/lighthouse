@@ -16,9 +16,13 @@ lh::mesh::mesh(const vulkan::logical_device& logical_device,
 	  m_indices {std::move(indices)},
 	  m_vertex_buffer {std::make_unique<vulkan::vertex_buffer>(logical_device, memory_allocator, m_vertices, m_indices)}
 {
-	const auto vertex_buffer = m_vertex_buffer->vertices();
-	vertex_buffer.m_buffer->map_data(m_vertices.data());
-	vertex_buffer.m_buffer->map_data(m_indices.data(), vertex_buffer.m_subdata[1].m_offset);
+	const auto& vertex_buffer = m_vertex_buffer->vertices();
+	const auto& index_buffer = m_vertex_buffer->indices();
+
+	vertex_buffer.m_buffer->map_data(*m_vertices.data(), 0, sizeof(vulkan::vertex) * m_vertices.size());
+	vertex_buffer.m_buffer->map_data(*m_indices.data(),
+									 index_buffer.m_subdata[0].m_offset,
+									 sizeof(vulkan::vertex_index_t) * m_indices.size());
 }
 
 auto lh::mesh::node() const -> const lh::node&

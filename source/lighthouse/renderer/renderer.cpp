@@ -8,6 +8,7 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 												.m_vulkan_version = create_info.m_vulkan_version}),
 	  m_physical_device {m_instance},
 	  m_surface {window, m_instance, m_physical_device},
+	  m_fake_camera {vk::su::createModelViewProjectionClipMatrix(m_surface.extent())},
 	  m_queue_families {m_physical_device, m_surface},
 	  m_logical_device {m_physical_device,
 						vulkan::logical_device::create_info {
@@ -119,27 +120,28 @@ auto lh::renderer::render() -> void
 	command_buffer.setDepthCompareOpEXT(vk::CompareOp::eLessOrEqual);
 	command_buffer.setPrimitiveTopologyEXT(vk::PrimitiveTopology::eTriangleList);
 
+	/*
 	vk::VertexInputBindingDescription2EXT vbd {0, sizeof(VertexPC), vk::VertexInputRate::eVertex, 1};
 	std::vector<vk::VertexInputAttributeDescription2EXT> vad {
 		vk::VertexInputAttributeDescription2EXT(0, 0, vk::Format::eR32G32B32A32Sfloat, 0),
-		vk::VertexInputAttributeDescription2EXT(1, 0, vk::Format::eR32G32B32A32Sfloat, offsetof(VertexPC, r))};
+		vk::VertexInputAttributeDescription2EXT(1, 0, vk::Format::eR32G32B32A32Sfloat, offsetof(VertexPC, r))};*/
 
 	// command_buffer.setVertexInputEXT(vbd, vad);
 
 	command_buffer.setVertexInputEXT(m_resource_generator.vertex_input_description().m_bindings,
 									 m_resource_generator.vertex_input_description().m_attributes);
-	command_buffer.bindVertexBuffers(0, {**m_vertex_buffer}, {0});
-	command_buffer.bindIndexBuffer(**m_index_buffer, 0, vk::IndexType::eUint32);
-	// m_scene_loader.meshes()[0].vertex_buffer().bind(command_buffer);
+	// command_buffer.bindVertexBuffers(0, {**m_vertex_buffer}, {0});
+	// command_buffer.bindIndexBuffer(**m_index_buffer, 0, vk::IndexType::eUint32);
+	m_scene_loader.meshes()[0].vertex_buffer().bind(command_buffer);
 
 	const auto time = static_cast<float>(vkfw::getTime().value);
-	glm::mat4x4 mvpcMatrix = vk::su::createModelViewProjectionClipMatrix(m_surface.extent());
-	mvpcMatrix = glm::rotate(mvpcMatrix, glm::sin(time), glm::vec3 {1.0f, 1.0f, 1.0f});
 
-	m_common_descriptor_data.map_data(mvpcMatrix);
+	m_fake_camera = glm::rotate(m_fake_camera, glm::sin(time), glm::vec3 {1.0f, 1.0f, 1.0f});
+
+	m_common_descriptor_data.map_data(m_fake_camera);
 	m_common_descriptor_data.map_data(sin(time), 64);
 
-	m_resource_generator.uniform_buffers().map_data(mvpcMatrix);
+	m_resource_generator.uniform_buffers().map_data(m_fake_camera);
 	m_resource_generator.uniform_buffers().map_data(sin(time), 64);
 
 	m_descriptor_buffer.bind(command_buffer, m_pipeline_layout);
@@ -156,8 +158,8 @@ auto lh::renderer::render() -> void
 								   vk::ShaderStageFlagBits::eGeometry},
 								  {nullptr, nullptr, nullptr});*/
 
-	// command_buffer.draw(12 * 3, 1, 0, 0);
-	command_buffer.drawIndexed(36, 1, 0, 0, 0);
+	// command_buffer.draw(m_scene_loader.meshes()[0].vertices().size(), 1, 0, 0);
+	command_buffer.drawIndexed(m_scene_loader.meshes()[0].indices().size(), 1, 0, 0, 0);
 	command_buffer.endRendering();
 
 	// m_swapchain.transition_layout_for_presentation(command_buffer);
