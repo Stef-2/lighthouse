@@ -62,11 +62,11 @@ namespace lh
 						  const mapped_buffer::create_info& = {});
 
 			template <typename T>
-			auto map_data(const T& data, const std::size_t& offset = 0) const
+			auto map_data(const T& data, const std::size_t& offset = 0, const std::size_t& size = sizeof(T)) const
 			{
 				const auto map = static_cast<uint8_t*>(m_allocation_info.pMappedData) + offset;
 
-				std::memcpy(map, &data, sizeof(T));
+				std::memcpy(map, &data, size);
 			}
 
 		private:

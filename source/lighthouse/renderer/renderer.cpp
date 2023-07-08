@@ -44,6 +44,13 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 		  vulkan::mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eVertexBuffer |
 														 vk::BufferUsageFlagBits::eShaderDeviceAddress,
 											  .m_allocation_flags = vma::AllocationCreateFlagBits::eMapped}},
+	  m_index_buffer {
+		  m_logical_device,
+		  m_memory_allocator,
+		  sizeof(vulkan::vertex_index_t) * m_col_cube_indices.size(),
+		  vulkan::mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eIndexBuffer |
+														 vk::BufferUsageFlagBits::eShaderDeviceAddress,
+											  .m_allocation_flags = vma::AllocationCreateFlagBits::eMapped}},
 	  m_vertex_spirv {lh::input::read_file(file_system::data_path() /= "shaders/basic.vert"),
 					  vulkan::spir_v::create_info {.m_shader_stage = vk::ShaderStageFlagBits::eVertex}},
 
@@ -60,13 +67,26 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 	  m_fragment_object {m_logical_device, m_fragment_spirv, m_resource_generator.descriptor_set_layout()},
 
 	  m_pipeline_layout {m_logical_device, {{}, **m_descriptor_set_layout}},
+	  m_col_cube_data {std::accumulate(
+		  std::begin(coloredCubeData),
+		  std::end(coloredCubeData),
+		  std::vector<vulkan::vertex> {},
+		  [](std::vector<vulkan::vertex> vec, VertexPC elem) {
+			  vec.push_back({glm::vec4 {elem.x, elem.y, elem.z, elem.w}, glm::vec4 {elem.r, elem.g, elem.b, elem.a}});
+			  return std::move(vec);
+		  })},
+	  m_col_cube_indices {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15, 16, 17,
+						  18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35},
 	  m_shader_object_pipeline {m_physical_device,
 								m_logical_device,
 								m_memory_allocator,
 								{m_vertex_spirv, m_fragment_spirv}},
-	  m_scene_loader {m_logical_device, m_memory_allocator, file_system::data_path() /= "models/stanford_bunny.obj"}
+	  m_scene_loader {m_logical_device, m_memory_allocator, file_system::data_path() /= "models/stanford_bunny.obj"},
+
+	  m_actual_vb {m_logical_device, m_memory_allocator, m_col_cube_data, m_col_cube_indices}
 {
-	m_vertex_buffer.map_data(coloredCubeData);
+	m_vertex_buffer.map_data(*m_col_cube_data.data(), 0, sizeof(vulkan::vertex) * m_col_cube_data.size());
+	m_index_buffer.map_data(*m_col_cube_indices.data(), 0, sizeof(vulkan::vertex_index_t) * m_col_cube_indices.size());
 
 	if (m_create_info.m_using_validation)
 		output::log() << info(m_create_info);
@@ -109,6 +129,7 @@ auto lh::renderer::render() -> void
 	command_buffer.setVertexInputEXT(m_resource_generator.vertex_input_description().m_bindings,
 									 m_resource_generator.vertex_input_description().m_attributes);
 	command_buffer.bindVertexBuffers(0, {**m_vertex_buffer}, {0});
+	command_buffer.bindIndexBuffer(**m_index_buffer, 0, vk::IndexType::eUint32);
 	// m_scene_loader.meshes()[0].vertex_buffer().bind(command_buffer);
 
 	const auto time = static_cast<float>(vkfw::getTime().value);
@@ -135,8 +156,8 @@ auto lh::renderer::render() -> void
 								   vk::ShaderStageFlagBits::eGeometry},
 								  {nullptr, nullptr, nullptr});*/
 
-	command_buffer.draw(12 * 3, 1, 0, 0);
-	// command_buffer.drawIndexed(m_scene_loader.meshes()[0].indices().size(), 0, 0, 0, 0);
+	// command_buffer.draw(12 * 3, 1, 0, 0);
+	command_buffer.drawIndexed(36, 1, 0, 0, 0);
 	command_buffer.endRendering();
 
 	// m_swapchain.transition_layout_for_presentation(command_buffer);

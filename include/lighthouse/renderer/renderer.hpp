@@ -62,8 +62,13 @@ namespace lh
 
 		vk::raii::PipelineLayout m_pipeline_layout;
 
-		vulkan::mapped_buffer m_vertex_buffer;
+		std::vector<vulkan::vertex> m_col_cube_data;
+		std::vector<vulkan::vertex_index_t> m_col_cube_indices;
 
+		vulkan::mapped_buffer m_vertex_buffer;
+		vulkan::mapped_buffer m_index_buffer;
 		scene_loader m_scene_loader;
+
+		vulkan::vertex_buffer m_actual_vb;
 	};
 }

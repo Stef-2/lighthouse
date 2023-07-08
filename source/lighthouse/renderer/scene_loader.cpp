@@ -40,9 +40,12 @@ lh::scene_loader::scene_loader(const vulkan::logical_device& logical_device,
 				const auto& normals = mesh.mNormals[v];
 				const auto& tex_coords = mesh.HasTextureCoords(0) ? mesh.mTextureCoords[0][v] : aiVector3D {};
 
+				/*
 				vertices.emplace_back(glm::vec3 {vertex.x, vertex.y, vertex.z},
 									  glm::vec3 {normals.x, normals.y, normals.z},
-									  glm::vec2 {tex_coords.x, tex_coords.y});
+									  glm::vec2 {tex_coords.x, tex_coords.y});*/
+
+				vertices.emplace_back(glm::vec4 {vertex.x, vertex.y, vertex.z, 1}, glm::vec4 {1, 1, 1, 1});
 			}
 
 			for (auto f = std::size_t {}; f < mesh.mNumFaces; ++f)
