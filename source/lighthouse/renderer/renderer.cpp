@@ -63,7 +63,8 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 	  m_shader_object_pipeline {m_physical_device,
 								m_logical_device,
 								m_memory_allocator,
-								{m_vertex_spirv, m_fragment_spirv}}
+								{m_vertex_spirv, m_fragment_spirv}},
+	  m_scene_loader {m_logical_device, m_memory_allocator, file_system::data_path() /= "models/utah_teapot.obj"}
 {
 	m_vertex_buffer.map_data(coloredCubeData);
 

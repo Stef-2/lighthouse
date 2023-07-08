@@ -62,7 +62,7 @@ auto lh::node::children() const -> const std::vector<node*>&
 	return m_children;
 }
 
-auto lh::node::is_ancestor_of(const node& node) -> bool
+auto lh::node::is_ancestor_of(const node& node) const -> bool
 {
 	return node.is_descendent_of(*this);
 }
@@ -101,12 +101,12 @@ auto lh::node::local_transformation(const transformation_t& transformation) -> v
 	m_transformation = transformation;
 }
 
-auto lh::node::local_transformation() const -> transformation_t
+auto lh::node::local_transformation() const -> const transformation_t&
 {
 	return m_transformation;
 }
 
-auto lh::node::global_transformation() const -> transformation_t
+auto lh::node::global_transformation() const -> const transformation_t&
 {
 	auto global_transformation = m_transformation;
 	auto parent = m_parent;

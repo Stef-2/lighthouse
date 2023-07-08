@@ -1,7 +1,8 @@
 #pragma once
 
 #include "lighthouse/renderer/vulkan/vulkan.hpp"
-
+#include "lighthouse/renderer/mesh.hpp"
+#include "lighthouse/renderer/scene_loader.hpp"
 #include "lighthouse/version.hpp"
 
 #include <iterator>
@@ -62,5 +63,7 @@ namespace lh
 		vk::raii::PipelineLayout m_pipeline_layout;
 
 		vulkan::mapped_buffer m_vertex_buffer;
+
+		scene_loader m_scene_loader;
 	};
 }

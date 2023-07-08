@@ -33,7 +33,7 @@ namespace lh
 		auto remove_child(node&) -> void;
 		auto children() const -> const std::vector<node*>&;
 
-		auto is_ancestor_of(const node&) -> bool;
+		auto is_ancestor_of(const node&) const -> bool;
 		auto is_descendent_of(const node&) const -> bool;
 		auto is_sibling_of(const node&) const -> bool;
 		auto descendent_count() const -> const std::size_t;
@@ -41,8 +41,8 @@ namespace lh
 		auto operator==(const node&) const -> bool;
 
 		auto local_transformation(const transformation_t&) -> void;
-		auto local_transformation() const -> transformation_t;
-		auto global_transformation() const -> transformation_t;
+		auto local_transformation() const -> const transformation_t&;
+		auto global_transformation() const -> const transformation_t&;
 
 	private:
 		// remove ourselves from our current parents children list
