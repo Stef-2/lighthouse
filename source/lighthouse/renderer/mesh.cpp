@@ -1,5 +1,6 @@
 #include "lighthouse/renderer/mesh.hpp"
 #include "lighthouse/node.hpp"
+#include "lighthouse/renderer/bounding_volume.hpp"
 #include "lighthouse/renderer/vulkan/buffer.hpp"
 #include "lighthouse/renderer/vulkan/vertex_buffer.hpp"
 #include "lighthouse/renderer/vulkan/logical_device.hpp"
@@ -10,11 +11,14 @@ lh::mesh::mesh(const vulkan::logical_device& logical_device,
 			   const vulkan::memory_allocator& memory_allocator,
 			   const std::vector<vulkan::vertex>& vertices,
 			   const std::vector<vulkan::vertex_index_t>& indices,
+			   const bounding_box& bounding_box,
 			   non_owning_ptr<lh::node> node)
 	: m_node {node ? std::shared_ptr<lh::node> {node} : std::make_shared<lh::node>()},
 	  m_vertices {std::move(vertices)},
 	  m_indices {std::move(indices)},
-	  m_vertex_buffer {std::make_unique<vulkan::vertex_buffer>(logical_device, memory_allocator, m_vertices, m_indices)}
+	  m_vertex_buffer {
+		  std::make_unique<vulkan::vertex_buffer>(logical_device, memory_allocator, m_vertices, m_indices)},
+	  m_bounding_box {std::make_unique<lh::bounding_box>(std::move(bounding_box))}
 {
 	const auto& vertex_buffer = m_vertex_buffer->vertices();
 	const auto& index_buffer = m_vertex_buffer->indices();

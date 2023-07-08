@@ -4,6 +4,7 @@
 #include "lighthouse/renderer/vulkan/buffer.hpp"
 #include "lighthouse/renderer/vulkan/vertex_buffer.hpp"
 #include "lighthouse/renderer/vulkan/vertex_format.hpp"
+#include "lighthouse/renderer/bounding_volume.hpp"
 #include "lighthouse/renderer/mesh.hpp"
 #include "lighthouse/output.hpp"
 
@@ -45,7 +46,8 @@ lh::scene_loader::scene_loader(const vulkan::logical_device& logical_device,
 									  glm::vec3 {normals.x, normals.y, normals.z},
 									  glm::vec2 {tex_coords.x, tex_coords.y});*/
 
-				vertices.emplace_back(glm::vec4 {vertex.x, vertex.y, vertex.z, 1}, glm::vec4 {1, 1, 1, 1});
+				vertices.emplace_back(glm::vec4 {vertex.x, vertex.y, vertex.z, 1},
+									  glm::linearRand(glm::vec4(0), glm::vec4(1)));
 			}
 
 			for (auto f = std::size_t {}; f < mesh.mNumFaces; ++f)
@@ -54,7 +56,11 @@ lh::scene_loader::scene_loader(const vulkan::logical_device& logical_device,
 				indices.insert(indices.end(), {face.mIndices[0], face.mIndices[1], face.mIndices[2]});
 			}
 
-			m_meshes.emplace_back(logical_device, memory_allocator, vertices, indices);
+			const auto bounding_box =
+				lh::bounding_box {.m_minima {mesh.mAABB.mMin.x, mesh.mAABB.mMin.y, mesh.mAABB.mMin.z},
+								  .m_maxima {mesh.mAABB.mMax.x, mesh.mAABB.mMax.y, mesh.mAABB.mMax.z}};
+
+			m_meshes.emplace_back(logical_device, memory_allocator, vertices, indices, bounding_box);
 		}
 
 	delete m_importer;
