@@ -29,8 +29,13 @@ namespace lh
 			 const std::vector<vulkan::vertex_index_t>&,
 			 non_owning_ptr<node> = nullptr);
 
+		auto node() const -> const node&;
+		auto vertices() const -> const std::vector<vulkan::vertex>&;
+		auto indices() const -> const std::vector<vulkan::vertex_index_t>&;
+		auto vertex_buffer() const -> const vulkan::vertex_buffer&;
+
 	private:
-		std::shared_ptr<node> m_node;
+		std::shared_ptr<lh::node> m_node;
 		std::vector<vulkan::vertex> m_vertices;
 		std::vector<vulkan::vertex_index_t> m_indices;
 		std::unique_ptr<vulkan::vertex_buffer> m_vertex_buffer;

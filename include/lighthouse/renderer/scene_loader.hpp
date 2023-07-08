@@ -33,7 +33,8 @@ namespace lh
 		struct create_info
 		{
 			std::uint32_t m_importer_postprocess = aiProcess_OptimizeMeshes | aiProcess_GenSmoothNormals |
-												   aiProcess_GenUVCoords;
+												   aiProcess_GenUVCoords | aiProcess_JoinIdenticalVertices |
+												   aiProcess_ImproveCacheLocality;
 		};
 
 		scene_loader(const vulkan::logical_device&,

@@ -43,4 +43,7 @@ auto lh::vulkan::vertex_buffer::indices() const -> const buffer_subdata
 auto lh::vulkan::vertex_buffer::bind(const vk::raii::CommandBuffer& command_buffer) const -> void
 {
 	command_buffer.bindVertexBuffers(0, {***m_vertex_and_index_buffer}, {0});
+	command_buffer.bindIndexBuffer(***m_vertex_and_index_buffer,
+								   m_vertex_and_index_suballocations->m_subdata[1].m_offset,
+								   vk::IndexType::eUint32);
 }

@@ -64,7 +64,7 @@ lh::renderer::renderer(const window& window, const create_info& create_info)
 								m_logical_device,
 								m_memory_allocator,
 								{m_vertex_spirv, m_fragment_spirv}},
-	  m_scene_loader {m_logical_device, m_memory_allocator, file_system::data_path() /= "models/utah_teapot.obj"}
+	  m_scene_loader {m_logical_device, m_memory_allocator, file_system::data_path() /= "models/stanford_bunny.obj"}
 {
 	m_vertex_buffer.map_data(coloredCubeData);
 
@@ -109,6 +109,7 @@ auto lh::renderer::render() -> void
 	command_buffer.setVertexInputEXT(m_resource_generator.vertex_input_description().m_bindings,
 									 m_resource_generator.vertex_input_description().m_attributes);
 	command_buffer.bindVertexBuffers(0, {**m_vertex_buffer}, {0});
+	// m_scene_loader.meshes()[0].vertex_buffer().bind(command_buffer);
 
 	const auto time = static_cast<float>(vkfw::getTime().value);
 	glm::mat4x4 mvpcMatrix = vk::su::createModelViewProjectionClipMatrix(m_surface.extent());
@@ -120,9 +121,9 @@ auto lh::renderer::render() -> void
 	m_resource_generator.uniform_buffers().map_data(mvpcMatrix);
 	m_resource_generator.uniform_buffers().map_data(sin(time), 64);
 
-	// m_descriptor_buffer.bind(command_buffer, m_pipeline_layout);
+	m_descriptor_buffer.bind(command_buffer, m_pipeline_layout);
 	m_resource_generator.descriptor_buffer().bind(command_buffer, m_resource_generator.pipeline_layout());
-	// ==================
+	//  ==================
 
 	command_buffer.bindShadersEXT({m_resource_generator.shader_objects()[0].stage(),
 								   m_resource_generator.shader_objects()[1].stage()},
@@ -135,6 +136,7 @@ auto lh::renderer::render() -> void
 								  {nullptr, nullptr, nullptr});*/
 
 	command_buffer.draw(12 * 3, 1, 0, 0);
+	// command_buffer.drawIndexed(m_scene_loader.meshes()[0].indices().size(), 0, 0, 0, 0);
 	command_buffer.endRendering();
 
 	// m_swapchain.transition_layout_for_presentation(command_buffer);

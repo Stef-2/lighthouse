@@ -38,7 +38,7 @@ lh::scene_loader::scene_loader(const vulkan::logical_device& logical_device,
 			{
 				const auto& vertex = mesh.mVertices[v];
 				const auto& normals = mesh.mNormals[v];
-				const auto& tex_coords = mesh.mTextureCoords[0][v];
+				const auto& tex_coords = mesh.HasTextureCoords(0) ? mesh.mTextureCoords[0][v] : aiVector3D {};
 
 				vertices.emplace_back(glm::vec3 {vertex.x, vertex.y, vertex.z},
 									  glm::vec3 {normals.x, normals.y, normals.z},
@@ -55,4 +55,9 @@ lh::scene_loader::scene_loader(const vulkan::logical_device& logical_device,
 		}
 
 	delete m_importer;
+}
+
+auto lh::scene_loader::meshes() const -> const std::vector<mesh>&
+{
+	return m_meshes;
 }
