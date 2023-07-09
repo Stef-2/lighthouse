@@ -1,4 +1,4 @@
-#include "lighthouse/renderer/bounding_volume.hpp"
+// module bounding_volume;
 /*
 template <typename T>
 	requires std::derived_from<T, lh::bounding_volume>

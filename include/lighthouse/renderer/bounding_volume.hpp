@@ -1,6 +1,9 @@
 #pragma once
+// module;
 
 #include <concepts>
+
+// export module bounding_volume;
 
 namespace lh
 {

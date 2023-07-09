@@ -1,6 +1,6 @@
 #include "lighthouse/renderer/mesh.hpp"
 #include "lighthouse/node.hpp"
-#include "lighthouse/renderer/bounding_volume.hpp"
+// #include "lighthouse/renderer/bounding_volume.hpp"
 #include "lighthouse/renderer/vulkan/buffer.hpp"
 #include "lighthouse/renderer/vulkan/vertex_buffer.hpp"
 #include "lighthouse/renderer/vulkan/logical_device.hpp"

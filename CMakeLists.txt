@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required(VERSION 3.8)
 
-project("LightHouse")
+project("lighthouse")
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -58,7 +58,10 @@ add_executable(
 	${source}/lighthouse/renderer/scene_loader.cpp
 	${source}/lighthouse/renderer/vulkan/pipeline_resource_generator.cpp
 	${source}/lighthouse/renderer/vulkan/shader_input.cpp
- "source/lighthouse/renderer/mesh.cpp" "source/lighthouse/renderer/bounding_volume.cpp")
+	#${include}/lighthouse/renderer/bounding_volume.ixx
+	${source}/lighthouse/renderer/bounding_volume.cpp
+	${source}/lighthouse/renderer/mesh.cpp
+)
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")

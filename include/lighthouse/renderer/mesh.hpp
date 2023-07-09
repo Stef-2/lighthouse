@@ -3,13 +3,14 @@
 #include "lighthouse/utility.hpp"
 #include "lighthouse/renderer/vulkan/index_format.hpp"
 
+#include "lighthouse/renderer/bounding_volume.hpp";
 #include <vector>
 
 namespace lh
 {
 	// forward declarations
 	class node;
-	struct bounding_box;
+	// struct bounding_box;
 
 	namespace vulkan
 	{
