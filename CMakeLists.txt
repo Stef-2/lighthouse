@@ -1,10 +1,15 @@
-﻿cmake_minimum_required(VERSION 3.8)
+﻿cmake_minimum_required(VERSION 3.26)
 
 project("lighthouse")
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
+
+# module support
+#set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP 1)
+set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API "2182bf5c-ef0d-489a-91da-49dbc3090d2a")
+
 
 # Path
 cmake_path(SET source ${CMAKE_CURRENT_SOURCE_DIR}/source)
@@ -18,7 +23,6 @@ add_executable(
 	${PROJECT_NAME} 
 	#${module}/lighthouse/renderer/vulkan/vulkan.ixx ${source}/../vulkan/vulkan.cpp
 	#${module}/std/std.ixx ${source}/../std/std.cpp
-	${source}/lighthouse/lightHouse.cpp
 	${source}/lighthouse/window.cpp
 	${source}/lighthouse/output.cpp
 	${source}/lighthouse/input.cpp
@@ -58,9 +62,10 @@ add_executable(
 	${source}/lighthouse/renderer/scene_loader.cpp
 	${source}/lighthouse/renderer/vulkan/pipeline_resource_generator.cpp
 	${source}/lighthouse/renderer/vulkan/shader_input.cpp
-	#${include}/lighthouse/renderer/bounding_volume.ixx
 	${source}/lighthouse/renderer/bounding_volume.cpp
 	${source}/lighthouse/renderer/mesh.cpp
+	${include}/lighthouse/renderer/bounding_volume.ixx ${source}/lighthouse/renderer/bounding_volume.cpp
+	${source}/lighthouse/lightHouse.cpp
 )
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
@@ -72,7 +77,7 @@ if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
   target_compile_options(
 	  ${PROJECT_NAME} PRIVATE
 	  # MSVC compiler settings
-	  /std:c++latest /EHsc /GL /Ox /Oi /W3 /MP /Zf /MD /openmp:experimental /Qpar /Qpar-report:1 /fp:fast /arch:AVX2 /nologo /experimental:module
+	  /std:c++latest /EHsc /GL /Ox /Oi /W3 /MP /Zf /MD /openmp:experimental /Qpar /Qpar-report:1 /fp:fast /arch:AVX2 /nologo /experimental:module #/reference ${CMAKE_BINARY_DIR}\\test_module.ifc
 	  # MSVC disable common annoying warnings
 	  /wd4005 /wd4068 /wd4244 /wd4267 /wd4800
 	  # Windows.h configuration
@@ -132,7 +137,9 @@ target_compile_definitions(
 	GLM_ENABLE_EXPERIMENTAL
 	GLM_FORCE_INTRINSICS
 
+	# project specific
 	DYNAMIC_LINK_DIRECTORY="${dynamic}"
+	INTELLISENSE=__INTELLISENSE__
 )
 
 # Include

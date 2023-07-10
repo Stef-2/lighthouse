@@ -3,7 +3,12 @@
 #include "lighthouse/utility.hpp"
 #include "lighthouse/renderer/vulkan/index_format.hpp"
 
-#include "lighthouse/renderer/bounding_volume.hpp";
+#if INTELLISENSE
+#include "lighthouse/renderer/bounding_volume.ixx"
+#else
+import bounding_volume;
+#endif
+
 #include <vector>
 
 namespace lh

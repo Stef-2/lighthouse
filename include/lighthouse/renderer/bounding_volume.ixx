@@ -1,11 +1,11 @@
+module;
 #pragma once
-// module;
 
 #include <concepts>
 
-// export module bounding_volume;
+export module bounding_volume;
 
-namespace lh
+export namespace lh
 {
 	struct bounding_volume
 	{ /*

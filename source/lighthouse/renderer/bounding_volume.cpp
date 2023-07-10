@@ -1,4 +1,4 @@
-// module bounding_volume;
+module bounding_volume;
 /*
 template <typename T>
 	requires std::derived_from<T, lh::bounding_volume>
