@@ -5,7 +5,9 @@
 
 #if INTELLISENSE
 #include "lighthouse/renderer/bounding_volume.ixx"
+#include "lighthouse/node.ixx"
 #else
+import node;
 import bounding_volume;
 #endif
 

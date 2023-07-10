@@ -31,7 +31,7 @@ add_executable(
 	${source}/lighthouse/engine.cpp
 	${source}/lighthouse/renderer/renderer.cpp
 	${source}/lighthouse/version.cpp
-	${source}/lighthouse/node.cpp
+	${include}/lighthouse/node.ixx ${source}/lighthouse/node.cpp
 	#${source}/vulkan/shaders.cpp
 	${source}/vulkan/utils.cpp
 	${source}/vulkan/math.cpp
@@ -77,7 +77,7 @@ if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
   target_compile_options(
 	  ${PROJECT_NAME} PRIVATE
 	  # MSVC compiler settings
-	  /std:c++latest /EHsc /GL /Ox /Oi /W3 /MP /Zf /MD /openmp:experimental /Qpar /Qpar-report:1 /fp:fast /arch:AVX2 /nologo /experimental:module #/reference ${CMAKE_BINARY_DIR}\\test_module.ifc
+	  /std:c++latest /EHsc /GL /Ox /Oi /W3 /MP /Zf /MD /openmp:experimental /Qpar /Qpar-report:1 /fp:fast /arch:AVX2 /nologo /experimental:module
 	  # MSVC disable common annoying warnings
 	  /wd4005 /wd4068 /wd4244 /wd4267 /wd4800
 	  # Windows.h configuration
@@ -153,6 +153,7 @@ target_include_directories(
 	${include}/vulkan
 	${include}/vulkan/vma
 	${include}/vulkan/glslang
+	$ENV{IFCPATH}/Release
 )
 
 # Modules

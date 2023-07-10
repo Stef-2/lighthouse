@@ -4,6 +4,12 @@
 
 #include "assimp/postprocess.h"
 
+#if INTELLISENSE
+#include "lighthouse/node.ixx"
+#else
+import node;
+#endif
+
 // forward declarations
 namespace std
 {

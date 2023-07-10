@@ -1,8 +1,8 @@
-#pragma once
+module;
 
 #include <vector>
 
-namespace lh
+export namespace lh
 {
 	using data_t = std::vector<std::byte>;
 }

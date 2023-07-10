@@ -1,10 +1,18 @@
-#pragma once
+module;
+//#pragma once
 
+#include <functional>
 #include <vector>
 #include <iostream>
-namespace lh
+#include <iterator>
+#include <ranges>
+#include <array>
+
+export module node;
+
+export namespace lh
 {
-	class node
+	export class node
 	{
 	public:
 		// internal transformation type
