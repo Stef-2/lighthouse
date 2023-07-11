@@ -1,10 +1,15 @@
 module;
 
-#include "lighthouse/output.hpp"
 #if INTELLISENSE
 #include "lighthouse/file_system.ixx"
 #else
 module file_system;
+#endif
+
+#if INTELLISENSE
+#include "lighthouse/output.ixx"
+#else
+import output;
 #endif
 
 namespace lh

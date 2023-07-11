@@ -5,7 +5,11 @@
 #include "lighthouse/renderer/vulkan/vertex_buffer.hpp"
 #include "lighthouse/renderer/vulkan/vertex_format.hpp"
 #include "lighthouse/renderer/mesh.hpp"
-#include "lighthouse/output.hpp"
+#if INTELLISENSE
+#include "lighthouse/output.ixx"
+#else
+import output;
+#endif
 
 #include "assimp/importer.hpp"
 #include "assimp/scene.h"

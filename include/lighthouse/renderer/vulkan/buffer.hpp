@@ -3,7 +3,7 @@
 #include "lighthouse/renderer/vulkan/raii_wrapper.hpp"
 
 #if INTELLISENSE
-#include "lighthouse/utlity.ixx"
+#include "lighthouse/utility.ixx"
 #else
 import utility;
 #endif

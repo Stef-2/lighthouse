@@ -3,7 +3,11 @@
 #include "lighthouse/renderer/vulkan/descriptor_set_layout.hpp"
 #include "lighthouse/renderer/vulkan/shader_input.hpp"
 #include "lighthouse/renderer/vulkan/spir_v.hpp"
-#include "lighthouse/output.hpp"
+#if INTELLISENSE
+#include "lighthouse/output.ixx"
+#else
+import output;
+#endif
 
 lh::vulkan::shader_object::shader_object(const logical_device& logical_device,
 										 const spir_v& spir_v,

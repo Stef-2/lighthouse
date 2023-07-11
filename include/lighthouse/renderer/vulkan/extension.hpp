@@ -2,12 +2,13 @@
 
 #if INTELLISENSE
 #include "lighthouse/string/string.ixx"
+#include "lighthouse/output.ixx"
 #else
 import lighthouse_string;
+import output;
 #endif
 
 #include "lighthouse/renderer/vulkan/string.hpp"
-#include "lighthouse/output.hpp"
 
 #include <numeric>
 

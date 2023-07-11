@@ -10,14 +10,8 @@
 import node;
 #endif
 
-// forward declarations
-namespace std
-{
-	namespace filesystem
-	{
-		class path;
-	}
-}
+#include <filesystem>
+
 namespace Assimp
 {
 	class Importer;

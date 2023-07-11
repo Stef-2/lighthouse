@@ -3,10 +3,11 @@
 #include "lighthouse/renderer/vulkan/physical_device.hpp"
 #if INTELLISENSE
 #include "lighthouse/window.ixx"
+#include "lighthouse/output.ixx"
 #else
 import window;
+import output;
 #endif
-#include "lighthouse/output.hpp"
 
 lh::vulkan::surface::surface(const lh::window& window,
 							 const instance& instance,

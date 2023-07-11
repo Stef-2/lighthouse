@@ -1,5 +1,12 @@
 #include "lighthouse/renderer/vulkan/debug_messanger.hpp"
-#include "lighthouse/output.hpp"
+
+#if INTELLISENSE
+#include "lighthouse/output.ixx"
+#else
+import output;
+#endif
+
+#include <iostream>;
 
 lh::vulkan::debug_messanger::debug_messanger(const vk::raii::Instance& instance, const create_info& create_info)
 	: vk_wrapper(instance.createDebugUtilsMessengerEXT(create_info.m_debug_info))

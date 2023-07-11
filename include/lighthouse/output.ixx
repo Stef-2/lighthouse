@@ -1,4 +1,11 @@
+module;
 #pragma once
+
+#include <iostream>
+#include <filesystem>
+#include <fstream>
+
+export module output;
 
 #if INTELLISENSE
 #include "lighthouse/file_type.ixx"
@@ -10,18 +17,12 @@ import lighthouse_string;
 import file_type;
 #endif
 
-#include <iostream>
-#include <filesystem>
-#include <fstream>
-
-namespace lh
+export namespace lh
 {
-
 	// static utility class that provides custom logging facilities
 	class output
 	{
 	public:
-		friend class engine;
 
 		// custom buffer
 		class buffer
@@ -86,10 +87,10 @@ namespace lh
 
 		static auto fatal() -> buffer&;
 
-	private:
 		static auto initialize() -> void;
 		static auto dump_logs(std::ostream&) -> void;
 		static auto exit() -> void;
+	private:
 
 		static inline auto m_log = buffer {};
 		static inline auto m_warning = buffer {};

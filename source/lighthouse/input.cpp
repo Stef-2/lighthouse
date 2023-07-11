@@ -2,11 +2,11 @@
 
 #if INTELLISENSE
 #include "lighthouse/window.ixx"
+#include "lighthouse/output.ixx"
 #else
 import window;
+import output;
 #endif
-
-#include "lighthouse/output.hpp"
 
 #include <iostream>
 #include <fstream>
