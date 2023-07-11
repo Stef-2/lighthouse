@@ -6,8 +6,10 @@
 
 #if INTELLISENSE
 #include "lighthouse/node.ixx"
+#include "lighthouse/output.ixx"
 #else
 import node;
+import output;
 #endif
 
 #include <filesystem>

@@ -1,9 +1,9 @@
 module;
 #pragma once
 
-#include <iostream>
-#include <filesystem>
+#include <string_view>
 #include <fstream>
+#include <iostream>
 
 export module output;
 
@@ -17,21 +17,22 @@ import lighthouse_string;
 import file_type;
 #endif
 
+import std.core;
+import std.filesystem;
+
 export namespace lh
 {
-	// static utility class that provides custom logging facilities
-	class output
+	// utility namespace that provides custom logging facilities
+	namespace output
 	{
-	public:
-
-		// custom buffer
-		class buffer
+		// custom text buffer
+		export class buffer
 		{
 		public:
 			auto data() const -> std::string_view;
 			auto last_line() const -> std::string_view;
 
-			static constexpr auto to_string(const string::string_convertible auto& data) -> lh::string::string_t
+			constexpr auto to_string(const string::string_convertible auto& data) -> lh::string::string_t
 			{
 				using type = decltype(data);
 
@@ -55,52 +56,53 @@ export namespace lh
 			auto operator<<(const string::string_convertible auto& data) -> buffer&
 			{
 				m_buffer.append(to_string(data).append("\n"));
-
+				/*
 				if (m_fatal_flag) [[unlikely]]
-					output::exit();
-
+					lh::output::exit();*/
+		
 				return *this;
 			}
 
 			// implicit string conversion
-			operator lh::string::string_t() const;
+			operator string::string_t() const;
 
 		private:
 			lh::string::string_t m_buffer {};
 		};
-
-		template <typename T>
-		static auto write_file(const std::filesystem::path& path,
-							   const std::span<T>& data,
-							   const std::iostream::openmode& open_mode = std::iostream::out | std::iostream::trunc)
-			-> void
+		
+		export template <typename T>
+		auto write_file(const std::filesystem::path& path,
+						const std::span<T>& data,
+						const std::iostream::openmode& open_mode = std::iostream::out | std::iostream::trunc) -> void
 		{
 			auto file_stream = std::ofstream {path, open_mode};
 
 			file_stream.write(reinterpret_cast<char*>(data.data()), data.size());
 			file_stream.close();
 		}
+		
+		export auto log() -> buffer&;
+		export auto warning() -> buffer&;
+		export auto error() -> buffer&;
 
-		static auto log() -> buffer&;
-		static auto warning() -> buffer&;
-		static auto error() -> buffer&;
+		export auto fatal() -> buffer&;
 
-		static auto fatal() -> buffer&;
+		export auto initialize() -> void;
+		export auto dump_logs(std::ostream&) -> void;
+		export auto exit() -> void;
+		
+		export auto m_log = buffer {};
+		export auto m_warning = buffer {};
+		export auto m_error = buffer {};
 
-		static auto initialize() -> void;
-		static auto dump_logs(std::ostream&) -> void;
-		static auto exit() -> void;
-	private:
-
-		static inline auto m_log = buffer {};
-		static inline auto m_warning = buffer {};
-		static inline auto m_error = buffer {};
-
-		static inline auto m_fatal_flag = false;
+		export auto m_fatal_flag = false;
 	};
+}
 
+export
+{
 	// enable output into std::ostream
-	auto operator<<(std::ostream& stream, lh::output::buffer& buffer) -> std::ostream&;
+	auto operator<<(std::ostream& stream, lh::output::buffer& buffer)->std::ostream&;
 
 	// utility function that allows printing of any container holding string convertible types
 	template <lh::string::string_convertible_input_range T>

@@ -70,9 +70,9 @@ namespace lh
 	{
 		return m_buffer;
 	}
+}
 
-	auto operator<<(std::ostream& stream, output::buffer& buffer) -> std::ostream&
-	{
-		return stream << std::string {buffer};
-	}
+auto operator<<(std::ostream& stream, lh::output::buffer& buffer) -> std::ostream&
+{
+	return stream << std::string {buffer};
 }

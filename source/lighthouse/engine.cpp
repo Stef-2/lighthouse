@@ -1,9 +1,11 @@
 #if INTELLISENSE
 #include "lighthouse/version.ixx"
 #include "lighthouse/window.ixx"
+#include "lighthouse/output.ixx"
 #else
 import version;
 import window;
+import output;
 #endif
 
 #include "lighthouse/engine.hpp"

@@ -5,13 +5,13 @@ module;
 #else
 module window;
 #endif
-
+/*
 #if INTELLISENSE
 #include "lighthouse/output.ixx"
 #else
 import output;
 #endif
-
+*/
 namespace lh
 {
 

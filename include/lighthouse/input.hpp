@@ -7,11 +7,13 @@
 #include "lighthouse/file_system.ixx"
 #include "lighthouse/file_type.ixx"
 #include "lighthouse/string/string.ixx"
+#include "lighthouse/output.ixx"
 #else
 import static_type;
 import file_system;
 import file_type;
 import lighthouse_string;
+import output;
 #endif
 
 #include <map>

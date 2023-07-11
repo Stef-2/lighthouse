@@ -2,6 +2,12 @@
 
 #include "lighthouse/renderer/vulkan/raii_wrapper.hpp"
 
+#if INTELLISENSE
+#include "lighthouse/output.ixx"
+#else
+import output;
+#endif
+
 namespace lh
 {
 	namespace vulkan

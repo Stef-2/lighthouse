@@ -5,6 +5,7 @@
 #include "lighthouse/renderer/vulkan/vertex_buffer.hpp"
 #include "lighthouse/renderer/vulkan/vertex_format.hpp"
 #include "lighthouse/renderer/mesh.hpp"
+
 #if INTELLISENSE
 #include "lighthouse/output.ixx"
 #else

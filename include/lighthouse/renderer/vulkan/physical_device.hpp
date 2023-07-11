@@ -2,8 +2,10 @@
 
 #if INTELLISENSE
 #include "lighthouse/string/string.ixx"
+#include "lighthouse/output.ixx"
 #else
 import lighthouse_string;
+import output;
 #endif
 #include "lighthouse/renderer/vulkan/extension.hpp"
 #include "lighthouse/renderer/vulkan/raii_wrapper.hpp"

@@ -39,7 +39,7 @@ namespace lh
 				// this could happen if the engine executable is outside of its root directory
 				if (current_dir == current_dir.root_path())
 				{
-					output::warning() << "could not find engine root directory, path queries will not work";
+					lh::output::warning() << "could not find engine root directory, path queries will not work";
 					return current_dir;
 				}
 			}
@@ -63,7 +63,7 @@ namespace lh
 				}
 			}
 
-			output::warning() << "could not find engine data directory, path queries will not work";
+			lh::output::warning() << "could not find engine data directory, path queries will not work";
 			return current_dir;
 		}
 
@@ -77,7 +77,7 @@ namespace lh
 					return dir.path();
 			}
 
-			output::warning() << "could not find the specified path: " + string::string_t {name};
+			lh::output::warning() << "could not find the specified path: " + string::string_t {name};
 
 			return {};
 		}

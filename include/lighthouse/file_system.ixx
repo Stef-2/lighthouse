@@ -7,8 +7,10 @@ export module file_system;
 
 #if INTELLISENSE
 #include <filesystem>
+#include "lighthouse/output.ixx"
 #else
 import std.filesystem;
+import output;
 #endif
 
 export namespace lh
