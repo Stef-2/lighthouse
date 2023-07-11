@@ -10,7 +10,11 @@
 #include <unistd.h>
 #endif
 
-#include "system.hpp"
+#if INTELLISENSE
+#include "lighthouse/system.ixx"
+#else
+import system;
+#endif
 
 namespace lh
 {
@@ -71,7 +75,8 @@ namespace lh
 							  std::same_as<T, memory::terabytes>;
 
 		// ram memory info
-		template <memory_unit unit> struct memory_info
+		template <memory_unit unit>
+		struct memory_info
 		{
 			unit m_total {0};
 			unit m_available {0};
@@ -94,7 +99,8 @@ namespace lh
 			normalized_decimal_t m_shared_used_percentage {};
 		};
 
-		template <memory_unit unit = gigabytes> auto system_memory()
+		template <memory_unit unit = gigabytes>
+		auto system_memory()
 		{
 			constexpr auto unit_divisor = memory_size_t {
 				std::same_as<unit, bytes>		? std::to_underlying(memory_sizes::byte)

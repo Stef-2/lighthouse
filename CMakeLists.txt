@@ -26,6 +26,8 @@ add_executable(
 	${source}/lighthouse/window.cpp
 	${include}/lighthouse/static_type.ixx
 	${include}/lighthouse/file_system.ixx ${source}/lighthouse/file_system.cpp
+	${include}/lighthouse/file_type.ixx
+	${include}/lighthouse/system.ixx
 	${source}/lighthouse/output.cpp
 	${source}/lighthouse/input.cpp
 	${source}/lighthouse/operating_system/dynamic_linking.cpp
@@ -36,7 +38,6 @@ add_executable(
 	#${source}/vulkan/shaders.cpp
 	${source}/vulkan/utils.cpp
 	${source}/vulkan/math.cpp
-	${source}/lighthouse/system.cpp
 	${source}/lighthouse/operating_system/memory.cpp
 	${source}/vulkan/vma_implementation.cpp
 	${source}/lighthouse/renderer/vulkan/extension.cpp

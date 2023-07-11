@@ -1,6 +1,6 @@
-#pragma once
+export module file_type;
 
-namespace lh
+export namespace lh
 {
 	enum class file_type
 	{

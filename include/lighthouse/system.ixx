@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #define SYSTEM unknown;
 
@@ -10,7 +10,9 @@
 	#define SYSTEM linux;
 #endif
 
-namespace lh
+export module system;
+
+export namespace lh
 {
 	class system
 	{

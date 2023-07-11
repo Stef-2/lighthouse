@@ -7,12 +7,12 @@
 #if INTELLISENSE
 #include "lighthouse/static_type.ixx"
 #include "lighthouse/file_system.ixx"
+#include "lighthouse/file_type.ixx"
 #else
 import static_type;
 import file_system;
+import file_type;
 #endif
-
-#include "lighthouse/file_type.hpp"
 
 #include <map>
 #include <unordered_map>

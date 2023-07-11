@@ -2,7 +2,13 @@
 
 #include "lighthouse/string/string.hpp"
 #include "lighthouse/string/string_convertible.hpp"
-#include "lighthouse/file_type.hpp"
+
+#if INTELLISENSE
+#include "lighthouse/file_type.ixx"
+#else
+
+import file_type;
+#endif
 
 #include <filesystem>
 #include <fstream>

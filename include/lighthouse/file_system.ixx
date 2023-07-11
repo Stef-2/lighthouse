@@ -5,7 +5,11 @@ module;
 
 export module file_system;
 
+#if INTELLISENSE
+#include <filesystem>
+#else
 import std.filesystem;
+#endif
 
 export namespace lh
 {
