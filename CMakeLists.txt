@@ -29,6 +29,7 @@ add_executable(
 	${include}/lighthouse/file_type.ixx
 	${include}/lighthouse/utility.ixx
 	${include}/lighthouse/string/string.ixx
+	${include}/lighthouse/string/string_convertible.ixx
 	${include}/lighthouse/system.ixx
 	${source}/lighthouse/output.cpp
 	${source}/lighthouse/input.cpp

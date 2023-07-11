@@ -1,14 +1,26 @@
+module;
 #pragma once
+
 #include <iostream>
 #include <string>
 #include <string_view>
 
-namespace lh
+export module string_convertible;
+
+
+#if INTELLISENSE
+#include "lighthouse/string/string.ixx"
+#else
+import lighthouse_string;
+#endif
+
+export namespace lh
 {
 	namespace string
 	{
 		// clang-format off
-		static constexpr auto vulkan_to_string =
+		
+		constexpr auto vulkan_to_string =
 		#ifndef VULKAN_HPP_NO_TO_STRING
 			true;
 		#else

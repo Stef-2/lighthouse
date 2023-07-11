@@ -3,13 +3,14 @@
 #if INTELLISENSE
 #include "lighthouse/file_type.ixx"
 #include "lighthouse/string/string.ixx"
+#include "lighthouse/string/string_convertible.ixx"
 #else
+import string_convertible;
 import lighthouse_string;
 import file_type;
 #endif
 
-#include "lighthouse/string/string_convertible.hpp"
-
+#include <iostream>
 #include <filesystem>
 #include <fstream>
 
