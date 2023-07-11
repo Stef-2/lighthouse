@@ -1,7 +1,13 @@
 #include "lighthouse/renderer/vulkan/spir_v.hpp"
 #include "lighthouse/renderer/vulkan/shader_input.hpp"
 #include "lighthouse/renderer/vulkan/vertex_input_description.hpp"
-#include "lighthouse/filesystem.hpp"
+
+#if INTELLISENSE
+#include "lighthouse/file_system.ixx"
+#else
+import file_system;
+#endif
+
 #include "lighthouse/output.hpp"
 
 #include "vulkan/glslang/SPIRV/GlslangToSpv.h"

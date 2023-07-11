@@ -1,12 +1,8 @@
 module;
-//#pragma once
+#pragma once
 
-#include <functional>
 #include <vector>
-#include <iostream>
-#include <iterator>
 #include <ranges>
-#include <array>
 
 export module node;
 

@@ -1,12 +1,5 @@
 module;
 
-#include <functional>
-#include <vector>
-#include <iostream>
-#include <iterator>
-#include <ranges>
-#include <array>
-
 #if INTELLISENSE
 #include "lighthouse/node.ixx"
 #else

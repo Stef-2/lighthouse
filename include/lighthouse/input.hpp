@@ -2,14 +2,22 @@
 
 #include "vkfw/vkfw.hpp"
 
-#include "lighthouse/static.hpp"
 #include "lighthouse/string/string.hpp"
-#include "lighthouse/filesystem.hpp"
+
+#if INTELLISENSE
+#include "lighthouse/static_type.ixx"
+#include "lighthouse/file_system.ixx"
+#else
+import static_type;
+import file_system;
+#endif
+
 #include "lighthouse/file_type.hpp"
 
 #include <map>
 #include <unordered_map>
 #include <variant>
+#include <filesystem>
 
 namespace lh
 {
@@ -45,7 +53,7 @@ namespace lh
 	};
 
 	// static utiltiy input class, handling keyboard, mouse and file reading
-	class input : static_t
+	class input : static_type
 	{
 	public:
 		friend class engine;

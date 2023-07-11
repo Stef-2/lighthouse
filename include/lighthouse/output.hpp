@@ -1,6 +1,5 @@
 #pragma once
 
-#include "lighthouse/static.hpp"
 #include "lighthouse/string/string.hpp"
 #include "lighthouse/string/string_convertible.hpp"
 #include "lighthouse/file_type.hpp"
@@ -12,7 +11,7 @@ namespace lh
 {
 
 	// static utility class that provides custom logging facilities
-	class output : static_t
+	class output
 	{
 	public:
 		friend class engine;

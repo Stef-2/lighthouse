@@ -1,5 +1,11 @@
 ﻿#include "lighthouse/lighthouse.hpp"
-#include "lighthouse/filesystem.hpp"
+
+#if INTELLISENSE
+#include "lighthouse/file_system.ixx"
+#else
+import file_system;
+#endif
+
 #include "lighthouse/input.hpp"
 
 auto main() -> const void

@@ -1,5 +1,4 @@
 #include "lighthouse/output.hpp"
-#include "lighthouse/filesystem.hpp"
 
 auto lh::output::log() -> buffer&
 {

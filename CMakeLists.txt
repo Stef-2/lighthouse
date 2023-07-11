@@ -24,9 +24,10 @@ add_executable(
 	#${module}/lighthouse/renderer/vulkan/vulkan.ixx ${source}/../vulkan/vulkan.cpp
 	#${module}/std/std.ixx ${source}/../std/std.cpp
 	${source}/lighthouse/window.cpp
+	${include}/lighthouse/static_type.ixx
+	${include}/lighthouse/file_system.ixx ${source}/lighthouse/file_system.cpp
 	${source}/lighthouse/output.cpp
 	${source}/lighthouse/input.cpp
-	${source}/lighthouse/filesystem.cpp
 	${source}/lighthouse/operating_system/dynamic_linking.cpp
 	${source}/lighthouse/engine.cpp
 	${source}/lighthouse/renderer/renderer.cpp
