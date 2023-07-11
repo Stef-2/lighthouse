@@ -1,6 +1,11 @@
 #include "lighthouse/input.hpp"
 
-#include "lighthouse/window.hpp"
+#if INTELLISENSE
+#include "lighthouse/window.ixx"
+#else
+import window;
+#endif
+
 #include "lighthouse/output.hpp"
 
 #include <iostream>

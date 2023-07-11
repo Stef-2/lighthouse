@@ -28,6 +28,10 @@
 #include "lighthouse/renderer/vulkan/vertex_input_description.hpp"
 #include "lighthouse/renderer/vulkan/vertex_buffer.hpp"
 #include "lighthouse/renderer/vulkan/vertex_format.hpp"
-#include "lighthouse/window.hpp"
+#if INTELLISENSE
+#include "lighthouse/window.ixx"
+#else
+import window;
+#endif
 
 #include <ranges>

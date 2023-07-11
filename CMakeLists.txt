@@ -23,7 +23,7 @@ add_executable(
 	${PROJECT_NAME} 
 	#${module}/lighthouse/renderer/vulkan/vulkan.ixx ${source}/../vulkan/vulkan.cpp
 	#${module}/std/std.ixx ${source}/../std/std.cpp
-	${source}/lighthouse/window.cpp
+	${include}/lighthouse/window.ixx ${source}/lighthouse/window.cpp
 	${include}/lighthouse/static_type.ixx
 	${include}/lighthouse/file_system.ixx ${source}/lighthouse/file_system.cpp
 	${include}/lighthouse/file_type.ixx

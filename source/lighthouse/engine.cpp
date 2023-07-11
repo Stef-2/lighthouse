@@ -1,11 +1,12 @@
 #if INTELLISENSE
 #include "lighthouse/version.ixx"
+#include "lighthouse/window.ixx"
 #else
 import version;
+import window;
 #endif
 
 #include "lighthouse/engine.hpp"
-#include "lighthouse/window.hpp"
 #include "lighthouse/input.hpp"
 
 lh::engine::engine(std::unique_ptr<lh::window> window, const create_info& engine_create_info)

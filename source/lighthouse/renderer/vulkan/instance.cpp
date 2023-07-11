@@ -1,6 +1,10 @@
 #include "lighthouse/renderer/vulkan/instance.hpp"
 
-#include "lighthouse/window.hpp"
+#if INTELLISENSE
+#include "lighthouse/window.ixx"
+#else
+import window;
+#endif
 
 lh::vulkan::instance::instance(const window& window, const create_info& create_info)
 	: m_context {},

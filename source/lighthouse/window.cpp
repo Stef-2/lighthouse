@@ -1,88 +1,99 @@
-#include "lighthouse/window.hpp"
+module;
+
 #include "lighthouse/output.hpp"
 
-lh::window::window(const create_info& create_info) : m_title(create_info.m_name)
+#if INTELLISENSE
+#include "lighthouse/window.ixx"
+#else
+module window;
+#endif
+
+namespace lh
 {
-	initialize_vkfw();
 
-	// set the monitor depending on fullscreen mode
-	m_monitor = create_info.m_fullscreen ? vkfw::getPrimaryMonitor().value : nullptr;
+	window::window(const create_info& create_info) : m_title(create_info.m_name)
+	{
+		initialize_vkfw();
 
-	auto result = vkfw::Result {};
-	std::tie(result, m_window) = vkfw::createWindowUnique(create_info.m_resolution.width,
-														  create_info.m_resolution.height,
-														  create_info.m_name,
-														  create_info.m_hints,
-														  m_monitor)
-									 .asTuple();
+		// set the monitor depending on fullscreen mode
+		m_monitor = create_info.m_fullscreen ? vkfw::getPrimaryMonitor().value : nullptr;
 
-	if (not vkfw::check(result))
-		output::fatal() << "Could not initialize VKFW / GLFW window";
-}
+		auto result = vkfw::Result {};
+		std::tie(result, m_window) = vkfw::createWindowUnique(create_info.m_resolution.width,
+															  create_info.m_resolution.height,
+															  create_info.m_name,
+															  create_info.m_hints,
+															  m_monitor)
+										 .asTuple();
 
-lh::window::window(const window&& other) noexcept : window(const_cast<window&&>(other)) {}
+		if (not vkfw::check(result))
+			output::fatal() << "Could not initialize VKFW / GLFW window";
+	}
 
-auto lh::window::resolution() const -> window_resolution_t
-{
-	auto [width, height] {m_window.get().getFramebufferSize().value};
+	window::window(const window&& other) noexcept : window(const_cast<window&&>(other)) {}
 
-	return window_resolution_t {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
-}
+	auto window::resolution() const -> window_resolution_t
+	{
+		auto [width, height] {m_window.get().getFramebufferSize().value};
 
-auto lh::window::aspect_ratio() const -> double
-{
-	auto&& [width, height] = m_window.get().getFramebufferSize().value;
+		return window_resolution_t {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
+	}
 
-	return static_cast<double>(width) / static_cast<double>(height);
-}
+	auto window::aspect_ratio() const -> double
+	{
+		auto&& [width, height] = m_window.get().getFramebufferSize().value;
 
-auto lh::window::title() const -> std::string_view
-{
-	return m_title;
-}
+		return static_cast<double>(width) / static_cast<double>(height);
+	}
 
-auto lh::window::title(std::string_view value) -> void
-{
-	m_title = value;
-	m_window.get().setTitle(value);
-}
+	auto window::title() const -> std::string_view
+	{
+		return m_title;
+	}
 
-auto lh::window::fullscreen() const -> bool
-{
-	return m_monitor;
-}
+	auto window::title(std::string_view value) -> void
+	{
+		m_title = value;
+		m_window.get().setTitle(value);
+	}
 
-auto lh::window::fullscreen(bool value) -> void
-{
-	if (fullscreen() == value)
-		return;
+	auto window::fullscreen() const -> bool
+	{
+		return m_monitor;
+	}
 
-	// set the monitor depending on fullscreen mode
-	m_monitor = value ? vkfw::getPrimaryMonitor().value : nullptr;
-}
+	auto window::fullscreen(bool value) -> void
+	{
+		if (fullscreen() == value)
+			return;
 
-auto lh::window::vkfw_window() const -> vkfw::Window&
-{
-	return m_window.get();
-}
+		// set the monitor depending on fullscreen mode
+		m_monitor = value ? vkfw::getPrimaryMonitor().value : nullptr;
+	}
 
-auto lh::window::vkfw_monitor() -> vkfw::Monitor&
-{
-	return m_monitor;
-}
+	auto window::vkfw_window() const -> vkfw::Window&
+	{
+		return m_window.get();
+	}
 
-auto lh::window::initialize_vkfw() const -> void
-{
-	auto once = std::once_flag {};
+	auto window::vkfw_monitor() -> vkfw::Monitor&
+	{
+		return m_monitor;
+	}
 
-	auto initialize = []() {
-		auto success = vkfw::init();
+	auto window::initialize_vkfw() const -> void
+	{
+		auto once = std::once_flag {};
 
-		if (!vkfw::check(success))
-		{
-			lh::output::fatal() << "Could not initialize VKFW / GLFW.";
-		}
-	};
+		auto initialize = []() {
+			auto success = vkfw::init();
 
-	std::call_once(once, initialize);
+			if (!vkfw::check(success))
+			{
+				output::fatal() << "Could not initialize VKFW / GLFW.";
+			}
+		};
+
+		std::call_once(once, initialize);
+	}
 }

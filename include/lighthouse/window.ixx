@@ -1,3 +1,4 @@
+module;
 #pragma once
 
 #if INTELLISENSE
@@ -7,14 +8,12 @@ import lighthouse_string;
 #endif
 
 #include <map>
+#include <vector>
+#include <ranges>
 
-// forward declarations
-namespace vk
-{
-	struct Extent2D;
-}
+export module window;
 
-namespace lh
+export namespace lh
 {
 	// class that encapsulates GLFW / VKFW window and monitor for display
 	class window

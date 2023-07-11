@@ -1,7 +1,11 @@
 #include "lighthouse/renderer/vulkan/surface.hpp"
 #include "lighthouse/renderer/vulkan/instance.hpp"
 #include "lighthouse/renderer/vulkan/physical_device.hpp"
-#include "lighthouse/window.hpp"
+#if INTELLISENSE
+#include "lighthouse/window.ixx"
+#else
+import window;
+#endif
 #include "lighthouse/output.hpp"
 
 lh::vulkan::surface::surface(const lh::window& window,
