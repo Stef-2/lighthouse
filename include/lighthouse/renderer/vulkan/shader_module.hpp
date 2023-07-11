@@ -1,7 +1,11 @@
 #pragma once
 
+#if INTELLISENSE
+#include "lighthouse/string/string.ixx"
+#else
+import lighthouse_string;
+#endif
 #include "lighthouse/renderer/vulkan/raii_wrapper.hpp"
-#include "lighthouse/string/string.hpp"
 
 namespace lh
 {

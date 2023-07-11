@@ -1,6 +1,6 @@
-#pragma once
+export module utility;
 
-namespace lh
+export namespace lh
 {
 	template <typename T>
 	using non_owning_ptr = T*;

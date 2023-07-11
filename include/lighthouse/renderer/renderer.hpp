@@ -3,13 +3,20 @@
 #include "lighthouse/renderer/vulkan/vulkan.hpp"
 #include "lighthouse/renderer/mesh.hpp"
 #include "lighthouse/renderer/scene_loader.hpp"
-#include "lighthouse/version.hpp"
+
+#if INTELLISENSE
+#include "lighthouse/string/string.ixx"
+#include "lighthouse/version.ixx"
+#include "lighthouse/file_system.ixx"
+#else
+import lighthouse_string;
+import version;
+import file_system;
+#endif
 
 #include <iterator>
 #include <ranges>
 #include <vector>
-
-import file_system;
 
 namespace lh
 {

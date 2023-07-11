@@ -1,6 +1,10 @@
 #pragma once
 
-#include "lighthouse/string/string.hpp"
+#if INTELLISENSE
+#include "lighthouse/string/string.ixx"
+#else
+import lighthouse_string;
+#endif
 
 namespace lh
 {

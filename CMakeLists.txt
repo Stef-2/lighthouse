@@ -27,13 +27,15 @@ add_executable(
 	${include}/lighthouse/static_type.ixx
 	${include}/lighthouse/file_system.ixx ${source}/lighthouse/file_system.cpp
 	${include}/lighthouse/file_type.ixx
+	${include}/lighthouse/utility.ixx
+	${include}/lighthouse/string/string.ixx
 	${include}/lighthouse/system.ixx
 	${source}/lighthouse/output.cpp
 	${source}/lighthouse/input.cpp
 	${source}/lighthouse/operating_system/dynamic_linking.cpp
 	${source}/lighthouse/engine.cpp
 	${source}/lighthouse/renderer/renderer.cpp
-	${source}/lighthouse/version.cpp
+	${include}/lighthouse/version.ixx ${source}/lighthouse/version.cpp
 	${include}/lighthouse/node.ixx ${source}/lighthouse/node.cpp
 	#${source}/vulkan/shaders.cpp
 	${source}/vulkan/utils.cpp

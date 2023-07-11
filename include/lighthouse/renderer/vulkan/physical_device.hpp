@@ -1,6 +1,10 @@
 #pragma once
 
-#include "lighthouse/string/string.hpp"
+#if INTELLISENSE
+#include "lighthouse/string/string.ixx"
+#else
+import lighthouse_string;
+#endif
 #include "lighthouse/renderer/vulkan/extension.hpp"
 #include "lighthouse/renderer/vulkan/raii_wrapper.hpp"
 

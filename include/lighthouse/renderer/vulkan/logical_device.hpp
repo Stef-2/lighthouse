@@ -2,7 +2,11 @@
 
 #include "lighthouse/renderer/vulkan/raii_wrapper.hpp"
 #include "lighthouse/renderer/vulkan/string.hpp"
-#include "lighthouse/string/string.hpp"
+#if INTELLISENSE
+#include "lighthouse/string/string.ixx"
+#else
+import lighthouse_string;
+#endif
 
 #include <vector>
 

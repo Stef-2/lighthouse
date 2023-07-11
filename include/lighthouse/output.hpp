@@ -1,14 +1,14 @@
 #pragma once
 
-#include "lighthouse/string/string.hpp"
-#include "lighthouse/string/string_convertible.hpp"
-
 #if INTELLISENSE
 #include "lighthouse/file_type.ixx"
+#include "lighthouse/string/string.ixx"
 #else
-
+import lighthouse_string;
 import file_type;
 #endif
+
+#include "lighthouse/string/string_convertible.hpp"
 
 #include <filesystem>
 #include <fstream>

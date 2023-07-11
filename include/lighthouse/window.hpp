@@ -1,8 +1,10 @@
 #pragma once
 
-// #include "vkfw.hpp"
-
-#include "lighthouse/string/string.hpp"
+#if INTELLISENSE
+#include "lighthouse/string/string.ixx"
+#else
+import lighthouse_string;
+#endif
 
 #include <map>
 

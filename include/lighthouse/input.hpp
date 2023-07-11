@@ -2,16 +2,16 @@
 
 #include "vkfw/vkfw.hpp"
 
-#include "lighthouse/string/string.hpp"
-
 #if INTELLISENSE
 #include "lighthouse/static_type.ixx"
 #include "lighthouse/file_system.ixx"
 #include "lighthouse/file_type.ixx"
+#include "lighthouse/string/string.ixx"
 #else
 import static_type;
 import file_system;
 import file_type;
+import lighthouse_string;
 #endif
 
 #include <map>

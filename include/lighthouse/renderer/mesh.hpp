@@ -1,14 +1,15 @@
 #pragma once
 
-#include "lighthouse/utility.hpp"
 #include "lighthouse/renderer/vulkan/index_format.hpp"
 
 #if INTELLISENSE
 #include "lighthouse/renderer/bounding_volume.ixx"
 #include "lighthouse/node.ixx"
+#include "lighthouse/utility.ixx"
 #else
 import node;
 import bounding_volume;
+import utility;
 #endif
 
 #include <vector>

@@ -1,8 +1,11 @@
+module;
 #pragma once
 
 #include <string>
 
-namespace lh
+export module lighthouse_string;
+
+export namespace lh
 {
 	namespace string
 	{

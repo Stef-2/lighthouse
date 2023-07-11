@@ -29,6 +29,5 @@
 #include "lighthouse/renderer/vulkan/vertex_buffer.hpp"
 #include "lighthouse/renderer/vulkan/vertex_format.hpp"
 #include "lighthouse/window.hpp"
-#include "lighthouse/version.hpp"
 
 #include <ranges>

@@ -1,5 +1,9 @@
 #include "lighthouse/renderer/vulkan/shader_input.hpp"
-#include "lighthouse/string/string.hpp"
+#if INTELLISENSE
+#include "lighthouse/string/string.ixx"
+#else
+import lighthouse_string;
+#endif
 
 auto lh::vulkan::shader_input::operator()(const shader_input& shader_input) const -> std::size_t
 {

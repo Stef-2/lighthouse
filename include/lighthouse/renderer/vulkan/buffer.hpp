@@ -1,7 +1,12 @@
 #pragma once
 
 #include "lighthouse/renderer/vulkan/raii_wrapper.hpp"
-#include "lighthouse/utility.hpp"
+
+#if INTELLISENSE
+#include "lighthouse/utlity.ixx"
+#else
+import utility;
+#endif
 
 namespace lh
 {

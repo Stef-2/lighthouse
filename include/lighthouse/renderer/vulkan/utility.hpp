@@ -1,7 +1,5 @@
 #pragma once
 
-#include "lighthouse/utility.hpp"
-
 namespace lh
 {
 	namespace vulkan

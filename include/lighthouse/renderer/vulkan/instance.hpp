@@ -2,8 +2,13 @@
 
 #include "lighthouse/renderer/vulkan/extension.hpp"
 #include "lighthouse/renderer/vulkan/raii_wrapper.hpp"
-#include "lighthouse/version.hpp"
 #include "lighthouse/renderer/vulkan/debug_messanger.hpp"
+
+#if INTELLISENSE
+#include "lighthouse/version.ixx"
+#else
+import version;
+#endif
 
 namespace lh
 {
