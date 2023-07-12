@@ -1,10 +1,6 @@
 module;
 #pragma once
 
-#include <string_view>
-#include <fstream>
-#include <iostream>
-
 export module output;
 
 #if INTELLISENSE
@@ -20,11 +16,14 @@ import file_type;
 import std.core;
 import std.filesystem;
 
-export namespace lh
+namespace lh
 {
 	// utility namespace that provides custom logging facilities
 	namespace output
 	{
+		export auto exit() -> void;
+		auto n_fatal_flag = false;
+
 		// custom text buffer
 		export class buffer
 		{
@@ -56,9 +55,9 @@ export namespace lh
 			auto operator<<(const string::string_convertible auto& data) -> buffer&
 			{
 				m_buffer.append(to_string(data).append("\n"));
-				/*
-				if (m_fatal_flag) [[unlikely]]
-					lh::output::exit();*/
+				
+				if (n_fatal_flag) [[unlikely]]
+					lh::output::exit();
 		
 				return *this;
 			}
@@ -67,7 +66,7 @@ export namespace lh
 			operator string::string_t() const;
 
 		private:
-			lh::string::string_t m_buffer {};
+			string::string_t m_buffer {};
 		};
 		
 		export template <typename T>
@@ -89,13 +88,13 @@ export namespace lh
 
 		export auto initialize() -> void;
 		export auto dump_logs(std::ostream&) -> void;
-		export auto exit() -> void;
-		
-		export auto m_log = buffer {};
-		export auto m_warning = buffer {};
-		export auto m_error = buffer {};
 
-		export auto m_fatal_flag = false;
+		
+		auto n_log = buffer {};
+		auto n_warning = buffer {};
+		auto n_error = buffer {};
+
+
 	};
 }
 

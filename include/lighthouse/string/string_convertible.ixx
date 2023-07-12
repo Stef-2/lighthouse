@@ -1,12 +1,7 @@
 module;
 #pragma once
 
-#include <iostream>
-#include <string>
-#include <string_view>
-
 export module string_convertible;
-
 
 #if INTELLISENSE
 #include "lighthouse/string/string.ixx"

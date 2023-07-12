@@ -14,15 +14,14 @@ export module system;
 
 export namespace lh
 {
-	class system
+	namespace system
 	{
-	public:
 		enum class type
 		{
 			windows,
 			linux
 		};
 
-		static inline constexpr auto type = type::SYSTEM;
+		constexpr auto type = type::SYSTEM;
 	};
 }

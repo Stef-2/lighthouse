@@ -28,12 +28,13 @@ add_executable(
 	${include}/lighthouse/file_system.ixx ${source}/lighthouse/file_system.cpp
 	${include}/lighthouse/file_type.ixx
 	${include}/lighthouse/utility.ixx
+	${include}/lighthouse/datatype.ixx
 	${include}/lighthouse/string/string.ixx
 	${include}/lighthouse/string/string_convertible.ixx
 	${include}/lighthouse/system.ixx
 	${include}/lighthouse/output.ixx ${source}/lighthouse/output.cpp
 	${source}/lighthouse/input.cpp
-	${source}/lighthouse/operating_system/dynamic_linking.cpp
+	${include}/lighthouse/operating_system/dynamic_linking.ixx ${source}/lighthouse/operating_system/dynamic_linking.cpp
 	${source}/lighthouse/engine.cpp
 	${source}/lighthouse/renderer/renderer.cpp
 	${include}/lighthouse/version.ixx ${source}/lighthouse/version.cpp

@@ -1,8 +1,20 @@
-#include "lighthouse/operating_system/dynamic_linking.hpp"
+module;
 
 #include "windows.h"
 
-auto lh::os::dynamic_linking_directory(const std::filesystem::path& directory_path) -> void
+#if INTELLISENSE
+#include "lighthouse/operating_system/dynamic_linking.ixx"
+#else
+module dynamic_linking;
+#endif
+
+namespace lh
 {
-	auto wtf = SetDllDirectoryA(directory_path.generic_string().c_str());
+	namespace os
+	{
+		auto dynamic_linking_directory(const std::filesystem::path& directory_path) -> void
+		{
+			auto wtf = SetDllDirectoryA(directory_path.generic_string().c_str());
+		}
+	}
 }

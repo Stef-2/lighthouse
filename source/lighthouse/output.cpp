@@ -1,7 +1,5 @@
 module;
 
-#include <iostream>
-
 #if INTELLISENSE
 #include "lighthouse/output.ixx"
 #else
@@ -10,26 +8,25 @@ module output;
 
 namespace lh
 {
-
 	auto output::log() -> buffer&
 	{
-		return m_log;
+		return n_log;
 	}
 
 	auto output::warning() -> buffer&
 	{
-		return m_warning;
+		return n_warning;
 	}
 
 	auto output::error() -> buffer&
 	{
-		return m_error;
+		return n_error;
 	}
 
 	auto output::fatal() -> buffer&
 	{
-		m_fatal_flag = true;
-		return m_error;
+		n_fatal_flag = true;
+		return n_error;
 	}
 
 	auto output::initialize() -> void
@@ -39,12 +36,12 @@ namespace lh
 
 	auto output::dump_logs(std::ostream& stream) -> void
 	{
-		if (not m_log.data().empty())
-			stream << "\n======== program log: ========\n" << m_log;
-		if (not m_warning.data().empty())
-			stream << "\n======== program warning: ========\n" << m_warning;
-		if (not m_error.data().empty())
-			stream << "\n======== program error: ========\n" << m_error;
+		if (not n_log.data().empty())
+			stream << "\n======== program log: ========\n" << n_log;
+		if (not n_warning.data().empty())
+			stream << "\n======== program warning: ========\n" << n_warning;
+		if (not n_error.data().empty())
+			stream << "\n======== program error: ========\n" << n_error;
 	}
 
 	auto output::exit() -> void

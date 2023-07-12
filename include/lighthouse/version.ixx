@@ -1,15 +1,15 @@
 module;
 #pragma once
 
+#include <compare>
+
+export module version;
+
 #if INTELLISENSE
 #include "lighthouse/string/string.ixx"
 #else
 import lighthouse_string;
 #endif
-
-#include <compare>
-
-export module version;
 
 export namespace lh
 {
@@ -30,12 +30,13 @@ export namespace lh
 		operator packed_version_t() const;
 
 		// implicit conversion to a readable string format
-		operator lh::string::string_t() const;
+		operator string::string_t() const;
 
 		auto operator<=>(const version&) const = default;
 
 	private:
 		packed_version_t m_version {};
-		static inline constexpr auto m_pack_offset = 0xFF;
+
+		static inline constexpr auto s_pack_offset = 0xFF;
 	};
 }

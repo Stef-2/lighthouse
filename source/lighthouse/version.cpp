@@ -1,10 +1,13 @@
 module;
 
+#if INTELLISENSE
+#include "lighthouse/version.ixx"
+#else
 module version;
+#endif
 
 namespace lh
 {
-
 	version::operator string::string_t() const
 	{
 		return std::to_string(major()) + ':' + std::to_string(minor()) + ':' + std::to_string(patch());

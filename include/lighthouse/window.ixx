@@ -1,6 +1,12 @@
 module;
 #pragma once
 
+#include <map>
+#include <vector>
+#include <ranges>
+
+export module window;
+
 #if INTELLISENSE
 #include "lighthouse/string/string.ixx"
 #include "lighthouse/output.ixx"
@@ -8,12 +14,6 @@ module;
 import lighthouse_string;
 import output;
 #endif
-
-#include <map>
-#include <vector>
-#include <ranges>
-
-export module window;
 
 export namespace lh
 {
@@ -108,7 +108,7 @@ export namespace lh
 		struct create_info
 		{
 			window_resolution_t m_resolution = window::m_resolution.at(common_resolutions::default_windowed);
-			const char* m_name = "LightHouse";
+			const char* m_name = "lighthouse";
 			bool m_fullscreen = false;
 			vkfw::WindowHints m_hints = {
 				.resizable = false,

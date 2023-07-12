@@ -6,12 +6,6 @@ module;
 module file_system;
 #endif
 
-#if INTELLISENSE
-#include "lighthouse/output.ixx"
-#else
-import output;
-#endif
-
 namespace lh
 {
 	namespace file_system
@@ -19,17 +13,17 @@ namespace lh
 		auto root_path() -> std::filesystem::path
 		{
 			//  if we have discovered the root directory before, return it
-			if (!m_engine_root_dir.first.empty())
-				return m_engine_root_dir.first;
+			if (!n_engine_root_dir.first.empty())
+				return n_engine_root_dir.first;
 
 			// otherwise, discover, record and return the root path
 			auto current_dir = std::filesystem::current_path();
 
 			while (true)
 			{
-				if (current_dir.filename() == m_engine_root_dir.second)
+				if (current_dir.filename() == n_engine_root_dir.second)
 				{
-					m_engine_root_dir.first = current_dir;
+					n_engine_root_dir.first = current_dir;
 					return current_dir;
 				}
 
@@ -48,17 +42,17 @@ namespace lh
 		auto data_path() -> std::filesystem::path
 		{
 			// if we have discovered the data directory before, return it
-			if (!m_data_dir.first.empty())
-				return m_data_dir.first;
+			if (!n_data_dir.first.empty())
+				return n_data_dir.first;
 
 			// otherwise, discover, record and return the data path
 			auto current_dir = root_path();
 
 			for (const auto& dir : std::filesystem::recursive_directory_iterator(current_dir))
 			{
-				if (dir.path().filename().wstring() == m_data_dir.second)
+				if (dir.path().filename().wstring() == n_data_dir.second)
 				{
-					m_data_dir.first = dir;
+					n_data_dir.first = dir;
 					return dir.path();
 				}
 			}

@@ -1,3 +1,6 @@
+module;
+#pragma once
+
 export module utility;
 
 export namespace lh

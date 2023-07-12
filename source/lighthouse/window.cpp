@@ -5,16 +5,9 @@ module;
 #else
 module window;
 #endif
-/*
-#if INTELLISENSE
-#include "lighthouse/output.ixx"
-#else
-import output;
-#endif
-*/
+
 namespace lh
 {
-
 	window::window(const create_info& create_info) : m_title(create_info.m_name)
 	{
 		initialize_vkfw();
