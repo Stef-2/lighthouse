@@ -2,8 +2,6 @@ module;
 
 #include "lighthouse/renderer/renderer.hpp"
 
-#include "lighthouse/input.hpp"
-
 #if INTELLISENSE
 #include "lighthouse/engine.ixx"
 #else
@@ -14,10 +12,12 @@ module engine;
 #include "lighthouse/version.ixx"
 #include "lighthouse/window.ixx"
 #include "lighthouse/output.ixx"
+#include "lighthouse/input.ixx"
 #else
 import version;
 import window;
 import output;
+import input;
 #endif
 
 lh::engine::engine(std::unique_ptr<lh::window> window, const create_info& engine_create_info)

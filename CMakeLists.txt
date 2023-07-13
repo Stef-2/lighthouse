@@ -33,7 +33,7 @@ add_executable(
 	${include}/lighthouse/string/string_convertible.ixx
 	${include}/lighthouse/system.ixx
 	${include}/lighthouse/output.ixx ${source}/lighthouse/output.cpp
-	${source}/lighthouse/input.cpp
+	${include}/lighthouse/input.ixx ${source}/lighthouse/input.cpp
 	${include}/lighthouse/operating_system/dynamic_linking.ixx ${source}/lighthouse/operating_system/dynamic_linking.cpp
 	${include}/lighthouse/engine.ixx ${source}/lighthouse/engine.cpp
 	${source}/lighthouse/renderer/renderer.cpp

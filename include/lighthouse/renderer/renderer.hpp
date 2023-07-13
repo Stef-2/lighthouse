@@ -8,10 +8,12 @@
 #include "lighthouse/string/string.ixx"
 #include "lighthouse/version.ixx"
 #include "lighthouse/file_system.ixx"
+#include "lighthouse/input.ixx"
 #else
 import lighthouse_string;
 import version;
 import file_system;
+import input;
 #endif
 
 #include <iterator>

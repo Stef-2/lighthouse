@@ -6,9 +6,11 @@ export module engine;
 #if INTELLISENSE
 #include "lighthouse/window.ixx"
 #include "lighthouse/version.ixx"
+#include "lighthouse/input.ixx"
 #else
 import window;
 import version;
+import input;
 #endif
 
 export namespace lh

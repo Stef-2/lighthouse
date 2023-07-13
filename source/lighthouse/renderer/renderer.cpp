@@ -1,5 +1,4 @@
 #include "lighthouse/renderer/renderer.hpp"
-#include "lighthouse/input.hpp"
 
 lh::renderer::renderer(const window& window, const create_info& create_info)
 	: m_create_info {create_info},
