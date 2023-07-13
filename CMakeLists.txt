@@ -87,12 +87,13 @@ if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
 	  /wd4005 /wd4068 /wd4244 /wd4267 /wd4800
 	  # Windows.h configuration
 	  /DNOMINMAX /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS
+	  /FIC:/Users/Stefan/source/repos/lighthouse/out/build/MSVC-x64-release/CMakeFiles/lighthouse.dir/RelWithDebInfo/cmake_pch.hxx
 	)
 	
 	target_link_options(
 		${PROJECT_NAME} PRIVATE
 		# MSVC linker settings
-		/INCREMENTAL /CGTHREADS:8 /VERBOSE:INCR /LTCG
+		/INCREMENTAL /CGTHREADS:8 /VERBOSE:INCR /LTCG /${library}/std/std.obj
 		# No console
 		#/SUBSYSTEM:windows /ENTRY:mainCRTStartup
 	)
@@ -167,7 +168,7 @@ set(CMAKE_MODULE_PATH
 	${module}/lighthouse
 	${module}/lighthouse/renderer/vulkan
 )
-
+#[[
 target_precompile_headers(
 	${PROJECT_NAME} PRIVATE
 	${include}/vkfw/vkfw.hpp
@@ -177,7 +178,7 @@ target_precompile_headers(
 
 	${include}/vulkan/glm/glm.hpp
 	${include}/vulkan/glm/ext.hpp
-)
+)]]
 
 # Libraries
 target_link_directories(
@@ -187,6 +188,7 @@ target_link_directories(
 	${library}/glfw
 	${library}/vulkan
 	${library}/assimp
+	${library}/std
 )
 
 target_link_libraries(
@@ -208,4 +210,6 @@ target_link_libraries(
 	spirv-cross-reflect.lib
 
 	assimp-vc143-mt.lib
+
+	#std.obj
 )

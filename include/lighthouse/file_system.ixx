@@ -1,7 +1,7 @@
 module;
 #pragma once
 
-#include <string_view>
+//#include <string_view>
 
 export module file_system;
 
@@ -9,9 +9,11 @@ export module file_system;
 #include <filesystem>
 #include "lighthouse/output.ixx"
 #else
-import std.filesystem;
+//import std.filesystem;
 import output;
 #endif
+
+import std;
 
 namespace lh
 {
