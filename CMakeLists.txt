@@ -22,7 +22,7 @@ cmake_path(SET dynamic ${CMAKE_CURRENT_SOURCE_DIR}/library)
 add_executable(
 	${PROJECT_NAME} 
 	#${module}/lighthouse/renderer/vulkan/vulkan.ixx ${source}/../vulkan/vulkan.cpp
-	#${module}/std/std.ixx ${source}/../std/std.cpp
+	#${module}/std/std.ixx ${source}/std/std.cpp
 	${include}/lighthouse/window.ixx ${source}/lighthouse/window.cpp
 	${include}/lighthouse/static_type.ixx
 	${include}/lighthouse/file_system.ixx ${source}/lighthouse/file_system.cpp
@@ -35,7 +35,7 @@ add_executable(
 	${include}/lighthouse/output.ixx ${source}/lighthouse/output.cpp
 	${source}/lighthouse/input.cpp
 	${include}/lighthouse/operating_system/dynamic_linking.ixx ${source}/lighthouse/operating_system/dynamic_linking.cpp
-	${source}/lighthouse/engine.cpp
+	${include}/lighthouse/engine.ixx ${source}/lighthouse/engine.cpp
 	${source}/lighthouse/renderer/renderer.cpp
 	${include}/lighthouse/version.ixx ${source}/lighthouse/version.cpp
 	${include}/lighthouse/node.ixx ${source}/lighthouse/node.cpp
@@ -76,7 +76,6 @@ add_executable(
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
-
 # Compiler options
 if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
 
@@ -112,7 +111,6 @@ if(${CMAKE_CXX_COMPILER_ID} MATCHES GNU)
 	
 endif()
 
-
 # Windows specific flags
 if(WIN32)
 	add_compile_options(
@@ -146,6 +144,7 @@ target_compile_definitions(
 	# project specific
 	DYNAMIC_LINK_DIRECTORY="${dynamic}"
 	INTELLISENSE=__INTELLISENSE__
+	DONT_OPTIMIZE=__pragma\(optimize\(\"\",off\)\)
 )
 
 # Include

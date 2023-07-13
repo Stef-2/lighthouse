@@ -1,17 +1,14 @@
 ﻿#include "lighthouse/lighthouse.hpp"
 
 #if INTELLISENSE
-#include "lighthouse/file_system.ixx"
+#include "lighthouse/engine.ixx"
 #else
-import file_system;
+import engine;
 #endif
 
-#include "lighthouse/input.hpp"
+auto main() -> int
+{
+	auto engine = lh::engine {std::make_unique<lh::window>(lh::window::create_info {.m_resolution {640, 420}})};
 
-auto main() -> const void
-{ /*
-	 auto engine = lh::engine {std::make_unique<lh::window>(lh::window::create_info {.m_resolution {640, 420}})};
-
-	 engine.run();*/
-	std::cout << "\ncompilation done\n";
+	engine.run();
 }

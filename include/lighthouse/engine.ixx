@@ -1,12 +1,19 @@
+module;
 #pragma once
 
-#include "lighthouse/renderer/renderer.hpp"
+export module engine;
 
-namespace lh
+#if INTELLISENSE
+#include "lighthouse/window.ixx"
+#include "lighthouse/version.ixx"
+#else
+import window;
+import version;
+#endif
+
+export namespace lh
 {
-	// forward declarations
-	class window;
-	struct version;
+	class renderer;
 
 	// provides initialization and main loop facilities
 	class engine
@@ -34,7 +41,7 @@ namespace lh
 		auto terminate() -> void;
 
 		std::unique_ptr<lh::window> m_window;
-		renderer m_renderer;
+		std::unique_ptr<renderer> m_renderer;
 
 		lh::version m_version;
 	};
