@@ -1,3 +1,4 @@
+module;
 #pragma once
 
 #if INTELLISENSE
@@ -6,21 +7,22 @@
 import lighthouse_string;
 #endif
 
-namespace lh
+export module raii_wrapper;
+
+export namespace lh
 {
 	namespace vulkan
 	{
-
 		template <typename T>
-		class vk_wrapper
+		class raii_wrapper
 		{
 		public:
-			vk_wrapper(T&& object) noexcept : m_object(std::move(object)) {};
-			vk_wrapper(std::nullptr_t null = nullptr) : m_object(std::forward<std::nullptr_t>(null)) {};
+			raii_wrapper(T&& object) noexcept : m_object(std::move(object)) {};
+			raii_wrapper(std::nullptr_t null = nullptr) : m_object(std::forward<std::nullptr_t>(null)) {};
 
 			// disallow copy constructors, in line with vulkan raii types
-			vk_wrapper(const T&) = delete;
-			vk_wrapper operator=(const T&) = delete;
+			raii_wrapper(const T&) = delete;
+			raii_wrapper operator=(const T&) = delete;
 
 			auto operator*() -> T& { return m_object; }
 			auto operator*() const -> const T& { return m_object; }

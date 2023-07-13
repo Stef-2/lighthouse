@@ -1,21 +1,24 @@
+module;
 #pragma once
 
-#include "lighthouse/renderer/vulkan/raii_wrapper.hpp"
+export module debug_messanger;
 
 #if INTELLISENSE
+#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
 #include "lighthouse/output.ixx"
 #else
+import raii_wrapper;
 import output;
 #endif
 
-namespace lh
+export namespace lh
 {
 	namespace vulkan
 	{
-		class debug_messanger : public vk_wrapper<vk::raii::DebugUtilsMessengerEXT>
+		class debug_messanger : public raii_wrapper<vk::raii::DebugUtilsMessengerEXT>
 		{
 		public:
-			using vk_wrapper::vk_wrapper;
+			using raii_wrapper::raii_wrapper;
 
 			struct create_info
 			{

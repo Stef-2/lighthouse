@@ -1,7 +1,11 @@
 
 #pragma once
 
-#include "lighthouse/renderer/vulkan/raii_wrapper.hpp"
+#if INTELLISENSE
+#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
+#else
+import raii_wrapper;
+#endif
 #include "lighthouse/renderer/vulkan/index_format.hpp"
 
 #include <vector>

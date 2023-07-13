@@ -1,11 +1,12 @@
 #pragma once
 
-#include "lighthouse/renderer/vulkan/raii_wrapper.hpp"
 #include "lighthouse/renderer/vulkan/string.hpp"
 #if INTELLISENSE
 #include "lighthouse/string/string.ixx"
+#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
 #else
 import lighthouse_string;
+import raii_wrapper;
 #endif
 
 #include <vector>
@@ -18,7 +19,7 @@ namespace lh
 		// forward declarations
 		class physical_device;
 
-		class logical_device : public vk_wrapper<vk::raii::Device>
+		class logical_device : public raii_wrapper<vk::raii::Device>
 		{
 		public:
 			struct create_info

@@ -1,14 +1,17 @@
+module;
 #pragma once
 
-#include "lighthouse/renderer/vulkan/raii_wrapper.hpp"
+export module buffer;
 
 #if INTELLISENSE
+#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
 #include "lighthouse/utility.ixx"
 #else
 import utility;
+import raii_wrapper;
 #endif
 
-namespace lh
+export namespace lh
 {
 	namespace vulkan
 	{
@@ -16,10 +19,10 @@ namespace lh
 		class logical_device;
 		class memory_allocator;
 
-		class buffer : public vk_wrapper<vk::raii::Buffer>
+		class buffer : public raii_wrapper<vk::raii::Buffer>
 		{
 		public:
-			using vk_wrapper::vk_wrapper;
+			using raii_wrapper::raii_wrapper;
 
 			struct create_info
 			{

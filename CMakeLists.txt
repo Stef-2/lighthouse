@@ -35,6 +35,7 @@ add_executable(
 	${include}/lighthouse/output.ixx ${source}/lighthouse/output.cpp
 	${include}/lighthouse/input.ixx ${source}/lighthouse/input.cpp
 	${include}/lighthouse/operating_system/dynamic_linking.ixx ${source}/lighthouse/operating_system/dynamic_linking.cpp
+	${include}/lighthouse/renderer/vulkan/raii_wrapper.ixx
 	${include}/lighthouse/engine.ixx ${source}/lighthouse/engine.cpp
 	${source}/lighthouse/renderer/renderer.cpp
 	${include}/lighthouse/version.ixx ${source}/lighthouse/version.cpp
@@ -46,19 +47,19 @@ add_executable(
 	${source}/vulkan/vma_implementation.cpp
 	${source}/lighthouse/renderer/vulkan/extension.cpp
 	${source}/lighthouse/renderer/vulkan/instance.cpp
-	${source}/lighthouse/renderer/vulkan/debug_messanger.cpp
+	${include}/lighthouse/renderer/vulkan/debug_messanger.ixx ${source}/lighthouse/renderer/vulkan/debug_messanger.cpp
 	${source}/lighthouse/renderer/vulkan/physical_device.cpp
 	${source}/lighthouse/renderer/vulkan/logical_device.cpp
 	${source}/lighthouse/renderer/vulkan/surface.cpp
 	${source}/lighthouse/renderer/vulkan/queue_families.cpp
 	${source}/lighthouse/renderer/vulkan/memory_allocator.cpp
-	${source}/lighthouse/renderer/vulkan/command_control.cpp
+	${include}/lighthouse/renderer/vulkan/command_control.ixx ${source}/lighthouse/renderer/vulkan/command_control.cpp
 	${source}/lighthouse/renderer/vulkan/queue.cpp
 	${source}/lighthouse/renderer/vulkan/image.cpp
 	${source}/lighthouse/renderer/vulkan/swapchain.cpp
 	${source}/lighthouse/renderer/vulkan/shader_module.cpp
 	${source}/lighthouse/renderer/vulkan/descriptor_set_layout.cpp
-	${source}/lighthouse/renderer/vulkan/buffer.cpp
+	${include}/lighthouse/renderer/vulkan/buffer.ixx ${source}/lighthouse/renderer/vulkan/buffer.cpp
 	${source}/lighthouse/renderer/vulkan/sampler.cpp
 	${source}/lighthouse/renderer/vulkan/descriptor_buffer.cpp
 	${source}/lighthouse/renderer/vulkan/spir_v.cpp
@@ -168,7 +169,7 @@ set(CMAKE_MODULE_PATH
 	${module}/lighthouse
 	${module}/lighthouse/renderer/vulkan
 )
-#[[
+
 target_precompile_headers(
 	${PROJECT_NAME} PRIVATE
 	${include}/vkfw/vkfw.hpp
@@ -178,7 +179,7 @@ target_precompile_headers(
 
 	${include}/vulkan/glm/glm.hpp
 	${include}/vulkan/glm/ext.hpp
-)]]
+)
 
 # Libraries
 target_link_directories(

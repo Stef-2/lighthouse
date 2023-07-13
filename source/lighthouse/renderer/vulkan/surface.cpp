@@ -14,7 +14,7 @@ lh::vulkan::surface::surface(const lh::window& window,
 							 const physical_device& physical_device,
 							 const create_info& create_info)
 	: m_extent {window.resolution()},
-	  vk_wrapper {std::invoke([&instance, &window] {
+	  raii_wrapper {std::invoke([&instance, &window] {
 		  auto surface = VkSurfaceKHR {};
 		  glfwCreateWindowSurface(static_cast<VkInstance>(**instance), window.vkfw_window(), nullptr, &surface);
 

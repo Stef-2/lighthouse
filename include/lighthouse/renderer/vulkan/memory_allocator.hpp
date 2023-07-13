@@ -1,6 +1,10 @@
 #pragma once
 
-#include "lighthouse/renderer/vulkan/raii_wrapper.hpp"
+#if INTELLISENSE
+#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
+#else
+import raii_wrapper;
+#endif
 
 namespace lh
 {
@@ -11,7 +15,7 @@ namespace lh
 		class physical_device;
 		class logical_device;
 
-		class memory_allocator : public vk_wrapper<vma::Allocator>
+		class memory_allocator : public raii_wrapper<vma::Allocator>
 		{
 		public:
 			struct create_info

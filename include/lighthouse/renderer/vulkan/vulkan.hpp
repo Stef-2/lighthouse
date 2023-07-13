@@ -14,7 +14,6 @@
 #include "lighthouse/renderer/vulkan/memory_allocator.hpp"
 #include "lighthouse/renderer/vulkan/command_control.hpp"
 #include "lighthouse/renderer/vulkan/queue.hpp"
-#include "lighthouse/renderer/vulkan/buffer.hpp"
 #include "lighthouse/renderer/vulkan/image.hpp"
 #include "lighthouse/renderer/vulkan/swapchain.hpp"
 #include "lighthouse/renderer/vulkan/spir_v.hpp"
@@ -28,10 +27,13 @@
 #include "lighthouse/renderer/vulkan/vertex_input_description.hpp"
 #include "lighthouse/renderer/vulkan/vertex_buffer.hpp"
 #include "lighthouse/renderer/vulkan/vertex_format.hpp"
+
 #if INTELLISENSE
+#include "lighthouse/renderer/vulkan/buffer.ixx"
 #include "lighthouse/window.ixx"
 #else
 import window;
+import buffer;
 #endif
 
 #include <ranges>

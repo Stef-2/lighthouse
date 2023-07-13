@@ -1,6 +1,10 @@
 #pragma once
 
-#include "lighthouse/renderer/vulkan/raii_wrapper.hpp"
+#if INTELLISENSE
+#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
+#else
+import raii_wrapper;
+#endif
 
 namespace lh
 {
@@ -14,7 +18,7 @@ namespace lh
 
 	namespace vulkan
 	{
-		class surface : public vk_wrapper<vk::raii::SurfaceKHR>
+		class surface : public raii_wrapper<vk::raii::SurfaceKHR>
 		{
 		public:
 			struct create_info

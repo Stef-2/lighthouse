@@ -1,8 +1,18 @@
+module;
 #pragma once
 
-#include "lighthouse/renderer/vulkan/raii_wrapper.hpp"
+#include "lighthouse/renderer/vulkan/logical_device.hpp"
+#include "lighthouse/renderer/vulkan/queue_families.hpp"
 
-namespace lh
+export module command_control;
+
+#if INTELLISENSE
+#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
+#else
+import raii_wrapper;
+#endif
+
+export namespace lh
 {
 	namespace vulkan
 	{
@@ -11,7 +21,7 @@ namespace lh
 		class queue_families;
 
 		// e1m4
-		class command_control : public vk_wrapper<vk::raii::CommandPool>
+		class command_control : public raii_wrapper<vk::raii::CommandPool>
 		{
 		public:
 			struct create_info

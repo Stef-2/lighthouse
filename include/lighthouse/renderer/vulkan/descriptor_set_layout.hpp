@@ -1,6 +1,10 @@
 #pragma once
 
-#include "lighthouse/renderer/vulkan/raii_wrapper.hpp"
+#if INTELLISENSE
+#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
+#else
+import raii_wrapper;
+#endif
 
 #include <vector>
 
@@ -11,7 +15,7 @@ namespace lh
 		// forward declarations
 		class logical_device;
 
-		class descriptor_set_layout : public vk_wrapper<vk::raii::DescriptorSetLayout>
+		class descriptor_set_layout : public raii_wrapper<vk::raii::DescriptorSetLayout>
 		{
 		public:
 			// using vk_wrapper::vk_wrapper;

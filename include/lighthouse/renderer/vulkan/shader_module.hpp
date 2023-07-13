@@ -1,11 +1,12 @@
 #pragma once
 
 #if INTELLISENSE
+#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
 #include "lighthouse/string/string.ixx"
 #else
 import lighthouse_string;
+import raii_wrapper;
 #endif
-#include "lighthouse/renderer/vulkan/raii_wrapper.hpp"
 
 namespace lh
 {
@@ -15,7 +16,7 @@ namespace lh
 		class logical_device;
 		class spir_v;
 
-		class shader_module : public vk_wrapper<vk::raii::ShaderModule>
+		class shader_module : public raii_wrapper<vk::raii::ShaderModule>
 		{
 		public:
 			using spir_v_bytecode_t = std::vector<uint32_t>;

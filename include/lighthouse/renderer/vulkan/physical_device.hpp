@@ -1,14 +1,15 @@
 #pragma once
 
 #if INTELLISENSE
+#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
 #include "lighthouse/string/string.ixx"
 #include "lighthouse/output.ixx"
 #else
 import lighthouse_string;
 import output;
+import raii_wrapper;
 #endif
 #include "lighthouse/renderer/vulkan/extension.hpp"
-#include "lighthouse/renderer/vulkan/raii_wrapper.hpp"
 
 namespace lh
 {
@@ -17,7 +18,7 @@ namespace lh
 		// forward declarations
 		class instance;
 
-		class physical_device : public vk_wrapper<vk::raii::PhysicalDevice>
+		class physical_device : public raii_wrapper<vk::raii::PhysicalDevice>
 		{
 		public:
 			using performance_score_t = uint64_t;

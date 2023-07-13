@@ -1,13 +1,15 @@
 #pragma once
 
 #include "lighthouse/renderer/vulkan/extension.hpp"
-#include "lighthouse/renderer/vulkan/raii_wrapper.hpp"
+#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
 #include "lighthouse/renderer/vulkan/debug_messanger.hpp"
 
 #if INTELLISENSE
 #include "lighthouse/version.ixx"
+#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
 #else
 import version;
+import raii_wrapper;
 #endif
 
 namespace lh
@@ -17,7 +19,7 @@ namespace lh
 
 	namespace vulkan
 	{
-		class instance : public vk_wrapper<vk::raii::Instance>
+		class instance : public raii_wrapper<vk::raii::Instance>
 		{
 		public:
 			struct create_info

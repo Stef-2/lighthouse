@@ -1,6 +1,10 @@
 #pragma once
 
-#include "lighthouse/renderer/vulkan/raii_wrapper.hpp"
+#if INTELLISENSE
+#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
+#else
+import raii_wrapper;
+#endif
 
 namespace lh
 {
@@ -9,7 +13,7 @@ namespace lh
 		// forward declarations
 		class logical_device;
 
-		class sampler : vk_wrapper<vk::raii::Sampler>
+		class sampler : raii_wrapper<vk::raii::Sampler>
 		{
 		public:
 			struct create_info

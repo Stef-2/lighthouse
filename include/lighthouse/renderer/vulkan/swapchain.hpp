@@ -1,6 +1,10 @@
 #pragma once
 
-#include "lighthouse/renderer/vulkan/raii_wrapper.hpp"
+#if INTELLISENSE
+#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
+#else
+import raii_wrapper;
+#endif
 #include "lighthouse/renderer/vulkan/image.hpp"
 
 namespace lh
@@ -14,7 +18,7 @@ namespace lh
 		class queue_families;
 		class memory_allocator;
 
-		class swapchain : public vk_wrapper<vk::raii::SwapchainKHR>
+		class swapchain : public raii_wrapper<vk::raii::SwapchainKHR>
 		{
 		public:
 			using image_index_t = decltype(m_object.acquireNextImage({}).second);
