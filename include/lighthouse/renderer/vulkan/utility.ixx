@@ -1,6 +1,9 @@
+module;
 #pragma once
 
-namespace lh
+export module vulkan_utility;
+
+export namespace lh
 {
 	namespace vulkan
 	{

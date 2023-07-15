@@ -1,11 +1,9 @@
-#include "lighthouse/renderer/vulkan/extension.hpp"
+module;
 
 #if INTELLISENSE
-#include "lighthouse/string/string.ixx"
-#include "lighthouse/output.ixx"
+#include "lighthouse/renderer/vulkan/extension.ixx"
 #else
-import lighthouse_string;
-import output;
+module extension;
 #endif
 
 lh::vulkan::logical_extensions::logical_extensions(const vk_extensions_t& supported, const create_info& create_info)

@@ -36,6 +36,7 @@ add_executable(
 	${include}/lighthouse/input.ixx ${source}/lighthouse/input.cpp
 	${include}/lighthouse/operating_system/dynamic_linking.ixx ${source}/lighthouse/operating_system/dynamic_linking.cpp
 	${include}/lighthouse/renderer/vulkan/raii_wrapper.ixx
+	${include}/lighthouse/renderer/vulkan/utility.ixx
 	${include}/lighthouse/engine.ixx ${source}/lighthouse/engine.cpp
 	${source}/lighthouse/renderer/renderer.cpp
 	${include}/lighthouse/version.ixx ${source}/lighthouse/version.cpp
@@ -45,7 +46,7 @@ add_executable(
 	${source}/vulkan/math.cpp
 	${source}/lighthouse/operating_system/memory.cpp
 	${source}/vulkan/vma_implementation.cpp
-	${source}/lighthouse/renderer/vulkan/extension.cpp
+	${include}/lighthouse/renderer/vulkan/extension.ixx ${source}/lighthouse/renderer/vulkan/extension.cpp
 	${source}/lighthouse/renderer/vulkan/instance.cpp
 	${include}/lighthouse/renderer/vulkan/debug_messanger.ixx ${source}/lighthouse/renderer/vulkan/debug_messanger.cpp
 	${source}/lighthouse/renderer/vulkan/physical_device.cpp
@@ -58,10 +59,10 @@ add_executable(
 	${source}/lighthouse/renderer/vulkan/image.cpp
 	${source}/lighthouse/renderer/vulkan/swapchain.cpp
 	${source}/lighthouse/renderer/vulkan/shader_module.cpp
-	${source}/lighthouse/renderer/vulkan/descriptor_set_layout.cpp
+	${include}/lighthouse/renderer/vulkan/descriptor_set_layout.ixx ${source}/lighthouse/renderer/vulkan/descriptor_set_layout.cpp
 	${include}/lighthouse/renderer/vulkan/buffer.ixx ${source}/lighthouse/renderer/vulkan/buffer.cpp
 	${source}/lighthouse/renderer/vulkan/sampler.cpp
-	${source}/lighthouse/renderer/vulkan/descriptor_buffer.cpp
+	${include}/lighthouse/renderer/vulkan/descriptor_buffer.ixx ${source}/lighthouse/renderer/vulkan/descriptor_buffer.cpp
 	${source}/lighthouse/renderer/vulkan/spir_v.cpp
 	${source}/lighthouse/renderer/vulkan/shader_object.cpp
 	${source}/lighthouse/renderer/vulkan/vertex_buffer.cpp

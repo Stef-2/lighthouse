@@ -5,20 +5,20 @@ export module buffer;
 
 #if INTELLISENSE
 #include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
+#include "lighthouse/renderer/vulkan/logical_device.ixx"
+#include "lighthouse/renderer/vulkan/memory_allocator.ixx"
 #include "lighthouse/utility.ixx"
 #else
 import utility;
 import raii_wrapper;
+import logical_device;
+import memory_allocator;
 #endif
 
 export namespace lh
 {
 	namespace vulkan
 	{
-		// forward declarations
-		class logical_device;
-		class memory_allocator;
-
 		class buffer : public raii_wrapper<vk::raii::Buffer>
 		{
 		public:

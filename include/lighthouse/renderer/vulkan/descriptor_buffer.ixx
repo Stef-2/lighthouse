@@ -1,17 +1,28 @@
+module;
 #pragma once
 
-namespace lh
+export module descriptor_buffer;
+
+#if INTELLISENSE
+#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
+#include "lighthouse/renderer/vulkan/utility.ixx"
+#include "lighthouse/renderer/vulkan/physical_device.ixx"
+#include "lighthouse/renderer/vulkan/logical_device.ixx"
+#include "lighthouse/renderer/vulkan/memory_allocator.ixx"
+#include "lighthouse/renderer/vulkan/descriptor_set_layout.ixx"
+#else
+import raii_wrapper;
+import vulkan_utility;
+import physical_device;
+import logical_device;
+import memory_allocator;
+import descriptor_set_layout;
+#endif
+
+export namespace lh
 {
 	namespace vulkan
 	{
-		// forward declarations
-		class physical_device;
-		class logical_device;
-		class memory_allocator;
-		class descriptor_set_layout;
-		class mapped_buffer;
-		struct buffer_subdata;
-
 		class descriptor_buffer
 		{
 		public:

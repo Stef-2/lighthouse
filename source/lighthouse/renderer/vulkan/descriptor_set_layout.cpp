@@ -1,5 +1,10 @@
-#include "lighthouse/renderer/vulkan/descriptor_set_layout.hpp"
-#include "lighthouse/renderer/vulkan/logical_device.hpp"
+module;
+
+#if INTELLISENSE
+#include "lighthouse/renderer/vulkan/descriptor_set_layout.ixx"
+#else
+module descriptor_set_layout;
+#endif
 
 lh::vulkan::descriptor_set_layout::descriptor_set_layout(const logical_device& logical_device,
 														 const std::vector<binding>& bindings,

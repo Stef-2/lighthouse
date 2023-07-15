@@ -1,14 +1,12 @@
-#pragma once
+module;
 
-#include "lighthouse/renderer/vulkan/descriptor_buffer.hpp"
-#include "lighthouse/renderer/vulkan/physical_device.hpp"
-#include "lighthouse/renderer/vulkan/logical_device.hpp"
-#include "lighthouse/renderer/vulkan/memory_allocator.hpp"
-#include "lighthouse/renderer/vulkan/descriptor_set_layout.hpp"
-#include "lighthouse/renderer/vulkan/buffer.hpp"
-#include "lighthouse/renderer/vulkan/utility.hpp"
+#if INTELLISENSE
+#include "lighthouse/renderer/vulkan/descriptor_buffer.ixx"
+#else
+module descriptor_buffer;
+#endif
 
-#pragma optimize("", off)
+// #pragma optimize("", off)
 lh::vulkan::descriptor_buffer::descriptor_buffer(const physical_device& physical_device,
 												 const logical_device& logical_device,
 												 const memory_allocator& memory_allocator,

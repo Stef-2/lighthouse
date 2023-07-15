@@ -1,18 +1,22 @@
+module;
 #pragma once
 
+#include <numeric>
+
+export module extension;
+
 #if INTELLISENSE
+#include "lighthouse/renderer/vulkan/string.ixx"
 #include "lighthouse/string/string.ixx"
 #include "lighthouse/output.ixx"
 #else
 import lighthouse_string;
 import output;
+import string;
 #endif
 
-#include "lighthouse/renderer/vulkan/string.hpp"
 
-#include <numeric>
-
-namespace lh
+export namespace lh
 {
 	namespace vulkan
 	{

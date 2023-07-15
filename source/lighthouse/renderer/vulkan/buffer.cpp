@@ -1,9 +1,5 @@
 module;
 
-#include "lighthouse/renderer/vulkan/physical_device.hpp"
-#include "lighthouse/renderer/vulkan/logical_device.hpp"
-#include "lighthouse/renderer/vulkan/memory_allocator.hpp"
-
 #if INTELLISENSE
 #include "lighthouse/renderer/vulkan/buffer.ixx"
 #else

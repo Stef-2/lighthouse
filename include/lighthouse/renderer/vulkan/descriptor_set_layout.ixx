@@ -1,20 +1,22 @@
+module;
 #pragma once
-
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
-#else
-import raii_wrapper;
-#endif
 
 #include <vector>
 
-namespace lh
+export module descriptor_set_layout;
+
+#if INTELLISENSE
+#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
+#include "lighthouse/renderer/vulkan/logical_device.ixx"
+#else
+import raii_wrapper;
+import logical_device;
+#endif
+
+export namespace lh
 {
 	namespace vulkan
 	{
-		// forward declarations
-		class logical_device;
-
 		class descriptor_set_layout : public raii_wrapper<vk::raii::DescriptorSetLayout>
 		{
 		public:
