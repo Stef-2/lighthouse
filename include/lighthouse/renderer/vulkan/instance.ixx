@@ -1,18 +1,23 @@
+module;
 #pragma once
 
-#include "lighthouse/renderer/vulkan/extension.hpp"
-#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
-#include "lighthouse/renderer/vulkan/debug_messanger.hpp"
+export module instance;
 
 #if INTELLISENSE
 #include "lighthouse/version.ixx"
 #include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
+#include "lighthouse/renderer/vulkan/extension.ixx"
+#include "lighthouse/renderer/vulkan/debug_messanger.ixx"
+#include "lighthouse/window.ixx"
 #else
 import version;
+import window;
 import raii_wrapper;
+import extension;
+import debug_messanger;
 #endif
 
-namespace lh
+export namespace lh
 {
 	// forward declarations
 	class window;

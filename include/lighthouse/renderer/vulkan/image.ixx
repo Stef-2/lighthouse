@@ -1,23 +1,30 @@
+module;
 #pragma once
+
+export module image;
 
 #if INTELLISENSE
 #include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
+#include "lighthouse/renderer/vulkan/phyiscal_device.ixx"
+#include "lighthouse/renderer/vulkan/logical_device.ixx"
+#include "lighthouse/renderer/vulkan/memory_allocator.ixx"
+#include "lighthouse/renderer/vulkan/surface.ixx"
+#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
+#include "lighthouse/renderer/vulkan/sampler.ixx"
 #else
 import raii_wrapper;
+import physical_device;
+import logical_device;
+import memory_allocator;
+import surface;
+import sampler;
 #endif
 
-#include "lighthouse/renderer/vulkan/sampler.hpp"
 
-namespace lh
+export namespace lh
 {
 	namespace vulkan
 	{
-		// forward declarations
-		class physical_device;
-		class logical_device;
-		class memory_allocator;
-		class surface;
-
 		class image : public raii_wrapper<vk::raii::Image>
 		{
 		public:

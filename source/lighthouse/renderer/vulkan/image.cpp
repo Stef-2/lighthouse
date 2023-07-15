@@ -1,8 +1,10 @@
-#include "lighthouse/renderer/vulkan/image.hpp"
-#include "lighthouse/renderer/vulkan/physical_device.hpp"
-#include "lighthouse/renderer/vulkan/logical_device.hpp"
-#include "lighthouse/renderer/vulkan/memory_allocator.hpp"
-#include "lighthouse/renderer/vulkan/surface.hpp"
+module;
+
+#if INTELLISENSE
+#include "lighthouse/renderer/vulkan/image.ixx"
+#else
+module image;
+#endif
 
 lh::vulkan::image::image(const vulkan::physical_device& physical_device,
 						 const vulkan::logical_device& logical_device,

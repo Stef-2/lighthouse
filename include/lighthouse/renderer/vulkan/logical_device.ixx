@@ -1,23 +1,27 @@
+module;
 #pragma once
-
-#include "lighthouse/renderer/vulkan/string.hpp"
-#if INTELLISENSE
-#include "lighthouse/string/string.ixx"
-#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
-#else
-import lighthouse_string;
-import raii_wrapper;
-#endif
 
 #include <vector>
 
-namespace lh
+export module logical_device;
+
+#if INTELLISENSE
+#include "lighthouse/renderer/vulkan/string.ixx"
+#include "lighthouse/renderer/vulkan/physical_device.ixx"
+#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
+#include "lighthouse/string/string.ixx"
+#else
+import lighthouse_string;
+import vulkan_string
+import raii_wrapper;
+import physical_device;
+#endif
+
+
+export namespace lh
 {
 	namespace vulkan
 	{
-
-		// forward declarations
-		class physical_device;
 
 		class logical_device : public raii_wrapper<vk::raii::Device>
 		{

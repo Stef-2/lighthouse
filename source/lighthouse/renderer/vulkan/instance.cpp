@@ -1,9 +1,9 @@
-#include "lighthouse/renderer/vulkan/instance.hpp"
+module;
 
 #if INTELLISENSE
-#include "lighthouse/window.ixx"
+#include "lighthouse/renderer/vulkan/instance.ixx"
 #else
-import window;
+module instance;
 #endif
 
 lh::vulkan::instance::instance(const window& window, const create_info& create_info)

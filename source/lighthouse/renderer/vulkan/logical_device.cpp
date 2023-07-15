@@ -1,5 +1,10 @@
-#include "lighthouse/renderer/vulkan/logical_device.hpp"
-#include "lighthouse/renderer/vulkan/physical_device.hpp"
+module;
+
+#if INTELLISENSE
+#include "lighthouse/renderer/vulkan/logical_device.ixx"
+#else
+module logical_device;
+#endif
 
 lh::vulkan::logical_device::logical_device(const physical_device& physical_device, const create_info& create_info)
 {

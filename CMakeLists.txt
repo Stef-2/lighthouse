@@ -37,6 +37,7 @@ add_executable(
 	${include}/lighthouse/operating_system/dynamic_linking.ixx ${source}/lighthouse/operating_system/dynamic_linking.cpp
 	${include}/lighthouse/renderer/vulkan/raii_wrapper.ixx
 	${include}/lighthouse/renderer/vulkan/utility.ixx
+	${include}/lighthouse/renderer/vulkan/index_format.ixx
 	${include}/lighthouse/engine.ixx ${source}/lighthouse/engine.cpp
 	${source}/lighthouse/renderer/renderer.cpp
 	${include}/lighthouse/version.ixx ${source}/lighthouse/version.cpp
@@ -47,10 +48,10 @@ add_executable(
 	${source}/lighthouse/operating_system/memory.cpp
 	${source}/vulkan/vma_implementation.cpp
 	${include}/lighthouse/renderer/vulkan/extension.ixx ${source}/lighthouse/renderer/vulkan/extension.cpp
-	${source}/lighthouse/renderer/vulkan/instance.cpp
+	${include}/lighthouse/renderer/vulkan/instance.ixx ${source}/lighthouse/renderer/vulkan/instance.cpp
 	${include}/lighthouse/renderer/vulkan/debug_messanger.ixx ${source}/lighthouse/renderer/vulkan/debug_messanger.cpp
 	${source}/lighthouse/renderer/vulkan/physical_device.cpp
-	${source}/lighthouse/renderer/vulkan/logical_device.cpp
+	${include}/lighthouse/renderer/vulkan/logical_device.ixx ${source}/lighthouse/renderer/vulkan/logical_device.cpp
 	${source}/lighthouse/renderer/vulkan/surface.cpp
 	${source}/lighthouse/renderer/vulkan/queue_families.cpp
 	${source}/lighthouse/renderer/vulkan/memory_allocator.cpp
