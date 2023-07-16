@@ -1,23 +1,26 @@
+module;
 #pragma once
+
+export module physical_device;
 
 #if INTELLISENSE
 #include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
+#include "lighthouse/renderer/vulkan/instance.ixx"
+#include "lighthouse/renderer/vulkan/extension.ixx"
 #include "lighthouse/string/string.ixx"
 #include "lighthouse/output.ixx"
 #else
 import lighthouse_string;
+import extension;
+import instance;
 import output;
 import raii_wrapper;
 #endif
-#include "lighthouse/renderer/vulkan/extension.hpp"
 
-namespace lh
+export namespace lh
 {
 	namespace vulkan
 	{
-		// forward declarations
-		class instance;
-
 		class physical_device : public raii_wrapper<vk::raii::PhysicalDevice>
 		{
 		public:

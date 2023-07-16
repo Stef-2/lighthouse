@@ -1,9 +1,10 @@
-#include "lighthouse/renderer/vulkan/memory_allocator.hpp"
-#include "lighthouse/renderer/vulkan/instance.hpp"
-#include "lighthouse/renderer/vulkan/physical_device.hpp"
-#include "lighthouse/renderer/vulkan/logical_device.hpp"
+module;
 
-#include <ranges>
+#if INTELLISENSE
+#include "lighthouse/renderer/vulkan/memory_allocator.ixx"
+#else
+module memory_allocator;
+#endif
 
 #define VMA_IMPLEMENTATION
 

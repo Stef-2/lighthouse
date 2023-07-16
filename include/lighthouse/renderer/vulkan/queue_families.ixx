@@ -1,13 +1,20 @@
+module;
 #pragma once
 
-namespace lh
+export module queue;
+
+#if INTELLISENSE
+#include "lighthouse/renderer/vulkan/physical_device.ixx"
+#include "lighthouse/renderer/vulkan/surface.ixx"
+#else
+import physical_device;
+import surface;
+#endif
+
+export namespace lh
 {
 	namespace vulkan
 	{
-		// forward declarations
-		class physical_device;
-		class surface;
-
 		class queue_families
 		{
 		public:

@@ -1,20 +1,26 @@
+module;
 #pragma once
+
+#include <ranges>
+
+export module memory_allocator;
 
 #if INTELLISENSE
 #include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
+#include "lighthouse/renderer/vulkan/instance.ixx"
+#include "lighthouse/renderer/vulkan/physical_device.ixx"
+#include "lighthouse/renderer/vulkan/logical_device.ixx"
 #else
 import raii_wrapper;
+import instance;
+import physical_device;
+import logical_device;
 #endif
 
-namespace lh
+export namespace lh
 {
 	namespace vulkan
 	{
-		// forward declarations
-		class instance;
-		class physical_device;
-		class logical_device;
-
 		class memory_allocator : public raii_wrapper<vma::Allocator>
 		{
 		public:

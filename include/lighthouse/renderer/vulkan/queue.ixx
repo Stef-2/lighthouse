@@ -1,13 +1,20 @@
+module;
 #pragma once
 
-namespace lh
+export module queue;
+
+#if INTELLISENSE
+#include "lighthouse/renderer/vulkan/logical_device.ixx"
+#include "lighthouse/renderer/vulkan/queue_families.ixx"
+#else
+import logical_device;
+import queue_families;
+#endif
+
+export namespace lh
 {
 	namespace vulkan
 	{
-		// forward declarations
-		class logical_device;
-		class queue_families;
-
 		class queue
 		{
 

@@ -1,7 +1,10 @@
+module;
 
-#include "lighthouse/renderer/vulkan/physical_device.hpp"
-#include "lighthouse/renderer/vulkan/instance.hpp"
-#include "lighthouse/operating_system/memory.hpp"
+#if INTELLISENSE
+#include "lighthouse/renderer/vulkan/physical_device.ixx"
+#else
+module physical_device;
+#endif
 
 lh::vulkan::physical_device::physical_device(const instance& instance, const create_info& create_info)
 	: m_extensions {preferred_device(instance, create_info).enumerateDeviceExtensionProperties(),

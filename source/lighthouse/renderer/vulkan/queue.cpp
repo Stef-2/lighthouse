@@ -1,6 +1,10 @@
-#include "lighthouse/renderer/vulkan/queue.hpp"
-#include "lighthouse/renderer/vulkan/logical_device.hpp"
-#include "lighthouse/renderer/vulkan/queue_families.hpp"
+module;
+
+#if INTELLISENSE
+#include "lighthouse/renderer/vulkan/queue.ixx"
+#else
+module queue;
+#endif
 
 lh::vulkan::queue::queue(const logical_device& logical_device,
 						 const queue_families& queue_families,

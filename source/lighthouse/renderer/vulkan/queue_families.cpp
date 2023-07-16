@@ -1,6 +1,10 @@
-#include "lighthouse/renderer/vulkan/queue_families.hpp"
-#include "lighthouse/renderer/vulkan/physical_device.hpp"
-#include "lighthouse/renderer/vulkan/surface.hpp"
+module;
+
+#if INTELLISENSE
+#include "lighthouse/renderer/vulkan/queue.ixx"
+#else
+module queue;
+#endif
 
 lh::vulkan::queue_families::queue_families(const physical_device& physical_device,
 										   const surface& surface,

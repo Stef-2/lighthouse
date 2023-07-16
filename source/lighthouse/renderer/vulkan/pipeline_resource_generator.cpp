@@ -1,13 +1,10 @@
-#include "lighthouse/renderer/vulkan/pipeline_resource_generator.hpp"
-#include "lighthouse/renderer/vulkan/spir_v.hpp"
-#include "lighthouse/renderer/vulkan/logical_device.hpp"
-#include "lighthouse/renderer/vulkan/memory_allocator.hpp"
-#include "lighthouse/renderer/vulkan/buffer.hpp"
-#include "lighthouse/renderer/vulkan/descriptor_set_layout.hpp"
-#include "lighthouse/renderer/vulkan/shader_object.hpp"
-#include "lighthouse/renderer/vulkan/descriptor_buffer.hpp"
-#include "lighthouse/renderer/vulkan/vertex_input_description.hpp"
-#include "lighthouse/renderer/vulkan/shader_input.hpp"
+module;
+
+#if INTELLISENSE
+#include "lighthouse/renderer/vulkan/pipeline_resource_generator.ixx"
+#else
+module pipeline_resource_generator;
+#endif
 
 namespace
 {
