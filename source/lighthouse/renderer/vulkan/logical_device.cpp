@@ -6,32 +6,42 @@ module;
 module logical_device;
 #endif
 
-lh::vulkan::logical_device::logical_device(const physical_device& physical_device, const create_info& create_info)
+import output;
+
+namespace lh
 {
-	const auto& suported_extensions = physical_device.extensions().supported_extensions();
+	namespace vulkan
+	{
 
-	if (not physical_device.extensions().assert_required_extensions())
-		output::error() << "this system does not support the required vulkan components";
+		logical_device::logical_device(const physical_device& physical_device, const create_info& create_info)
+		{
+			const auto& suported_extensions = physical_device.extensions().supported_extensions();
 
-	auto dynamic_rendering = vk::PhysicalDeviceDynamicRenderingFeatures {true};
-	auto buffer_addressing = vk::PhysicalDeviceBufferDeviceAddressFeatures {true, false, false, &dynamic_rendering};
-	auto descriptor_buffering =
-		vk::PhysicalDeviceDescriptorBufferFeaturesEXT {true, false, false, true, &buffer_addressing};
-	auto shader_object = vk::PhysicalDeviceShaderObjectFeaturesEXT {true, &descriptor_buffering};
-	auto vertex_input = vk::PhysicalDeviceVertexInputDynamicStateFeaturesEXT {true, &shader_object};
-	auto synchronization2 = vk::PhysicalDeviceSynchronization2Features {true, &vertex_input};
+			if (not physical_device.extensions().assert_required_extensions())
+				output::error() << "this system does not support the required vulkan components";
 
-	auto features = create_info.m_features;
+			auto dynamic_rendering = vk::PhysicalDeviceDynamicRenderingFeatures {true};
+			auto buffer_addressing =
+				vk::PhysicalDeviceBufferDeviceAddressFeatures {true, false, false, &dynamic_rendering};
+			auto descriptor_buffering =
+				vk::PhysicalDeviceDescriptorBufferFeaturesEXT {true, false, false, true, &buffer_addressing};
+			auto shader_object = vk::PhysicalDeviceShaderObjectFeaturesEXT {true, &descriptor_buffering};
+			auto vertex_input = vk::PhysicalDeviceVertexInputDynamicStateFeaturesEXT {true, &shader_object};
+			auto synchronization2 = vk::PhysicalDeviceSynchronization2Features {true, &vertex_input};
 
-	features.pNext = &synchronization2;
+			auto features = create_info.m_features;
 
-	auto device_info = vk::DeviceCreateInfo {
-		{}, create_info.m_queues, {}, create_info.m_extensions, &features.features, &synchronization2};
+			features.pNext = &synchronization2;
 
-	m_object = {*physical_device, device_info};
-}
+			auto device_info = vk::DeviceCreateInfo {
+				{}, create_info.m_queues, {}, create_info.m_extensions, &features.features, &synchronization2};
 
-auto lh::vulkan::logical_device::info() const -> lh::string::string_t
-{
-	return {};
+			m_object = {*physical_device, device_info};
+		}
+
+		auto logical_device::info() const -> lh::string::string_t
+		{
+			return {};
+		}
+	}
 }

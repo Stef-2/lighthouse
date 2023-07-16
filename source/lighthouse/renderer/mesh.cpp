@@ -6,44 +6,48 @@ module;
 module mesh;
 #endif
 
-lh::mesh::mesh(const vulkan::logical_device& logical_device,
+namespace lh
+{
+	mesh::mesh(const vulkan::logical_device& logical_device,
 			   const vulkan::memory_allocator& memory_allocator,
 			   const std::vector<vulkan::vertex>& vertices,
 			   const std::vector<vulkan::vertex_index_t>& indices,
 			   const bounding_box& bounding_box,
 			   non_owning_ptr<lh::node> node)
-	: m_node {node ? std::shared_ptr<lh::node> {node} : std::make_shared<lh::node>()},
-	  m_vertices {std::move(vertices)},
-	  m_indices {std::move(indices)},
-	  m_vertex_buffer {
-		  std::make_unique<vulkan::vertex_buffer>(logical_device, memory_allocator, m_vertices, m_indices)},
-	  m_bounding_box {std::make_unique<lh::bounding_box>(std::move(bounding_box))}
-{
-	const auto& vertex_buffer = m_vertex_buffer->vertices();
-	const auto& index_buffer = m_vertex_buffer->indices();
+		: m_node {node ? std::shared_ptr<lh::node> {node} : std::make_shared<lh::node>()},
+		  m_vertices {std::move(vertices)},
+		  m_indices {std::move(indices)},
+		  m_vertex_buffer {
+			  std::make_unique<vulkan::vertex_buffer>(logical_device, memory_allocator, m_vertices, m_indices)},
+		  m_bounding_box {std::make_unique<lh::bounding_box>(std::move(bounding_box))}
+	{
+		const auto& vertex_buffer = m_vertex_buffer->vertices();
+		const auto& index_buffer = m_vertex_buffer->indices();
 
-	vertex_buffer.m_buffer->map_data(*m_vertices.data(), 0, sizeof(vulkan::vertex) * m_vertices.size());
-	vertex_buffer.m_buffer->map_data(*m_indices.data(),
-									 index_buffer.m_subdata[0].m_offset,
-									 sizeof(vulkan::vertex_index_t) * m_indices.size());
-}
+		vertex_buffer.m_buffer->map_data(*m_vertices.data(), 0, sizeof(vulkan::vertex) * m_vertices.size());
+		vertex_buffer.m_buffer->map_data(*m_indices.data(),
+										 index_buffer.m_subdata[0].m_offset,
+										 sizeof(vulkan::vertex_index_t) * m_indices.size());
+	}
 
-auto lh::mesh::node() const -> const lh::node&
-{
-	return *m_node;
-}
+	auto mesh::node() const -> const lh::node&
+	{
+		return *m_node;
+	}
 
-auto lh::mesh::vertices() const -> const std::vector<vulkan::vertex>&
-{
-	return m_vertices;
-}
+	auto mesh::vertices() const -> const std::vector<vulkan::vertex>&
+	{
+		return m_vertices;
+	}
 
-auto lh::mesh::indices() const -> const std::vector<vulkan::vertex_index_t>&
-{
-	return m_indices;
-}
+	auto mesh::indices() const -> const std::vector<vulkan::vertex_index_t>&
+	{
+		return m_indices;
+	}
 
-auto lh::mesh::vertex_buffer() const -> const vulkan::vertex_buffer&
-{
-	return *m_vertex_buffer;
+	auto mesh::vertex_buffer() const -> const vulkan::vertex_buffer&
+	{
+		return *m_vertex_buffer;
+	}
+
 }

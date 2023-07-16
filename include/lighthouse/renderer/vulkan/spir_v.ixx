@@ -1,19 +1,15 @@
 module;
 #pragma once
 
-#include <iostream>
-
 export module spir_v;
 
 #if INTELLISENSE
 #include "lighthouse/string/string.ixx"
-#include "lighthouse/output.ixx"
 #include "lighthouse/file_system.ixx"
 #include "lighthouse/renderer/vulkan/shader_input.ixx"
 #include "lighthouse/renderer/vulkan/vertex_input_description.ixx"
 #else
 import lighthouse_string;
-import output;
 import file_system;
 import shader_input;
 import vertex_input_description;

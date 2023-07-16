@@ -20,7 +20,6 @@ import logical_device;
 import memory_allocator;
 import descriptor_set_layout;
 import buffer;
-import output;
 #endif
 
 export namespace lh

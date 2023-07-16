@@ -19,9 +19,6 @@ import debug_messanger;
 
 export namespace lh
 {
-	// forward declarations
-	class window;
-
 	namespace vulkan
 	{
 		class instance : public raii_wrapper<vk::raii::Instance>

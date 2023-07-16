@@ -2,7 +2,6 @@ module;
 #pragma once
 
 #include <vector>
-#include <numeric>
 
 export module shader_object_pipeline;
 

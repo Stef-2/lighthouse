@@ -1,8 +1,6 @@
 module;
 #pragma once
 
-#include <ranges>
-
 export module memory_allocator;
 
 #if INTELLISENSE

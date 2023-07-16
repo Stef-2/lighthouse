@@ -1,11 +1,5 @@
 module;
 #pragma once
-#include "vulkan/utils/geometries.hpp"
-#include "vulkan/utils/math.hpp"
-
-#include "vulkan/utils/raii/raii_utils.hpp"
-
-#include <ranges>
 
 export module vulkan;
 

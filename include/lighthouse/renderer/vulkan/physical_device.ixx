@@ -8,12 +8,10 @@ export module physical_device;
 #include "lighthouse/renderer/vulkan/instance.ixx"
 #include "lighthouse/renderer/vulkan/extension.ixx"
 #include "lighthouse/string/string.ixx"
-#include "lighthouse/output.ixx"
 #else
 import lighthouse_string;
 import extension;
 import instance;
-import output;
 import raii_wrapper;
 #endif
 

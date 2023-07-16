@@ -3,7 +3,6 @@ module;
 
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"
-#include "assimp/scene.h"
 
 export module scene_loader;
 
@@ -14,10 +13,8 @@ export module scene_loader;
 #include "lighthouse/renderer/vulkan/vertex_format.ixx"
 #include "lighthouse/renderer/mesh.ixx"
 #include "lighthouse/node.ixx"
-#include "lighthouse/output.ixx"
 #else
 import node;
-import output;
 import logical_device;
 import memory_allocator;
 import vertex_format;

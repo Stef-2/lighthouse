@@ -19,10 +19,6 @@ export namespace lh
 {
 	namespace vulkan
 	{
-		// forward declarations
-		class logical_device;
-		class spir_v;
-
 		class shader_module : public raii_wrapper<vk::raii::ShaderModule>
 		{
 		public:

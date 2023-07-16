@@ -8,11 +8,9 @@ export module surface;
 #include "lighthouse/renderer/vulkan/instance.ixx"
 #include "lighthouse/renderer/vulkan/physical_device.ixx"
 #include "lighthouse/window.ixx"
-#include "lighthouse/output.ixx"
 #else
 import raii_wrapper;
 import window;
-import output;
 import instance;
 import physical_device;
 #endif

@@ -1,31 +1,17 @@
 module;
 
+#include "vulkan/glslang/SPIRV/GlslangToSpv.h"
+#include "vulkan/utils/StandAlone.hpp"
+
+#include "vulkan/spirv_cross/spirv_reflect.hpp"
+
 #if INTELLISENSE
 #include "lighthouse/renderer/vulkan/spir_v.ixx"
 #else
 module spir_v;
 #endif
 
-#include "vulkan/glslang/SPIRV/GlslangToSpv.h"
-#include "vulkan/utils/StandAlone.hpp"
-
-#include "vulkan/spirv_cross/spirv_reflect.hpp"
-
-lh::vulkan::spir_v::spir_v(const glsl_code_t& glsl_code, const create_info& create_info)
-	: m_code {}, m_entrypoint {}, m_stage {create_info.m_shader_stage}
-{
-	glslang::InitializeProcess();
-
-	m_code = glsl_to_spirv::translate_shader(create_info.m_shader_stage, glsl_code);
-
-	glslang::FinalizeProcess();
-
-	m_entrypoint = reflect_shader_entrypoint();
-}
-
-lh::vulkan::spir_v::spir_v(const spir_v_bytecode_t& spir_v_code, const create_info& create_info)
-	: m_code {spir_v_code}, m_stage {create_info.m_shader_stage}
-{}
+import output;
 
 namespace
 {
@@ -114,117 +100,141 @@ namespace
 	}
 }
 
-auto lh::vulkan::spir_v::reflect_shader_input() const -> std::vector<shader_input>
+namespace lh
 {
-	auto compiler = std::make_unique<spirv_cross::CompilerGLSL>(m_code);
-	auto resources = compiler->get_shader_resources();
-
-	if constexpr (shader_input::remove_inactive_inputs)
+	namespace vulkan
 	{
-		auto interface_variables = compiler->get_active_interface_variables();
-		resources = compiler->get_shader_resources(interface_variables);
+		spir_v::spir_v(const spir_v_bytecode_t& spir_v_code, const create_info& create_info)
+			: m_code {spir_v_code}, m_stage {create_info.m_shader_stage}
+		{}
 
-		compiler->set_enabled_interface_variables(std::move(interface_variables));
-	}
-
-	auto shader_inputs = std::vector<shader_input> {};
-	shader_inputs.reserve(resources.stage_inputs.size() + resources.uniform_buffers.size());
-
-	for (const auto& resource : resources.stage_inputs)
-		shader_inputs.emplace_back(
-			create_shader_input(*compiler, resource, shader_input::input_type::stage_input, m_stage));
-
-	for (const auto& resource : resources.uniform_buffers)
-		shader_inputs.emplace_back(
-			create_shader_input(*compiler, resource, shader_input::input_type::uniform_buffer, m_stage));
-
-	std::ranges::sort(shader_inputs, [](const auto& x, const auto& y) {
-		switch (x.m_type)
+		spir_v::spir_v(const glsl_code_t& glsl_code, const create_info& create_info)
+			: m_code {}, m_entrypoint {}, m_stage {create_info.m_shader_stage}
 		{
-			case shader_input::input_type::stage_input: return (x.m_descriptor_location < y.m_descriptor_location);
-			case shader_input::input_type::uniform_buffer: return (x.m_descriptor_binding < y.m_descriptor_binding);
-			default: break;
+			glslang::InitializeProcess();
+
+			m_code = glsl_to_spirv::translate_shader(create_info.m_shader_stage, glsl_code);
+
+			glslang::FinalizeProcess();
+
+			m_entrypoint = reflect_shader_entrypoint();
 		}
-	});
 
-	return shader_inputs;
-}
+		auto spir_v::reflect_shader_input() const -> std::vector<shader_input>
+		{
+			auto compiler = std::make_unique<spirv_cross::CompilerGLSL>(m_code);
+			auto resources = compiler->get_shader_resources();
 
-auto lh::vulkan::spir_v::reflect_shader_entrypoint() const -> string::string_t
-{
-	const auto compiler = spirv_cross::CompilerGLSL {m_code};
-	const auto shader_stage_and_entrypoint = compiler.get_entry_points_and_stages();
+			if constexpr (shader_input::remove_inactive_inputs)
+			{
+				auto interface_variables = compiler->get_active_interface_variables();
+				resources = compiler->get_shader_resources(interface_variables);
 
-	return shader_stage_and_entrypoint[0].name;
-}
+				compiler->set_enabled_interface_variables(std::move(interface_variables));
+			}
 
-auto lh::vulkan::spir_v::code() const -> const spir_v_bytecode_t&
-{
-	return m_code;
-}
+			auto shader_inputs = std::vector<shader_input> {};
+			shader_inputs.reserve(resources.stage_inputs.size() + resources.uniform_buffers.size());
 
-auto lh::vulkan::spir_v::stage() const -> const vk::ShaderStageFlagBits&
-{
-	return m_stage;
-}
+			for (const auto& resource : resources.stage_inputs)
+				shader_inputs.emplace_back(
+					create_shader_input(*compiler, resource, shader_input::input_type::stage_input, m_stage));
 
-auto lh::vulkan::spir_v::entrypoint() const -> const string::string_t
-{
-	return m_entrypoint;
-}
+			for (const auto& resource : resources.uniform_buffers)
+				shader_inputs.emplace_back(
+					create_shader_input(*compiler, resource, shader_input::input_type::uniform_buffer, m_stage));
 
-lh::vulkan::spir_v::operator const spir_v_bytecode_t&()
-{
-	return m_code;
-}
+			std::ranges::sort(shader_inputs, [](const auto& x, const auto& y) {
+				switch (x.m_type)
+				{
+					case shader_input::input_type::stage_input:
+						return (x.m_descriptor_location < y.m_descriptor_location);
+					case shader_input::input_type::uniform_buffer:
+						return (x.m_descriptor_binding < y.m_descriptor_binding);
+					default: break;
+				}
+			});
 
-auto lh::vulkan::spir_v::glsl_to_spirv::translate_shader_stage(const vk::ShaderStageFlagBits& shader_stage) -> uint32_t
-{
-	switch (shader_stage)
-	{
-		case vk::ShaderStageFlagBits::eVertex: return EShLangVertex;
-		case vk::ShaderStageFlagBits::eTessellationControl: return EShLangTessControl;
-		case vk::ShaderStageFlagBits::eTessellationEvaluation: return EShLangTessEvaluation;
-		case vk::ShaderStageFlagBits::eGeometry: return EShLangGeometry;
-		case vk::ShaderStageFlagBits::eFragment: return EShLangFragment;
-		case vk::ShaderStageFlagBits::eCompute: return EShLangCompute;
-		case vk::ShaderStageFlagBits::eRaygenNV: return EShLangRayGenNV;
-		case vk::ShaderStageFlagBits::eAnyHitNV: return EShLangAnyHitNV;
-		case vk::ShaderStageFlagBits::eClosestHitNV: return EShLangClosestHitNV;
-		case vk::ShaderStageFlagBits::eMissNV: return EShLangMissNV;
-		case vk::ShaderStageFlagBits::eIntersectionNV: return EShLangIntersectNV;
-		case vk::ShaderStageFlagBits::eCallableNV: return EShLangCallableNV;
-		case vk::ShaderStageFlagBits::eTaskNV: return EShLangTaskNV;
-		case vk::ShaderStageFlagBits::eMeshNV: return EShLangMeshNV;
+			return shader_inputs;
+		}
 
-		default: return EShLangVertex;
+		auto spir_v::reflect_shader_entrypoint() const -> string::string_t
+		{
+			const auto compiler = spirv_cross::CompilerGLSL {m_code};
+			const auto shader_stage_and_entrypoint = compiler.get_entry_points_and_stages();
+
+			return shader_stage_and_entrypoint[0].name;
+		}
+
+		auto spir_v::code() const -> const spir_v_bytecode_t&
+		{
+			return m_code;
+		}
+
+		auto spir_v::stage() const -> const vk::ShaderStageFlagBits&
+		{
+			return m_stage;
+		}
+
+		auto spir_v::entrypoint() const -> const string::string_t
+		{
+			return m_entrypoint;
+		}
+
+		spir_v::operator const spir_v_bytecode_t&()
+		{
+			return m_code;
+		}
+
+		auto spir_v::glsl_to_spirv::translate_shader_stage(const vk::ShaderStageFlagBits& shader_stage) -> uint32_t
+		{
+			switch (shader_stage)
+			{
+				case vk::ShaderStageFlagBits::eVertex: return EShLangVertex;
+				case vk::ShaderStageFlagBits::eTessellationControl: return EShLangTessControl;
+				case vk::ShaderStageFlagBits::eTessellationEvaluation: return EShLangTessEvaluation;
+				case vk::ShaderStageFlagBits::eGeometry: return EShLangGeometry;
+				case vk::ShaderStageFlagBits::eFragment: return EShLangFragment;
+				case vk::ShaderStageFlagBits::eCompute: return EShLangCompute;
+				case vk::ShaderStageFlagBits::eRaygenNV: return EShLangRayGenNV;
+				case vk::ShaderStageFlagBits::eAnyHitNV: return EShLangAnyHitNV;
+				case vk::ShaderStageFlagBits::eClosestHitNV: return EShLangClosestHitNV;
+				case vk::ShaderStageFlagBits::eMissNV: return EShLangMissNV;
+				case vk::ShaderStageFlagBits::eIntersectionNV: return EShLangIntersectNV;
+				case vk::ShaderStageFlagBits::eCallableNV: return EShLangCallableNV;
+				case vk::ShaderStageFlagBits::eTaskNV: return EShLangTaskNV;
+				case vk::ShaderStageFlagBits::eMeshNV: return EShLangMeshNV;
+
+				default: return EShLangVertex;
+			}
+		}
+
+		auto spir_v::glsl_to_spirv::translate_shader(const vk::ShaderStageFlagBits& shader_stage,
+													 const glsl_code_t& shader_code) -> spir_v_bytecode_t
+
+		{
+			const auto glsl_shader_stage = static_cast<EShLanguage>(translate_shader_stage(shader_stage));
+
+			const char* shader_string[1] = {shader_code.data()};
+
+			auto glsl_shader = glslang::TShader(glsl_shader_stage);
+			glsl_shader.setStrings(shader_string, 1);
+
+			const auto message_types = static_cast<EShMessages>(EShMsgSpvRules | EShMsgVulkanRules);
+
+			auto program = glslang::TProgram {};
+			program.addShader(&glsl_shader);
+
+			const auto parse = glsl_shader.parse(&DefaultTBuiltInResource, 100, false, message_types);
+			const auto link = program.link(message_types);
+
+			if (not parse or not link)
+				output::error() << glsl_shader.getInfoLog() << glsl_shader.getInfoDebugLog();
+
+			auto spirv_bytecode = spir_v_bytecode_t {};
+			glslang::GlslangToSpv(*program.getIntermediate(glsl_shader_stage), spirv_bytecode);
+
+			return spirv_bytecode;
+		}
 	}
-}
-
-auto lh::vulkan::spir_v::glsl_to_spirv::translate_shader(const vk::ShaderStageFlagBits& shader_stage,
-														 const glsl_code_t& shader_code) -> spir_v_bytecode_t
-
-{
-	const auto glsl_shader_stage = static_cast<EShLanguage>(translate_shader_stage(shader_stage));
-
-	const char* shader_string[1] = {shader_code.data()};
-
-	auto glsl_shader = glslang::TShader(glsl_shader_stage);
-	glsl_shader.setStrings(shader_string, 1);
-
-	const auto message_types = static_cast<EShMessages>(EShMsgSpvRules | EShMsgVulkanRules);
-
-	auto program = glslang::TProgram {};
-	program.addShader(&glsl_shader);
-
-	const auto parse = glsl_shader.parse(&DefaultTBuiltInResource, 100, false, message_types);
-	const auto link = program.link(message_types);
-
-	if (not parse or not link)
-		output::error() << glsl_shader.getInfoLog() << glsl_shader.getInfoDebugLog(), std::cerr << output::error();
-
-	auto spirv_bytecode = spir_v_bytecode_t {};
-	glslang::GlslangToSpv(*program.getIntermediate(glsl_shader_stage), spirv_bytecode);
-
-	return spirv_bytecode;
 }

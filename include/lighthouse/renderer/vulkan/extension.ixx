@@ -11,8 +11,8 @@ export module extension;
 #include "lighthouse/output.ixx"
 #else
 import lighthouse_string;
-import output;
 import vulkan_string;
+import output;
 #endif
 
 

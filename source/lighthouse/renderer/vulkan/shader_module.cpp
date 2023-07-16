@@ -6,9 +6,15 @@ module;
 module shader_module;
 #endif
 
-lh::vulkan::shader_module::shader_module(const logical_device& logical_device,
-										 const spir_v& spir_v,
-										 const create_info& create_info)
+namespace lh
 {
-	m_object = logical_device->createShaderModule({{}, spir_v.code()});
+	namespace vulkan
+	{
+		shader_module::shader_module(const logical_device& logical_device,
+									 const spir_v& spir_v,
+									 const create_info& create_info)
+		{
+			m_object = logical_device->createShaderModule({{}, spir_v.code()});
+		}
+	}
 }

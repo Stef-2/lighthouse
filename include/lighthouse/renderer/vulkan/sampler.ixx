@@ -15,9 +15,6 @@ export namespace lh
 {
 	namespace vulkan
 	{
-		// forward declarations
-		class logical_device;
-
 		class sampler : raii_wrapper<vk::raii::Sampler>
 		{
 		public:
