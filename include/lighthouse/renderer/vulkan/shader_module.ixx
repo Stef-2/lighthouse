@@ -1,14 +1,21 @@
+module;
 #pragma once
+
+export module shader_module;
 
 #if INTELLISENSE
 #include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
+#include "lighthouse/renderer/vulkan/logical_device.ixx"
+#include "lighthouse/renderer/vulkan/spir_v.ixx"
 #include "lighthouse/string/string.ixx"
 #else
 import lighthouse_string;
+import logical_device;
+import spir_v;
 import raii_wrapper;
 #endif
 
-namespace lh
+export namespace lh
 {
 	namespace vulkan
 	{

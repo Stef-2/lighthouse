@@ -59,18 +59,18 @@ add_executable(
 	${include}/lighthouse/renderer/vulkan/queue.ixx ${source}/lighthouse/renderer/vulkan/queue.cpp
 	${source}/lighthouse/renderer/vulkan/image.cpp
 	${source}/lighthouse/renderer/vulkan/swapchain.cpp
-	${source}/lighthouse/renderer/vulkan/shader_module.cpp
+	${include}/lighthouse/renderer/vulkan/shader_module.ixx ${source}/lighthouse/renderer/vulkan/shader_module.cpp
 	${include}/lighthouse/renderer/vulkan/descriptor_set_layout.ixx ${source}/lighthouse/renderer/vulkan/descriptor_set_layout.cpp
 	${include}/lighthouse/renderer/vulkan/buffer.ixx ${source}/lighthouse/renderer/vulkan/buffer.cpp
 	${include}/lighthouse/renderer/vulkan/sampler.ixx ${source}/lighthouse/renderer/vulkan/sampler.cpp
 	${include}/lighthouse/renderer/vulkan/descriptor_buffer.ixx ${source}/lighthouse/renderer/vulkan/descriptor_buffer.cpp
 	${source}/lighthouse/renderer/vulkan/spir_v.cpp
-	${source}/lighthouse/renderer/vulkan/shader_object.cpp
+	${include}/lighthouse/renderer/vulkan/shader_object.ixx ${source}/lighthouse/renderer/vulkan/shader_object.cpp
 	${source}/lighthouse/renderer/vulkan/vertex_buffer.cpp
 	${source}/lighthouse/renderer/vulkan/shader_object_pipeline.cpp
 	${source}/lighthouse/renderer/scene_loader.cpp
 	${include}/lighthouse/renderer/vulkan/pipeline_resource_generator.ixx ${source}/lighthouse/renderer/vulkan/pipeline_resource_generator.cpp
-	${source}/lighthouse/renderer/vulkan/shader_input.cpp
+	${include}/lighthouse/renderer/vulkan/shader_input.ixx ${source}/lighthouse/renderer/vulkan/shader_input.cpp
 	${source}/lighthouse/renderer/bounding_volume.cpp
 	${source}/lighthouse/renderer/mesh.cpp
 	${include}/lighthouse/renderer/bounding_volume.ixx ${source}/lighthouse/renderer/bounding_volume.cpp

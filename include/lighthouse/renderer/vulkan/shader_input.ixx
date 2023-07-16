@@ -1,6 +1,15 @@
+module;
 #pragma once
 
-namespace lh
+export module shader_input;
+
+#if INTELLISENSE
+#include "lighthouse/string/string.ixx"
+#else
+import lighthouse_string;
+#endif
+
+export namespace lh
 {
 	namespace vulkan
 	{

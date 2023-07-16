@@ -1,21 +1,35 @@
+module;
 #pragma once
 
 #include <vector>
+#include <numeric>
 
-namespace lh
+export module shader_object_pipeline;
+
+#if INTELLISENSE
+#include "lighthouse/renderer/vulkan/physical_device.ixx"
+#include "lighthouse/renderer/vulkan/logical_device.ixx"
+#include "lighthouse/renderer/vulkan/memory_allocator.ixx"
+#include "lighthouse/renderer/vulkan/descriptor_set_layout.ixx"
+#include "lighthouse/renderer/vulkan/shader_object.ixx"
+#include "lighthouse/renderer/vulkan/descriptor_buffer.ixx"
+#include "lighthouse/renderer/vulkan/spir_v.ixx"
+#include "lighthouse/renderer/vulkan/vertex_input_description.ixx"
+#else
+import physical_device;
+import logical_device;
+import memory_allocator;
+import descriptor_set_layout;
+import shader_object;
+import descriptor_buffer;
+import spir_v;
+import vertex_input_description;
+#endif
+
+export namespace lh
 {
 	namespace vulkan
 	{
-		// forward declarations
-		class physical_device;
-		class logical_device;
-		class memory_allocator;
-		class descriptor_set_layout;
-		class shader_object;
-		class descriptor_buffer;
-		class spir_v;
-		struct vertex_input_description;
-
 		class shader_object_pipeline
 		{
 		public:

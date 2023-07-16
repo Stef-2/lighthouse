@@ -1,5 +1,10 @@
-#include "lighthouse/renderer/vulkan/sampler.hpp"
-#include "lighthouse/renderer/vulkan/logical_device.hpp"
+module;
+
+#if INTELLISENSE
+#include "lighthouse/renderer/vulkan/sampler.ixx"
+#else
+module sampler;
+#endif
 
 lh::vulkan::sampler::sampler(const logical_device& logical_device, const create_info& create_info)
 {

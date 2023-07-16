@@ -1,12 +1,9 @@
-#include "lighthouse/renderer/vulkan/logical_device.hpp"
-#include "lighthouse/renderer/vulkan/shader_object.hpp"
-#include "lighthouse/renderer/vulkan/descriptor_set_layout.hpp"
-#include "lighthouse/renderer/vulkan/shader_input.hpp"
-#include "lighthouse/renderer/vulkan/spir_v.hpp"
+module;
+
 #if INTELLISENSE
-#include "lighthouse/output.ixx"
+#include "lighthouse/renderer/vulkan/shader_object.ixx"
 #else
-import output;
+module shader_object;
 #endif
 
 lh::vulkan::shader_object::shader_object(const logical_device& logical_device,

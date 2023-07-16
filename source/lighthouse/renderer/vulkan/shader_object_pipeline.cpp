@@ -1,16 +1,10 @@
-#include "lighthouse/renderer/vulkan/shader_object_pipeline.hpp"
-#include "lighthouse/renderer/vulkan/physical_device.hpp"
-#include "lighthouse/renderer/vulkan/logical_device.hpp"
-#include "lighthouse/renderer/vulkan/memory_allocator.hpp"
-#include "lighthouse/renderer/vulkan/descriptor_set_layout.hpp"
-#include "lighthouse/renderer/vulkan/vertex_input_description.hpp"
-#include "lighthouse/renderer/vulkan/descriptor_buffer.hpp"
-#include "lighthouse/renderer/vulkan/shader_object.hpp"
-#include "lighthouse/renderer/vulkan/buffer.hpp"
-#include "lighthouse/renderer/vulkan/spir_v.hpp"
-#include "lighthouse/renderer/vulkan/shader_input.hpp"
+module;
 
-#include <numeric>
+#if INTELLISENSE
+#include "lighthouse/renderer/vulkan/shader_object_pipeline.ixx"
+#else
+module shader_object_pipeline;
+#endif
 
 lh::vulkan::shader_object_pipeline::shader_object_pipeline(const physical_device& physical_device,
 														   const logical_device& logical_device,

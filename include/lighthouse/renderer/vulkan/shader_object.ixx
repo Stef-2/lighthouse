@@ -1,30 +1,26 @@
+module;
 #pragma once
+
+#include <filesystem>
+
+export module shader_object;
 
 #if INTELLISENSE
 #include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
+#include "lighthouse/renderer/vulkan/logical_device.ixx"
+#include "lighthouse/renderer/vulkan/spir_v.ixx"
+#include "lighthouse/renderer/vulkan/shader_input.ixx"
 #else
 import raii_wrapper;
+import logical_device;
+import spir_v;
+import shader_input;
 #endif
 
-//  forward declarations
-namespace std
-{
-	namespace filesystem
-	{
-		class path;
-	}
-}
-
-namespace lh
+export namespace lh
 {
 	namespace vulkan
 	{
-		// forward declarations
-		class logical_device;
-		class descriptor_set_layout;
-		class spir_v;
-		struct shader_input;
-
 		class shader_object : public raii_wrapper<vk::raii::ShaderEXT>
 		{
 		public:
