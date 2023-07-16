@@ -5,7 +5,7 @@ export module image;
 
 #if INTELLISENSE
 #include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
-#include "lighthouse/renderer/vulkan/phyiscal_device.ixx"
+#include "lighthouse/renderer/vulkan/physical_device.ixx"
 #include "lighthouse/renderer/vulkan/logical_device.ixx"
 #include "lighthouse/renderer/vulkan/memory_allocator.ixx"
 #include "lighthouse/renderer/vulkan/surface.ixx"

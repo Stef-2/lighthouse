@@ -1,34 +1,32 @@
+module;
 #pragma once
 
-#include "lighthouse/renderer/vulkan/index_format.hpp"
-
+#include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"
+#include "assimp/scene.h"
+
+export module scene_loader;
 
 #if INTELLISENSE
+#include "lighthouse/renderer/vulkan/index_format.ixx"
+#include "lighthouse/renderer/vulkan/logical_device.ixx"
+#include "lighthouse/renderer/vulkan/memory_allocator.ixx"
+#include "lighthouse/renderer/vulkan/vertex_format.ixx"
+#include "lighthouse/renderer/mesh.ixx"
 #include "lighthouse/node.ixx"
 #include "lighthouse/output.ixx"
 #else
 import node;
 import output;
+import logical_device;
+import memory_allocator;
+import vertex_format;
+import mesh;
+import std.filesystem;
 #endif
 
-#include <filesystem>
-
-namespace Assimp
+export namespace lh
 {
-	class Importer;
-}
-namespace lh
-{
-	class mesh;
-
-	namespace vulkan
-	{
-		class logical_device;
-		class memory_allocator;
-		struct vertex;
-	}
-
 	class scene_loader
 	{
 	public:

@@ -7,16 +7,16 @@ export module engine;
 #include "lighthouse/window.ixx"
 #include "lighthouse/version.ixx"
 #include "lighthouse/input.ixx"
+#include "lighthouse/renderer/renderer.ixx"
 #else
 import window;
 import version;
 import input;
+import renderer;
 #endif
 
 export namespace lh
 {
-	class renderer;
-
 	// provides initialization and main loop facilities
 	class engine
 	{

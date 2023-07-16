@@ -6,13 +6,13 @@ module;
 export module extension;
 
 #if INTELLISENSE
-#include "lighthouse/renderer/vulkan/string.ixx"
+#include "lighthouse/renderer/vulkan/vulkan_string.ixx"
 #include "lighthouse/string/string.ixx"
 #include "lighthouse/output.ixx"
 #else
 import lighthouse_string;
 import output;
-import string;
+import vulkan_string;
 #endif
 
 

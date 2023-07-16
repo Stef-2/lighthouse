@@ -1,19 +1,10 @@
-#include "lighthouse/renderer/scene_loader.hpp"
-#include "lighthouse/renderer/vulkan/logical_device.hpp"
-#include "lighthouse/renderer/vulkan/memory_allocator.hpp"
-#include "lighthouse/renderer/vulkan/buffer.hpp"
-#include "lighthouse/renderer/vulkan/vertex_buffer.hpp"
-#include "lighthouse/renderer/vulkan/vertex_format.hpp"
-#include "lighthouse/renderer/mesh.hpp"
+module;
 
 #if INTELLISENSE
-#include "lighthouse/output.ixx"
+#include "lighthouse/renderer/scene_loader.ixx"
 #else
-import output;
+module scene_loader;
 #endif
-
-#include "assimp/importer.hpp"
-#include "assimp/scene.h"
 
 lh::scene_loader::scene_loader(const vulkan::logical_device& logical_device,
 							   const vulkan::memory_allocator& memory_allocator,

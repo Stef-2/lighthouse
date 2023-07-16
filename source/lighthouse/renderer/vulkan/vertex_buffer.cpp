@@ -1,10 +1,10 @@
-#include "lighthouse/renderer/vulkan/vertex_buffer.hpp"
-#include "lighthouse/renderer/vulkan/physical_device.hpp"
-#include "lighthouse/renderer/vulkan/logical_device.hpp"
-#include "lighthouse/renderer/vulkan/memory_allocator.hpp"
-#include "lighthouse/renderer/vulkan/vertex_input_description.hpp"
-#include "lighthouse/renderer/vulkan/buffer.hpp"
-#include "lighthouse/renderer/vulkan/vertex_format.hpp"
+module;
+
+#if INTELLISENSE
+#include "lighthouse/renderer/vulkan/vertex_buffer.ixx"
+#else
+module vertex_buffer;
+#endif
 
 lh::vulkan::vertex_buffer::vertex_buffer(const logical_device& logical_device,
 										 const memory_allocator& memory_allocator,

@@ -1,28 +1,30 @@
-
+module;
 #pragma once
+
+export module vertex_buffer;
 
 #if INTELLISENSE
 #include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
+#include "lighthouse/renderer/vulkan/logical_device.ixx"
+#include "lighthouse/renderer/vulkan/memory_allocator.ixx"
+#include "lighthouse/renderer/vulkan/buffer.ixx"
+#include "lighthouse/renderer/vulkan/vertex_input_description.ixx"
+#include "lighthouse/renderer/vulkan/vertex_format.ixx"
+#include "lighthouse/renderer/vulkan/index_format.ixx"
 #else
 import raii_wrapper;
+import logical_device;
+import memory_allocator;
+import buffer;
+import vertex_input_description;
+import vertex_format;
+import index_format;
 #endif
-#include "lighthouse/renderer/vulkan/index_format.hpp"
 
-#include <vector>
-
-namespace lh
+export namespace lh
 {
 	namespace vulkan
 	{
-		// forward declarations
-		class logical_device;
-		class memory_allocator;
-		class buffer;
-		class mapped_buffer;
-		struct buffer_subdata;
-		struct vertex_input_description;
-		struct vertex;
-
 		class vertex_buffer
 		{
 		public:

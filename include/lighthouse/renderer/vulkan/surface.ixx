@@ -1,21 +1,24 @@
+module;
 #pragma once
+
+export module surface;
 
 #if INTELLISENSE
 #include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
+#include "lighthouse/renderer/vulkan/instance.ixx"
+#include "lighthouse/renderer/vulkan/physical_device.ixx"
+#include "lighthouse/window.ixx"
+#include "lighthouse/output.ixx"
 #else
 import raii_wrapper;
+import window;
+import output;
+import instance;
+import physical_device;
 #endif
 
-namespace lh
+export namespace lh
 {
-	// forward declarations
-	class window;
-	namespace vulkan
-	{
-		class instance;
-		class physical_device;
-	}
-
 	namespace vulkan
 	{
 		class surface : public raii_wrapper<vk::raii::SurfaceKHR>

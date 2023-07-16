@@ -1,8 +1,11 @@
+module;
 #pragma once
 
 #include <vector>
 
-namespace lh
+export module vertex_input_description;
+
+export namespace lh
 {
 	namespace vulkan
 	{

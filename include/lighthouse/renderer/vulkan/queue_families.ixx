@@ -1,7 +1,7 @@
 module;
 #pragma once
 
-export module queue;
+export module queue_families;
 
 #if INTELLISENSE
 #include "lighthouse/renderer/vulkan/physical_device.ixx"

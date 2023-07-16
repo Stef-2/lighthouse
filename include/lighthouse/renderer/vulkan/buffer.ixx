@@ -88,7 +88,7 @@ export namespace lh
 				vk::DeviceSize m_size;
 			};
 
-			non_owning_ptr<mapped_buffer> m_buffer;
+			lh::non_owning_ptr<mapped_buffer> m_buffer;
 			std::vector<subdata> m_subdata;
 		};
 	}

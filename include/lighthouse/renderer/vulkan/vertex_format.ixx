@@ -1,6 +1,9 @@
+module;
 #pragma once
 
-namespace lh
+export module vertex_format;
+
+export namespace lh
 {
 	namespace vulkan
 	{

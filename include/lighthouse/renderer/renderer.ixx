@@ -1,26 +1,34 @@
+module;
 #pragma once
-
-#include "lighthouse/renderer/vulkan/vulkan.hpp"
-#include "lighthouse/renderer/mesh.hpp"
-#include "lighthouse/renderer/scene_loader.hpp"
-
-#if INTELLISENSE
-#include "lighthouse/string/string.ixx"
-#include "lighthouse/version.ixx"
-#include "lighthouse/file_system.ixx"
-#include "lighthouse/input.ixx"
-#else
-import lighthouse_string;
-import version;
-import file_system;
-import input;
-#endif
 
 #include <iterator>
 #include <ranges>
 #include <vector>
 
-namespace lh
+export module renderer;
+
+#if INTELLISENSE
+#include "lighthouse/string/string.ixx"
+#include "lighthouse/renderer/mesh.ixx"
+#include "lighthouse/renderer/vulkan/vulkan.ixx"
+#include "lighthouse/renderer/scene_loader.ixx"
+#include "lighthouse/version.ixx"
+#include "lighthouse/file_system.ixx"
+#include "lighthouse/input.ixx"
+#include "lighthouse/window.ixx"
+#else
+import window;
+import lighthouse_string;
+import version;
+import file_system;
+import scene_loader;
+import vulkan;
+import input;
+import mesh;
+#endif
+
+
+export namespace lh
 {
 	class renderer
 	{

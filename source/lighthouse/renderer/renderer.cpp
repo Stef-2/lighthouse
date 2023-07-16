@@ -1,4 +1,10 @@
-#include "lighthouse/renderer/renderer.hpp"
+module;
+
+#if INTELLISENSE
+#include "lighthouse/renderer/renderer.ixx"
+#else
+module renderer;
+#endif
 
 lh::renderer::renderer(const window& window, const create_info& create_info)
 	: m_create_info {create_info},

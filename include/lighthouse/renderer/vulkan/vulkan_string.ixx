@@ -1,8 +1,11 @@
+module;
 #pragma once
 
 #include <vector>
 
-namespace lh
+export module vulkan_string;
+
+export namespace lh
 {
 	namespace vulkan
 	{

@@ -1,9 +1,6 @@
 module;
 #pragma once
 
-#include "lighthouse/renderer/vulkan/logical_device.hpp"
-#include "lighthouse/renderer/vulkan/queue_families.hpp"
-
 export module command_control;
 
 #if INTELLISENSE

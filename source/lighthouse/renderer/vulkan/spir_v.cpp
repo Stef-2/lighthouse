@@ -1,21 +1,15 @@
-#include "lighthouse/renderer/vulkan/spir_v.hpp"
-#include "lighthouse/renderer/vulkan/shader_input.hpp"
-#include "lighthouse/renderer/vulkan/vertex_input_description.hpp"
+module;
 
 #if INTELLISENSE
-#include "lighthouse/file_system.ixx"
-#include "lighthouse/output.ixx"
+#include "lighthouse/renderer/vulkan/spir_v.ixx"
 #else
-import file_system;
-import output;
+module spir_v;
 #endif
 
 #include "vulkan/glslang/SPIRV/GlslangToSpv.h"
 #include "vulkan/utils/StandAlone.hpp"
 
 #include "vulkan/spirv_cross/spirv_reflect.hpp"
-
-#include <iostream>
 
 lh::vulkan::spir_v::spir_v(const glsl_code_t& glsl_code, const create_info& create_info)
 	: m_code {}, m_entrypoint {}, m_stage {create_info.m_shader_stage}

@@ -1,3 +1,4 @@
+module;
 #pragma once
 
 #ifdef _WIN32
@@ -10,15 +11,16 @@
 #include <unistd.h>
 #endif
 
+export module memory;
+
 #if INTELLISENSE
 #include "lighthouse/system.ixx"
 #else
 import system;
 #endif
 
-namespace lh
+export namespace lh
 {
-
 	namespace memory
 	{
 		using memory_size_t = uint64_t;
@@ -26,7 +28,7 @@ namespace lh
 		using decimal_t = double;
 		using normalized_decimal_t = double;
 
-		static inline constexpr auto order_multiplier = 1024u;
+		inline constexpr auto order_multiplier = 1024u;
 
 		enum class memory_sizes : memory_size_t
 		{

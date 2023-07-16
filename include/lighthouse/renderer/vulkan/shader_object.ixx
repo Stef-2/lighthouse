@@ -1,8 +1,6 @@
 module;
 #pragma once
 
-#include <filesystem>
-
 export module shader_object;
 
 #if INTELLISENSE
@@ -10,11 +8,14 @@ export module shader_object;
 #include "lighthouse/renderer/vulkan/logical_device.ixx"
 #include "lighthouse/renderer/vulkan/spir_v.ixx"
 #include "lighthouse/renderer/vulkan/shader_input.ixx"
+#include "lighthouse/renderer/vulkan/descriptor_set_layout.ixx"
 #else
 import raii_wrapper;
+import descriptor_set_layout;
 import logical_device;
 import spir_v;
 import shader_input;
+import std.filesystem;
 #endif
 
 export namespace lh

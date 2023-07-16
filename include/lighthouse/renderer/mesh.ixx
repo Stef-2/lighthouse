@@ -1,8 +1,16 @@
+module;
 #pragma once
 
-#include "lighthouse/renderer/vulkan/index_format.hpp"
+#include <vector>
+
+export module mesh;
 
 #if INTELLISENSE
+#include "lighthouse/renderer/vulkan/index_format.ixx"
+#include "lighthouse/renderer/vulkan/logical_device.ixx"
+#include "lighthouse/renderer/vulkan/memory_allocator.ixx"
+#include "lighthouse/renderer/vulkan/vertex_buffer.ixx"
+#include "lighthouse/renderer/vulkan/vertex_format.ixx"
 #include "lighthouse/renderer/bounding_volume.ixx"
 #include "lighthouse/node.ixx"
 #include "lighthouse/utility.ixx"
@@ -10,25 +18,15 @@
 import node;
 import bounding_volume;
 import utility;
+import index_format;
+import logical_device;
+import memory_allocator;
+import vertex_buffer;
+import vertex_format;
 #endif
 
-#include <vector>
-
-namespace lh
+export namespace lh
 {
-	// forward declarations
-	class node;
-	// struct bounding_box;
-
-	namespace vulkan
-	{
-		class logical_device;
-		class memory_allocator;
-		class vertex_buffer;
-		struct vertex;
-
-	};
-
 	class mesh
 	{
 	public:

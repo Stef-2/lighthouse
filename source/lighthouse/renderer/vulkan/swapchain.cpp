@@ -1,9 +1,10 @@
-#include "lighthouse/renderer/vulkan/swapchain.hpp"
-#include "lighthouse/renderer/vulkan/physical_device.hpp"
-#include "lighthouse/renderer/vulkan/logical_device.hpp"
-#include "lighthouse/renderer/vulkan/surface.hpp"
-#include "lighthouse/renderer/vulkan/queue_families.hpp"
-#include "lighthouse/renderer/vulkan/memory_allocator.hpp"
+module;
+
+#if INTELLISENSE
+#include "lighthouse/renderer/vulkan/swapchain.ixx"
+#else
+module swapchain;
+#endif
 
 lh::vulkan::swapchain::swapchain(const vulkan::physical_device& physical_device,
 								 const vulkan::logical_device& logical_device,

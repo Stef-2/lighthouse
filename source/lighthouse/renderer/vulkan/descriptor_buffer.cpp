@@ -6,6 +6,8 @@ module;
 module descriptor_buffer;
 #endif
 
+// import output;
+
 // #pragma optimize("", off)
 lh::vulkan::descriptor_buffer::descriptor_buffer(const physical_device& physical_device,
 												 const logical_device& logical_device,
@@ -19,7 +21,7 @@ lh::vulkan::descriptor_buffer::descriptor_buffer(const physical_device& physical
 
 	const auto assert_binding_and_data_matching = binding_count == data.m_subdata.size();
 	if (not assert_binding_and_data_matching)
-		output::error() << "descriptor set layout bindings and provided buffer data do not match";
+		lh::output::error() << "descriptor set layout bindings and provided buffer data do not match";
 
 	const auto descriptor_buffer_properties = physical_device.properties().m_descriptor_buffer_properties;
 	m_binding_info.reserve(binding_count);
