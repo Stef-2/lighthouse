@@ -15,7 +15,7 @@ namespace lh
 													   const memory_allocator& memory_allocator,
 													   const std::vector<spir_v>& shaders,
 													   const create_info& create_info)
-			: m_pipeline_layout {nullptr}, m_shader_objects {}
+			: m_pipeline_layout {nullptr}, m_shader_objects {}, m_descriptor_set_layout {}
 		{
 			m_shader_objects.reserve(shaders.size());
 
@@ -56,17 +56,17 @@ namespace lh
 
 		auto shader_object_pipeline::descriptor_set_layout() const -> const vulkan::descriptor_set_layout&
 		{
-			return *m_descriptor_set_layout;
+			return m_descriptor_set_layout;
 		}
-
+		/*
 		auto shader_object_pipeline::descriptor_buffer() const -> const vulkan::descriptor_buffer&
 		{
-			return *m_descriptor_buffer;
-		}
+			return m_descriptor_buffer;
+		}*/
 
 		auto shader_object_pipeline::vertex_input_description() const -> const vulkan::vertex_input_description&
 		{
-			return *m_vertex_input_description;
+			return m_vertex_input_description;
 		}
 
 		auto shader_object_pipeline::bind(const vk::raii::CommandBuffer& command_buffer) const -> void

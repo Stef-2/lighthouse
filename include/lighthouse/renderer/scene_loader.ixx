@@ -44,7 +44,7 @@ export namespace lh
 		auto meshes() const -> const std::vector<mesh>&;
 
 	private:
-		Assimp::Importer* m_importer;
+		Assimp::Importer m_importer;
 		std::vector<mesh> m_meshes;
 	};
 }

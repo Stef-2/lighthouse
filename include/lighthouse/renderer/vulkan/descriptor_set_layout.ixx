@@ -20,7 +20,7 @@ export namespace lh
 		class descriptor_set_layout : public raii_wrapper<vk::raii::DescriptorSetLayout>
 		{
 		public:
-			// using vk_wrapper::vk_wrapper;
+			using raii_wrapper::raii_wrapper;
 
 			struct binding
 			{

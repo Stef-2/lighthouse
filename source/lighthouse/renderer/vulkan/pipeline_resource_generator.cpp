@@ -35,12 +35,13 @@ namespace lh
 																 const pipeline_spir_v_code spir_v_code,
 																 const create_info& create_info)
 			: m_vertex_input_description {},
-			  m_descriptor_set_layout {},
+			  m_descriptor_set_layout {logical_device,
+									   generate_descriptor_set_bindings(spir_v_code[0].reflect_shader_input())},
 			  m_pipeline_layout {nullptr},
 			  m_shader_objects {},
 			  m_uniform_buffers {},
-			  m_uniform_buffer_subdata {std::make_unique<vulkan::buffer_subdata>()},
-			  m_descriptor_buffer {nullptr}
+			  m_uniform_buffer_subdata {},
+			  m_descriptor_buffer {}
 		{
 			auto unique_uniform_buffers = std::vector<shader_input> {};
 
@@ -49,21 +50,20 @@ namespace lh
 				const auto shader_inputs = shader_stage.reflect_shader_input();
 
 				if (shader_stage.stage() == vk::ShaderStageFlagBits::eVertex)
-					m_vertex_input_description = std::make_unique<vulkan::vertex_input_description>(
-						generate_vertex_input_description(shader_inputs));
+					m_vertex_input_description = generate_vertex_input_description(shader_inputs);
 
 				for (const auto& shader_input : shader_inputs)
 					if (shader_input.m_type == shader_input::input_type::uniform_buffer and
 						not std::ranges::contains(unique_uniform_buffers, shader_input))
 						unique_uniform_buffers.emplace_back(shader_input);
 			}
-			m_descriptor_set_layout = std::make_unique<vulkan::descriptor_set_layout>(logical_device,
-																					  generate_descriptor_set_bindings(
-																						  unique_uniform_buffers));
-			m_pipeline_layout = {*logical_device, {{}, ***m_descriptor_set_layout}};
+			m_descriptor_set_layout = std::move(
+				vulkan::descriptor_set_layout {logical_device,
+											   generate_descriptor_set_bindings(unique_uniform_buffers)});
+			m_pipeline_layout = {*logical_device, {{}, **m_descriptor_set_layout}};
 
 			for (const auto& shader_stage : spir_v_code)
-				m_shader_objects.emplace_back(logical_device, shader_stage, *m_descriptor_set_layout);
+				m_shader_objects.emplace_back(logical_device, shader_stage, m_descriptor_set_layout);
 
 			const auto uniform_buffers_size = std::ranges::fold_left(unique_uniform_buffers,
 																	 vk::DeviceSize {},
@@ -72,34 +72,34 @@ namespace lh
 																		 return std::move(size);
 																	 });
 
-			m_uniform_buffers = std::make_unique<mapped_buffer>(
+			m_uniform_buffers = {
 				logical_device,
 				memory_allocator,
 				uniform_buffers_size,
 				vulkan::mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eUniformBuffer |
 															   vk::BufferUsageFlagBits::eShaderDeviceAddress,
-													.m_allocation_flags = vma::AllocationCreateFlagBits::eMapped});
+													.m_allocation_flags = vma::AllocationCreateFlagBits::eMapped}};
 
-			m_uniform_buffer_subdata->m_buffer = m_uniform_buffers.get();
+			m_uniform_buffer_subdata.m_buffer = &m_uniform_buffers;
 
 			for (auto buffer_offset = vk::DeviceSize {}; const auto& uniform_buffer : unique_uniform_buffers)
 			{
-				m_uniform_buffer_subdata->m_subdata.emplace_back(buffer_offset, uniform_buffer.m_size);
+				m_uniform_buffer_subdata.m_subdata.emplace_back(buffer_offset, uniform_buffer.m_size);
 				buffer_offset += uniform_buffer.m_size;
 			}
 
-			m_descriptor_buffer = std::make_unique<vulkan::descriptor_buffer>(
-				physical_device, logical_device, memory_allocator, *m_descriptor_set_layout, *m_uniform_buffer_subdata);
+			m_descriptor_buffer = {
+				physical_device, logical_device, memory_allocator, m_descriptor_set_layout, m_uniform_buffer_subdata};
 		}
 
 		auto pipeline_resource_generator::vertex_input_description() const -> const vulkan::vertex_input_description&
 		{
-			return *m_vertex_input_description;
+			return m_vertex_input_description;
 		}
 
 		auto pipeline_resource_generator::descriptor_set_layout() const -> const vulkan::descriptor_set_layout&
 		{
-			return *m_descriptor_set_layout;
+			return m_descriptor_set_layout;
 		}
 
 		auto pipeline_resource_generator::pipeline_layout() const -> const vk::raii::PipelineLayout&
@@ -114,17 +114,17 @@ namespace lh
 
 		auto pipeline_resource_generator::uniform_buffers() const -> const mapped_buffer&
 		{
-			return *m_uniform_buffers;
+			return m_uniform_buffers;
 		}
 
 		auto pipeline_resource_generator::uniform_buffer_subdata() const -> const buffer_subdata&
 		{
-			return *m_uniform_buffer_subdata;
+			return m_uniform_buffer_subdata;
 		}
 
 		auto pipeline_resource_generator::descriptor_buffer() const -> const vulkan::descriptor_buffer&
 		{
-			return *m_descriptor_buffer;
+			return m_descriptor_buffer;
 		}
 
 		auto pipeline_resource_generator::translate_shader_input_format(const shader_input& shader_input) const

@@ -49,7 +49,7 @@ export namespace lh
 		std::shared_ptr<lh::node> m_node;
 		std::vector<vulkan::vertex> m_vertices;
 		std::vector<vulkan::vertex_index_t> m_indices;
-		std::unique_ptr<vulkan::vertex_buffer> m_vertex_buffer;
-		std::unique_ptr<bounding_box> m_bounding_box;
+		vulkan::vertex_buffer m_vertex_buffer;
+		bounding_box m_bounding_box;
 	};
 }

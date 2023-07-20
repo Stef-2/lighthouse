@@ -22,9 +22,9 @@ namespace lh
 	engine::engine(std::unique_ptr<lh::window> window, const create_info& engine_create_info)
 		: m_window(std::move(window)),
 		  m_version(engine_create_info.m_engine_version),
-		  m_renderer(std::make_unique<renderer>(*m_window,
-												renderer::create_info {engine_create_info.m_engine_version,
-																	   engine_create_info.m_renderer_version}))
+		  m_renderer {*m_window,
+					  renderer::create_info {engine_create_info.m_engine_version,
+											 engine_create_info.m_renderer_version}}
 	{
 		engine::initialize();
 		input::initialize(*m_window);
@@ -40,7 +40,7 @@ namespace lh
 	{
 		while (!m_window->vkfw_window().shouldClose().value)
 		{
-			m_renderer->render();
+			m_renderer.render();
 			poll_events();
 		}
 	}

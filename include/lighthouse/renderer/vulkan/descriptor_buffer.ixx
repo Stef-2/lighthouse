@@ -40,6 +40,7 @@ export namespace lh
 					vk::BufferUsageFlagBits::ePushDescriptorsDescriptorBufferEXT;
 			};
 
+			descriptor_buffer();
 			descriptor_buffer(const physical_device&,
 							  const logical_device&,
 							  const memory_allocator&,
@@ -54,7 +55,7 @@ export namespace lh
 			auto descriptor_size(const physical_device&, const vk::DescriptorType&) -> const std::size_t;
 			auto descriptor_buffer_usage(const descriptor_set_layout&) -> const vk::BufferUsageFlags;
 
-			std::unique_ptr<mapped_buffer> m_descriptor_buffer;
+			mapped_buffer m_descriptor_buffer;
 			std::vector<vk::DescriptorBufferBindingInfoEXT> m_binding_info;
 
 			vk::PipelineBindPoint m_bind_point;

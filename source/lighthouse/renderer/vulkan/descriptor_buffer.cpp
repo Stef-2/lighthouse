@@ -13,6 +13,10 @@ namespace lh
 	namespace vulkan
 	{
 
+		descriptor_buffer::descriptor_buffer()
+			: m_descriptor_buffer {}, m_binding_info {}, m_bind_point {vk::PipelineBindPoint::eGraphics}
+		{}
+
 		descriptor_buffer::descriptor_buffer(const physical_device& physical_device,
 											 const logical_device& logical_device,
 											 const memory_allocator& memory_allocator,
@@ -30,12 +34,12 @@ namespace lh
 			const auto descriptor_buffer_properties = physical_device.properties().m_descriptor_buffer_properties;
 			m_binding_info.reserve(binding_count);
 
-			m_descriptor_buffer = std::make_unique<mapped_buffer>(
+			m_descriptor_buffer = mapped_buffer {
 				logical_device,
 				memory_allocator,
 				descriptor_set_layout->getSizeEXT() * binding_count,
 				mapped_buffer::create_info {.m_usage = descriptor_buffer_usage(descriptor_set_layout),
-											.m_properties = create_info.descriptor_collection_memory_properties});
+											.m_properties = create_info.descriptor_collection_memory_properties}};
 
 			for (std::size_t i {}; i < binding_count; i++)
 			{
@@ -43,7 +47,7 @@ namespace lh
 				const auto binding_offset = descriptor_set_layout->getBindingOffsetEXT(binding.m_binding);
 
 				m_binding_info.emplace_back(
-					m_descriptor_buffer->address() +
+					m_descriptor_buffer.address() +
 						i * utility::aligned_size(binding_offset,
 												  descriptor_buffer_properties.descriptorBufferOffsetAlignment),
 					descriptor_buffer_usage(descriptor_set_layout));
@@ -59,13 +63,13 @@ namespace lh
 					**logical_device,
 					&descriptor_info,
 					descriptor_buffer::descriptor_size(physical_device, binding.m_type),
-					static_cast<std::byte*>(m_descriptor_buffer->allocation_info().pMappedData) + binding_offset);
+					static_cast<std::byte*>(m_descriptor_buffer.allocation_info().pMappedData) + binding_offset);
 			}
 		}
 
 		auto descriptor_buffer::buffer() -> const mapped_buffer&
 		{
-			return *m_descriptor_buffer;
+			return m_descriptor_buffer;
 		}
 
 		auto descriptor_buffer::bind(const vk::raii::CommandBuffer& command_buffer,

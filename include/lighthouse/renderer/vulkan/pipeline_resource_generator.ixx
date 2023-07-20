@@ -71,13 +71,13 @@ export namespace lh
 			auto generate_vertex_input_description(const std::vector<shader_input>&)
 				-> const vulkan::vertex_input_description;
 
-			std::unique_ptr<vulkan::vertex_input_description> m_vertex_input_description;
-			std::unique_ptr<vulkan::descriptor_set_layout> m_descriptor_set_layout;
+			vulkan::vertex_input_description m_vertex_input_description;
+			vulkan::descriptor_set_layout m_descriptor_set_layout;
 			vk::raii::PipelineLayout m_pipeline_layout;
 			std::vector<shader_object> m_shader_objects;
-			std::unique_ptr<mapped_buffer> m_uniform_buffers;
-			std::unique_ptr<buffer_subdata> m_uniform_buffer_subdata;
-			std::unique_ptr<vulkan::descriptor_buffer> m_descriptor_buffer;
+			mapped_buffer m_uniform_buffers;
+			buffer_subdata m_uniform_buffer_subdata;
+			vulkan::descriptor_buffer m_descriptor_buffer;
 		};
 	}
 }

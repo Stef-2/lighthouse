@@ -18,9 +18,8 @@ namespace lh
 								   const create_info& create_info)
 		: m_importer {}, m_meshes {}
 	{
-		auto m_importer = new Assimp::Importer {};
-		m_importer->ApplyPostProcessing(create_info.m_importer_postprocess);
-		const auto scene = m_importer->ReadFile(file_path.generic_string(), create_info.m_importer_postprocess);
+		m_importer.ApplyPostProcessing(create_info.m_importer_postprocess);
+		const auto scene = m_importer.ReadFile(file_path.generic_string(), create_info.m_importer_postprocess);
 
 		if (not scene)
 			output::error() << "could not load a scene: " << file_path.string();
@@ -63,8 +62,6 @@ namespace lh
 
 				m_meshes.emplace_back(logical_device, memory_allocator, vertices, indices, bounding_box);
 			}
-
-		delete m_importer;
 	}
 
 	auto lh::scene_loader::meshes() const -> const std::vector<mesh>&

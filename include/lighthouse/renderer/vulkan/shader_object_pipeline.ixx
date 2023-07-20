@@ -52,9 +52,9 @@ export namespace lh
 			auto bind(const vk::raii::CommandBuffer&) const -> void;
 
 		private:
-			std::unique_ptr<vulkan::descriptor_set_layout> m_descriptor_set_layout;
-			std::unique_ptr<vulkan::descriptor_buffer> m_descriptor_buffer;
-			std::unique_ptr<vulkan::vertex_input_description> m_vertex_input_description;
+			vulkan::descriptor_set_layout m_descriptor_set_layout;
+			//vulkan::descriptor_buffer m_descriptor_buffer;
+			vulkan::vertex_input_description m_vertex_input_description;
 			vk::raii::PipelineLayout m_pipeline_layout;
 			std::vector<shader_object> m_shader_objects;
 		};

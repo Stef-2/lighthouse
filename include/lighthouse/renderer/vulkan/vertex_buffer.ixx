@@ -42,8 +42,8 @@ export namespace lh
 			auto bind(const vk::raii::CommandBuffer&) const -> void;
 
 		private:
-			std::unique_ptr<mapped_buffer> m_vertex_and_index_buffer;
-			std::unique_ptr<buffer_subdata> m_vertex_and_index_suballocations;
+			mapped_buffer m_vertex_and_index_buffer;
+			buffer_subdata m_vertex_and_index_suballocations;
 		};
 	}
 }
