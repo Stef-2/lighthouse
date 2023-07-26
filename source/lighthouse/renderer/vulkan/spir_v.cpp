@@ -220,12 +220,24 @@ namespace lh
 			auto glsl_shader = glslang::TShader(glsl_shader_stage);
 			glsl_shader.setStrings(shader_string, 1);
 
-			const auto message_types = static_cast<EShMessages>(EShMsgSpvRules | EShMsgVulkanRules);
+			glsl_shader.setEnvInput(glslang::EShSource::EShSourceGlsl,
+									glsl_shader_stage,
+									glslang::EShClient::EShClientOpenGL,
+									glslang::EShTargetClientVersion::EShTargetOpenGL_450);
+
+			glsl_shader.setEnvClient(glslang::EShClient::EShClientVulkan,
+									 glslang::EShTargetClientVersion::EShTargetVulkan_1_3);
+
+			glsl_shader.setEnvTarget(glslang::EShTargetLanguage::EShTargetSpv,
+									 glslang::EShTargetLanguageVersion::EShTargetSpv_1_6);
+
+			const auto message_types = static_cast<EShMessages>(
+				EShMessages::EShMsgDefault | EShMessages::EShMsgSpvRules | EShMessages::EShMsgVulkanRules);
 
 			auto program = glslang::TProgram {};
 			program.addShader(&glsl_shader);
 
-			const auto parse = glsl_shader.parse(&DefaultTBuiltInResource, 100, false, message_types);
+			const auto parse = glsl_shader.parse(&DefaultTBuiltInResource, 450, true, message_types);
 			const auto link = program.link(message_types);
 
 			if (not parse or not link)

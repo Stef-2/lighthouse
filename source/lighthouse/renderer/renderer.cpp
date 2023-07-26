@@ -113,6 +113,8 @@ namespace lh
 
 		if (m_create_info.m_using_validation)
 			output::log() << info(m_create_info);
+
+		output::dump_logs(std::cout);
 	}
 
 	auto renderer::render() -> void

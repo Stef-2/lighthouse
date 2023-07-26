@@ -43,7 +43,7 @@ export namespace lh
 		auto terminate() -> void;
 
 		std::unique_ptr<lh::window> m_window;
-		renderer m_renderer;
+		std::unique_ptr<renderer> m_renderer;
 
 		lh::version m_version;
 	};
