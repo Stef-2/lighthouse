@@ -7,6 +7,8 @@ export module shader_input;
 #include "lighthouse/string/string.ixx"
 #else
 import lighthouse_string;
+import vulkan;
+import std.core;
 #endif
 
 export namespace lh

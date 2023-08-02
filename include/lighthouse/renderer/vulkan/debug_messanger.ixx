@@ -1,6 +1,8 @@
 module;
 #pragma once
 
+#include "vulkan/vk_platform.h"
+
 export module debug_messanger;
 
 #if INTELLISENSE
@@ -10,6 +12,8 @@ export module debug_messanger;
 import raii_wrapper;
 import output;
 #endif
+
+import vulkan;
 
 export namespace lh
 {

@@ -1,9 +1,10 @@
 module;
 #pragma once
 
-#include <vector>
-
 export module vertex_input_description;
+
+import vulkan;
+import std;
 
 export namespace lh
 {

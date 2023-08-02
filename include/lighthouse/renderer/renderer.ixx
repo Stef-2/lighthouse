@@ -22,7 +22,7 @@ import lighthouse_string;
 import version;
 import file_system;
 import scene_loader;
-import vulkan;
+import lh_vulkan;
 import input;
 import mesh;
 #endif

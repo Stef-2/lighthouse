@@ -58,7 +58,7 @@ namespace lh
 			return m_view;
 		}
 
-		auto image::memory() const -> const vk::raii::DeviceMemory&
+		auto image::lh_memory() const -> const vk::raii::DeviceMemory&
 		{
 			return m_memory;
 		}

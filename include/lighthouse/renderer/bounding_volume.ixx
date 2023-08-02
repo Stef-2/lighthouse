@@ -1,7 +1,7 @@
 module;
 #pragma once
 
-#include <concepts>
+#include "glm/vec3.hpp"
 
 export module bounding_volume;
 

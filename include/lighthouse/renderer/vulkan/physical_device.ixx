@@ -26,11 +26,11 @@ export namespace lh
 
 			struct create_info
 			{
-				physical_extensions::create_info m_extensions {{VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-																VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
-																VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME,
-																VK_EXT_SHADER_OBJECT_EXTENSION_NAME,
-																VK_EXT_VERTEX_INPUT_DYNAMIC_STATE_EXTENSION_NAME}};
+				physical_extensions::create_info m_extensions {{"VK_KHR_swapchain",
+																"VK_EXT_memory_budget",
+																"VK_EXT_descriptor_buffer",
+																"VK_EXT_shader_object",
+																"VK_EXT_vertex_input_dynamic_state"}};
 
 				performance_score_t m_minimum_accepted_score {0xFFFFFFFF};
 			};

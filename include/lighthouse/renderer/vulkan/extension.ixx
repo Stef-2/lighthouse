@@ -1,8 +1,6 @@
 module;
 #pragma once
 
-#include <numeric>
-
 export module extension;
 
 #if INTELLISENSE
@@ -15,6 +13,8 @@ import vulkan_string;
 import output;
 #endif
 
+import std.core;
+import vulkan;
 
 export namespace lh
 {
@@ -126,11 +126,11 @@ export namespace lh
 			using vulkan_extension_module::vulkan_extension_module;
 
 			static inline const auto m_default_physical_extensions = create_info {
-				{VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-				 VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
-				 VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
-				 VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME,
-				 VK_EXT_SHADER_OBJECT_EXTENSION_NAME}};
+				{"VK_KHR_swapchain",
+				 "VK_EXT_memory_budget",
+				 "VK_KHR_dynamic_rendering",
+				 "VK_EXT_descriptor_buffer",
+				 "VK_EXT_shader_object"}};
 
 			physical_extensions(const vk_extensions_t& supported,
 								const create_info& create_info = m_default_physical_extensions);

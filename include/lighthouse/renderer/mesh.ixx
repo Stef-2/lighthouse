@@ -17,7 +17,7 @@ export module mesh;
 #else
 import node;
 import bounding_volume;
-import utility;
+import lh_utility;
 import index_format;
 import logical_device;
 import memory_allocator;

@@ -1,13 +1,15 @@
 module;
 #pragma once
 
+export module raii_wrapper;
+
 #if INTELLISENSE
 #include "lighthouse/string/string.ixx"
 #else
 import lighthouse_string;
 #endif
 
-export module raii_wrapper;
+export import vulkan;
 
 export namespace lh
 {

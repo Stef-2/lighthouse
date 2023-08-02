@@ -1,6 +1,8 @@
 module;
 #pragma once
 
+#include "glm/ext.hpp"
+
 export module output;
 
 #if INTELLISENSE
@@ -33,21 +35,21 @@ namespace lh
 
 			constexpr auto to_string(const string::string_convertible auto& data) -> lh::string::string_t
 			{
-				using type = decltype(data);
+				using type_t = decltype(data);
 
-				if constexpr (string::std_convertible<type>)
+				if constexpr (string::std_convertible<type_t>)
 					return std::to_string(data);
 
-				if constexpr (string::glm_convertible<type>)
+				if constexpr (string::glm_convertible<type_t>)
 					return glm::to_string(data);
 
-				if constexpr (string::vkfw_convertible<type>)
+				if constexpr (string::vkfw_convertible<type_t>)
 					return vkfw::to_string(data);
 
-				if constexpr (string::std_constructible<type>)
+				if constexpr (string::std_constructible<type_t>)
 					return lh::string::string_t {data};
 
-				if constexpr (string::vulkan_to_string and string::vulkan_convertible<type>)
+				if constexpr (string::vulkan_to_string and string::vulkan_convertible<type_t>)
 					return vk::to_string(data);
 			}
 

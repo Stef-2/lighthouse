@@ -1,6 +1,8 @@
 module;
 #pragma once
 
+#include "vma/vk_mem_alloc.hpp"
+
 export module memory_allocator;
 
 #if INTELLISENSE

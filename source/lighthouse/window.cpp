@@ -1,5 +1,7 @@
 module;
 
+#include "vkfw/vkfw.hpp"
+
 #if INTELLISENSE
 #include "lighthouse/window.ixx"
 #else

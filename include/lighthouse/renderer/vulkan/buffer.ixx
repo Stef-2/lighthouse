@@ -9,7 +9,7 @@ export module buffer;
 #include "lighthouse/renderer/vulkan/memory_allocator.ixx"
 #include "lighthouse/utility.ixx"
 #else
-import utility;
+import lh_utility;
 import raii_wrapper;
 import logical_device;
 import memory_allocator;

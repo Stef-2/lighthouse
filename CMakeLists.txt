@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.26)
+﻿cmake_minimum_required(VERSION 3.27.1)
 
 project("lighthouse")
 
@@ -7,8 +7,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 
 # module support
-#set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP 1)
-set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API "2182bf5c-ef0d-489a-91da-49dbc3090d2a")
+set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP 1)
+#set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API "2182bf5c-ef0d-489a-91da-49dbc3090d2a")
+set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API "aa1f7df0-828a-4fcd-9afc-2dc80491aca7")
 
 
 # Path
@@ -18,82 +19,156 @@ cmake_path(SET module ${CMAKE_CURRENT_SOURCE_DIR}/module)
 cmake_path(SET library ${CMAKE_CURRENT_SOURCE_DIR}/library)
 cmake_path(SET dynamic ${CMAKE_CURRENT_SOURCE_DIR}/library)
 
+# std module
+add_library(std_module)
+target_sources(std_module PRIVATE FILE_SET CXX_MODULES FILES
+	${module}/std/std.ixx)
+target_compile_options(std_module PRIVATE
+	/std:c++latest /EHsc /GL /Ox /Oi /W3 /MP /Zf /MD /Qpar /Qpar-report:1 /fp:fast /arch:AVX2 /nologo #/translateInclude
+	/DNOMINMAX /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS
+)
+# std.compat module
+add_library(std_compat_module)
+target_sources(std_compat_module PRIVATE FILE_SET CXX_MODULES FILES
+	${module}/std/std.compat.ixx)
+target_compile_options(std_compat_module PRIVATE
+	/std:c++latest /EHsc /GL /Ox /Oi /W3 /MP /Zf /MD /Qpar /Qpar-report:1 /fp:fast /arch:AVX2 /nologo #/translateInclude
+	/DNOMINMAX /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS
+)
+target_link_libraries(std_compat_module
+	std_module
+)
+# vulkan module
+add_library(vulkan_module)
+target_sources(vulkan_module PRIVATE FILE_SET CXX_MODULES FILES
+	${include}/vulkan/vulkan.cppm
+)
+target_compile_options(vulkan_module PRIVATE
+	/std:c++latest /EHsc /GL /Ox /Oi /W3 /MP /Zf /MD /Qpar /Qpar-report:1 /fp:fast /arch:AVX2 /nologo #/translateInclude
+	/DNOMINMAX /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS
+)
+target_include_directories(
+	vulkan_module PRIVATE
+
+	${include}/vulkan
+)
 # Add source to this project's executable.
 add_executable(
 	${PROJECT_NAME} 
-	#${module}/lighthouse/renderer/vulkan/vulkan.ixx ${source}/../vulkan/vulkan.cpp
-	#${module}/std/std.ixx ${source}/std/std.cpp
-	${include}/lighthouse/window.ixx										${source}/lighthouse/window.cpp
+
+	${source}/lighthouse/window.cpp
+	${source}/lighthouse/file_system.cpp
+	${source}/lighthouse/operating_system/dynamic_linking.cpp
+	${source}/lighthouse/engine.cpp
+	${source}/lighthouse/renderer/renderer.cpp
+	${source}/lighthouse/version.cpp
+	${source}/lighthouse/node.cpp
+	${source}/lighthouse/operating_system/memory.cpp
+	${source}/lighthouse/renderer/vulkan/extension.cpp
+	${source}/lighthouse/renderer/vulkan/instance.cpp
+	${source}/lighthouse/renderer/vulkan/debug_messanger.cpp
+	${source}/lighthouse/renderer/vulkan/physical_device.cpp
+	${source}/lighthouse/renderer/vulkan/logical_device.cpp
+	${source}/lighthouse/renderer/vulkan/surface.cpp
+	${source}/lighthouse/renderer/vulkan/queue_families.cpp
+	${source}/lighthouse/renderer/vulkan/memory_allocator.cpp
+	${source}/lighthouse/renderer/vulkan/command_control.cpp
+	${source}/lighthouse/renderer/vulkan/queue.cpp
+	${source}/lighthouse/renderer/vulkan/image.cpp
+	${source}/lighthouse/renderer/vulkan/swapchain.cpp
+	${source}/lighthouse/renderer/vulkan/shader_module.cpp
+	${source}/lighthouse/renderer/vulkan/descriptor_set_layout.cpp
+	${source}/lighthouse/renderer/vulkan/buffer.cpp
+	${source}/lighthouse/renderer/vulkan/sampler.cpp
+	${source}/lighthouse/renderer/vulkan/descriptor_buffer.cpp
+	${source}/lighthouse/renderer/vulkan/spir_v.cpp
+	${source}/lighthouse/renderer/vulkan/shader_object.cpp
+	${source}/lighthouse/renderer/vulkan/vertex_buffer.cpp
+	${source}/lighthouse/renderer/vulkan/shader_object_pipeline.cpp
+	${source}/lighthouse/renderer/scene_loader.cpp
+	${source}/lighthouse/renderer/vulkan/pipeline_resource_generator.cpp
+	${source}/lighthouse/renderer/vulkan/shader_input.cpp
+	${source}/lighthouse/renderer/mesh.cpp
+	${source}/lighthouse/renderer/bounding_volume.cpp
+	${source}/lighthouse/output.cpp
+	${source}/lighthouse/input.cpp
+	#${source}/vulkan/vma_implementation.cpp
+	${source}/vulkan/utils.cpp
+	${source}/vulkan/math.cpp
+	${source}/lighthouse/lightHouse.cpp
+)
+
+target_sources(
+	${PROJECT_NAME} PRIVATE FILE_SET CXX_MODULES FILES
+
+	${include}/lighthouse/window.ixx										
 	${include}/lighthouse/static_type.ixx
-	${include}/lighthouse/file_system.ixx									${source}/lighthouse/file_system.cpp
+	${include}/lighthouse/file_system.ixx									
 	${include}/lighthouse/file_type.ixx
 	${include}/lighthouse/utility.ixx
 	${include}/lighthouse/datatype.ixx
 	${include}/lighthouse/string/string.ixx
 	${include}/lighthouse/string/string_convertible.ixx
-	${include}/lighthouse/system.ixx
-	${include}/lighthouse/output.ixx ${source}/lighthouse/output.cpp
-	${include}/lighthouse/input.ixx ${source}/lighthouse/input.cpp
-	${include}/lighthouse/operating_system/dynamic_linking.ixx				${source}/lighthouse/operating_system/dynamic_linking.cpp
+	${include}/lighthouse/operating_system/system.ixx
+	${include}/lighthouse/output.ixx
+	${include}/lighthouse/input.ixx
+	${include}/lighthouse/operating_system/dynamic_linking.ixx				
 	${include}/lighthouse/renderer/vulkan/raii_wrapper.ixx
 	${include}/lighthouse/renderer/vulkan/vulkan_string.ixx
 	${include}/lighthouse/renderer/vulkan/vertex_format.ixx
 	${include}/lighthouse/renderer/vulkan/vertex_input_description.ixx
 	${include}/lighthouse/renderer/vulkan/utility.ixx
 	${include}/lighthouse/renderer/vulkan/index_format.ixx
-	${include}/lighthouse/engine.ixx										${source}/lighthouse/engine.cpp
-	${include}/lighthouse/renderer/renderer.ixx								${source}/lighthouse/renderer/renderer.cpp
-	${include}/lighthouse/version.ixx										${source}/lighthouse/version.cpp
-	${include}/lighthouse/node.ixx											${source}/lighthouse/node.cpp
+	${include}/lighthouse/engine.ixx										
+	${include}/lighthouse/renderer/renderer.ixx								
+	${include}/lighthouse/version.ixx										
+	${include}/lighthouse/node.ixx											
 	#${source}/vulkan/shaders.cpp
-	${source}/vulkan/utils.cpp
-	${source}/vulkan/math.cpp
-	${include}/lighthouse/operating_system/memory.ixx						${source}/lighthouse/operating_system/memory.cpp
-	${source}/vulkan/vma_implementation.cpp
-	${include}/lighthouse/renderer/vulkan/extension.ixx						${source}/lighthouse/renderer/vulkan/extension.cpp
-	${include}/lighthouse/renderer/vulkan/instance.ixx						${source}/lighthouse/renderer/vulkan/instance.cpp
-	${include}/lighthouse/renderer/vulkan/debug_messanger.ixx				${source}/lighthouse/renderer/vulkan/debug_messanger.cpp
-	${include}/lighthouse/renderer/vulkan/physical_device.ixx				${source}/lighthouse/renderer/vulkan/physical_device.cpp
-	${include}/lighthouse/renderer/vulkan/logical_device.ixx				${source}/lighthouse/renderer/vulkan/logical_device.cpp
-	${include}/lighthouse/renderer/vulkan/surface.ixx						${source}/lighthouse/renderer/vulkan/surface.cpp
-	${include}/lighthouse/renderer/vulkan/queue_families.ixx				${source}/lighthouse/renderer/vulkan/queue_families.cpp
-	${include}/lighthouse/renderer/vulkan/memory_allocator.ixx				${source}/lighthouse/renderer/vulkan/memory_allocator.cpp
-	${include}/lighthouse/renderer/vulkan/command_control.ixx				${source}/lighthouse/renderer/vulkan/command_control.cpp
-	${include}/lighthouse/renderer/vulkan/queue.ixx							${source}/lighthouse/renderer/vulkan/queue.cpp
-	${include}/lighthouse/renderer/vulkan/image.ixx							${source}/lighthouse/renderer/vulkan/image.cpp
-	${include}/lighthouse/renderer/vulkan/swapchain.ixx						${source}/lighthouse/renderer/vulkan/swapchain.cpp
-	${include}/lighthouse/renderer/vulkan/shader_module.ixx					${source}/lighthouse/renderer/vulkan/shader_module.cpp
-	${include}/lighthouse/renderer/vulkan/descriptor_set_layout.ixx			${source}/lighthouse/renderer/vulkan/descriptor_set_layout.cpp
-	${include}/lighthouse/renderer/vulkan/buffer.ixx						${source}/lighthouse/renderer/vulkan/buffer.cpp
-	${include}/lighthouse/renderer/vulkan/sampler.ixx						${source}/lighthouse/renderer/vulkan/sampler.cpp
-	${include}/lighthouse/renderer/vulkan/descriptor_buffer.ixx				${source}/lighthouse/renderer/vulkan/descriptor_buffer.cpp
-	${include}/lighthouse/renderer/vulkan/spir_v.ixx						${source}/lighthouse/renderer/vulkan/spir_v.cpp
-	${include}/lighthouse/renderer/vulkan/shader_object.ixx					${source}/lighthouse/renderer/vulkan/shader_object.cpp
-	${include}/lighthouse/renderer/vulkan/vertex_buffer.ixx					${source}/lighthouse/renderer/vulkan/vertex_buffer.cpp
-	${include}/lighthouse/renderer/vulkan/shader_object_pipeline.ixx		${source}/lighthouse/renderer/vulkan/shader_object_pipeline.cpp
-	${include}/lighthouse/renderer/scene_loader.ixx							${source}/lighthouse/renderer/scene_loader.cpp
-	${include}/lighthouse/renderer/vulkan/pipeline_resource_generator.ixx	${source}/lighthouse/renderer/vulkan/pipeline_resource_generator.cpp
-	${include}/lighthouse/renderer/vulkan/shader_input.ixx					${source}/lighthouse/renderer/vulkan/shader_input.cpp
-	${include}/lighthouse/renderer/mesh.ixx									${source}/lighthouse/renderer/mesh.cpp
+	${include}/lighthouse/operating_system/memory.ixx						
+	${include}/lighthouse/renderer/vulkan/extension.ixx						
+	${include}/lighthouse/renderer/vulkan/instance.ixx						
+	${include}/lighthouse/renderer/vulkan/debug_messanger.ixx				
+	${include}/lighthouse/renderer/vulkan/physical_device.ixx				
+	${include}/lighthouse/renderer/vulkan/logical_device.ixx				
+	${include}/lighthouse/renderer/vulkan/surface.ixx						
+	${include}/lighthouse/renderer/vulkan/queue_families.ixx				
+	${include}/lighthouse/renderer/vulkan/memory_allocator.ixx				
+	${include}/lighthouse/renderer/vulkan/command_control.ixx				
+	${include}/lighthouse/renderer/vulkan/queue.ixx							
+	${include}/lighthouse/renderer/vulkan/image.ixx							
+	${include}/lighthouse/renderer/vulkan/swapchain.ixx						
+	${include}/lighthouse/renderer/vulkan/shader_module.ixx					
+	${include}/lighthouse/renderer/vulkan/descriptor_set_layout.ixx			
+	${include}/lighthouse/renderer/vulkan/buffer.ixx						
+	${include}/lighthouse/renderer/vulkan/sampler.ixx						
+	${include}/lighthouse/renderer/vulkan/descriptor_buffer.ixx				
+	${include}/lighthouse/renderer/vulkan/spir_v.ixx						
+	${include}/lighthouse/renderer/vulkan/shader_object.ixx					
+	${include}/lighthouse/renderer/vulkan/vertex_buffer.ixx					
+	${include}/lighthouse/renderer/vulkan/shader_object_pipeline.ixx		
+	${include}/lighthouse/renderer/scene_loader.ixx							
+	${include}/lighthouse/renderer/vulkan/pipeline_resource_generator.ixx	
+	${include}/lighthouse/renderer/vulkan/shader_input.ixx					
+	${include}/lighthouse/renderer/mesh.ixx									
 	${include}/lighthouse/renderer/vulkan/vulkan.ixx
-	${include}/lighthouse/renderer/bounding_volume.ixx						${source}/lighthouse/renderer/bounding_volume.cpp
-	${source}/lighthouse/lightHouse.cpp
+	${include}/lighthouse/renderer/bounding_volume.ixx						
 )
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
+
 # Compiler options
 if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
 
   target_compile_options(
 	  ${PROJECT_NAME} PRIVATE
 	  # MSVC compiler settings
-	  /std:c++latest /EHsc /GL /Ox /Oi /W3 /MP /Zf /MD /openmp:experimental /Qpar /Qpar-report:1 /fp:fast /arch:AVX2 /nologo /experimental:module
+	  /std:c++latest /EHsc /GL /Ox /Oi /W3 /MP /Zf /MD /Qpar /Qpar-report:1 /fp:fast /arch:AVX2 /nologo /experimental:module #/translateInclude
 	  # MSVC disable common annoying warnings
 	  /wd4005 /wd4068 /wd4244 /wd4267 /wd4800
 	  # Windows.h configuration
 	  /DNOMINMAX /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS
-	  /FIC:/Users/Stefan/source/repos/lighthouse/out/build/MSVC-x64-release/CMakeFiles/lighthouse.dir/RelWithDebInfo/cmake_pch.hxx
+	  #/FIC:/Users/Stefan/source/repos/lighthouse/out/build/MSVC-x64-release/CMakeFiles/lighthouse.dir/RelWithDebInfo/cmake_pch.hxx
 	)
 	
 	target_link_options(
@@ -116,14 +191,6 @@ if(${CMAKE_CXX_COMPILER_ID} MATCHES GNU)
 		${PROJECT_NAME} SYSTEM ${INCLUDE}
 	)
 	
-endif()
-
-# Windows specific flags
-if(WIN32)
-	add_compile_options(
-	  ${PROJECT_NAME} PRIVATE
-	  /DNOMINMAX /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS
-)
 endif()
 
 # Preprocessor definitions
@@ -174,7 +241,7 @@ set(CMAKE_MODULE_PATH
 	${module}/lighthouse
 	${module}/lighthouse/renderer/vulkan
 )
-
+#[[
 target_precompile_headers(
 	${PROJECT_NAME} PRIVATE
 	${include}/vkfw/vkfw.hpp
@@ -184,7 +251,7 @@ target_precompile_headers(
 
 	${include}/vulkan/glm/glm.hpp
 	${include}/vulkan/glm/ext.hpp
-)
+)]]
 
 # Libraries
 target_link_directories(
@@ -217,5 +284,9 @@ target_link_libraries(
 
 	assimp-vc143-mt.lib
 
-	#std.obj
+	std_module
+	std_compat_module
+	vulkan_module
 )
+
+message(cmake_version: ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION})

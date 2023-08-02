@@ -1,6 +1,8 @@
 module;
 #pragma once
 
+#include "glm/vec4.hpp"
+
 export module vertex_format;
 
 export namespace lh

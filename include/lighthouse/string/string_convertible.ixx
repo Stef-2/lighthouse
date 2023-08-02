@@ -1,12 +1,17 @@
 module;
 #pragma once
 
+#include "vkfw/vkfw.hpp"
+#include "glm/ext.hpp"
+
 export module string_convertible;
 
 #if INTELLISENSE
-#include "lighthouse/string/string.ixx"
+//#include "lighthouse/string/string.ixx"
+#include "vulkan/vulkan_to_string.hpp"
 #else
 import lighthouse_string;
+import vulkan;
 #endif
 
 export namespace lh
@@ -14,7 +19,6 @@ export namespace lh
 	namespace string
 	{
 		// clang-format off
-		
 		constexpr auto vulkan_to_string =
 		#ifndef VULKAN_HPP_NO_TO_STRING
 			true;
@@ -31,7 +35,7 @@ export namespace lh
 		template <typename T>
 		concept vkfw_convertible = requires(T x) { vkfw::to_string(x); };
 		template <typename T>
-		concept std_constructible = requires(T x) { string_t(x); } || std::convertible_to<T, string_t>;
+		concept std_constructible = requires(T x) { string_t(x); } || std::convertible_to<T, lh::string::string_t>;
 		template <typename T>
 		concept vulkan_convertible = requires(T x) { vulkan_to_string and vk::to_string(x); };
 

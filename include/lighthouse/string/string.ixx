@@ -1,9 +1,9 @@
 module;
 #pragma once
 
-#include <string>
-
 export module lighthouse_string;
+
+import std.core;
 
 export namespace lh
 {

@@ -11,6 +11,9 @@ import physical_device;
 import surface;
 #endif
 
+import std.core;
+import vulkan;
+
 export namespace lh
 {
 	namespace vulkan
@@ -20,8 +23,8 @@ export namespace lh
 		public:
 			struct queue
 			{
-				using index_t = decltype(vk::DeviceQueueCreateInfo::queueFamilyIndex);
-				using priority_t = decltype(*vk::DeviceQueueCreateInfo::pQueuePriorities);
+				using index_t = std::uint32_t;
+				using priority_t = float;
 
 				index_t m_index {};
 				priority_t m_priority {1.0};

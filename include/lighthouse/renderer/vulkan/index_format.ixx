@@ -3,10 +3,12 @@ module;
 
 export module index_format;
 
+import std;
+
 export namespace lh
 {
 	namespace vulkan
 	{
-		using vertex_index_t = uint32_t;
+		using vertex_index_t = std::uint32_t;
 	}
 }

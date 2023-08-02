@@ -1,7 +1,7 @@
 module;
 #pragma once
 
-export module vulkan;
+export module lh_vulkan;
 
 #if INTELLISENSE
 #include "lighthouse/renderer/vulkan/extension.ixx"
@@ -49,7 +49,7 @@ export import descriptor_set_layout;
 export import descriptor_buffer;
 export import pipeline_resource_generator;
 export import shader_object_pipeline;
-export import utility;
+export import lh_utility;
 export import vertex_input_description;
 export import vertex_buffer;
 export import vertex_format;

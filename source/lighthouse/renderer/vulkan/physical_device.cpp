@@ -8,7 +8,7 @@ module physical_device;
 #endif
 
 import output;
-import memory;
+import lh_memory;
 
 namespace lh
 {

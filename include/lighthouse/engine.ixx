@@ -13,6 +13,7 @@ import window;
 import version;
 import input;
 import renderer;
+import std;
 #endif
 
 export namespace lh

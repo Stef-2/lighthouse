@@ -1,6 +1,7 @@
 module;
 
-#include <numeric>
+// #include <numeric>
+#include "vkfw/vkfw.hpp"
 
 #if INTELLISENSE
 #include "lighthouse/renderer/vulkan/instance.ixx"

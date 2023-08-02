@@ -1,7 +1,7 @@
 module;
 #pragma once
 
-export module utility;
+export module lh_utility;
 
 export namespace lh
 {

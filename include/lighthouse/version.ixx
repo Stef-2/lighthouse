@@ -1,8 +1,6 @@
 module;
 #pragma once
 
-#include <compare>
-
 export module version;
 
 #if INTELLISENSE
@@ -11,12 +9,14 @@ export module version;
 import lighthouse_string;
 #endif
 
+import std.core;
+
 export namespace lh
 {
 	struct version
 	{
-		using version_t = uint8_t;
-		using packed_version_t = uint32_t;
+		using version_t = std::uint8_t;
+		using packed_version_t = std::uint32_t;
 
 		version(version_t major, version_t minor, version_t patch);
 		// extract the 3 8-bit versions from a packed 32-bit one

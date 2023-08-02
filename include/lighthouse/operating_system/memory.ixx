@@ -11,20 +11,23 @@ module;
 #include <unistd.h>
 #endif
 
-export module memory;
+export module lh_memory;
 
 #if INTELLISENSE
-#include "lighthouse/system.ixx"
+#include "lighthouse/operating_system/system.ixx"
 #else
 import system;
 #endif
+
+import std.core;
+import vulkan;
 
 export namespace lh
 {
 	namespace memory
 	{
-		using memory_size_t = uint64_t;
-		using vk_memory_type = uint32_t;
+		using memory_size_t = std::uint64_t;
+		using vk_memory_type = std::uint32_t;
 		using decimal_t = double;
 		using normalized_decimal_t = double;
 
@@ -114,7 +117,7 @@ export namespace lh
 			auto memory = memory_info<unit> {};
 
 			if constexpr (system::type == system::type::windows)
-			{
+			{/*
 				auto status = MEMORYSTATUSEX {};
 				status.dwLength = sizeof(status);
 				GlobalMemoryStatusEx(&status);
@@ -123,7 +126,7 @@ export namespace lh
 						  status.ullAvailPhys / unit_divisor,
 						  (status.ullTotalPhys - status.ullAvailPhys) / unit_divisor,
 						  1.0 - static_cast<decimal_t>(status.ullAvailPhys) /
-									static_cast<decimal_t>(status.ullTotalPhys)};
+									static_cast<decimal_t>(status.ullTotalPhys)};*/
 			} else if constexpr (system::type == system::type::linux)
 			{
 				std::abort();
