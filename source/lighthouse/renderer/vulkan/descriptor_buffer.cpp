@@ -48,8 +48,8 @@ namespace lh
 
 				m_binding_info.emplace_back(
 					m_descriptor_buffer.address() +
-						i * lh_utility::aligned_size(binding_offset,
-													 descriptor_buffer_properties.descriptorBufferOffsetAlignment),
+						i * utility::aligned_size(binding_offset,
+												  descriptor_buffer_properties.descriptorBufferOffsetAlignment),
 					descriptor_buffer_usage(descriptor_set_layout));
 
 				const auto data_address_info = vk::DescriptorAddressInfoEXT {data.m_buffer->address() +

@@ -15,6 +15,7 @@ export module descriptor_buffer;
 #else
 import raii_wrapper;
 import vulkan_utility;
+import vulkan_utility;
 import physical_device;
 import logical_device;
 import memory_allocator;

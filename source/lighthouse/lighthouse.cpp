@@ -1,4 +1,5 @@
 ﻿#include "lighthouse/lighthouse.hpp"
+#include "vkfw/vkfw.hpp"
 
 #if INTELLISENSE
 #include "lighthouse/engine.ixx"

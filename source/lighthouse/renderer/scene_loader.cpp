@@ -1,6 +1,8 @@
 module;
 
 #include "assimp/scene.h"
+#include "glm/vec4.hpp"
+#include "glm/gtc/random.hpp"
 
 #if INTELLISENSE
 #include "lighthouse/renderer/scene_loader.ixx"

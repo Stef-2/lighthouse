@@ -25,6 +25,8 @@ import spir_v;
 import vertex_input_description;
 #endif
 
+import vulkan;
+
 export namespace lh
 {
 	namespace vulkan

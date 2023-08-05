@@ -2,6 +2,7 @@ module;
 
 #include "vulkan/utils/geometries.hpp"
 #include "vulkan/utils/math.hpp"
+#include "vkfw/vkfw.hpp"
 
 #include "vulkan/utils/raii/raii_utils.hpp"
 

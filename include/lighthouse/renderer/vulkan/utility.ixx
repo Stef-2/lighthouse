@@ -3,7 +3,7 @@ module;
 
 export module vulkan_utility;
 
-import std;
+import std.core;
 
 export namespace lh
 {
