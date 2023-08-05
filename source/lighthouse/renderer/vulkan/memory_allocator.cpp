@@ -1,8 +1,10 @@
 module;
 
+#include "vma/vk_mem_alloc.hpp"
+
 #define VMA_IMPLEMENTATION
 
-#include <ranges>
+// #include <ranges>
 
 #if INTELLISENSE
 #include "lighthouse/renderer/vulkan/memory_allocator.ixx"
@@ -26,12 +28,11 @@ namespace lh
 
 			const auto assert_version_above_1_2 = instance.version() >= lh::version {1, 2, 0};
 
-			if (std::ranges::contains(physical_device.extensions().required_extensions(),
-									  VK_EXT_MEMORY_BUDGET_EXTENSION_NAME))
+			if (std::ranges::contains(physical_device.extensions().required_extensions(), "VK_EXT_memory_budget"))
 				allocator_extensions |= vma::AllocatorCreateFlagBits::eExtMemoryBudget;
 
 			if (std::ranges::contains(physical_device.extensions().required_extensions(),
-									  VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME) or
+									  "VK_KHR_buffer_device_address") or
 				assert_version_above_1_2)
 
 				allocator_extensions |= vma::AllocatorCreateFlagBits::eBufferDeviceAddress;

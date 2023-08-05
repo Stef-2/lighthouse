@@ -1,7 +1,11 @@
 module;
 
+// #include "vulkan/vulkan_handles.hpp"
+
 #if INTELLISENSE
 #include "lighthouse/renderer/vulkan/buffer.ixx"
+#include "vulkan/vulkan.hpp"
+#include "vulkan/vulkan_raii.hpp"
 #else
 module buffer;
 #endif

@@ -34,3 +34,17 @@ export namespace lh
 		};
 	}
 }
+
+export namespace vma
+{
+	using vma::Allocator;
+	using vma::AllocatorCreateFlags;
+	using vma::AllocatorCreateFlagBits;
+
+	using vma::Allocation;
+	using vma::AllocationCreateFlags;
+	using vma::AllocationCreateFlagBits;
+	using vma::AllocationInfo;
+
+	using vma::MemoryUsage;
+}

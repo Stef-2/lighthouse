@@ -1,8 +1,6 @@
 module;
 #pragma once
 
-#include <vector>
-
 export module logical_device;
 
 #if INTELLISENSE

@@ -22,7 +22,7 @@ export namespace lh
 	{
 		using vk_layers_t = const std::vector<vk::LayerProperties>;
 		using vk_extensions_t = const std::vector<vk::ExtensionProperties>;
-
+		
 		// ==========================================================================
 		// abstract base for vulkan logical, phyisical and validation extensions
 		// ==========================================================================

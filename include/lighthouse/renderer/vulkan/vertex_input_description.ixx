@@ -4,7 +4,7 @@ module;
 export module vertex_input_description;
 
 import vulkan;
-import std;
+import std.core;
 
 export namespace lh
 {

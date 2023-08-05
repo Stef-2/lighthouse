@@ -3,10 +3,12 @@ module;
 
 #include "vkfw/vkfw.hpp"
 
-#include <map>
-#include <unordered_map>
-#include <variant>
+//#include <map>
+//#include <unordered_map>
+//#include <variant>
 //#include <filesystem>
+
+export module input;
 
 #if INTELLISENSE
 #include "lighthouse/static_type.ixx"
@@ -23,9 +25,9 @@ import lighthouse_string;
 import output;
 import window;
 import std.filesystem;
+import std.core;
 #endif
 
-export module input;
 
 namespace lh
 {

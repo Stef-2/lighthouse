@@ -5,7 +5,7 @@ module;
 
 export module dynamic_linking;
 
-import std;
+import std.filesystem;
 
 export namespace lh
 {

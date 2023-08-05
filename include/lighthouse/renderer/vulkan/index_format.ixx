@@ -3,7 +3,7 @@ module;
 
 export module index_format;
 
-import std;
+import std.core;
 
 export namespace lh
 {

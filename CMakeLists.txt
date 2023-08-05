@@ -21,34 +21,31 @@ cmake_path(SET dynamic ${CMAKE_CURRENT_SOURCE_DIR}/library)
 
 # std module
 add_library(std_module)
-target_sources(std_module PRIVATE FILE_SET CXX_MODULES FILES
+target_sources(std_module PUBLIC FILE_SET CXX_MODULES FILES
 	${module}/std/std.ixx)
-target_compile_options(std_module PRIVATE
-	/std:c++latest /EHsc /GL /Ox /Oi /W3 /MP /Zf /MD /Qpar /Qpar-report:1 /fp:fast /arch:AVX2 /nologo #/translateInclude
+target_compile_options(std_module PUBLIC
+	/std:c++latest /EHsc /GL /Ox /Oi /W3 /MP /Zf /MD /Qpar /Qpar-report:1 /arch:AVX2 /nologo#/translateInclude
 	/DNOMINMAX /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS
 )
 # std.compat module
 add_library(std_compat_module)
-target_sources(std_compat_module PRIVATE FILE_SET CXX_MODULES FILES
-	${module}/std/std.compat.ixx)
-target_compile_options(std_compat_module PRIVATE
-	/std:c++latest /EHsc /GL /Ox /Oi /W3 /MP /Zf /MD /Qpar /Qpar-report:1 /fp:fast /arch:AVX2 /nologo #/translateInclude
+target_sources(std_compat_module PUBLIC FILE_SET CXX_MODULES FILES
+	${module}/std/std.compat.ixx ${module}/std/std.ixx)
+target_compile_options(std_compat_module PUBLIC
+	/std:c++latest /EHsc /GL /Ox /Oi /W3 /MP /Zf /MD /Qpar /Qpar-report:1 /arch:AVX2 /nologo#/translateInclude
 	/DNOMINMAX /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS
-)
-target_link_libraries(std_compat_module
-	std_module
 )
 # vulkan module
 add_library(vulkan_module)
-target_sources(vulkan_module PRIVATE FILE_SET CXX_MODULES FILES
+target_sources(vulkan_module PUBLIC FILE_SET CXX_MODULES FILES
 	${include}/vulkan/vulkan.cppm
 )
-target_compile_options(vulkan_module PRIVATE
-	/std:c++latest /EHsc /GL /Ox /Oi /W3 /MP /Zf /MD /Qpar /Qpar-report:1 /fp:fast /arch:AVX2 /nologo #/translateInclude
+target_compile_options(vulkan_module PUBLIC
+	/std:c++latest /EHsc /GL /Ox /Oi /W3 /MP /Zf /MD /Qpar /Qpar-report:1 /arch:AVX2 /nologo#/translateInclude
 	/DNOMINMAX /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS
 )
 target_include_directories(
-	vulkan_module PRIVATE
+	vulkan_module PUBLIC
 
 	${include}/vulkan
 )
@@ -163,7 +160,7 @@ if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
   target_compile_options(
 	  ${PROJECT_NAME} PRIVATE
 	  # MSVC compiler settings
-	  /std:c++latest /EHsc /GL /Ox /Oi /W3 /MP /Zf /MD /Qpar /Qpar-report:1 /fp:fast /arch:AVX2 /nologo /experimental:module #/translateInclude
+	  /std:c++latest /EHsc /GL /Ox /Oi /W3 /MP /Zf /MD /Qpar /Qpar-report:1 /arch:AVX2 /nologo /experimental:module#/translateInclude
 	  # MSVC disable common annoying warnings
 	  /wd4005 /wd4068 /wd4244 /wd4267 /wd4800
 	  # Windows.h configuration
@@ -174,7 +171,7 @@ if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
 	target_link_options(
 		${PROJECT_NAME} PRIVATE
 		# MSVC linker settings
-		/INCREMENTAL /CGTHREADS:8 /VERBOSE:INCR /LTCG /${library}/std/std.obj
+		/INCREMENTAL /CGTHREADS:8 /VERBOSE:INCR /LTCG#/${library}/std/std.obj
 		# No console
 		#/SUBSYSTEM:windows /ENTRY:mainCRTStartup
 	)
@@ -235,24 +232,6 @@ target_include_directories(
 	$ENV{IFCPATH}/Release
 )
 
-# Modules
-set(CMAKE_MODULE_PATH
-	${module}/std
-	${module}/lighthouse
-	${module}/lighthouse/renderer/vulkan
-)
-#[[
-target_precompile_headers(
-	${PROJECT_NAME} PRIVATE
-	${include}/vkfw/vkfw.hpp
-
-	${include}/vulkan/vulkan_raii.hpp
-	${include}/vulkan/vma/vk_mem_alloc.hpp
-
-	${include}/vulkan/glm/glm.hpp
-	${include}/vulkan/glm/ext.hpp
-)]]
-
 # Libraries
 target_link_directories(
 	${PROJECT_NAME} PRIVATE
@@ -265,7 +244,7 @@ target_link_directories(
 )
 
 target_link_libraries(
-	${PROJECT_NAME}
+	${PROJECT_NAME} PUBLIC
 
 	vulkan-1.lib
 	glfw3.lib

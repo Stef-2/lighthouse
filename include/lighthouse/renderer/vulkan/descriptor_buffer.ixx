@@ -22,6 +22,9 @@ import descriptor_set_layout;
 import buffer;
 #endif
 
+import std.core;
+import vulkan;
+
 export namespace lh
 {
 	namespace vulkan
@@ -32,8 +35,8 @@ export namespace lh
 			struct create_info
 			{
 				vk::PipelineBindPoint m_bind_point;
-				vk::MemoryPropertyFlags descriptor_collection_memory_properties =
-					vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
+				vk::MemoryPropertyFlags descriptor_collection_memory_properties = {
+					vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent};
 				vk::BufferUsageFlags m_descriptor_buffer_usage =
 					vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT |
 					vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT |
