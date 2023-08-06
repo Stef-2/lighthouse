@@ -1,8 +1,8 @@
-﻿#include "lighthouse/lighthouse.hpp"
-#include "vkfw/vkfw.hpp"
+﻿#include "vkfw/vkfw.hpp"
 
 #if INTELLISENSE
 #include "lighthouse/engine.ixx"
+import std;
 #else
 import engine;
 #endif

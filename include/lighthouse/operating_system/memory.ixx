@@ -15,6 +15,7 @@ export module lh_memory;
 
 #if INTELLISENSE
 #include "lighthouse/operating_system/system.ixx"
+import std;
 #else
 import system;
 #endif

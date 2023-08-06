@@ -14,7 +14,7 @@ namespace lh
 	{
 		auto dynamic_linking_directory(const std::filesystem::path& directory_path) -> void
 		{
-			auto wtf = SetDllDirectoryA(directory_path.generic_string().c_str());
+			SetDllDirectoryA(directory_path.generic_string().c_str());
 		}
 	}
 }
