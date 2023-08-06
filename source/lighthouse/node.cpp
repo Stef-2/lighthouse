@@ -10,28 +10,29 @@ namespace lh
 {
 
 	node node::s_root_node {s_root_node};
+	node::transformation_t node::s_identity_transformation {1.0f};
 
 	auto node::root_node() -> node&
 	{
 		return s_root_node;
 	}
 
-	node::node(node& parent, transformation_t transformation, destruction_mode destruction_mode)
-		: m_parent(&parent), m_transformation(transformation), m_destruction_mode(destruction_mode), m_children {}
+	node::node(node& parent, transformation_t transformation, destruction_strategy destruction_strategy)
+		: m_parent(&parent), m_transformation(transformation), m_destruction_mode(destruction_strategy), m_children {}
 	{
 		m_parent->add_child(*this);
 	}
 
 	node::~node()
 	{
-		if (m_destruction_mode == destruction_mode::collapse)
+		if (m_destruction_mode == destruction_strategy::collapse)
 		{
 			for (auto& child : m_children)
 			{
 				child->parent(*m_parent);
 				m_parent->add_child(*child);
 			}
-		} else if (m_destruction_mode == destruction_mode::orphanage)
+		} else if (m_destruction_mode == destruction_strategy::orphanage)
 		{
 			for (auto& child : m_children)
 				child->parent(s_root_node);

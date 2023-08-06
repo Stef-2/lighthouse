@@ -91,7 +91,8 @@ add_executable(
 	${source}/vulkan/utils.cpp
 	${source}/vulkan/math.cpp
 	${source}/lighthouse/lightHouse.cpp
-)
+	${source}/lighthouse/entity.cpp
+ "source/lighthouse/camera.cpp")
 
 target_sources(
 	${PROJECT_NAME} PRIVATE FILE_SET CXX_MODULES FILES
@@ -144,7 +145,9 @@ target_sources(
 	${include}/lighthouse/renderer/vulkan/pipeline_resource_generator.ixx	
 	${include}/lighthouse/renderer/vulkan/shader_input.ixx					
 	${include}/lighthouse/renderer/mesh.ixx									
-	${include}/lighthouse/renderer/bounding_volume.ixx						
+	${include}/lighthouse/renderer/bounding_volume.ixx	
+	${include}/lighthouse/entity.ixx
+	${include}/lighthouse/camera.ixx
 )
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
@@ -205,6 +208,7 @@ target_compile_definitions(
 	#VULKAN_HPP_NO_SETTERS
 
 	# glm definitions
+	GLM_FORCE_DEPTH_ZERO_TO_ONE
 	GLM_ENABLE_EXPERIMENTAL
 	GLM_FORCE_INTRINSICS
 

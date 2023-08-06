@@ -14,9 +14,10 @@ export namespace lh
 	public:
 		// internal transformation type
 		using transformation_t = glm::mat4x4;
+		static transformation_t s_identity_transformation;
 
 		// mode that describes what happens to our relatives after we die
-		enum class destruction_mode
+		enum class destruction_strategy
 		{
 			// connect out children with our parent
 			collapse,
@@ -25,8 +26,8 @@ export namespace lh
 		};
 
 		node(node& parent = s_root_node,
-			 transformation_t = transformation_t {1.0f},
-			 destruction_mode = destruction_mode::collapse);
+			 transformation_t = s_identity_transformation,
+			 destruction_strategy = destruction_strategy::collapse);
 		~node();
 
 		static auto root_node() -> node&;
@@ -70,7 +71,7 @@ export namespace lh
 
 		transformation_t m_transformation;
 
-		destruction_mode m_destruction_mode;
+		destruction_strategy m_destruction_mode;
 
 		static node s_root_node;
 	};
