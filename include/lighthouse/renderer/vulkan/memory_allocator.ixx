@@ -10,6 +10,7 @@ export module memory_allocator;
 #include "lighthouse/renderer/vulkan/instance.ixx"
 #include "lighthouse/renderer/vulkan/physical_device.ixx"
 #include "lighthouse/renderer/vulkan/logical_device.ixx"
+import std;
 #else
 import raii_wrapper;
 import instance;

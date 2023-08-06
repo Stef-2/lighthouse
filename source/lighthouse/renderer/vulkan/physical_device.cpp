@@ -5,10 +5,9 @@ module;
 #include "lighthouse/operating_system/memory.ixx"
 #else
 module physical_device;
-#endif
-
 import output;
 import lh_memory;
+#endif
 
 namespace lh
 {

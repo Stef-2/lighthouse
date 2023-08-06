@@ -3,11 +3,6 @@ module;
 
 #include "vkfw/vkfw.hpp"
 
-//#include <map>
-//#include <unordered_map>
-//#include <variant>
-//#include <filesystem>
-
 export module input;
 
 #if INTELLISENSE
@@ -18,11 +13,9 @@ export module input;
 #include "lighthouse/output.ixx"
 #include "lighthouse/window.ixx"
 #else
-import static_type;
 import file_system;
 import file_type;
 import lighthouse_string;
-import output;
 import window;
 import std.filesystem;
 import std.core;

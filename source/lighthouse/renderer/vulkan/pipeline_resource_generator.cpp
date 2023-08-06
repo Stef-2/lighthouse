@@ -28,7 +28,6 @@ namespace lh
 {
 	namespace vulkan
 	{
-
 		pipeline_resource_generator::pipeline_resource_generator(const physical_device& physical_device,
 																 const logical_device& logical_device,
 																 const memory_allocator& memory_allocator,

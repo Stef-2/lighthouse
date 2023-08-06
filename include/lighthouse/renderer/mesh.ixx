@@ -1,8 +1,6 @@
 module;
 #pragma once
 
-#include <vector>
-
 export module mesh;
 
 #if INTELLISENSE
@@ -23,6 +21,7 @@ import logical_device;
 import memory_allocator;
 import vertex_buffer;
 import vertex_format;
+import std.core;
 #endif
 
 export namespace lh

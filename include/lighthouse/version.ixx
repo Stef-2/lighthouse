@@ -7,9 +7,8 @@ export module version;
 #include "lighthouse/string/string.ixx"
 #else
 import lighthouse_string;
-#endif
-
 import std.core;
+#endif
 
 export namespace lh
 {

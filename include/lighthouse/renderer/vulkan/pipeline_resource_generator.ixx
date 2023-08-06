@@ -1,11 +1,10 @@
 module;
 #pragma once
 
-#include <vector>
-
 export module pipeline_resource_generator;
 
 #if INTELLISENSE
+#include "vulkan/vulkan_raii.hpp"
 #include "lighthouse/renderer/vulkan/physical_device.ixx"
 #include "lighthouse/renderer/vulkan/logical_device.ixx"
 #include "lighthouse/renderer/vulkan/memory_allocator.ixx"
@@ -27,11 +26,11 @@ import buffer;
 import spir_v;
 import shader_input;
 import vertex_input_description;
+import std.core;
 #endif
 
 export namespace lh
 {
-	// forward declrations
 	namespace vulkan
 	{
 		class pipeline_resource_generator

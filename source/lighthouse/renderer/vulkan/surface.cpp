@@ -6,9 +6,8 @@ module;
 #include "lighthouse/renderer/vulkan/surface.ixx"
 #else
 module surface;
-#endif
-
 import output;
+#endif
 
 namespace lh
 {

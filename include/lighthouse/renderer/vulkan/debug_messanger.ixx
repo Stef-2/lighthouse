@@ -11,9 +11,9 @@ export module debug_messanger;
 #else
 import raii_wrapper;
 import output;
+import vulkan;
 #endif
 
-import vulkan;
 
 export namespace lh
 {

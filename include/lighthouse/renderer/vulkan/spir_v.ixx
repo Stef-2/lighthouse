@@ -4,6 +4,7 @@ module;
 export module spir_v;
 
 #if INTELLISENSE
+#include "vulkan/vulkan.hpp"
 #include "lighthouse/string/string.ixx"
 #include "lighthouse/file_system.ixx"
 #include "lighthouse/renderer/vulkan/shader_input.ixx"

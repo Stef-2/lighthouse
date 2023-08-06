@@ -4,9 +4,8 @@ module;
 #include "lighthouse/renderer/vulkan/shader_object.ixx"
 #else
 module shader_object;
-#endif
-
 import output;
+#endif
 
 namespace lh
 {

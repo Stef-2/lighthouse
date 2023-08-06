@@ -15,13 +15,13 @@ export module lh_memory;
 
 #if INTELLISENSE
 #include "lighthouse/operating_system/system.ixx"
+#include "vulkan/vulkan.cppm"
 import std;
 #else
 import system;
-#endif
-
-import std.core;
 import vulkan;
+import std.core;
+#endif
 
 export namespace lh
 {

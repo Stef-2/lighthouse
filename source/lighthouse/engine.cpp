@@ -1,18 +1,13 @@
 module;
 
 #include "vkfw/vkfw.hpp"
-// #include <iostream>
 
 #if INTELLISENSE
 #include "lighthouse/engine.ixx"
-#else
-module engine;
-#endif
-
-#if INTELLISENSE
 #include "lighthouse/output.ixx"
 #include "lighthouse/input.ixx"
 #else
+module engine;
 import output;
 import input;
 #endif

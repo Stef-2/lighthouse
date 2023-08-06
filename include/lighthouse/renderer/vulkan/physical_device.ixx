@@ -1,6 +1,8 @@
 module;
 #pragma once
 
+#include "vulkan/vulkan_core.h"
+
 export module physical_device;
 
 #if INTELLISENSE
@@ -26,11 +28,12 @@ export namespace lh
 
 			struct create_info
 			{
-				physical_extensions::create_info m_extensions {{"VK_KHR_swapchain",
-																"VK_EXT_memory_budget",
-																"VK_EXT_descriptor_buffer",
-																"VK_EXT_shader_object",
-																"VK_EXT_vertex_input_dynamic_state"}};
+				physical_extensions::create_info m_extensions {{VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+																VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
+																VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME,
+																VK_EXT_SHADER_OBJECT_EXTENSION_NAME,
+																VK_EXT_VERTEX_INPUT_DYNAMIC_STATE_EXTENSION_NAME,
+																VK_KHR_MAINTENANCE_5_EXTENSION_NAME}};
 
 				performance_score_t m_minimum_accepted_score {0xFFFFFFFF};
 			};

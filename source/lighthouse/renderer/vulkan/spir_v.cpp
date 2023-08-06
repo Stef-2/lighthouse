@@ -9,9 +9,8 @@ module;
 #include "lighthouse/renderer/vulkan/spir_v.ixx"
 #else
 module spir_v;
-#endif
-
 import output;
+#endif
 
 namespace
 {

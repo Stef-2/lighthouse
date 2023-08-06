@@ -8,9 +8,8 @@ module;
 #include "lighthouse/renderer/scene_loader.ixx"
 #else
 module scene_loader;
-#endif
-
 import output;
+#endif
 
 namespace lh
 {

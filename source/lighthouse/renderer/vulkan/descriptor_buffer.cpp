@@ -4,9 +4,8 @@ module;
 #include "lighthouse/renderer/vulkan/descriptor_buffer.ixx"
 #else
 module descriptor_buffer;
-#endif
-
 import output;
+#endif
 
 namespace lh
 {

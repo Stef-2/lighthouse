@@ -73,7 +73,6 @@ add_executable(
 	${source}/lighthouse/renderer/vulkan/queue.cpp
 	${source}/lighthouse/renderer/vulkan/image.cpp
 	${source}/lighthouse/renderer/vulkan/swapchain.cpp
-	${source}/lighthouse/renderer/vulkan/shader_module.cpp
 	${source}/lighthouse/renderer/vulkan/descriptor_set_layout.cpp
 	${source}/lighthouse/renderer/vulkan/buffer.cpp
 	${source}/lighthouse/renderer/vulkan/sampler.cpp
@@ -89,7 +88,6 @@ add_executable(
 	${source}/lighthouse/renderer/bounding_volume.cpp
 	${source}/lighthouse/output.cpp
 	${source}/lighthouse/input.cpp
-	#${source}/vulkan/vma_implementation.cpp
 	${source}/vulkan/utils.cpp
 	${source}/vulkan/math.cpp
 	${source}/lighthouse/lightHouse.cpp
@@ -133,8 +131,7 @@ target_sources(
 	${include}/lighthouse/renderer/vulkan/command_control.ixx				
 	${include}/lighthouse/renderer/vulkan/queue.ixx							
 	${include}/lighthouse/renderer/vulkan/image.ixx							
-	${include}/lighthouse/renderer/vulkan/swapchain.ixx						
-	${include}/lighthouse/renderer/vulkan/shader_module.ixx					
+	${include}/lighthouse/renderer/vulkan/swapchain.ixx			
 	${include}/lighthouse/renderer/vulkan/descriptor_set_layout.ixx			
 	${include}/lighthouse/renderer/vulkan/buffer.ixx						
 	${include}/lighthouse/renderer/vulkan/sampler.ixx						
@@ -147,7 +144,6 @@ target_sources(
 	${include}/lighthouse/renderer/vulkan/pipeline_resource_generator.ixx	
 	${include}/lighthouse/renderer/vulkan/shader_input.ixx					
 	${include}/lighthouse/renderer/mesh.ixx									
-	${include}/lighthouse/renderer/vulkan/vulkan.ixx
 	${include}/lighthouse/renderer/bounding_volume.ixx						
 )
 
@@ -212,7 +208,7 @@ target_compile_definitions(
 	GLM_ENABLE_EXPERIMENTAL
 	GLM_FORCE_INTRINSICS
 
-	# project specific
+	# project definitions
 	DYNAMIC_LINK_DIRECTORY="${dynamic}"
 	INTELLISENSE=__INTELLISENSE__
 	DONT_OPTIMIZE=__pragma\(optimize\(\"\",off\)\)

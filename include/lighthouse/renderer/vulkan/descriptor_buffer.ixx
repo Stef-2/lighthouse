@@ -5,7 +5,6 @@ export module descriptor_buffer;
 
 #if INTELLISENSE
 #include "lighthouse/output.ixx"
-#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
 #include "lighthouse/renderer/vulkan/utility.ixx"
 #include "lighthouse/renderer/vulkan/physical_device.ixx"
 #include "lighthouse/renderer/vulkan/logical_device.ixx"
@@ -13,18 +12,15 @@ export module descriptor_buffer;
 #include "lighthouse/renderer/vulkan/descriptor_set_layout.ixx"
 #include "lighthouse/renderer/vulkan/buffer.ixx"
 #else
-import raii_wrapper;
-import vulkan_utility;
 import vulkan_utility;
 import physical_device;
 import logical_device;
 import memory_allocator;
 import descriptor_set_layout;
 import buffer;
-#endif
-
 import std.core;
 import vulkan;
+#endif
 
 export namespace lh
 {

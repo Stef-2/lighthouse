@@ -10,10 +10,9 @@ module;
 #include "lighthouse/renderer/renderer.ixx"
 #else
 module renderer;
-#endif
-
 import output;
 import file_system;
+#endif
 
 namespace lh
 {

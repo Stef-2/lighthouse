@@ -1,6 +1,8 @@
 module;
 #pragma once
 
+#include "vulkan/vulkan_core.h"
+
 export module instance;
 
 #if INTELLISENSE
@@ -9,15 +11,15 @@ export module instance;
 #include "lighthouse/renderer/vulkan/extension.ixx"
 #include "lighthouse/renderer/vulkan/debug_messanger.ixx"
 #include "lighthouse/window.ixx"
+import std;
 #else
 import version;
 import window;
 import raii_wrapper;
 import extension;
 import debug_messanger;
-#endif
-
 import vulkan;
+#endif
 
 export namespace lh
 {
@@ -31,7 +33,7 @@ export namespace lh
 				lh::version m_engine_version;
 				lh::version m_vulkan_version;
 				logical_extensions::create_info m_extensions = {
-					{"VK_EXT_debug_utils", "VK_KHR_get_surface_capabilities2"}
+					{VK_EXT_DEBUG_UTILS_EXTENSION_NAME, VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME}
 
 				};
 				validation_layers::create_info m_validation_layers = {{"VK_LAYER_KHRONOS_validation",

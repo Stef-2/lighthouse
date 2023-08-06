@@ -7,7 +7,6 @@ module;
 export module string_convertible;
 
 #if INTELLISENSE
-//#include "lighthouse/string/string.ixx"
 #include "vulkan/vulkan_to_string.hpp"
 #else
 import lighthouse_string;

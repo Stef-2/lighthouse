@@ -1,22 +1,13 @@
 module;
 
-#include <iostream>
-#include <fstream>
 #include <functional>
 
 #if INTELLISENSE
 #include "lighthouse/input.ixx"
-#else
-module input;
-#endif
-
-#if INTELLISENSE
-#include "lighthouse/window.ixx"
 #include "lighthouse/output.ixx"
 #else
-import window;
+module input;
 import output;
-import std.core;
 #endif
 
 namespace lh

@@ -5,11 +5,11 @@ export module raii_wrapper;
 
 #if INTELLISENSE
 #include "lighthouse/string/string.ixx"
+#include "vulkan/vulkan_raii.hpp"
 #else
 import lighthouse_string;
-#endif
-
 export import vulkan;
+#endif
 
 export namespace lh
 {

@@ -1,6 +1,5 @@
 module;
 
-// #include <iostream>;
 #include "vulkan/vk_platform.h"
 
 #if INTELLISENSE

@@ -1,8 +1,6 @@
 module;
 #pragma once
 
-#include <vector>
-
 export module shader_object_pipeline;
 
 #if INTELLISENSE
@@ -23,6 +21,7 @@ import shader_object;
 import descriptor_buffer;
 import spir_v;
 import vertex_input_description;
+import std.core;
 #endif
 
 import vulkan;

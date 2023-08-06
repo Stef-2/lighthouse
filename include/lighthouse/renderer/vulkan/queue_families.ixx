@@ -9,10 +9,9 @@ export module queue_families;
 #else
 import physical_device;
 import surface;
-#endif
-
 import std.core;
 import vulkan;
+#endif
 
 export namespace lh
 {

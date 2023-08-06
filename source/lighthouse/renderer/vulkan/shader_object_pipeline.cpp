@@ -41,7 +41,7 @@ namespace lh
 			}
 
 			// m_pipeline_layout = std::move(vk::raii::PipelineLayout {logical_device, {{},
-			// ***m_descriptor_set_layout}});
+			//  ***m_descriptor_set_layout}});
 		}
 
 		auto shader_object_pipeline::shader_objects() const -> const std::vector<shader_object>&

@@ -1,8 +1,6 @@
 module;
 #pragma once
 
-#include <vector>
-
 export module descriptor_set_layout;
 
 #if INTELLISENSE
@@ -11,6 +9,7 @@ export module descriptor_set_layout;
 #else
 import raii_wrapper;
 import logical_device;
+import std.core;
 #endif
 
 export namespace lh

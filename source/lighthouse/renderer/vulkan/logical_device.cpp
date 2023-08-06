@@ -2,11 +2,11 @@ module;
 
 #if INTELLISENSE
 #include "lighthouse/renderer/vulkan/logical_device.ixx"
+#include "lighthouse/output.ixx"
 #else
 module logical_device;
-#endif
-
 import output;
+#endif
 
 namespace lh
 {

@@ -3,10 +3,6 @@ module;
 
 #include "vkfw/vkfw.hpp"
 
-//#include <map>
-//#include <vector>
-//#include <ranges>
-
 export module window;
 
 #if INTELLISENSE
@@ -15,11 +11,9 @@ export module window;
 #else
 import lighthouse_string;
 import output;
-//import std;
-#endif
-
-import std.core;
 import vulkan;
+import std.core;
+#endif
 
 export namespace lh
 {

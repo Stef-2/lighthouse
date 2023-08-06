@@ -1,6 +1,10 @@
 module;
 
+#if INTELLISENSE
 #include <vector>
+#else
+import std.core;
+#endif
 
 export module datatype;
 

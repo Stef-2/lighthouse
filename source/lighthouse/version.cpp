@@ -1,6 +1,6 @@
 module;
 
-#include "vulkan/vulkan.h"
+#include "vulkan/vulkan_core.h"
 
 #if INTELLISENSE
 #include "lighthouse/version.ixx"

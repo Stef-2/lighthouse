@@ -13,10 +13,9 @@ export module output;
 import string_convertible;
 import lighthouse_string;
 import file_type;
-#endif
-
 import std.core;
 import std.filesystem;
+#endif
 
 namespace lh
 {

@@ -20,7 +20,6 @@ import surface;
 import sampler;
 #endif
 
-
 export namespace lh
 {
 	namespace vulkan
