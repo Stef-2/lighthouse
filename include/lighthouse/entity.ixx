@@ -38,7 +38,7 @@ export namespace lh
 		auto global_transformation() const -> const transformation_t&;
 
 
-	private:
+	protected:
 		auto reconstruct_node() const -> void;
 
 		glm::vec3 m_position;

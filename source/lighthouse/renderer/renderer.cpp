@@ -4,6 +4,10 @@ module;
 #include "vulkan/utils/math.hpp"
 #include "vkfw/vkfw.hpp"
 
+#include "glm/mat4x4.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/quaternion.hpp"
+
 #include "vulkan/utils/raii/raii_utils.hpp"
 
 #if INTELLISENSE
@@ -13,7 +17,7 @@ module renderer;
 import output;
 import file_system;
 #endif
-
+#pragma optimize("", off)
 namespace lh
 {
 
@@ -105,6 +109,7 @@ namespace lh
 						  file_system::data_path() /= "models/stanford_bunny.obj"},
 
 		  m_actual_vb {m_logical_device, m_memory_allocator, m_col_cube_data, m_col_cube_indices}
+	//, m_camera {{}, camera::create_info{.}
 	{
 		m_vertex_buffer.map_data(*m_col_cube_data.data(), 0, sizeof(vulkan::vertex) * m_col_cube_data.size());
 		m_index_buffer.map_data(*m_col_cube_indices.data(),
@@ -115,6 +120,10 @@ namespace lh
 			output::log() << info(m_create_info);
 
 		output::dump_logs(std::cout);
+
+		m_camera.translate_relative(glm::vec3 {10.0f, 0.0f, 0.0f});
+		m_camera.look_at(glm::vec3(0.0f));
+		m_camera_2.look_at(glm::vec3(3));
 	}
 
 	auto renderer::render() -> void

@@ -37,6 +37,7 @@ export module renderer;
 #include "lighthouse/file_system.ixx"
 #include "lighthouse/input.ixx"
 #include "lighthouse/window.ixx"
+#include "lighthouse/camera.ixx"
 import vulkan;
 import std;
 #else
@@ -70,6 +71,7 @@ import index_format;
 import buffer;
 import input;
 import mesh;
+import camera;
 import std.core;
 #endif
 
@@ -136,5 +138,8 @@ export namespace lh
 		scene_loader m_scene_loader;
 
 		vulkan::vertex_buffer m_actual_vb;
+
+		lh::camera<camera_type::perspective> m_camera;
+		lh::camera<camera_type::orthographic> m_camera_2;
 	};
 }

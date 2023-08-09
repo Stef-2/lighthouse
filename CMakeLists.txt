@@ -210,6 +210,7 @@ target_compile_definitions(
 	# glm definitions
 	GLM_FORCE_DEPTH_ZERO_TO_ONE
 	GLM_ENABLE_EXPERIMENTAL
+	GLM_CONSTEXPR_SIMD
 	GLM_FORCE_INTRINSICS
 
 	# project definitions
