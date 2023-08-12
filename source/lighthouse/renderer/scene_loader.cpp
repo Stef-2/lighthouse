@@ -20,7 +20,7 @@ namespace lh
 		: m_importer {}, m_meshes {}
 	{
 		m_importer.ApplyPostProcessing(create_info.m_importer_postprocess);
-		const auto scene = m_importer.ReadFile(file_path.generic_string(), create_info.m_importer_postprocess);
+		const auto scene = m_importer.ReadFile(file_path.string(), create_info.m_importer_postprocess);
 
 		if (not scene)
 			output::error() << "could not load a scene: " << file_path.string();

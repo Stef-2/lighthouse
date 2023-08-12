@@ -1,6 +1,8 @@
 module;
 #pragma once
 
+#include <compare>
+
 export module queue_families;
 
 #if INTELLISENSE

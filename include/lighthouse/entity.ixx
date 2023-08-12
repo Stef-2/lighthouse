@@ -11,6 +11,7 @@ export module entity;
 #include "lighthouse/utility.ixx"
 #else
 import node;
+import window;
 import lh_utility;
 #endif
 

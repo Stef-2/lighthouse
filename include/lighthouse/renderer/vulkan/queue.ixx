@@ -1,6 +1,8 @@
 module;
 #pragma once
 
+#include <compare>
+
 export module queue;
 
 #if INTELLISENSE
@@ -9,6 +11,7 @@ export module queue;
 #else
 import logical_device;
 import queue_families;
+import vulkan;
 #endif
 
 export namespace lh

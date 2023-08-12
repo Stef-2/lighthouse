@@ -18,6 +18,8 @@ import node;
 import logical_device;
 import memory_allocator;
 import vertex_format;
+import index_format;
+import bounding_volume;
 import mesh;
 import std.filesystem;
 #endif

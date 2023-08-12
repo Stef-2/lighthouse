@@ -43,6 +43,7 @@ export namespace vma
 	using vma::AllocatorCreateFlagBits;
 
 	using vma::Allocation;
+	using vma::AllocationCreateInfo;
 	using vma::AllocationCreateFlags;
 	using vma::AllocationCreateFlagBits;
 	using vma::AllocationInfo;

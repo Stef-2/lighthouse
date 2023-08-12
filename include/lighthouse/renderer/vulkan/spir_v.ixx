@@ -14,6 +14,8 @@ import lighthouse_string;
 import file_system;
 import shader_input;
 import vertex_input_description;
+import vulkan;
+import std.core;
 #endif
 
 export namespace lh

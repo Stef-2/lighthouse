@@ -1,5 +1,7 @@
 module;
 
+#include <compare>
+
 #if INTELLISENSE
 #include "lighthouse/renderer/vulkan/queue.ixx"
 #else

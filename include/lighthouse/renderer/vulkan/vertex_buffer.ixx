@@ -19,6 +19,7 @@ import buffer;
 import vertex_input_description;
 import vertex_format;
 import index_format;
+import std.core;
 #endif
 
 export namespace lh

@@ -4,6 +4,7 @@
 #include "lighthouse/engine.ixx"
 import std;
 #else
+import window;
 import engine;
 #endif
 

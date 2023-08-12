@@ -17,7 +17,7 @@ module renderer;
 import output;
 import file_system;
 #endif
-#pragma optimize("", off)
+//#pragma optimize("", off)
 namespace lh
 {
 
