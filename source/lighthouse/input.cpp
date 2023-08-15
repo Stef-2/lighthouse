@@ -13,6 +13,9 @@ import output;
 namespace lh
 {
 	action::counter_t action::s_counter = {};
+	window* input::mouse::s_window = {};
+	double input::mouse::s_previous_x = {};
+	double input::mouse::s_previous_y = {};
 
 	auto action::get_id() const -> const counter_t&
 	{
@@ -78,6 +81,25 @@ namespace lh
 
 			for (auto function = iterator.first; function != iterator.second; ++function)
 				function->second();
+		};
+	}
+
+	auto input::mouse::initialize(const window& window) -> void
+	{
+		s_window = &const_cast<lh::window&>(window);
+
+		window.vkfw_window().setCursorPos(window.resolution().width / 2, window.resolution().height / 2);
+		s_previous_x = window.resolution().width / 2;
+		s_previous_y = window.resolution().height / 2;
+	}
+
+	auto input::mouse::move_callback(const on_move_action_t& action) -> void
+	{
+		s_window->vkfw_window().callbacks()->on_cursor_move = [action](vkfw::Window const&, double x, double y) {
+			action(move_data{x, y, s_previous_x, s_previous_y});
+
+			s_previous_x = x;
+			s_previous_y = y;
 		};
 	}
 
@@ -156,5 +178,6 @@ namespace lh
 	auto input::initialize(const window& window) -> void
 	{
 		key_binding::initialize(window);
+		mouse::initialize(window);
 	}
 }

@@ -10,6 +10,7 @@ set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP 1)
 #set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API "2182bf5c-ef0d-489a-91da-49dbc3090d2a")
 set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API "aa1f7df0-828a-4fcd-9afc-2dc80491aca7")
+add_compile_options(/ifcSearchDir C:/Users/Stefan/source/repos/lighthouse/build/MSVC-x64-release/CMakeFiles/lighthouse.dir)
 
 
 # Path
@@ -92,7 +93,8 @@ add_executable(
 	${source}/vulkan/math.cpp
 	${source}/lighthouse/lightHouse.cpp
 	${source}/lighthouse/entity.cpp
- "source/lighthouse/camera.cpp")
+	${source}/lighthouse/camera.cpp
+)
 
 target_sources(
 	${PROJECT_NAME} PRIVATE FILE_SET CXX_MODULES FILES
@@ -215,7 +217,7 @@ target_compile_definitions(
 
 	# project definitions
 	DYNAMIC_LINK_DIRECTORY="${dynamic}"
-	INTELLISENSE=__INTELLISENSE__
+	INTELLISENSE=0#__INTELLISENSE__
 	DONT_OPTIMIZE=__pragma\(optimize\(\"\",off\)\)
 )
 

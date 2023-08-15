@@ -21,10 +21,12 @@ export namespace lh
 	{
 	public:
 		using transformation_t = node::transformation_t;
+		using normalized_direction_t = glm::vec3;
 
 		entity(const node& = {});
 
 		auto translate_relative(const glm::vec3&) -> void;
+		auto translate_relative(const normalized_direction_t&, float) -> void;
 		auto rotate_relative(const glm::vec3&) -> void;
 		auto rotate_relative(const glm::quat&) -> void;
 		auto scale_relative(const glm::vec3&) -> void;
@@ -38,6 +40,9 @@ export namespace lh
 		auto local_transformation() const -> const transformation_t&;
 		auto global_transformation() const -> const transformation_t&;
 
+		auto position() -> glm::vec3& { return m_position; }
+		auto rotation() -> glm::quat& { return m_rotation; }
+		auto scale() -> glm::vec3& { return m_scale; }
 
 	protected:
 		auto reconstruct_node() const -> void;

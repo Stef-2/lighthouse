@@ -42,6 +42,7 @@ import vulkan;
 import std;
 #else
 import window;
+import node;
 import lighthouse_string;
 import version;
 import file_system;
@@ -139,6 +140,7 @@ export namespace lh
 
 		vulkan::vertex_buffer m_actual_vb;
 
+		node m_camera_node;
 		lh::camera<camera_type::perspective> m_camera;
 		lh::camera<camera_type::orthographic> m_camera_2;
 	};

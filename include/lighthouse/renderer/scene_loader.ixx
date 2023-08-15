@@ -34,8 +34,7 @@ export namespace lh
 			std::int32_t m_importer_postprocess = aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph |
 												  aiProcess_GenSmoothNormals | aiProcess_GenUVCoords |
 												  aiProcess_JoinIdenticalVertices | aiProcess_ImproveCacheLocality |
-												  aiProcess_FlipWindingOrder | aiProcess_LimitBoneWeights |
-												  aiProcess_GenBoundingBoxes;
+												  aiProcess_LimitBoneWeights | aiProcess_GenBoundingBoxes;
 		};
 
 		scene_loader(const vulkan::logical_device&,

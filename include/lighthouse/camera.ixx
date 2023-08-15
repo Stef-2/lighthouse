@@ -28,10 +28,10 @@ export namespace lh
 		template <camera_type T = camera_type::perspective>
 		struct create_info
 		{
-			float m_aspect_ratio = 1080.0f / 1920.0f;
+			float m_aspect_ratio = 1920.0f / 1080.0f;
 			float m_near_clip = 0.1f;
 			float m_far_clip = 1024.0f;
-			float m_field_of_view = 90.0f;
+			float m_field_of_view = 45.0f;
 		};
 
 		template <>
@@ -47,11 +47,15 @@ export namespace lh
 
 		camera(const node& = {}, const create_info<T>& = {});
 
-		static auto up_direction() -> const glm::vec3&;
+		static auto up_direction() -> const glm::vec3&
+		{
+			return s_up_direction;
+		}
 
 		auto look_at(const glm::vec3& target) -> void
 		{
-			rotate_absolute(glm::lookAt(m_position, target, camera::s_up_direction));
+			local_transformation(glm::lookAt(m_position, target, camera::s_up_direction));
+			entity::m_node_requires_reconstruction = false;
 		}
 
 		auto view() const -> const entity::transformation_t&
@@ -59,15 +63,30 @@ export namespace lh
 			return local_transformation();
 		}
 
+		auto view_direction() const -> const glm::vec3
+		{
+			const auto& transformation = local_transformation();
+
+			return {transformation[0][2], transformation[1][2], transformation[2][2]};
+		}
+
+		auto right_direction() const -> const glm::vec3
+		{
+			return glm::cross(view_direction(), s_up_direction);
+		}
+
 		auto properties(const create_info<T>&) -> void;
 		auto properties() const -> const create_info<T>&;
 
-		auto perspective() const -> const glm::mat4x4&;
+		auto projection() const -> const glm::mat4x4&
+		{
+			return m_projection;
+		}
 
 	private:
 		static inline const auto s_up_direction = glm::vec3 {0.0f, 1.0f, 0.0f};
 
 		create_info<T> m_camera_info;
-		glm::mat4x4 m_perspective;
+		glm::mat4x4 m_projection;
 	};
 }

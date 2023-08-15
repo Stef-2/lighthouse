@@ -15,16 +15,20 @@ import input;
 namespace lh
 {
 
+	engine::delta_time_t engine::s_delta_time = vkfw::getTime().value;
+
 	engine::engine(std::unique_ptr<lh::window> window, const create_info& engine_create_info)
-		: m_window(std::move(window)),
-		  m_version(engine_create_info.m_engine_version),
-		  m_renderer {std::make_unique<renderer>(*m_window,
-												 renderer::create_info {engine_create_info.m_engine_version,
-																		engine_create_info.m_renderer_version})}
+		: m_window {std::move(window)},
+		  m_renderer {},
+		  m_version(engine_create_info.m_engine_version)
 	{
-		engine::initialize();
 		input::initialize(*m_window);
+		engine::initialize();
 		output::initialize();
+
+		m_renderer = std::make_unique<renderer>(*m_window,
+												renderer::create_info {engine_create_info.m_engine_version,
+																	   engine_create_info.m_renderer_version});
 	}
 
 	engine::~engine()
@@ -38,6 +42,8 @@ namespace lh
 		{
 			m_renderer->render();
 			poll_events();
+
+			s_delta_time = vkfw::getTime().value - s_delta_time;
 		}
 	}
 
@@ -69,5 +75,10 @@ namespace lh
 	auto engine::version() -> lh::version&
 	{
 		return m_version;
+	}
+
+	auto engine::delta_time() -> const delta_time_t&
+	{
+		return s_delta_time;
 	}
 }

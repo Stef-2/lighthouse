@@ -97,6 +97,30 @@ namespace lh
 			static inline auto s_key_bindings =
 				std::unordered_multimap<const key_input, const action, const key_input> {};
 		};
+
+		export class mouse
+		{
+		public:
+			struct move_data
+			{
+				double m_current_x;
+				double m_current_y;
+				const double& m_previous_x;
+				const double& m_previous_y;
+			};
+
+			using on_move_action_t = std::function<void(move_data)>;
+
+			static auto initialize(const window&) -> void;
+
+			static auto move_callback(const on_move_action_t&) -> void;
+
+		private:
+			static window* s_window;
+			static double s_previous_x;
+			static double s_previous_y;
+		};
+
 		auto read_text_file(const std::filesystem::path&) -> string::string_t;
 		auto read_binary_file(const std::filesystem::path&) -> std::vector<std::byte>;
 

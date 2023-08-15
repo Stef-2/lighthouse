@@ -22,9 +22,6 @@ export namespace lh
 {
 	namespace vulkan
 	{
-		// forward declarations
-		struct shader_input;
-
 		class spir_v
 		{
 		public:

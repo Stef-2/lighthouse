@@ -1,12 +1,13 @@
 module;
+#pragma once
+
+export module datatype;
 
 #if INTELLISENSE
 #include <vector>
 #else
 import std.core;
 #endif
-
-export module datatype;
 
 export namespace lh
 {

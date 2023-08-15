@@ -13,8 +13,8 @@ namespace lh
 	entity::entity(const lh::node& node)
 		: m_node {&const_cast<lh::node&>(node)},
 		  m_position {},
-		  m_rotation {},
-		  m_scale {},
+		  m_rotation {1.0f, 0.0f, 0.0f, 0.0f},
+		  m_scale {1.0f},
 		  m_node_requires_reconstruction {false}
 	{
 		// if node transformation is not an identity transformation
@@ -33,15 +33,21 @@ namespace lh
 		m_position += translation;
 		m_node_requires_reconstruction = true;
 	}
+	
+	auto entity::translate_relative(const entity::normalized_direction_t& direction, float magnitude) -> void
+	{
+		m_position += direction * magnitude;
+		m_node_requires_reconstruction = true;
+	}
 
 	auto entity::rotate_relative(const glm::vec3& rotation) -> void
 	{
-		m_rotation += glm::quat {rotation};
+		m_rotation = m_rotation * glm::quat {rotation};
 		m_node_requires_reconstruction = true;
 	}
 	auto entity::rotate_relative(const glm::quat& rotation) -> void
 	{
-		m_rotation += rotation;
+		m_rotation = m_rotation * rotation;
 		m_node_requires_reconstruction = true;
 	}
 
@@ -94,13 +100,13 @@ namespace lh
 
 	auto entity::reconstruct_node() const -> void
 	{
-		auto transformation = node::s_identity_transformation;
+		auto transformation = glm::mat4x4 {1.0f};
 
-		transformation = glm::scale(transformation, m_scale);
-		transformation *= glm::mat4_cast(m_rotation);
-		transformation = glm::translate(transformation, m_position);
+		const auto scaling = glm::scale(transformation, m_scale);
+		const auto rotation = glm::mat4_cast(m_rotation);
+		const auto translation = glm::translate(transformation, m_position);
 
-		m_node->local_transformation(transformation);
+		m_node->local_transformation(scaling * rotation * translation);
 
 		m_node_requires_reconstruction = false;
 	}
