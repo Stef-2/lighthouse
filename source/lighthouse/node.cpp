@@ -10,14 +10,14 @@ namespace lh
 {
 
 	node node::s_root_node {s_root_node};
-	node::transformation_t node::s_identity_transformation {1.0f};
+	const node::transformation_t node::s_identity_transformation {1.0f};
 
 	auto node::root_node() -> node&
 	{
 		return s_root_node;
 	}
 
-	node::node(node& parent, transformation_t transformation, destruction_strategy destruction_strategy)
+	node::node(node& parent, const transformation_t& transformation, destruction_strategy destruction_strategy)
 		: m_parent(&parent), m_transformation(transformation), m_destruction_mode(destruction_strategy), m_children {}
 	{
 		m_parent->add_child(*this);

@@ -10,6 +10,7 @@ export module camera;
 #include "lighthouse/entity.ixx"
 #else
 import entity;
+import input;
 #endif
 
 export namespace lh
@@ -24,7 +25,6 @@ export namespace lh
 	class camera : public entity
 	{
 	public:
-		
 		template <camera_type T = camera_type::perspective>
 		struct create_info
 		{
@@ -45,17 +45,11 @@ export namespace lh
 			float m_far_clip = 1024.0f;
 		};
 
-		camera(const node& = {}, const create_info<T>& = {});
+		camera(std::shared_ptr<node>, const create_info<T>& = {});
 
 		static auto up_direction() -> const glm::vec3&
 		{
 			return s_up_direction;
-		}
-
-		auto look_at(const glm::vec3& target) -> void
-		{
-			local_transformation(glm::lookAt(m_position, target, camera::s_up_direction));
-			entity::m_node_requires_reconstruction = false;
 		}
 
 		auto view() const -> const entity::transformation_t&
@@ -83,10 +77,17 @@ export namespace lh
 			return m_projection;
 		}
 
+		auto first_person_callback() const -> input::mouse::on_move_action_t
+		{
+			return m_first_person_callback;
+		}
+
 	private:
 		static inline const auto s_up_direction = glm::vec3 {0.0f, 1.0f, 0.0f};
 
 		create_info<T> m_camera_info;
 		glm::mat4x4 m_projection;
+
+		input::mouse::on_move_action_t m_first_person_callback;
 	};
 }

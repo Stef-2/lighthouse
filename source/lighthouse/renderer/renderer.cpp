@@ -108,8 +108,9 @@ namespace lh
 		  m_scene_loader {m_logical_device, m_memory_allocator, file_system::data_path() /= "models/xyz.obj"},
 
 		  m_actual_vb {m_logical_device, m_memory_allocator, m_col_cube_data, m_col_cube_indices},
-		  m_camera_node {},
-		  m_camera {m_camera_node, camera<camera_type::perspective>::create_info {}}
+		  // m_camera_node {},
+		  m_camera {std::make_shared<lh::node>(), camera<camera_type::perspective>::create_info {}},
+		  m_model {1.0f}
 	{
 		m_vertex_buffer.map_data(*m_col_cube_data.data(), 0, sizeof(vulkan::vertex) * m_col_cube_data.size());
 		m_index_buffer.map_data(*m_col_cube_indices.data(),
@@ -120,10 +121,6 @@ namespace lh
 			output::log() << info(m_create_info);
 
 		output::dump_logs(std::cout);
-
-		m_camera.translate_relative(glm::vec3(-1.0f, 1.0f, -1.0f));
-		// m_camera.look_at(glm::vec3(0.0f));
-		m_camera_2.look_at(glm::vec3(3));
 
 		input::key_binding::bind({vkfw::Key::A, {}, vkfw::KeyAction::Repeat},
 								 [this]() { m_camera.translate_relative(m_camera.right_direction(), -0.1f); });
@@ -138,34 +135,10 @@ namespace lh
 		input::key_binding::bind({vkfw::Key::C, {}, vkfw::KeyAction::Repeat},
 								 [this]() { m_camera.translate_relative(m_camera.up_direction(), -0.1f); });
 
-		input::key_binding::bind({vkfw::Key::Q}, [this]() { m_camera.look_at(glm::vec3(0.0f)); });
+		input::key_binding::bind({vkfw::Key::Q},
+								 [this]() { m_model = glm::translate(m_model, m_camera.up_direction() * 0.1f); });
 
-		input::mouse::move_callback([this](input::mouse::move_data move_data) -> void {
-			// constexpr auto qZ = glm::quat {1.0f, 0.0f, 0.0f, 0.0f};
-
-			const auto delta_x = static_cast<float>(move_data.m_current_x - move_data.m_previous_x);
-			const auto delta_y = static_cast<float>(move_data.m_current_y - move_data.m_previous_y);
-			auto looking_at = m_camera.view();
-			const auto sens = 1.0f;
-			const auto look = glm::radians(glm::vec3 {delta_x * sens, delta_y * sens, 0.0f});
-
-			const auto move = glm::translate(glm::mat4x4 {1.0f}, m_camera.position());
-			const auto quat = glm::quat(look);
-
-			const auto q = m_camera.rotation();
-			const auto qX = glm::normalize(glm::angleAxis(glm::radians(delta_y), glm::vec3(1.0f, 0.0f, 0.0f)));
-			const auto qY = glm::normalize(glm::angleAxis(glm::radians(delta_x), glm::vec3(0.0f, 1.0f, 0.0f)));
-			// const auto qZ = glm::normalize(glm::angleAxis(glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
-			//  m_camera.local_transformation(glm::rotate(looking_at, 0.1f, look));
-			/*std::cout << "right: " << glm::to_string(m_camera.right_direction())
-					  << " normalized: " << glm::to_string(glm::normalize(m_camera.right_direction())) << '\n';*/
-			m_camera.rotate_absolute(glm::quat {1.0f, 0.0f, 0.0f, 0.0f} * qX * q * qY);
-			std::cout << glm::to_string(m_camera.position()) << '\n';
-			// std::cout << "qZ: " << glm::to_string(qZ) << '\n';
-			//  std::cout << "quat: " << glm::to_string(quat) << " full rot: " << glm::to_string(m_camera.rotation()) <<
-			//  '\n'; m_camera.local_transformation(glm::mat4_cast(m_camera.rotation()) * move);
-			//  m_camera.look_at({delta_x * sens, delta_y * sens, 0.0f});
-		});
+		input::mouse::move_callback(m_camera.first_person_callback());
 	}
 
 	auto renderer::render() -> void
@@ -181,9 +154,9 @@ namespace lh
 		command_buffer.beginRendering(render_info);
 
 		command_buffer.setViewportWithCountEXT(vk::Viewport(0.0f,
-															0.0f, // static_cast<float>(m_surface.extent().height),
-															static_cast<float>(m_surface.extent().width),
 															static_cast<float>(m_surface.extent().height),
+															static_cast<float>(m_surface.extent().width),
+															-static_cast<float>(m_surface.extent().height),
 															0.0f,
 															1.0f));
 
@@ -223,7 +196,7 @@ namespace lh
 		glm::mat4x4 clip = glm::mat4x4(
 			1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.5f, 1.0f);
 
-		auto test_camera = perspective * view * model;
+		auto test_camera = /*clip **/ perspective * view * m_model;
 		m_resource_generator.uniform_buffers().map_data(test_camera);
 		m_resource_generator.uniform_buffers().map_data(sin(time), 64);
 

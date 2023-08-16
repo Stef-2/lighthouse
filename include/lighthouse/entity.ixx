@@ -22,37 +22,41 @@ export namespace lh
 	public:
 		using transformation_t = node::transformation_t;
 		using normalized_direction_t = glm::vec3;
+		using vector3_t = glm::vec3;
+		using rotation_t = glm::quat;
 
-		entity(const node& = {});
+		entity(std::shared_ptr<node> = std::make_shared<node>());
 
-		auto translate_relative(const glm::vec3&) -> void;
+		static inline const auto s_identity_quaternion = rotation_t {1.0f, 0.0f, 0.0f, 0.0f};
+
+		auto translate_relative(const vector3_t&) -> void;
 		auto translate_relative(const normalized_direction_t&, float) -> void;
-		auto rotate_relative(const glm::vec3&) -> void;
-		auto rotate_relative(const glm::quat&) -> void;
-		auto scale_relative(const glm::vec3&) -> void;
+		auto rotate_relative(const vector3_t&) -> void;
+		auto rotate_relative(const rotation_t&) -> void;
+		auto scale_relative(const vector3_t&) -> void;
 
-		auto translate_absolute(const glm::vec3&) -> void;
-		auto rotate_absolute(const glm::vec3&) -> void;
-		auto rotate_absolute(const glm::quat&) -> void;
-		auto scale_absolute(const glm::vec3&) -> void;
+		auto translate_absolute(const vector3_t&) -> void;
+		auto rotate_absolute(const vector3_t&) -> void;
+		auto rotate_absolute(const rotation_t&) -> void;
+		auto scale_absolute(const vector3_t&) -> void;
 
 		auto local_transformation(const transformation_t&) -> void;
 		auto local_transformation() const -> const transformation_t&;
 		auto global_transformation() const -> const transformation_t&;
 
-		auto position() -> glm::vec3& { return m_position; }
-		auto rotation() -> glm::quat& { return m_rotation; }
-		auto scale() -> glm::vec3& { return m_scale; }
+		auto position() -> vector3_t& { return m_position; }
+		auto rotation() -> rotation_t& { return m_rotation; }
+		auto scale() -> vector3_t& { return m_scale; }
 
 	protected:
 		auto reconstruct_node() const -> void;
 
-		glm::vec3 m_position;
-		glm::quat m_rotation;
-		glm::vec3 m_scale;
+		vector3_t m_position;
+		rotation_t m_rotation;
+		vector3_t m_scale;
 
 		mutable bool m_node_requires_reconstruction;
-		non_owning_ptr<lh::node> m_node;
+		std::shared_ptr<lh::node> m_node;
 	};
 
 }

@@ -38,18 +38,18 @@ namespace lh
 
 				if constexpr (string::std_convertible<type_t>)
 					return std::to_string(data);
-
+				/*
 				if constexpr (string::glm_convertible<type_t>)
-					return glm::to_string(data);
-
+					return glm::to_string(data);*/
+				/*
 				if constexpr (string::vkfw_convertible<type_t>)
-					return vkfw::to_string(data);
-
+					return vkfw::to_string(data);*/
+				
 				if constexpr (string::std_constructible<type_t>)
 					return lh::string::string_t {data};
-
+				/*
 				if constexpr (string::vulkan_to_string and string::vulkan_convertible<type_t>)
-					return vk::to_string(data);
+					return vk::to_string(data);*/
 			}
 
 			// enable std::cout like << operator

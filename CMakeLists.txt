@@ -20,6 +20,7 @@ cmake_path(SET module ${CMAKE_CURRENT_SOURCE_DIR}/module)
 cmake_path(SET library ${CMAKE_CURRENT_SOURCE_DIR}/library)
 cmake_path(SET dynamic ${CMAKE_CURRENT_SOURCE_DIR}/library)
 
+#[[
 # std module
 add_library(std_module)
 target_sources(std_module PUBLIC FILE_SET CXX_MODULES FILES
@@ -35,7 +36,7 @@ target_sources(std_compat_module PUBLIC FILE_SET CXX_MODULES FILES
 target_compile_options(std_compat_module PUBLIC
 	/std:c++latest /EHsc /GL /Ox /Oi /W3 /MP /Zf /MD /Qpar /Qpar-report:1 /arch:AVX2 /nologo#/translateInclude
 	/DNOMINMAX /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS
-)
+)]]
 # vulkan module
 add_library(vulkan_module)
 target_sources(vulkan_module PUBLIC FILE_SET CXX_MODULES FILES
@@ -206,6 +207,7 @@ target_compile_definitions(
 	VULKAN_HPP_FLAGS_MASK_TYPE_AS_PUBLIC
 	VULKAN_HPP_NO_NODISCARD_WARNINGS
 	VULKAN_HPP_NO_SPACESHIP_OPERATOR
+	VULKAN_HPP_NO_TO_STRING
 	#VULKAN_HPP_NO_SMART_HANDLE
 	#VULKAN_HPP_NO_SETTERS
 
@@ -218,7 +220,6 @@ target_compile_definitions(
 	# project definitions
 	DYNAMIC_LINK_DIRECTORY="${dynamic}"
 	INTELLISENSE=0#__INTELLISENSE__
-	DONT_OPTIMIZE=__pragma\(optimize\(\"\",off\)\)
 )
 
 # Include
@@ -266,8 +267,8 @@ target_link_libraries(
 
 	assimp-vc143-mt.lib
 
-	std_module
-	std_compat_module
+	#std_module
+	#std_compat_module
 	vulkan_module
 )
 

@@ -139,9 +139,9 @@ export namespace lh
 		scene_loader m_scene_loader;
 
 		vulkan::vertex_buffer m_actual_vb;
-
-		node m_camera_node;
+		glm::mat4x4 m_model;
+		//node m_camera_node;
 		lh::camera<camera_type::perspective> m_camera;
-		lh::camera<camera_type::orthographic> m_camera_2;
+		//lh::camera<camera_type::orthographic> m_camera_2;
 	};
 }
