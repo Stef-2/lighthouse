@@ -1,5 +1,4 @@
 module;
-#pragma once
 
 export module vertex_input_description;
 

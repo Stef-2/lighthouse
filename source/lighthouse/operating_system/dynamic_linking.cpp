@@ -2,11 +2,7 @@ module;
 
 #include "windows.h"
 
-#if INTELLISENSE
-#include "lighthouse/operating_system/dynamic_linking.ixx"
-#else
 module dynamic_linking;
-#endif
 
 namespace lh
 {

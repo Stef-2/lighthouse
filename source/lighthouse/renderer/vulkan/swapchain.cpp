@@ -1,10 +1,6 @@
 module;
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/swapchain.ixx"
-#else
 module swapchain;
-#endif
 
 namespace lh
 {

@@ -1,25 +1,15 @@
 module;
-#pragma once
 
 #include "vulkan/vulkan_core.h"
 
 export module instance;
 
-#if INTELLISENSE
-#include "lighthouse/version.ixx"
-#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
-#include "lighthouse/renderer/vulkan/extension.ixx"
-#include "lighthouse/renderer/vulkan/debug_messanger.ixx"
-#include "lighthouse/window.ixx"
-import std;
-#else
 import version;
 import window;
 import raii_wrapper;
 import extension;
 import debug_messanger;
 import vulkan;
-#endif
 
 export namespace lh
 {

@@ -1,19 +1,12 @@
 module;
-#pragma once
 
 #include "vulkan/vk_platform.h"
 
 export module debug_messanger;
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
-#include "lighthouse/output.ixx"
-#else
 import raii_wrapper;
 import output;
 import vulkan;
-#endif
-
 
 export namespace lh
 {

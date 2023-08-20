@@ -1,13 +1,8 @@
 module;
-#pragma once
 
 export module dynamic_linking;
 
-#if INTELLISENSE
-import std;
-#else
 import std.filesystem;
-#endif
 
 export namespace lh
 {

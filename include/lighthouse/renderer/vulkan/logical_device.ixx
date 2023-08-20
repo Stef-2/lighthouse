@@ -1,20 +1,11 @@
 module;
-#pragma once
 
 export module logical_device;
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/vulkan_string.ixx"
-#include "lighthouse/renderer/vulkan/physical_device.ixx"
-#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
-#include "lighthouse/string/string.ixx"
-#else
 import lighthouse_string;
 import vulkan_string;
 import raii_wrapper;
 import physical_device;
-#endif
-
 
 export namespace lh
 {

@@ -1,16 +1,9 @@
 module;
-#pragma once
 
 #include "glm/mat4x4.hpp"
 #include "glm/gtx/quaternion.hpp"
 
 export module camera;
-
-#if INTELLISENSE
-#include "lighthouse/entity.ixx"
-#else
-
-#endif
 
 import entity;
 import input;

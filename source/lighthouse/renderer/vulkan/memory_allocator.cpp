@@ -5,12 +5,8 @@ module;
 #include "vulkan/vulkan_core.h"
 #include "vma/vk_mem_alloc.hpp"
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/memory_allocator.ixx"
-#else
 module memory_allocator;
 import output;
-#endif
 
 namespace lh
 {

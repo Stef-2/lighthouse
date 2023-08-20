@@ -1,19 +1,13 @@
 module;
-#pragma once
 
 #include <compare>
 
 export module queue_families;
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/physical_device.ixx"
-#include "lighthouse/renderer/vulkan/surface.ixx"
-#else
 import physical_device;
 import surface;
 import std.core;
 import vulkan;
-#endif
 
 export namespace lh
 {

@@ -1,10 +1,6 @@
 module;
 
-#if INTELLISENSE
-#include "lighthouse/output.ixx"
-#else
 module output;
-#endif
 
 namespace lh
 {

@@ -1,19 +1,11 @@
 module;
-#pragma once
 
 export module buffer;
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
-#include "lighthouse/renderer/vulkan/logical_device.ixx"
-#include "lighthouse/renderer/vulkan/memory_allocator.ixx"
-#include "lighthouse/utility.ixx"
-#else
 import lh_utility;
 import raii_wrapper;
 import logical_device;
 import memory_allocator;
-#endif
 
 export namespace lh
 {

@@ -1,15 +1,9 @@
 module;
-#pragma once
 
 export module raii_wrapper;
 
-#if INTELLISENSE
-#include "lighthouse/string/string.ixx"
-#include "vulkan/vulkan_raii.hpp"
-#else
 export import vulkan;
 import lighthouse_string;
-#endif
 
 export namespace lh
 {

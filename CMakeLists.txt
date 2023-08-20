@@ -14,7 +14,7 @@ set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP 1)
 set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API "aa1f7df0-828a-4fcd-9afc-2dc80491aca7")
 #add_compile_options(/ifcSearchDir "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.37.32822/ifc/x64/Release")
 #add_compile_options(/stdIfcDir "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.37.32822/ifc/x64/Release")
-#add_compile_options(/reference include/std.core.ifc)
+#add_compile_options(/reference lighthose_string=C:/Users/Stefan/source/repos/lighthouse/build/MSVC-x64-RelWithDebInfo/CMakeFiles/lighthouse.dir/lighthouse_string.ifc)
 #set(ENV{IFCPATH} "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.37.32822/ifc/x64/Release")
 
 # Path
@@ -23,6 +23,8 @@ cmake_path(SET include ${CMAKE_CURRENT_SOURCE_DIR}/include)
 cmake_path(SET module ${CMAKE_CURRENT_SOURCE_DIR}/module)
 cmake_path(SET library ${CMAKE_CURRENT_SOURCE_DIR}/library)
 cmake_path(SET dynamic ${CMAKE_CURRENT_SOURCE_DIR}/library)
+
+add_executable(${PROJECT_NAME})
 
 #[[
 # std module
@@ -55,51 +57,6 @@ target_include_directories(
 
 	${include}/vulkan
 )
-# Add source to this project's executable.
-add_executable(
-	${PROJECT_NAME} 
-
-	${source}/lighthouse/window.cpp
-	${source}/lighthouse/file_system.cpp
-	${source}/lighthouse/operating_system/dynamic_linking.cpp
-	${source}/lighthouse/engine.cpp
-	${source}/lighthouse/renderer/renderer.cpp
-	${source}/lighthouse/version.cpp
-	${source}/lighthouse/node.cpp
-	${source}/lighthouse/operating_system/memory.cpp
-	${source}/lighthouse/renderer/vulkan/extension.cpp
-	${source}/lighthouse/renderer/vulkan/instance.cpp
-	${source}/lighthouse/renderer/vulkan/debug_messanger.cpp
-	${source}/lighthouse/renderer/vulkan/physical_device.cpp
-	${source}/lighthouse/renderer/vulkan/logical_device.cpp
-	${source}/lighthouse/renderer/vulkan/surface.cpp
-	${source}/lighthouse/renderer/vulkan/queue_families.cpp
-	${source}/lighthouse/renderer/vulkan/memory_allocator.cpp
-	${source}/lighthouse/renderer/vulkan/command_control.cpp
-	${source}/lighthouse/renderer/vulkan/queue.cpp
-	${source}/lighthouse/renderer/vulkan/image.cpp
-	${source}/lighthouse/renderer/vulkan/swapchain.cpp
-	${source}/lighthouse/renderer/vulkan/descriptor_set_layout.cpp
-	${source}/lighthouse/renderer/vulkan/buffer.cpp
-	${source}/lighthouse/renderer/vulkan/sampler.cpp
-	${source}/lighthouse/renderer/vulkan/descriptor_buffer.cpp
-	${source}/lighthouse/renderer/vulkan/spir_v.cpp
-	${source}/lighthouse/renderer/vulkan/shader_object.cpp
-	${source}/lighthouse/renderer/vulkan/vertex_buffer.cpp
-	${source}/lighthouse/renderer/vulkan/shader_object_pipeline.cpp
-	${source}/lighthouse/renderer/scene_loader.cpp
-	${source}/lighthouse/renderer/vulkan/pipeline_resource_generator.cpp
-	${source}/lighthouse/renderer/vulkan/shader_input.cpp
-	${source}/lighthouse/renderer/mesh.cpp
-	${source}/lighthouse/renderer/bounding_volume.cpp
-	${source}/lighthouse/output.cpp
-	${source}/lighthouse/input.cpp
-	${source}/vulkan/utils.cpp
-	${source}/vulkan/math.cpp
-	${source}/lighthouse/lightHouse.cpp
-	${source}/lighthouse/entity.cpp
-	${source}/lighthouse/camera.cpp
-)
 
 target_sources(
 	${PROJECT_NAME} PUBLIC FILE_SET CXX_MODULES FILES
@@ -110,7 +67,7 @@ target_sources(
 	${include}/lighthouse/file_type.ixx
 	${include}/lighthouse/utility.ixx
 	${include}/lighthouse/datatype.ixx
-	${include}/lighthouse/string/string.ixx
+	${include}/lighthouse/string/lh_string.ixx
 	${include}/lighthouse/string/string_convertible.ixx
 	${include}/lighthouse/operating_system/system.ixx
 	${include}/lighthouse/output.ixx
@@ -155,7 +112,54 @@ target_sources(
 	${include}/lighthouse/renderer/bounding_volume.ixx	
 	${include}/lighthouse/entity.ixx
 	${include}/lighthouse/camera.ixx
-)
+ "test123.ixx")
+
+target_sources(
+	${PROJECT_NAME} PUBLIC
+
+	${source}/lighthouse/window.cpp
+	${source}/lighthouse/file_system.cpp
+	${source}/lighthouse/operating_system/dynamic_linking.cpp
+	${source}/lighthouse/engine.cpp
+	${source}/lighthouse/renderer/renderer.cpp
+	${source}/lighthouse/version.cpp
+	${source}/lighthouse/node.cpp
+	${source}/lighthouse/operating_system/memory.cpp
+	${source}/lighthouse/renderer/vulkan/extension.cpp
+	${source}/lighthouse/renderer/vulkan/instance.cpp
+	${source}/lighthouse/renderer/vulkan/debug_messanger.cpp
+	${source}/lighthouse/renderer/vulkan/physical_device.cpp
+	${source}/lighthouse/renderer/vulkan/logical_device.cpp
+	${source}/lighthouse/renderer/vulkan/surface.cpp
+	${source}/lighthouse/renderer/vulkan/queue_families.cpp
+	${source}/lighthouse/renderer/vulkan/memory_allocator.cpp
+	${source}/lighthouse/renderer/vulkan/command_control.cpp
+	${source}/lighthouse/renderer/vulkan/queue.cpp
+	${source}/lighthouse/renderer/vulkan/image.cpp
+	${source}/lighthouse/renderer/vulkan/swapchain.cpp
+	${source}/lighthouse/renderer/vulkan/descriptor_set_layout.cpp
+	${source}/lighthouse/renderer/vulkan/buffer.cpp
+	${source}/lighthouse/renderer/vulkan/sampler.cpp
+	${source}/lighthouse/renderer/vulkan/descriptor_buffer.cpp
+	${source}/lighthouse/renderer/vulkan/spir_v.cpp
+	${source}/lighthouse/renderer/vulkan/shader_object.cpp
+	${source}/lighthouse/renderer/vulkan/vertex_buffer.cpp
+	${source}/lighthouse/renderer/vulkan/shader_object_pipeline.cpp
+	${source}/lighthouse/renderer/scene_loader.cpp
+	${source}/lighthouse/renderer/vulkan/pipeline_resource_generator.cpp
+	${source}/lighthouse/renderer/vulkan/shader_input.cpp
+	${source}/lighthouse/renderer/mesh.cpp
+	${source}/lighthouse/renderer/bounding_volume.cpp
+	${source}/lighthouse/output.cpp
+	${source}/lighthouse/input.cpp
+	${source}/vulkan/utils.cpp
+	${source}/vulkan/math.cpp
+	${source}/lighthouse/lightHouse.cpp
+	${source}/lighthouse/entity.cpp
+	${source}/lighthouse/camera.cpp
+ "test123.cpp")
+
+
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_RELEASE}")
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")

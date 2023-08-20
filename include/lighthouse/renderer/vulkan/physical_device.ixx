@@ -1,23 +1,14 @@
 module;
-#pragma once
 
 #include "vulkan/vulkan_core.h"
 
 export module physical_device;
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
-#include "lighthouse/renderer/vulkan/instance.ixx"
-#include "lighthouse/renderer/vulkan/extension.ixx"
-#include "lighthouse/string/string.ixx"
-#include "lighthouse/version.ixx"
-#else
 import lighthouse_string;
 import extension;
 import instance;
 import raii_wrapper;
 import version;
-#endif
 
 export namespace lh
 {

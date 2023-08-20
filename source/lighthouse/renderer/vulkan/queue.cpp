@@ -2,11 +2,7 @@ module;
 
 #include <compare>
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/queue.ixx"
-#else
 module queue;
-#endif
 
 namespace lh
 {

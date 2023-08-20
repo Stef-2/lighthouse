@@ -1,9 +1,5 @@
 module;
 
-#if INTELLISENSE
-#include "lighthouse/node.ixx"
-#else
-#endif
 module node;
 
 namespace lh

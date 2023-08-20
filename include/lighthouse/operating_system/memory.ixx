@@ -1,5 +1,4 @@
 module;
-#pragma once
 
 #ifdef _WIN32
 #include <windows.h>
@@ -13,15 +12,9 @@ module;
 
 export module lh_memory;
 
-#if INTELLISENSE
-#include "lighthouse/operating_system/system.ixx"
-#include "vulkan/vulkan.cppm"
-import std;
-#else
 import system;
 import vulkan;
 import std.core;
-#endif
 
 export namespace lh
 {

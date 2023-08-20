@@ -1,10 +1,6 @@
 module;
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/shader_input.ixx"
-#else
 module shader_input;
-#endif
 
 namespace lh
 {

@@ -4,12 +4,8 @@ module;
 #include "glm/vec4.hpp"
 #include "glm/gtc/random.hpp"
 
-#if INTELLISENSE
-#include "lighthouse/renderer/scene_loader.ixx"
-#else
 module scene_loader;
 import output;
-#endif
 
 namespace lh
 {

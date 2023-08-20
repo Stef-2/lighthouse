@@ -2,11 +2,7 @@ module;
 
 #include "vulkan/vk_platform.h"
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/debug_messanger.ixx"
-#else
 module debug_messanger;
-#endif
 
 namespace lh
 {

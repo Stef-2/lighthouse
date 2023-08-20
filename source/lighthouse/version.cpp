@@ -2,11 +2,7 @@ module;
 
 #include "vulkan/vulkan_core.h"
 
-#if INTELLISENSE
-#include "lighthouse/version.ixx"
-#else
 module version;
-#endif
 
 namespace lh
 {

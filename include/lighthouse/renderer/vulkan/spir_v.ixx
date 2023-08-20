@@ -1,22 +1,13 @@
 module;
-#pragma once
 
 export module spir_v;
 
-#if INTELLISENSE
-#include "vulkan/vulkan.hpp"
-#include "lighthouse/string/string.ixx"
-#include "lighthouse/file_system.ixx"
-#include "lighthouse/renderer/vulkan/shader_input.ixx"
-#include "lighthouse/renderer/vulkan/vertex_input_description.ixx"
-#else
 import lighthouse_string;
 import file_system;
 import shader_input;
 import vertex_input_description;
 import vulkan;
 import std.core;
-#endif
 
 export namespace lh
 {

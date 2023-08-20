@@ -1,15 +1,9 @@
 module;
-#pragma once
 
 export module sampler;
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
-#include "lighthouse/renderer/vulkan/logical_device.ixx"
-#else
 import raii_wrapper;
 import logical_device;
-#endif
 
 export namespace lh
 {

@@ -3,10 +3,6 @@ module;
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/quaternion.hpp"
 
-#if INTELLISENSE
-#include "lighthouse/camera.ixx"
-#else
-#endif
 module camera;
 
 namespace lh

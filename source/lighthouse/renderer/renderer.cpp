@@ -12,13 +12,10 @@ module;
 
 #include "vulkan/utils/raii/raii_utils.hpp"
 
-#if INTELLISENSE
-#include "lighthouse/renderer/renderer.ixx"
-#else
 module renderer;
 import output;
 import file_system;
-#endif
+
 // #pragma optimize("", off)
 namespace lh
 {

@@ -1,5 +1,4 @@
 module;
-#pragma once
 
 export module file_type;
 

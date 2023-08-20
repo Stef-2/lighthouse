@@ -1,10 +1,6 @@
 module;
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/command_control.ixx"
-#else
 module command_control;
-#endif
 
 namespace lh
 {

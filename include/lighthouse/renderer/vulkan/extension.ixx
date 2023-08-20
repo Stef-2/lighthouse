@@ -1,20 +1,12 @@
 module;
-#pragma once
 
 export module extension;
 
-#if INTELLISENSE
-#include "vulkan/vulkan_raii.hpp"
-#include "lighthouse/renderer/vulkan/vulkan_string.ixx"
-#include "lighthouse/string/string.ixx"
-#include "lighthouse/output.ixx"
-#else
 import lighthouse_string;
 import vulkan_string;
 import output;
 import std.core;
 import vulkan;
-#endif
 
 export namespace lh
 {

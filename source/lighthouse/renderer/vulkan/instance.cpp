@@ -2,12 +2,8 @@ module;
 
 #include "vkfw/vkfw.hpp"
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/instance.ixx"
-#else
 module instance;
 import output;
-#endif
 
 namespace lh
 {

@@ -1,19 +1,13 @@
 module;
-#pragma once
 
 #include "vkfw/vkfw.hpp"
 
 export module window;
 
-#if INTELLISENSE
-#include "lighthouse/string/string.ixx"
-#include "lighthouse/output.ixx"
-#else
 import lighthouse_string;
 import output;
 import vulkan;
 import std.core;
-#endif
 
 export namespace lh
 {

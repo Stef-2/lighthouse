@@ -1,17 +1,11 @@
 module;
-#pragma once
 
 export module file_system;
 
-#if INTELLISENSE
-#include "lighthouse/output.ixx"
-#include <filesystem>
-#include <string_view>
-#else
+
 import std.filesystem;
 import std.core;
 import output;
-#endif
 
 namespace lh
 {

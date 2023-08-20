@@ -1,9 +1,5 @@
 module;
 
-#if INTELLISENSE
-#include "lighthouse/file_system.ixx"
-#else
-#endif
 module file_system;
 
 namespace lh

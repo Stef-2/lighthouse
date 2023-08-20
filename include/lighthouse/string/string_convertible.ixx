@@ -1,18 +1,12 @@
 module;
-#pragma once
 
 //#include "vkfw/vkfw.hpp"
 //#include "glm/ext.hpp"
 
 export module string_convertible;
 
-#if INTELLISENSE
-//#include "vulkan/vulkan_to_string.hpp"
-#else
 import lighthouse_string;
 import std.core;
-//import vulkan;
-#endif
 
 export namespace lh
 {

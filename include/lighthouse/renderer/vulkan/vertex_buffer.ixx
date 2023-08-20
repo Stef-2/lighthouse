@@ -1,17 +1,7 @@
 module;
-#pragma once
 
 export module vertex_buffer;
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
-#include "lighthouse/renderer/vulkan/logical_device.ixx"
-#include "lighthouse/renderer/vulkan/memory_allocator.ixx"
-#include "lighthouse/renderer/vulkan/buffer.ixx"
-#include "lighthouse/renderer/vulkan/vertex_input_description.ixx"
-#include "lighthouse/renderer/vulkan/vertex_format.ixx"
-#include "lighthouse/renderer/vulkan/index_format.ixx"
-#else
 import buffer;
 import raii_wrapper;
 import logical_device;
@@ -20,7 +10,6 @@ import vertex_input_description;
 import vertex_format;
 import index_format;
 import std.core;
-#endif
 
 export namespace lh
 {

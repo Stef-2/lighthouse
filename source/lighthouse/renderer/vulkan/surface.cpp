@@ -2,12 +2,8 @@ module;
 
 #include "vkfw/vkfw.hpp"
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/surface.ixx"
-#else
 module surface;
 import output;
-#endif
 
 namespace lh
 {

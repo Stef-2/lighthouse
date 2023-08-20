@@ -1,21 +1,14 @@
 module;
-#pragma once
 
 #include "glm/ext.hpp"
 
 export module output;
 
-#if INTELLISENSE
-#include "lighthouse/file_type.ixx"
-#include "lighthouse/string/string.ixx"
-#include "lighthouse/string/string_convertible.ixx"
-#else
 import lighthouse_string;
 import string_convertible;
 import file_type;
 import std.core;
 import std.filesystem;
-#endif
 
 namespace lh
 {

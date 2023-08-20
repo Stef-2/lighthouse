@@ -1,26 +1,15 @@
 module;
-#pragma once
 
 #include "vkfw/vkfw.hpp"
 
 export module input;
 
-#if INTELLISENSE
-#include "lighthouse/static_type.ixx"
-#include "lighthouse/file_system.ixx"
-#include "lighthouse/file_type.ixx"
-#include "lighthouse/string/string.ixx"
-#include "lighthouse/output.ixx"
-#include "lighthouse/window.ixx"
-#else
 import file_system;
 import file_type;
 import lighthouse_string;
 import window;
 import std.filesystem;
 import std.core;
-#endif
-
 
 namespace lh
 {

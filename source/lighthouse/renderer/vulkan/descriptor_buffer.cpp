@@ -1,11 +1,7 @@
 module;
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/descriptor_buffer.ixx"
-#else
 module descriptor_buffer;
 import output;
-#endif
 
 namespace lh
 {

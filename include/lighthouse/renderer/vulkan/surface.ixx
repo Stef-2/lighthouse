@@ -1,19 +1,11 @@
 module;
-#pragma once
 
 export module surface;
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
-#include "lighthouse/renderer/vulkan/instance.ixx"
-#include "lighthouse/renderer/vulkan/physical_device.ixx"
-#include "lighthouse/window.ixx"
-#else
 import raii_wrapper;
 import window;
 import instance;
 import physical_device;
-#endif
 
 export namespace lh
 {

@@ -1,16 +1,10 @@
 module;
-#pragma once
 
 export module descriptor_set_layout;
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
-#include "lighthouse/renderer/vulkan/logical_device.ixx"
-#else
 import raii_wrapper;
 import logical_device;
 import std.core;
-#endif
 
 export namespace lh
 {

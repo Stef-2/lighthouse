@@ -2,15 +2,9 @@ module;
 
 #include "vkfw/vkfw.hpp"
 
-#if INTELLISENSE
-#include "lighthouse/engine.ixx"
-#include "lighthouse/output.ixx"
-#include "lighthouse/input.ixx"
-#else
 module engine;
 import output;
 import input;
-#endif
 
 namespace lh
 {

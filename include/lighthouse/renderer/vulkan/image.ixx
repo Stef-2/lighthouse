@@ -1,24 +1,13 @@
 module;
-#pragma once
 
 export module image;
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
-#include "lighthouse/renderer/vulkan/physical_device.ixx"
-#include "lighthouse/renderer/vulkan/logical_device.ixx"
-#include "lighthouse/renderer/vulkan/memory_allocator.ixx"
-#include "lighthouse/renderer/vulkan/surface.ixx"
-#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
-#include "lighthouse/renderer/vulkan/sampler.ixx"
-#else
 import raii_wrapper;
 import physical_device;
 import logical_device;
 import memory_allocator;
 import surface;
 import sampler;
-#endif
 
 export namespace lh
 {

@@ -1,17 +1,7 @@
 module;
-#pragma once
 
 export module swapchain;
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/raii_wrapper.ixx"
-#include "lighthouse/renderer/vulkan/physical_device.ixx"
-#include "lighthouse/renderer/vulkan/logical_device.ixx"
-#include "lighthouse/renderer/vulkan/surface.ixx"
-#include "lighthouse/renderer/vulkan/queue_families.ixx"
-#include "lighthouse/renderer/vulkan/memory_allocator.ixx"
-#include "lighthouse/renderer/vulkan/image.ixx"
-#else
 import raii_wrapper;
 import physical_device;
 import logical_device;
@@ -19,7 +9,6 @@ import surface;
 import queue_families;
 import memory_allocator;
 import image;
-#endif
 
 export namespace lh
 {

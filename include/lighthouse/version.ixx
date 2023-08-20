@@ -1,14 +1,9 @@
 module;
-#pragma once
 
 export module version;
 
-#if INTELLISENSE
-#include "lighthouse/string/string.ixx"
-#else
 import lighthouse_string;
 import std.core;
-#endif
 
 export namespace lh
 {

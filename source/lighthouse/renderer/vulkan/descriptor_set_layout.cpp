@@ -1,10 +1,6 @@
 module;
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/descriptor_set_layout.ixx"
-#else
 module descriptor_set_layout;
-#endif
 
 namespace lh
 {

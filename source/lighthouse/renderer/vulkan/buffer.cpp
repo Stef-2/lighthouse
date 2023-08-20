@@ -3,13 +3,7 @@ module;
 #include "vulkan/vulkan.h"
 #include "vulkan/vma/vk_mem_alloc.hpp"
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/buffer.ixx"
-#include "vulkan/vulkan.hpp"
-#include "vulkan/vulkan_raii.hpp"
-#else
 module buffer;
-#endif
 
 namespace lh
 {

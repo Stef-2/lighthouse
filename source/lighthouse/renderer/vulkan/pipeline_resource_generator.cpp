@@ -1,10 +1,6 @@
 module;
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/pipeline_resource_generator.ixx"
-#else
 module pipeline_resource_generator;
-#endif
 
 namespace
 {

@@ -1,10 +1,6 @@
 module;
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/sampler.ixx"
-#else
 module sampler;
-#endif
 
 namespace lh
 {

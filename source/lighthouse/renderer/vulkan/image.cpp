@@ -1,10 +1,6 @@
 module;
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/image.ixx"
-#else
 module image;
-#endif
 
 namespace lh
 {

@@ -1,10 +1,6 @@
 module;
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/shader_object_pipeline.ixx"
-#else
 module shader_object_pipeline;
-#endif
 
 namespace lh
 {

@@ -1,18 +1,7 @@
 module;
-#pragma once
 
 export module mesh;
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/index_format.ixx"
-#include "lighthouse/renderer/vulkan/logical_device.ixx"
-#include "lighthouse/renderer/vulkan/memory_allocator.ixx"
-#include "lighthouse/renderer/vulkan/vertex_buffer.ixx"
-#include "lighthouse/renderer/vulkan/vertex_format.ixx"
-#include "lighthouse/renderer/bounding_volume.ixx"
-#include "lighthouse/node.ixx"
-#include "lighthouse/utility.ixx"
-#else
 import node;
 import bounding_volume;
 import lh_utility;
@@ -22,7 +11,6 @@ import memory_allocator;
 import vertex_buffer;
 import vertex_format;
 import std.core;
-#endif
 
 export namespace lh
 {

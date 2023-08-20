@@ -1,13 +1,8 @@
 module;
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/physical_device.ixx"
-#include "lighthouse/operating_system/memory.ixx"
-#else
 module physical_device;
 import output;
 import lh_memory;
-#endif
 
 namespace lh
 {

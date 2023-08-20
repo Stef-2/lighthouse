@@ -1,10 +1,6 @@
 module;
 
-#if INTELLISENSE
-#include "lighthouse/operating_system/memory.ixx"
-#else
 module lh_memory;
-#endif
 
 auto lh::memory::physical_device_memory(const vk::raii::PhysicalDevice& physical_device)
 	-> memory::physical_device_memory_info

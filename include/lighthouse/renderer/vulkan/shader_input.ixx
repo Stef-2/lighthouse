@@ -1,17 +1,10 @@
 module;
-#pragma once
 
 export module shader_input;
 
-#if INTELLISENSE
-#include "vulkan/vulkan_raii.hpp"
-#include "lighthouse/string/string.ixx"
-import std;
-#else
 import lighthouse_string;
 import vulkan;
 import std.core;
-#endif
 
 export namespace lh
 {

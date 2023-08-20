@@ -1,21 +1,7 @@
 module;
-#pragma once
 
 export module pipeline_resource_generator;
 
-#if INTELLISENSE
-#include "vulkan/vulkan_raii.hpp"
-#include "lighthouse/renderer/vulkan/physical_device.ixx"
-#include "lighthouse/renderer/vulkan/logical_device.ixx"
-#include "lighthouse/renderer/vulkan/memory_allocator.ixx"
-#include "lighthouse/renderer/vulkan/descriptor_set_layout.ixx"
-#include "lighthouse/renderer/vulkan/descriptor_buffer.ixx"
-#include "lighthouse/renderer/vulkan/shader_object.ixx"
-#include "lighthouse/renderer/vulkan/buffer.ixx"
-#include "lighthouse/renderer/vulkan/spir_v.ixx"
-#include "lighthouse/renderer/vulkan/shader_input.ixx"
-#include "lighthouse/renderer/vulkan/vertex_input_description.ixx"
-#else
 import physical_device;
 import logical_device;
 import memory_allocator;
@@ -27,7 +13,6 @@ import spir_v;
 import shader_input;
 import vertex_input_description;
 import std.core;
-#endif
 
 export namespace lh
 {

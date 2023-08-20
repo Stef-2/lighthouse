@@ -2,11 +2,7 @@ module;
 
 #include "glm/gtx/matrix_decompose.hpp"
 
-#if INTELLISENSE
-#include "lighthouse/entity.ixx"
-#else
 module entity;
-#endif
 
 namespace lh
 {

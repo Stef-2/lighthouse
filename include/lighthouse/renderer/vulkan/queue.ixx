@@ -1,18 +1,12 @@
 module;
-#pragma once
 
 #include <compare>
 
 export module queue;
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/logical_device.ixx"
-#include "lighthouse/renderer/vulkan/queue_families.ixx"
-#else
 import logical_device;
 import queue_families;
 import vulkan;
-#endif
 
 export namespace lh
 {

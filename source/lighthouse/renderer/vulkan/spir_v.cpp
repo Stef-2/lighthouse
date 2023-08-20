@@ -5,12 +5,8 @@ module;
 
 #include "vulkan/spirv_cross/spirv_reflect.hpp"
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/spir_v.ixx"
-#else
 module spir_v;
 import output;
-#endif
 
 namespace
 {

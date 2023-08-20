@@ -1,20 +1,12 @@
 module;
-#pragma once
 
 export module engine;
 
-#if INTELLISENSE
-#include "lighthouse/window.ixx"
-#include "lighthouse/version.ixx"
-#include "lighthouse/input.ixx"
-#include "lighthouse/renderer/renderer.ixx"
-#else
 import window;
 import version;
 import input;
 import renderer;
 import std.core;
-#endif
 
 export namespace lh
 {

@@ -1,7 +1,6 @@
 module;
-#pragma once
 
-#include <vector>
+import std.core;
 
 export module vulkan_string;
 

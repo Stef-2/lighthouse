@@ -1,10 +1,6 @@
 module;
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/vertex_buffer.ixx"
-#else
 module vertex_buffer;
-#endif
 
 namespace lh
 {

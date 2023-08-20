@@ -1,46 +1,9 @@
 module;
-#pragma once
 
 #include "glm/mat4x4.hpp"
 
 export module renderer;
 
-#if INTELLISENSE
-#include "lighthouse/string/string.ixx"
-#include "lighthouse/renderer/mesh.ixx"
-#include "lighthouse/renderer/vulkan/extension.ixx"
-#include "lighthouse/renderer/vulkan/instance.ixx"
-#include "lighthouse/renderer/vulkan/physical_device.ixx"
-#include "lighthouse/renderer/vulkan/logical_device.ixx"
-#include "lighthouse/renderer/vulkan/surface.ixx"
-#include "lighthouse/renderer/vulkan/queue_families.ixx"
-#include "lighthouse/renderer/vulkan/memory_allocator.ixx"
-#include "lighthouse/renderer/vulkan/command_control.ixx"
-#include "lighthouse/renderer/vulkan/queue.ixx"
-#include "lighthouse/renderer/vulkan/image.ixx"
-#include "lighthouse/renderer/vulkan/swapchain.ixx"
-#include "lighthouse/renderer/vulkan/spir_v.ixx"
-#include "lighthouse/renderer/vulkan/shader_module.ixx"
-#include "lighthouse/renderer/vulkan/shader_object.ixx"
-#include "lighthouse/renderer/vulkan/descriptor_set_layout.ixx"
-#include "lighthouse/renderer/vulkan/descriptor_buffer.ixx"
-#include "lighthouse/renderer/vulkan/pipeline_resource_generator.ixx"
-#include "lighthouse/renderer/vulkan/shader_object_pipeline.ixx"
-#include "lighthouse/renderer/vulkan/utility.ixx"
-#include "lighthouse/renderer/vulkan/vertex_input_description.ixx"
-#include "lighthouse/renderer/vulkan/vertex_buffer.ixx"
-#include "lighthouse/renderer/vulkan/vertex_format.ixx"
-#include "lighthouse/renderer/vulkan/index_format.ixx"
-#include "lighthouse/renderer/vulkan/buffer.ixx"
-#include "lighthouse/renderer/scene_loader.ixx"
-#include "lighthouse/version.ixx"
-#include "lighthouse/file_system.ixx"
-#include "lighthouse/input.ixx"
-#include "lighthouse/window.ixx"
-#include "lighthouse/camera.ixx"
-import vulkan;
-import std;
-#else
 import window;
 import node;
 import lighthouse_string;
@@ -74,7 +37,6 @@ import input;
 import mesh;
 import camera;
 import std.core;
-#endif
 
 export namespace lh
 {

@@ -1,10 +1,6 @@
 module;
 
-#if INTELLISENSE
-#include "lighthouse/renderer/mesh.ixx"
-#else
 module mesh;
-#endif
 
 namespace lh
 {

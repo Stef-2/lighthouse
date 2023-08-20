@@ -2,10 +2,6 @@ module;
 
 #include "vkfw/vkfw.hpp"
 
-#if INTELLISENSE
-#include "lighthouse/window.ixx"
-#else
-#endif
 module window;
 
 namespace lh

@@ -1,10 +1,6 @@
 module;
 
-#if INTELLISENSE
-#include "lighthouse/renderer/vulkan/extension.ixx"
-#else
 module extension;
-#endif
 
 namespace lh
 {

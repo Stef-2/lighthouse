@@ -2,13 +2,8 @@ module;
 
 #include <functional>
 
-#if INTELLISENSE
-#include "lighthouse/input.ixx"
-#include "lighthouse/output.ixx"
-#else
 module input;
 import output;
-#endif
 
 namespace lh
 {

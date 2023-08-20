@@ -1,19 +1,13 @@
 module;
-#pragma once
 
 #include "glm/vec3.hpp"
 #include "glm/gtx/quaternion.hpp"
 
 export module entity;
 
-#if INTELLISENSE
-#include "lighthouse/node.ixx"
-#include "lighthouse/utility.ixx"
-#else
 import node;
 import window;
 import lh_utility;
-#endif
 
 export namespace lh
 {
