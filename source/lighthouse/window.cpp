@@ -5,8 +5,8 @@ module;
 #if INTELLISENSE
 #include "lighthouse/window.ixx"
 #else
-module window;
 #endif
+module window;
 
 namespace lh
 {

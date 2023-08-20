@@ -3,8 +3,8 @@ module;
 #if INTELLISENSE
 #include "lighthouse/file_system.ixx"
 #else
-module file_system;
 #endif
+module file_system;
 
 namespace lh
 {

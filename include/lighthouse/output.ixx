@@ -10,8 +10,8 @@ export module output;
 #include "lighthouse/string/string.ixx"
 #include "lighthouse/string/string_convertible.ixx"
 #else
-import string_convertible;
 import lighthouse_string;
+import string_convertible;
 import file_type;
 import std.core;
 import std.filesystem;

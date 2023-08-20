@@ -12,10 +12,10 @@ export module vertex_buffer;
 #include "lighthouse/renderer/vulkan/vertex_format.ixx"
 #include "lighthouse/renderer/vulkan/index_format.ixx"
 #else
+import buffer;
 import raii_wrapper;
 import logical_device;
 import memory_allocator;
-import buffer;
 import vertex_input_description;
 import vertex_format;
 import index_format;

@@ -1,12 +1,12 @@
 ﻿#include "vkfw/vkfw.hpp"
-
+/*
 #if INTELLISENSE
 #include "lighthouse/engine.ixx"
 import std;
 #else
-import window;
+#endif*/
 import engine;
-#endif
+import window;
 
 auto main() -> int
 {

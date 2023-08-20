@@ -29,9 +29,9 @@ namespace lh
 					return false;
 
 			auto message = lh::string::string_t {};
-
+			/*
 			message += vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(message_severity)) + ": " +
-					   vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagsEXT>(message_type)) + ":\n";
+					   vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagsEXT>(message_type)) + ":\n";*/
 			message += std::string("\t") + "messageIDName   = <" + callback_data->pMessageIdName + ">\n";
 			message += std::string("\t") + "messageIdNumber = " + std::to_string(callback_data->messageIdNumber) + "\n";
 			message += std::string("\t") + "message         = <" + callback_data->pMessage + ">\n";
@@ -57,8 +57,9 @@ namespace lh
 				for (uint32_t i = 0; i < callback_data->objectCount; i++)
 				{
 					message += std::string("\t") + "Object " + std::to_string(i) + "\n";
-					message += std::string("\t\t") + "objectType = " +
-							   vk::to_string(static_cast<vk::ObjectType>(callback_data->pObjects[i].objectType)) + "\n";
+					/*message += std::string("\t\t") + "objectType = " +
+							   vk::to_string(static_cast<vk::ObjectType>(callback_data->pObjects[i].objectType)) +
+					   "\n";*/
 					message += std::string("\t\t") +
 							   "objectHandle = " + std::to_string(callback_data->pObjects[i].objectHandle) + "\n";
 					if (callback_data->pObjects[i].pObjectName)

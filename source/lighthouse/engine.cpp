@@ -49,12 +49,12 @@ namespace lh
 
 	auto engine::initialize() -> void
 	{
-		input::key_binding::bind({vkfw::Key::Escape}, [this]() {
+		input::keyboard::bind({vkfw::Key::Escape}, [this]() {
 			m_window->vkfw_window().destroy();
 			std::exit(0);
 		});
 
-		input::key_binding::bind({vkfw::Key::F1}, [this]() { output::dump_logs(std::cout); });
+		input::keyboard::bind({vkfw::Key::F1}, [this]() { output::dump_logs(std::cout); });
 	}
 
 	auto engine::poll_events() -> void

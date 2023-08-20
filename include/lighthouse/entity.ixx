@@ -27,8 +27,6 @@ export namespace lh
 
 		entity(std::shared_ptr<node> = std::make_shared<node>());
 
-		static inline const auto s_identity_quaternion = rotation_t {1.0f, 0.0f, 0.0f, 0.0f};
-
 		auto translate_relative(const vector3_t&) -> void;
 		auto translate_relative(const normalized_direction_t&, float) -> void;
 		auto rotate_relative(const vector3_t&) -> void;
@@ -44,9 +42,9 @@ export namespace lh
 		auto local_transformation() const -> const transformation_t&;
 		auto global_transformation() const -> const transformation_t&;
 
-		auto position() -> vector3_t& { return m_position; }
-		auto rotation() -> rotation_t& { return m_rotation; }
-		auto scale() -> vector3_t& { return m_scale; }
+		auto position() const -> const vector3_t& { return m_position; }
+		auto rotation() const -> const rotation_t& { return m_rotation; }
+		auto scale() const -> const vector3_t& { return m_scale; }
 
 	protected:
 		auto reconstruct_node() const -> void;

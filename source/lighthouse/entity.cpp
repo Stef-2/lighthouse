@@ -19,7 +19,7 @@ namespace lh
 	{
 		// if node transformation is not an identity transformation
 		// it needs to be decomposed into components
-		if (node->local_transformation() != node::s_identity_transformation)
+		if (node->local_transformation() != node::transformation_t {1.0f})
 		{
 			auto skew = vector3_t {};
 			auto perspective = glm::vec4 {};
@@ -100,7 +100,7 @@ namespace lh
 
 	auto entity::reconstruct_node() const -> void
 	{
-		auto transformation = node::s_identity_transformation;
+		auto transformation = node::transformation_t {1.0f};
 
 		const auto translate = glm::translate(transformation, m_position);
 		const auto rotate = glm::mat4_cast(m_rotation);

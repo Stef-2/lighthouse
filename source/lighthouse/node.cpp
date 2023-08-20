@@ -3,14 +3,13 @@ module;
 #if INTELLISENSE
 #include "lighthouse/node.ixx"
 #else
-module node;
 #endif
+module node;
 
 namespace lh
 {
 
 	node node::s_root_node {s_root_node};
-	const node::transformation_t node::s_identity_transformation {1.0f};
 
 	auto node::root_node() -> node&
 	{

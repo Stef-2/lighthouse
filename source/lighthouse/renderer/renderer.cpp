@@ -6,6 +6,7 @@ module;
 
 #include "glm/mat4x4.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtx/transform.hpp"
 #include "glm/gtc/quaternion.hpp"
 #include "glm/ext.hpp"
 
@@ -24,6 +25,7 @@ namespace lh
 
 	renderer::renderer(const window& window, const create_info& create_info)
 		: m_create_info {create_info},
+		  m_window {window},
 		  m_instance(window,
 					 vulkan::instance::create_info {.m_engine_version = create_info.m_engine_version,
 													.m_vulkan_version = create_info.m_vulkan_version}),
@@ -122,21 +124,40 @@ namespace lh
 
 		output::dump_logs(std::cout);
 
-		input::key_binding::bind({vkfw::Key::A, {}, vkfw::KeyAction::Repeat},
-								 [this]() { m_camera.translate_relative(m_camera.right_direction(), -0.1f); });
-		input::key_binding::bind({vkfw::Key::D, {}, vkfw::KeyAction::Repeat},
-								 [this]() { m_camera.translate_relative(m_camera.right_direction(), 0.1f); });
-		input::key_binding::bind({vkfw::Key::W, {}, vkfw::KeyAction::Repeat},
-								 [this]() { m_camera.translate_relative(m_camera.view_direction(), 0.1f); });
-		input::key_binding::bind({vkfw::Key::S, {}, vkfw::KeyAction::Repeat},
-								 [this]() { m_camera.translate_relative(m_camera.view_direction(), -0.1f); });
-		input::key_binding::bind({vkfw::Key::Space, {}, vkfw::KeyAction::Repeat},
-								 [this]() { m_camera.translate_relative(m_camera.up_direction(), 0.1f); });
-		input::key_binding::bind({vkfw::Key::C, {}, vkfw::KeyAction::Repeat},
-								 [this]() { m_camera.translate_relative(m_camera.up_direction(), -0.1f); });
+		input::keyboard::bind({vkfw::Key::A, {}, vkfw::KeyAction::Repeat},
+							  [this]() { m_camera.translate_relative(m_camera.right_direction(), -0.1f); });
+		input::keyboard::bind({vkfw::Key::D, {}, vkfw::KeyAction::Repeat},
+							  [this]() { m_camera.translate_relative(m_camera.right_direction(), 0.1f); });
+		input::keyboard::bind({vkfw::Key::W, {}, vkfw::KeyAction::Repeat},
+							  [this]() { m_camera.translate_relative(m_camera.view_direction(), 0.1f); });
+		input::keyboard::bind({vkfw::Key::S, {}, vkfw::KeyAction::Repeat},
+							  [this]() { m_camera.translate_relative(m_camera.view_direction(), -0.1f); });
+		input::keyboard::bind({vkfw::Key::Space, {}, vkfw::KeyAction::Repeat},
+							  [this]() { m_camera.translate_relative(m_camera.up_direction(), 0.1f); });
+		input::keyboard::bind({vkfw::Key::C, {}, vkfw::KeyAction::Repeat},
+							  [this]() { m_camera.translate_relative(m_camera.up_direction(), -0.1f); });
 
-		input::key_binding::bind({vkfw::Key::Q},
-								 [this]() { m_model = glm::translate(m_model, m_camera.up_direction() * 0.1f); });
+		input::keyboard::bind({vkfw::Key::T}, [this]() {
+			m_model = glm::translate(m_model, glm::vec3 {0.0f, 1.0f, 0.0f} * 0.1f);
+		});
+		input::keyboard::bind({vkfw::Key::G}, [this]() {
+			m_model = glm::translate(m_model, glm::vec3 {0.0f, 1.0f, 0.0f} * -0.1f);
+		});
+		input::keyboard::bind({vkfw::Key::F}, [this]() {
+			m_model = glm::translate(m_model, glm::vec3 {1.0f, 0.0f, 0.0f} * 0.1f);
+		});
+		input::keyboard::bind({vkfw::Key::H}, [this]() {
+			m_model = glm::translate(m_model, glm::vec3 {1.0f, 0.0f, 0.0f} * -0.1f);
+		});
+		input::keyboard::bind({vkfw::Key::Y}, [this]() {
+			m_model = glm::translate(m_model, glm::vec3 {0.0f, 0.0f, 1.0f} * 0.1f);
+		});
+		input::keyboard::bind({vkfw::Key::U}, [this]() {
+			m_model = glm::translate(m_model, glm::vec3 {0.0f, 0.0f, 1.0f} * -0.1f);
+		});
+
+		input::keyboard::bind({vkfw::Key::E}, [this]() { m_camera.look_at(glm::vec3 {0.05f, 0.05f, 0.05f}); });
+		input::mouse::bind({vkfw::MouseButton::Left}, [this]() { std::cout << "clicked\n"; });
 
 		input::mouse::move_callback(m_camera.first_person_callback());
 	}
@@ -144,7 +165,9 @@ namespace lh
 	auto renderer::render() -> void
 	{
 		vk::raii::Semaphore semaphore(m_logical_device, vk::SemaphoreCreateInfo());
-
+		const auto& pos = m_camera.position();
+		const auto& rot = m_camera.rotation();
+		m_window.vkfw_window().setTitle(glm::to_string(pos) + " - " + glm::to_string(rot));
 		e1m4.reset();
 		const auto& command_buffer = e1m4.first_command_buffer();
 		command_buffer.begin({e1m4.usage_flags()});
@@ -172,7 +195,8 @@ namespace lh
 		vk::VertexInputBindingDescription2EXT vbd {0, sizeof(VertexPC), vk::VertexInputRate::eVertex, 1};
 		std::vector<vk::VertexInputAttributeDescription2EXT> vad {
 			vk::VertexInputAttributeDescription2EXT(0, 0, vk::Format::eR32G32B32A32Sfloat, 0),
-			vk::VertexInputAttributeDescription2EXT(1, 0, vk::Format::eR32G32B32A32Sfloat, offsetof(VertexPC, r))};*/
+			vk::VertexInputAttributeDescription2EXT(1, 0, vk::Format::eR32G32B32A32Sfloat, offsetof(VertexPC,
+		r))};*/
 
 		// command_buffer.setVertexInputEXT(vbd, vad);
 

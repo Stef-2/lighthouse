@@ -25,12 +25,11 @@ export namespace lh
 		};
 
 		node(node& parent = s_root_node,
-			 const transformation_t& = s_identity_transformation,
+			 const transformation_t& = transformation_t {1.0f},
 			 destruction_strategy = destruction_strategy::collapse);
 		~node();
 
 		static auto root_node() -> node&;
-		static const transformation_t s_identity_transformation;
 
 		auto parent(node&) -> void;
 		auto parent() const -> node&;

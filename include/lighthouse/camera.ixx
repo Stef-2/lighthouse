@@ -2,16 +2,18 @@ module;
 #pragma once
 
 #include "glm/mat4x4.hpp"
-#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtx/quaternion.hpp"
 
 export module camera;
 
 #if INTELLISENSE
 #include "lighthouse/entity.ixx"
 #else
+
+#endif
+
 import entity;
 import input;
-#endif
 
 export namespace lh
 {
@@ -69,6 +71,15 @@ export namespace lh
 			return glm::cross(view_direction(), s_up_direction);
 		}
 
+		auto look_at(const entity::vector3_t& target) -> void
+		{
+			auto view = glm::quatLookAt(glm::normalize(m_position + target), s_up_direction);
+			// don't ask
+			view.w *= -1.0f;
+
+			rotate_absolute(view);
+		}
+
 		auto properties(const create_info<T>&) -> void;
 		auto properties() const -> const create_info<T>&;
 
@@ -76,13 +87,14 @@ export namespace lh
 		{
 			return m_projection;
 		}
-
-		auto first_person_callback() const -> input::mouse::on_move_action_t
+		
+		auto first_person_callback() const -> const input::mouse::on_move_action_t&
 		{
 			return m_first_person_callback;
 		}
-
+		
 	private:
+
 		static inline const auto s_up_direction = glm::vec3 {0.0f, 1.0f, 0.0f};
 
 		create_info<T> m_camera_info;

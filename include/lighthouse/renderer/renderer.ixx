@@ -98,6 +98,8 @@ export namespace lh
 
 		create_info m_create_info;
 
+		const lh::window& m_window;
+
 		vulkan::instance m_instance;
 
 		vulkan::physical_device m_physical_device;

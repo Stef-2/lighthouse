@@ -7,8 +7,8 @@ export module raii_wrapper;
 #include "lighthouse/string/string.ixx"
 #include "vulkan/vulkan_raii.hpp"
 #else
-import lighthouse_string;
 export import vulkan;
+import lighthouse_string;
 #endif
 
 export namespace lh

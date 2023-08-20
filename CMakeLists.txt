@@ -1,4 +1,6 @@
-﻿cmake_minimum_required(VERSION 3.27.1)
+﻿cmake_minimum_required(VERSION 3.27.2)
+
+include(CMakePrintHelpers)
 
 project("lighthouse")
 
@@ -10,8 +12,10 @@ set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP 1)
 #set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API "2182bf5c-ef0d-489a-91da-49dbc3090d2a")
 set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API "aa1f7df0-828a-4fcd-9afc-2dc80491aca7")
-add_compile_options(/ifcSearchDir C:/Users/Stefan/source/repos/lighthouse/build/MSVC-x64-release/CMakeFiles/lighthouse.dir)
-
+#add_compile_options(/ifcSearchDir "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.37.32822/ifc/x64/Release")
+#add_compile_options(/stdIfcDir "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.37.32822/ifc/x64/Release")
+#add_compile_options(/reference include/std.core.ifc)
+#set(ENV{IFCPATH} "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.37.32822/ifc/x64/Release")
 
 # Path
 cmake_path(SET source ${CMAKE_CURRENT_SOURCE_DIR}/source)
@@ -98,7 +102,7 @@ add_executable(
 )
 
 target_sources(
-	${PROJECT_NAME} PRIVATE FILE_SET CXX_MODULES FILES
+	${PROJECT_NAME} PUBLIC FILE_SET CXX_MODULES FILES
 
 	${include}/lighthouse/window.ixx										
 	${include}/lighthouse/static_type.ixx
@@ -116,7 +120,7 @@ target_sources(
 	${include}/lighthouse/renderer/vulkan/vulkan_string.ixx
 	${include}/lighthouse/renderer/vulkan/vertex_format.ixx
 	${include}/lighthouse/renderer/vulkan/vertex_input_description.ixx
-	${include}/lighthouse/renderer/vulkan/utility.ixx
+	${include}/lighthouse/renderer/vulkan/vk_utility.ixx
 	${include}/lighthouse/renderer/vulkan/index_format.ixx
 	${include}/lighthouse/engine.ixx										
 	${include}/lighthouse/renderer/renderer.ixx								
@@ -153,14 +157,14 @@ target_sources(
 	${include}/lighthouse/camera.ixx
 )
 
-#STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+#STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_RELEASE}")
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
 
 # Compiler options
 if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
 
   target_compile_options(
-	  ${PROJECT_NAME} PRIVATE
+	  ${PROJECT_NAME} PUBLIC
 	  # MSVC compiler settings
 	  /std:c++latest /EHsc /GL /Ox /Oi /W3 /MP /Zf /MD /Qpar /Qpar-report:1 /arch:AVX2 /nologo /experimental:module#/translateInclude
 	  # MSVC disable common annoying warnings
@@ -171,7 +175,7 @@ if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
 	)
 	
 	target_link_options(
-		${PROJECT_NAME} PRIVATE
+		${PROJECT_NAME} PUBLIC
 		# MSVC linker settings
 		/INCREMENTAL /CGTHREADS:8 /VERBOSE:INCR /LTCG#/${library}/std/std.obj
 		# No console
@@ -182,7 +186,7 @@ endif()
 if(${CMAKE_CXX_COMPILER_ID} MATCHES GNU)
 
 	target_compile_options(
-	  ${PROJECT_NAME} PRIVATE
+	  ${PROJECT_NAME} PUBLIC
 	  #GCC standard compiler settings
 	  -C -std=c++23 -fpermissive
 	)
@@ -238,7 +242,7 @@ target_include_directories(
 
 # Libraries
 target_link_directories(
-	${PROJECT_NAME} PRIVATE
+	${PROJECT_NAME} PUBLIC
 
 	${library}
 	${library}/glfw
@@ -273,3 +277,4 @@ target_link_libraries(
 )
 
 message(cmake_version: ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION})
+message(cmake build type: ${CMAKE_BUILD_TYPE})
