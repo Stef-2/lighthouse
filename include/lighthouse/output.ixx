@@ -2,13 +2,24 @@ module;
 
 #include "glm/ext.hpp"
 
+#if INTELLISENSE
+#include <iostream>
+#include <filesystem>
+#include <span>
+#endif
 export module output;
 
 import lighthouse_string;
 import string_convertible;
 import file_type;
+
+#if INTELLISENSE
+//#include <iostream>
+//#include <concepts>
+#else
 import std.core;
 import std.filesystem;
+#endif
 
 namespace lh
 {
@@ -92,20 +103,17 @@ namespace lh
 	};
 }
 
-export
+// enable output into std::ostream
+export auto operator<<(std::ostream& stream, lh::output::buffer& buffer) -> std::ostream&;
+
+// utility function that allows printing of any container holding string convertible types
+export template <lh::string::string_convertible_input_range T>
+auto to_string(const T& range)
 {
-	// enable output into std::ostream
-	auto operator<<(std::ostream& stream, lh::output::buffer& buffer)->std::ostream&;
+	auto buffer = lh::output::buffer {};
 
-	// utility function that allows printing of any container holding string convertible types
-	template <lh::string::string_convertible_input_range T>
-	auto to_string(const T& range)
-	{
-		auto buffer = lh::output::buffer {};
+	for (const auto& element : range)
+		buffer << element;
 
-		for (const auto& element : range)
-			buffer << element;
-
-		return lh::string::string_t {buffer};
-	}
+	return lh::string::string_t {buffer};
 }

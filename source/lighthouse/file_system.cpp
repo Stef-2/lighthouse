@@ -2,6 +2,8 @@ module;
 
 module file_system;
 
+import output;
+
 namespace lh
 {
 	namespace file_system

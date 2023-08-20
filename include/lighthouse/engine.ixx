@@ -4,9 +4,13 @@ export module engine;
 
 import window;
 import version;
-import input;
 import renderer;
+
+#if INTELLISENSE
+import std;
+#else
 import std.core;
+#endif
 
 export namespace lh
 {

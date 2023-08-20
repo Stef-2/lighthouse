@@ -4,6 +4,9 @@ module;
 
 module window;
 
+import lighthouse_string;
+import output;
+
 namespace lh
 {
 	window::window(const create_info& create_info) : m_title(create_info.m_name)

@@ -1,17 +1,24 @@
 module;
 
-//#include "vkfw/vkfw.hpp"
-//#include "glm/ext.hpp"
+#if INTELLISENSE
+#include <string>
+#endif
 
 export module string_convertible;
 
 import lighthouse_string;
+
+#if INTELLISENSE
+//#include <concepts>
+//#include <ranges>
+#else
 import std.core;
+#endif
 
 export namespace lh
 {
 	namespace string
-	{
+	{/*
 		// clang-format off
 		constexpr auto vulkan_to_string =
 		#ifndef VULKAN_HPP_NO_TO_STRING
@@ -20,7 +27,7 @@ export namespace lh
 			false;
 		#endif
 		// clang-format on
-
+		*/
 		// concepts that implicitly or explicitly convert to std::string
 		template <typename T>
 		concept std_convertible = requires(T x) { std::to_string(x); };
@@ -39,6 +46,7 @@ export namespace lh
 									 std_constructible<T> /*|| vulkan_convertible<T>*/;
 
 		// concept of a container range holding string convertible types
+		
 		template <typename T>
 		concept string_convertible_input_range = std::ranges::input_range<T> &&
 												 lh::string::string_convertible<std::ranges::range_value_t<T>>;

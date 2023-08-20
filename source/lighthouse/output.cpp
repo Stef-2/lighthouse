@@ -4,7 +4,7 @@ module output;
 
 namespace lh
 {
-	auto output::log() -> buffer&
+	auto output::log() -> output::buffer&
 	{
 		return n_log;
 	}

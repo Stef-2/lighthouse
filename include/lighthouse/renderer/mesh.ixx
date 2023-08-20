@@ -1,5 +1,10 @@
 module;
 
+#if INTELLISENSE
+#include <memory>
+#include <vector>
+#endif
+
 export module mesh;
 
 import node;
@@ -10,7 +15,10 @@ import logical_device;
 import memory_allocator;
 import vertex_buffer;
 import vertex_format;
+
+#if not INTELLISENSE
 import std.core;
+#endif
 
 export namespace lh
 {

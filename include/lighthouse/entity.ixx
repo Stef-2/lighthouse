@@ -3,6 +3,10 @@ module;
 #include "glm/vec3.hpp"
 #include "glm/gtx/quaternion.hpp"
 
+#if INTELLISENSE
+#include <memory>
+#endif
+
 export module entity;
 
 import node;

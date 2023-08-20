@@ -1,10 +1,16 @@
 module;
 
+#if INTELLISENSE
+#include <vector>
+#endif
+
 #include "glm/mat4x4.hpp"
 
 export module node;
 
+#if not INTELLISENSE
 import std.core;
+#endif
 
 export namespace lh
 {

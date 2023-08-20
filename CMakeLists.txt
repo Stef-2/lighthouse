@@ -26,7 +26,7 @@ cmake_path(SET dynamic ${CMAKE_CURRENT_SOURCE_DIR}/library)
 
 add_executable(${PROJECT_NAME})
 
-#[[
+
 # std module
 add_library(std_module)
 target_sources(std_module PUBLIC FILE_SET CXX_MODULES FILES
@@ -35,6 +35,7 @@ target_compile_options(std_module PUBLIC
 	/std:c++latest /EHsc /GL /Ox /Oi /W3 /MP /Zf /MD /Qpar /Qpar-report:1 /arch:AVX2 /nologo#/translateInclude
 	/DNOMINMAX /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS
 )
+#[[
 # std.compat module
 add_library(std_compat_module)
 target_sources(std_compat_module PUBLIC FILE_SET CXX_MODULES FILES
@@ -46,7 +47,7 @@ target_compile_options(std_compat_module PUBLIC
 # vulkan module
 add_library(vulkan_module)
 target_sources(vulkan_module PUBLIC FILE_SET CXX_MODULES FILES
-	${include}/vulkan/vulkan.cppm
+	${module}/vulkan/vulkan.cppm
 )
 target_compile_options(vulkan_module PUBLIC
 	/std:c++latest /EHsc /GL /Ox /Oi /W3 /MP /Zf /MD /Qpar /Qpar-report:1 /arch:AVX2 /nologo#/translateInclude
@@ -112,7 +113,7 @@ target_sources(
 	${include}/lighthouse/renderer/bounding_volume.ixx	
 	${include}/lighthouse/entity.ixx
 	${include}/lighthouse/camera.ixx
- "test123.ixx")
+)
 
 target_sources(
 	${PROJECT_NAME} PUBLIC
@@ -157,7 +158,7 @@ target_sources(
 	${source}/lighthouse/lightHouse.cpp
 	${source}/lighthouse/entity.cpp
 	${source}/lighthouse/camera.cpp
- "test123.cpp")
+)
 
 
 
@@ -227,7 +228,7 @@ target_compile_definitions(
 
 	# project definitions
 	DYNAMIC_LINK_DIRECTORY="${dynamic}"
-	INTELLISENSE=0#__INTELLISENSE__
+	INTELLISENSE=__INTELLISENSE__
 )
 
 # Include
@@ -275,7 +276,7 @@ target_link_libraries(
 
 	assimp-vc143-mt.lib
 
-	#std_module
+	std_module
 	#std_compat_module
 	vulkan_module
 )

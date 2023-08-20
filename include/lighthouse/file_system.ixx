@@ -2,10 +2,13 @@ module;
 
 export module file_system;
 
-
+#if INTELLISENSE
+#include <filesystem>
+#else
 import std.filesystem;
 import std.core;
-import output;
+#endif
+
 
 namespace lh
 {

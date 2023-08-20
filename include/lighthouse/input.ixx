@@ -8,8 +8,13 @@ import file_system;
 import file_type;
 import lighthouse_string;
 import window;
+
+#if INTELLISENSE
+import std;
+#else
 import std.filesystem;
 import std.core;
+#endif
 
 namespace lh
 {
