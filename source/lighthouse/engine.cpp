@@ -1,10 +1,10 @@
-module;
-
 #include "vkfw/vkfw.hpp"
 
 module engine;
+
 import output;
 import input;
+import time;
 
 namespace lh
 {
@@ -12,9 +12,7 @@ namespace lh
 	engine::delta_time_t engine::s_delta_time = vkfw::getTime().value;
 
 	engine::engine(std::unique_ptr<lh::window> window, const create_info& engine_create_info)
-		: m_window {std::move(window)},
-		  m_renderer {},
-		  m_version(engine_create_info.m_engine_version)
+		: m_window {std::move(window)}, m_renderer {}, m_version(engine_create_info.m_engine_version)
 	{
 		input::initialize(*m_window);
 		engine::initialize();

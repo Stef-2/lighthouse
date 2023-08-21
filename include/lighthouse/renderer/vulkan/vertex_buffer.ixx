@@ -1,5 +1,9 @@
 module;
 
+#if INTELLISENSE
+#include "vulkan/vulkan_raii.hpp"
+#endif
+
 export module vertex_buffer;
 
 import buffer;
@@ -9,7 +13,10 @@ import memory_allocator;
 import vertex_input_description;
 import vertex_format;
 import index_format;
+
+#if not INTELLISENSE
 import std.core;
+#endif
 
 export namespace lh
 {

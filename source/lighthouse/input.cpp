@@ -1,8 +1,7 @@
-module;
-
 #include <functional>
 
 module input;
+
 import output;
 
 namespace lh

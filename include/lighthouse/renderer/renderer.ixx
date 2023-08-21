@@ -36,7 +36,10 @@ import buffer;
 import input;
 import mesh;
 import camera;
+
+#if not INTELLISENSE
 import std.core;
+#endif
 
 export namespace lh
 {

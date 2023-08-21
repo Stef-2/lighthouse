@@ -1,13 +1,20 @@
 module;
 
+#if INTELLISENSE
+#include "vulkan/vulkan.hpp"
+#endif
+
 export module spir_v;
 
 import lighthouse_string;
 import file_system;
 import shader_input;
 import vertex_input_description;
+
+#if not INTELLISENSE
 import vulkan;
 import std.core;
+#endif
 
 export namespace lh
 {

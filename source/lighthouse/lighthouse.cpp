@@ -1,10 +1,5 @@
 ﻿#include "vkfw/vkfw.hpp"
-/*
-#if INTELLISENSE
-#include "lighthouse/engine.ixx"
-import std;
-#else
-#endif*/
+
 import engine;
 import window;
 

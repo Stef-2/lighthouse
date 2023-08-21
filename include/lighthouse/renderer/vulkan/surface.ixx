@@ -1,5 +1,9 @@
 module;
 
+#if INTELLISENSE
+#include "vulkan/vulkan_raii.hpp"
+#endif
+
 export module surface;
 
 import raii_wrapper;

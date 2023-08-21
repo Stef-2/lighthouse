@@ -1,14 +1,16 @@
 module;
 
+#if INTELLISENSE
+#include <memory>
+#endif
+
 export module engine;
 
 import window;
 import version;
 import renderer;
 
-#if INTELLISENSE
-import std;
-#else
+#if not INTELLISENSE
 import std.core;
 #endif
 

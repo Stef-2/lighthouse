@@ -2,6 +2,14 @@ module;
 
 #include "vkfw/vkfw.hpp"
 
+#if INTELLISENSE
+#include <map>
+#include <unordered_map>
+#include <functional>
+#include <filesystem>
+#include <vector>
+#endif
+
 export module input;
 
 import file_system;
@@ -9,9 +17,7 @@ import file_type;
 import lighthouse_string;
 import window;
 
-#if INTELLISENSE
-import std;
-#else
+#if not INTELLISENSE
 import std.filesystem;
 import std.core;
 #endif
@@ -85,10 +91,13 @@ namespace lh
 			static auto initialize(const window&) -> void;
 
 		private:
+			static auto execute_pressed_keys() -> void;
+
 			static window* s_window;
 			// map key inputs to any number of actions
 			static inline auto s_key_bindings =
 				std::unordered_multimap<const key_input, const action, const key_input> {};
+			static inline auto s_pressed_keys = std::vector<const key_input> {};
 		};
 
 		class mouse

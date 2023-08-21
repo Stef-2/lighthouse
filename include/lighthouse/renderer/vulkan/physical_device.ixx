@@ -2,6 +2,10 @@ module;
 
 #include "vulkan/vulkan_core.h"
 
+#if INTELLISENSE
+#include "vulkan/vulkan_raii.hpp"
+#endif
+
 export module physical_device;
 
 import lighthouse_string;

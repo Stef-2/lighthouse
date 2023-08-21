@@ -113,6 +113,7 @@ target_sources(
 	${include}/lighthouse/renderer/bounding_volume.ixx	
 	${include}/lighthouse/entity.ixx
 	${include}/lighthouse/camera.ixx
+	${include}/lighthouse/time.ixx
 )
 
 target_sources(
@@ -158,6 +159,7 @@ target_sources(
 	${source}/lighthouse/lightHouse.cpp
 	${source}/lighthouse/entity.cpp
 	${source}/lighthouse/camera.cpp
+	${source}/lighthouse/time.cpp
 )
 
 

@@ -1,5 +1,10 @@
 module;
 
+#if INTELLISENSE
+#include "vulkan/vulkan_raii.hpp"
+#include <vector>
+#endif
+
 export module descriptor_buffer;
 
 import vulkan_utility;
@@ -8,8 +13,11 @@ import logical_device;
 import memory_allocator;
 import descriptor_set_layout;
 import buffer;
+
+#if not INTELLISENSE
 import std.core;
 import vulkan;
+#endif
 
 export namespace lh
 {

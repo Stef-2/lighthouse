@@ -1,5 +1,11 @@
 module;
 
+#if INTELLISENSE
+#include "vulkan/vulkan_raii.hpp"
+
+#include <filesystem>
+#endif
+
 export module shader_object;
 
 import raii_wrapper;
@@ -7,7 +13,10 @@ import descriptor_set_layout;
 import logical_device;
 import spir_v;
 import shader_input;
+
+#if not INTELLISENSE
 import std.filesystem;
+#endif
 
 export namespace lh
 {

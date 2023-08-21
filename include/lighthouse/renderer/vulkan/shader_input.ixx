@@ -1,10 +1,20 @@
 module;
 
+#if INTELLISENSE
+#include "vulkan/vulkan.hpp"
+
+#include <cstdint>
+#include <vector>
+#endif
+
 export module shader_input;
 
 import lighthouse_string;
+
+#if not INTELLISENSE
 import vulkan;
 import std.core;
+#endif
 
 export namespace lh
 {

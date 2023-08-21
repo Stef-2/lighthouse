@@ -1,5 +1,11 @@
 module;
 
+#if INTELLISENSE
+#include "vulkan/vulkan_raii.hpp"
+
+#include <vector>
+#endif
+
 export module shader_object_pipeline;
 
 import physical_device;
@@ -10,9 +16,11 @@ import shader_object;
 import descriptor_buffer;
 import spir_v;
 import vertex_input_description;
-import std.core;
 
+#if not INTELLISENSE
 import vulkan;
+import std.core;
+#endif
 
 export namespace lh
 {

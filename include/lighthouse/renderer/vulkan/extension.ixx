@@ -1,12 +1,25 @@
 module;
 
+#if INTELLISENSE
+#include "vulkan/vulkan.hpp"
+
+#include <vector>
+#include <concepts>
+#include <algorithm>
+#include <cstring>
+#include <numeric>
+#endif
+
 export module extension;
 
 import lighthouse_string;
 import vulkan_string;
 import output;
+
+#if not INTELLISENSE
 import std.core;
 import vulkan;
+#endif
 
 export namespace lh
 {

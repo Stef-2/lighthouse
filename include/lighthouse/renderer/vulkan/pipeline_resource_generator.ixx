@@ -1,5 +1,11 @@
 module;
 
+#if INTELLISENSE
+#include "vulkan/vulkan_raii.hpp"
+
+#include <vector>
+#endif
+
 export module pipeline_resource_generator;
 
 import physical_device;
@@ -12,7 +18,10 @@ import buffer;
 import spir_v;
 import shader_input;
 import vertex_input_description;
+
+#if not INTELLISENSE
 import std.core;
+#endif
 
 export namespace lh
 {
@@ -26,7 +35,7 @@ export namespace lh
 			struct shader_resources
 			{
 				std::vector<shader_object> m_shader_objects;
-				std::vector<descriptor_set_layout> m_descriptor_set_layout;
+				std::vector<vulkan::descriptor_set_layout> m_descriptor_set_layout;
 				vk::raii::PipelineLayout m_pipeline_layout;
 
 				vk::VertexInputBindingDescription2EXT m_bindings;

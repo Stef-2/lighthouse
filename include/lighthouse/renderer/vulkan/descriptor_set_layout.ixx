@@ -1,10 +1,19 @@
 module;
 
+#if INTELLISENSE
+#include "vulkan/vulkan_raii.hpp"
+
+#include <vector>
+#endif
+
 export module descriptor_set_layout;
 
 import raii_wrapper;
 import logical_device;
+
+#if not INTELLISENSE
 import std.core;
+#endif
 
 export namespace lh
 {

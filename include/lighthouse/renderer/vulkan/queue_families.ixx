@@ -6,8 +6,11 @@ export module queue_families;
 
 import physical_device;
 import surface;
+
+#if not INTELLISENSE
 import std.core;
 import vulkan;
+#endif
 
 export namespace lh
 {

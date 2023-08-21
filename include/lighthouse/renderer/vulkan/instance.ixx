@@ -2,6 +2,10 @@ module;
 
 #include "vulkan/vulkan_core.h"
 
+#if INTELLISENSE
+#include "vulkan/vulkan_raii.hpp"
+#endif
+
 export module instance;
 
 import version;
@@ -9,7 +13,10 @@ import window;
 import raii_wrapper;
 import extension;
 import debug_messanger;
+
+#if not INTELLISENSE
 import vulkan;
+#endif
 
 export namespace lh
 {

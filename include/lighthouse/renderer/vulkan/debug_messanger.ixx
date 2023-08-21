@@ -1,18 +1,24 @@
 module;
 
+#if INTELLISENSE
+#include "vulkan/vulkan_raii.hpp"
+#include <vector>
+#endif
 #include "vulkan/vk_platform.h"
 
 export module debug_messanger;
 
 import raii_wrapper;
 import output;
+#if not INTELLISENSE
 import vulkan;
+#endif
 
 export namespace lh
 {
 	namespace vulkan
 	{
-		class debug_messanger : public raii_wrapper<vk::raii::DebugUtilsMessengerEXT>
+		export class debug_messanger : public raii_wrapper<vk::raii::DebugUtilsMessengerEXT>
 		{
 		public:
 			using raii_wrapper::raii_wrapper;
