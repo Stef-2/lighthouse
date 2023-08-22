@@ -16,9 +16,9 @@ namespace lh
 											  m_camera_info.m_aspect_ratio,
 											  m_camera_info.m_near_clip,
 											  m_camera_info.m_far_clip)},
-		  m_first_person_callback {[this](input::mouse::move_data move_data) -> void {
-			  const auto delta_x = static_cast<float>(move_data.m_current.x - move_data.m_previous.x);
-			  const auto delta_y = static_cast<float>(move_data.m_current.y - move_data.m_previous.y);
+		  m_first_person_callback {[this](input::mouse::move_info move_info) -> void {
+			  const auto delta_x = static_cast<float>(move_info.m_current.x - move_info.m_previous.x);
+			  const auto delta_y = static_cast<float>(move_info.m_current.y - move_info.m_previous.y);
 
 			  const auto quat_delta_x = (glm::angleAxis(glm::radians(delta_y), glm::vec3(1.0f, 0.0f, 0.0f)));
 			  const auto quat_delta_y = (glm::angleAxis(glm::radians(delta_x), glm::vec3(0.0f, 1.0f, 0.0f)));
@@ -38,7 +38,7 @@ namespace lh
 									 m_camera_info.m_top,
 									 m_camera_info.m_near_clip,
 									 m_camera_info.m_far_clip)},
-		  m_first_person_callback {[this](input::mouse::move_data) -> void {}}
+		  m_first_person_callback {[this](input::mouse::move_info) -> void {}}
 	{}
 
 	template <camera_type T>

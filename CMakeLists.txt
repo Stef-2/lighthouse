@@ -120,11 +120,12 @@ target_sources(
 	${PROJECT_NAME} PUBLIC
 
 	${source}/lighthouse/window.cpp
+	${source}/lighthouse/input.cpp
+	${source}/lighthouse/output.cpp
+	${source}/lighthouse/version.cpp
 	${source}/lighthouse/file_system.cpp
 	${source}/lighthouse/operating_system/dynamic_linking.cpp
-	${source}/lighthouse/engine.cpp
 	${source}/lighthouse/renderer/renderer.cpp
-	${source}/lighthouse/version.cpp
 	${source}/lighthouse/node.cpp
 	${source}/lighthouse/operating_system/memory.cpp
 	${source}/lighthouse/renderer/vulkan/extension.cpp
@@ -152,10 +153,9 @@ target_sources(
 	${source}/lighthouse/renderer/vulkan/shader_input.cpp
 	${source}/lighthouse/renderer/mesh.cpp
 	${source}/lighthouse/renderer/bounding_volume.cpp
-	${source}/lighthouse/output.cpp
-	${source}/lighthouse/input.cpp
 	${source}/vulkan/utils.cpp
 	${source}/vulkan/math.cpp
+	${source}/lighthouse/engine.cpp
 	${source}/lighthouse/lightHouse.cpp
 	${source}/lighthouse/entity.cpp
 	${source}/lighthouse/camera.cpp

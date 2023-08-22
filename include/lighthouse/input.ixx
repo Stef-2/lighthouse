@@ -8,6 +8,8 @@ module;
 #include <functional>
 #include <filesystem>
 #include <vector>
+#include <variant>
+#include <iostream>
 #endif
 
 export module input;
@@ -36,7 +38,7 @@ namespace lh
 		// make constructible from invocable / callable concepts
 		action(const std::invocable auto& function) : m_action(function), m_guid(s_counter) { s_counter++; }
 
-		auto get_id() const -> const counter_t&;
+		auto id() const -> const counter_t&;
 
 		// overlaoded () operator to call the wrapped function
 		auto operator()() const -> void;
@@ -52,30 +54,33 @@ namespace lh
 		counter_t m_guid;
 	};
 
-	// utiltiy input namespace, handling keyboard, mouse and file reading
+	// utiltiy input namespace, handling key_binding, mouse and file reading
 	export namespace input
 	{
-		class keyboard
+		class key_binding
 		{
 		public:
 			// full key input, constructed from:
-			// (1) keyboard code -> defaults to unknown
+			// (1) keyboard or mouse key code -> defaults to unknown
 			// (2) keyboard modifier keys (ctrl, shift, alt, etc) -> defaults to no mods
 			// (3) key action (press, release, hold) -> defaults to press
 			struct key_input
 			{
-				key_input(vkfw::Key = {},
+				key_input(std::variant<vkfw::Key, vkfw::MouseButton> = {},
 						  vkfw::ModifierKeyFlags = {},
-						  vkfw::KeyAction = vkfw::KeyAction::Press);
+						  std::variant<vkfw::KeyAction, vkfw::MouseButtonAction> = vkfw::KeyAction::Press);
 
 				// define comparison and hash functions so it can be used as a map key
 				auto operator<=>(const key_input&) const = default;
 				auto operator()(const key_input& value) const -> std::size_t;
 
-				vkfw::Key m_key;
-				vkfw::ModifierKeyFlags::MaskType m_flags;
-				vkfw::KeyAction m_action;
+				// allow either keyboard or mouse key
+				std::int32_t m_key;
+				std::int32_t m_modifier_flags;
+				std::int32_t m_action;
 			};
+
+			static auto execute_pressed_keys() -> void;
 
 			static auto key_bindings() -> std::unordered_multimap<const key_input, const action, const key_input>&;
 
@@ -91,38 +96,18 @@ namespace lh
 			static auto initialize(const window&) -> void;
 
 		private:
-			static auto execute_pressed_keys() -> void;
 
 			static window* s_window;
 			// map key inputs to any number of actions
 			static inline auto s_key_bindings =
 				std::unordered_multimap<const key_input, const action, const key_input> {};
-			static inline auto s_pressed_keys = std::vector<const key_input> {};
+			static inline auto s_pressed_keys = std::vector<key_input> {};
 		};
 
 		class mouse
 		{
 		public:
-			// full mouse key input, constructed from:
-			// (1) mouse key code -> defaults to left mouse button
-			// (2) keyboard modifier keys (ctrl, shift, alt, etc) -> defaults to no mods
-			// (3) mouse key action (press, release, hold) -> defaults to press
-			struct mouse_input
-			{
-				mouse_input(vkfw::MouseButton = {vkfw::MouseButton::Left},
-							vkfw::ModifierKeyFlags = {},
-							vkfw::MouseButtonAction = vkfw::MouseButtonAction::Press);
-
-				// define comparison and hash functions so it can be used as a map key
-				auto operator<=>(const mouse_input&) const = default;
-				auto operator()(const mouse_input& value) const -> std::size_t;
-
-				vkfw::MouseButton m_key;
-				vkfw::ModifierKeyFlags::MaskType m_flags;
-				vkfw::MouseButtonAction m_action;
-			};
-
-			struct move_data
+			struct move_info
 			{
 				struct screen_position
 				{
@@ -134,29 +119,15 @@ namespace lh
 				screen_position m_previous;
 			};
 
+			using on_move_action_t = std::function<void(const move_info&)>;
+
 			static auto initialize(const window&) -> void;
-
-			using on_move_action_t = std::function<void(const move_data&)>;
-
-			// binds action(s) to a mouse key
-			static auto bind(const mouse_input&, const action&) -> void;
-			static auto bind(const mouse_input&, const std::vector<action>&) -> void;
-
-			// unbinds all actions from a mouse key
-			static auto unbind(const mouse_input&) -> void;
-
-			// unbinds a specific action from a mouse key
-			static auto unbind(const mouse_input&, const action&) -> void;
-
 			static auto move_callback(const on_move_action_t&) -> void;
 
 		private:
 			static window* s_window;
 			static double s_previous_x;
 			static double s_previous_y;
-
-			static inline auto s_key_bindings =
-				std::unordered_multimap<const mouse_input, const action, const mouse_input> {};
 		};
 
 		auto read_text_file(const std::filesystem::path&) -> string::string_t;

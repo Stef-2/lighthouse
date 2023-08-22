@@ -33,7 +33,7 @@ export namespace lh
 
 			struct create_info
 			{
-				vk::DescriptorSetLayoutCreateFlags m_flags {
+				vk::DescriptorSetLayoutCreateFlags m_modifier_flags {
 					vk::DescriptorSetLayoutCreateFlagBits::eDescriptorBufferEXT};
 				vk::ShaderStageFlagBits m_access = vk::ShaderStageFlagBits::eAll;
 			};

@@ -32,8 +32,9 @@ namespace lh
 	{
 		while (!m_window->vkfw_window().shouldClose().value)
 		{
-			m_renderer->render();
 			poll_events();
+			input::key_binding::execute_pressed_keys();
+			m_renderer->render();
 
 			s_delta_time = vkfw::getTime().value - s_delta_time;
 		}
@@ -41,12 +42,12 @@ namespace lh
 
 	auto engine::initialize() -> void
 	{
-		input::keyboard::bind({vkfw::Key::Escape}, [this]() {
+		input::key_binding::bind({vkfw::Key::Escape}, [this]() {
 			m_window->vkfw_window().destroy();
 			std::exit(0);
 		});
 
-		input::keyboard::bind({vkfw::Key::F1}, [this]() { output::dump_logs(std::cout); });
+		input::key_binding::bind({vkfw::Key::F1}, [this]() { output::dump_logs(std::cout); });
 	}
 
 	auto engine::poll_events() -> void

@@ -32,7 +32,7 @@ namespace lh
 				m_shader_objects.emplace_back(logical_device,
 											  spir_v,
 											  *m_descriptor_set_layout,
-											  shader_object::create_info {.m_flags = create_info.m_flags,
+											  shader_object::create_info {.m_modifier_flags = create_info.m_modifier_flags,
 																		  .m_code_type = create_info.m_code_type});*/
 			}
 

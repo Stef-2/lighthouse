@@ -14,7 +14,7 @@ namespace lh
 			: m_shader_stage {spir_v.stage()}
 		{
 
-			const auto shader_create_info = vk::ShaderCreateInfoEXT {create_info.m_flags,
+			const auto shader_create_info = vk::ShaderCreateInfoEXT {create_info.m_modifier_flags,
 																	 m_shader_stage,
 																	 {},
 																	 create_info.m_code_type,

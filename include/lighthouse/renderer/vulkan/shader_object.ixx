@@ -27,7 +27,7 @@ export namespace lh
 		public:
 			struct create_info
 			{
-				vk::ShaderCreateFlagsEXT m_flags = vk::ShaderCreateFlagBitsEXT::eLinkStage;
+				vk::ShaderCreateFlagsEXT m_modifier_flags = vk::ShaderCreateFlagBitsEXT::eLinkStage;
 				vk::ShaderCodeTypeEXT m_code_type = vk::ShaderCodeTypeEXT::eSpirv;
 			};
 

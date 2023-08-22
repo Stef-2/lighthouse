@@ -18,7 +18,7 @@ namespace lh
 			for (const auto& binding : bindings)
 				layout_bindings.emplace_back(binding.m_binding, binding.m_type, binding.m_count, create_info.m_access);
 
-			const auto layout_info = vk::DescriptorSetLayoutCreateInfo(create_info.m_flags, layout_bindings);
+			const auto layout_info = vk::DescriptorSetLayoutCreateInfo(create_info.m_modifier_flags, layout_bindings);
 
 			m_object = {*logical_device, layout_info};
 			m_bindings = bindings;
