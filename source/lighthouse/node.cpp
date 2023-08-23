@@ -109,7 +109,7 @@ namespace lh
 		return m_transformation;
 	}
 
-	auto node::global_transformation() const -> const transformation_t&
+	auto node::global_transformation() const -> const transformation_t
 	{
 		auto global_transformation = m_transformation;
 		auto parent = m_parent;

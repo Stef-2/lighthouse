@@ -12,6 +12,10 @@ module;
 
 #include "vulkan/utils/raii/raii_utils.hpp"
 
+#if INTELLISENSE
+#include "vulkan/vulkan_raii.hpp"
+#endif
+
 module renderer;
 import output;
 import file_system;
@@ -19,7 +23,6 @@ import file_system;
 // #pragma optimize("", off)
 namespace lh
 {
-
 	renderer::renderer(const window& window, const create_info& create_info)
 		: m_create_info {create_info},
 		  m_window {window},
@@ -186,7 +189,28 @@ namespace lh
 		command_buffer.setDepthWriteEnableEXT(true);
 		command_buffer.setDepthCompareOpEXT(vk::CompareOp::eLessOrEqual);
 		command_buffer.setPrimitiveTopologyEXT(vk::PrimitiveTopology::eTriangleList);
+		command_buffer.setRasterizerDiscardEnableEXT(false);
+		command_buffer.setPolygonModeEXT(vk::PolygonMode::eFill);
+		command_buffer.setRasterizationSamplesEXT(vk::SampleCountFlagBits::e1);
+		command_buffer.setSampleMaskEXT(vk::SampleCountFlagBits::e1, 1);
+		command_buffer.setAlphaToCoverageEnableEXT(false);
+		command_buffer.setDepthBiasEnable(false);
+		command_buffer.setStencilTestEnable(false);
+		command_buffer.setPrimitiveRestartEnable(false);
+		command_buffer.setColorBlendEnableEXT(0, {true, false});
+		command_buffer.setColorBlendEquationEXT(0,
+												{vk::ColorBlendEquationEXT {vk::BlendFactor::eSrcAlpha,
+																			vk::BlendFactor::eOneMinusSrcAlpha,
+																			vk::BlendOp::eAdd,
+																			vk::BlendFactor::eOne,
+																			vk::BlendFactor::eZero,
+																			vk::BlendOp::eAdd},
+												 {}});
+		command_buffer.setColorWriteMaskEXT(0,
+											{vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG |
+											 vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA});
 
+		// vk::CommandBuffer::setColorBlendEquationEXT()
 		/*
 		vk::VertexInputBindingDescription2EXT vbd {0, sizeof(VertexPC), vk::VertexInputRate::eVertex, 1};
 		std::vector<vk::VertexInputAttributeDescription2EXT> vad {

@@ -36,6 +36,7 @@ import buffer;
 import input;
 import mesh;
 import camera;
+import time;
 
 #if not INTELLISENSE
 import std.core;

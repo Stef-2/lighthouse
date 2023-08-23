@@ -12,7 +12,9 @@ _deps
 out
 build
 .vs
+.vscode
 *.pdb
+*.idb
 .clang-format
 /CMakePresets.json
 

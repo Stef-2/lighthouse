@@ -13,10 +13,7 @@ import lighthouse_string;
 import string_convertible;
 import file_type;
 
-#if INTELLISENSE
-//#include <iostream>
-//#include <concepts>
-#else
+#if not INTELLISENSE
 import std.core;
 import std.filesystem;
 #endif

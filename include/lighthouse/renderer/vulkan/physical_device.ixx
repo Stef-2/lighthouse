@@ -30,7 +30,8 @@ export namespace lh
 																VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME,
 																VK_EXT_SHADER_OBJECT_EXTENSION_NAME,
 																VK_EXT_VERTEX_INPUT_DYNAMIC_STATE_EXTENSION_NAME,
-																VK_KHR_MAINTENANCE_5_EXTENSION_NAME}};
+																VK_KHR_MAINTENANCE_5_EXTENSION_NAME,
+																VK_EXT_HOST_IMAGE_COPY_EXTENSION_NAME}};
 
 				performance_score_t m_minimum_accepted_score {0xFFFFFFFF};
 			};

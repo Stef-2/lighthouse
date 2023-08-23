@@ -11,7 +11,7 @@ namespace lh
 					 const vulkan::memory_allocator& memory_allocator,
 					 const vk::Extent2D& extent,
 					 const create_info& create_info)
-			: m_format(create_info.m_format), m_view {nullptr}, m_memory {nullptr}, m_sampler {logical_device}
+			: m_format(create_info.m_format), m_view {}, m_allocation_info {}, m_allocation {}
 		{
 			const auto image_info = vk::ImageCreateInfo {create_info.m_image_create_flags,
 														 create_info.m_image_type,
@@ -32,7 +32,7 @@ namespace lh
 				  allocation] = memory_allocator->createImage(image_info, allocation_create_info, allocation_info);
 
 			m_object = {*logical_device, image};
-
+			/*
 			const auto view_info = vk::ImageViewCreateInfo {{},
 															*m_object,
 															create_info.m_view_type,
@@ -40,8 +40,7 @@ namespace lh
 															{},
 															{create_info.m_image_aspect, 0, 1, 0, 1}};
 
-			m_view = {*logical_device, view_info};
-			m_memory = {*logical_device, allocation_info.deviceMemory};
+			m_view = {*logical_device, view_info};*/
 		}
 
 		auto image::format() const -> const vk::Format&
@@ -53,10 +52,17 @@ namespace lh
 		{
 			return m_view;
 		}
-
-		auto image::memory() const -> const vk::raii::DeviceMemory&
+		auto image::allocation_info() const -> const vma::AllocationInfo&
 		{
-			return m_memory;
+			return m_allocation_info;
+		}
+		auto image::allocation_info() -> vma::AllocationInfo&
+		{
+			// TODO: insert return statement here
+		}
+		auto image::allocation() const -> const vma::Allocation&
+		{
+			// TODO: insert return statement here
 		}
 	}
 }

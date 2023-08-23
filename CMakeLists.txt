@@ -32,7 +32,7 @@ add_library(std_module)
 target_sources(std_module PUBLIC FILE_SET CXX_MODULES FILES
 	${module}/std/std.ixx)
 target_compile_options(std_module PUBLIC
-	/std:c++latest /EHsc /GL /Ox /Oi /W3 /MP /Zf /MD /Qpar /Qpar-report:1 /arch:AVX2 /nologo#/translateInclude
+	/std:c++latest /EHsc /GL /Ox /Oi /W3 /MP /Zf /MD /Qpar /Qpar-report:1 /arch:AVX2 /nologo #/ZI#/translateInclude
 	/DNOMINMAX /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS
 )
 #[[
@@ -50,13 +50,13 @@ target_sources(vulkan_module PUBLIC FILE_SET CXX_MODULES FILES
 	${module}/vulkan/vulkan.cppm
 )
 target_compile_options(vulkan_module PUBLIC
-	/std:c++latest /EHsc /GL /Ox /Oi /W3 /MP /Zf /MD /Qpar /Qpar-report:1 /arch:AVX2 /nologo#/translateInclude
+	/std:c++latest /EHsc /GL /Ox /Oi /W3 /MP /Zf /MD /Qpar /Qpar-report:1 /arch:AVX2 /nologo #/ZI#/translateInclude
 	/DNOMINMAX /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS
 )
 target_include_directories(
 	vulkan_module PUBLIC
 
-	${include}/vulkan
+	${include}
 )
 
 target_sources(
@@ -114,6 +114,7 @@ target_sources(
 	${include}/lighthouse/entity.ixx
 	${include}/lighthouse/camera.ixx
 	${include}/lighthouse/time.ixx
+	${include}/lighthouse/renderer/vulkan/texture.ixx
 )
 
 target_sources(
@@ -162,8 +163,6 @@ target_sources(
 	${source}/lighthouse/time.cpp
 )
 
-
-
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_RELEASE}")
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
 
@@ -173,7 +172,7 @@ if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
   target_compile_options(
 	  ${PROJECT_NAME} PUBLIC
 	  # MSVC compiler settings
-	  /std:c++latest /EHsc /GL /Ox /Oi /W3 /MP /Zf /MD /Qpar /Qpar-report:1 /arch:AVX2 /nologo /experimental:module#/translateInclude
+	  /std:c++latest /EHsc /GL /Ox /Oi /W3 /MP /Zf /MD /Qpar /Qpar-report:1 /arch:AVX2 /nologo /experimental:module #/ZI#/translateInclude
 	  # MSVC disable common annoying warnings
 	  /wd4005 /wd4068 /wd4244 /wd4267 /wd4800
 	  # Windows.h configuration

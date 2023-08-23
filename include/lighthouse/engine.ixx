@@ -37,7 +37,6 @@ export namespace lh
 
 		auto window() -> const window&;
 		auto version() -> version&;
-		static auto delta_time() -> const delta_time_t&;
 
 	private:
 		auto initialize() -> void;
@@ -48,7 +47,5 @@ export namespace lh
 		std::unique_ptr<renderer> m_renderer;
 
 		lh::version m_version;
-
-		static delta_time_t s_delta_time;
 	};
 }

@@ -11,7 +11,6 @@ import physical_device;
 import logical_device;
 import memory_allocator;
 import surface;
-import sampler;
 
 export namespace lh
 {
@@ -47,13 +46,17 @@ export namespace lh
 
 			auto format() const -> const vk::Format&;
 			auto view() const -> const vk::raii::ImageView&;
-			auto memory() const -> const vk::raii::DeviceMemory&;
+
+			auto allocation_info() const -> const vma::AllocationInfo&;
+			auto allocation_info() -> vma::AllocationInfo&;
+			auto allocation() const -> const vma::Allocation&;
 
 		private:
 			vk::Format m_format;
 			vk::raii::ImageView m_view;
-			vk::raii::DeviceMemory m_memory;
-			sampler m_sampler;
+
+			vma::AllocationInfo m_allocation_info;
+			vma::Allocation m_allocation;
 		};
 	}
 }

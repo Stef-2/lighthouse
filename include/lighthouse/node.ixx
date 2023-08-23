@@ -52,7 +52,7 @@ export namespace lh
 
 		auto local_transformation(const transformation_t&) -> void;
 		auto local_transformation() const -> const transformation_t&;
-		auto global_transformation() const -> const transformation_t&;
+		auto global_transformation() const -> const transformation_t;
 
 	private:
 		// remove ourselves from our current parents children list

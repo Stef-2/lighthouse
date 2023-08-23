@@ -1,5 +1,13 @@
 module;
 
+#if INTELLISENSE
+#include "glm/glm.hpp"
+#include "glm/ext.hpp"
+
+#include <functional>
+#include <memory>
+#endif
+
 #include "glm/mat4x4.hpp"
 #include "glm/gtx/quaternion.hpp"
 
@@ -32,12 +40,12 @@ export namespace lh
 		template <>
 		struct create_info<camera_type::orthographic>
 		{
-			float m_left {};
-			float m_right {};
-			float m_bottom {};
-			float m_top {};
-			float m_near_clip = 0.1f;
-			float m_far_clip = 1024.0f;
+			float m_left;
+			float m_right;
+			float m_bottom;
+			float m_top;
+			float m_near_clip;
+			float m_far_clip;
 		};
 
 		camera(std::shared_ptr<node>, const create_info<T>& = {});
