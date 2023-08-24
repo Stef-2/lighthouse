@@ -14,7 +14,6 @@ namespace lh
 							 const create_info& create_info)
 			: m_views {},
 			  m_depth_stencil_buffer {
-				  physical_device,
 				  logical_device,
 				  memory_allocator,
 				  surface.extent(),

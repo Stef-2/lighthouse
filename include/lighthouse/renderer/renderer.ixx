@@ -20,6 +20,7 @@ import memory_allocator;
 import command_control;
 import queue;
 import image;
+import texture;
 import swapchain;
 import spir_v;
 import shader_object;
@@ -111,5 +112,6 @@ export namespace lh
 		//node m_camera_node;
 		lh::camera<camera_type::perspective> m_camera;
 		//lh::camera<camera_type::orthographic> m_camera_2;
+		vulkan::texture m_texture;
 	};
 }

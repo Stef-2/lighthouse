@@ -13,7 +13,7 @@ namespace lh
 					   const memory_allocator& allocator,
 					   const vk::DeviceSize& size,
 					   const create_info& create_info)
-			: m_allocaton_info {}, m_allocation {}, m_address {}, m_create_info {create_info}
+			: m_allocation_info {}, m_allocation {}, m_address {}, m_create_info {create_info}
 		{
 			const auto buffer_info = vk::BufferCreateInfo({}, size, create_info.m_usage);
 

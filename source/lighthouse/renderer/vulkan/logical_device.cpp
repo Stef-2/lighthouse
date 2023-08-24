@@ -1,6 +1,11 @@
 module;
 
+#if INTELLISENSE
+#include "vulkan.hpp"
+#endif
+
 module logical_device;
+
 import output;
 
 namespace lh
@@ -23,13 +28,14 @@ namespace lh
 			auto shader_object = vk::PhysicalDeviceShaderObjectFeaturesEXT {true, &descriptor_buffering};
 			auto vertex_input = vk::PhysicalDeviceVertexInputDynamicStateFeaturesEXT {true, &shader_object};
 			auto synchronization2 = vk::PhysicalDeviceSynchronization2Features {true, &vertex_input};
+			auto host_image_copy = vk::PhysicalDeviceHostImageCopyFeaturesEXT {true, &synchronization2};
 
 			auto features = create_info.m_features;
 
-			features.pNext = &synchronization2;
+			features.pNext = &host_image_copy;
 
 			auto device_info = vk::DeviceCreateInfo {
-				{}, create_info.m_queues, {}, create_info.m_extensions, &features.features, &synchronization2};
+				{}, create_info.m_queues, {}, create_info.m_extensions, &features.features, &host_image_copy};
 
 			m_object = {*physical_device, device_info};
 		}

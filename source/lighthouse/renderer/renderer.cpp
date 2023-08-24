@@ -112,7 +112,8 @@ namespace lh
 		  m_actual_vb {m_logical_device, m_memory_allocator, m_col_cube_data, m_col_cube_indices},
 		  // m_camera_node {},
 		  m_camera {std::make_shared<lh::node>(), camera<camera_type::perspective>::create_info {}},
-		  m_model {1.0f}
+		  m_model {1.0f},
+		m_texture {m_logical_device, m_memory_allocator, file_system::data_path() /= "textures/bricks.png"}
 	{
 		m_vertex_buffer.map_data(*m_col_cube_data.data(), 0, sizeof(vulkan::vertex) * m_col_cube_data.size());
 		m_index_buffer.map_data(*m_col_cube_indices.data(),

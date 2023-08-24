@@ -97,6 +97,7 @@ target_sources(
 	${include}/lighthouse/renderer/vulkan/command_control.ixx				
 	${include}/lighthouse/renderer/vulkan/queue.ixx							
 	${include}/lighthouse/renderer/vulkan/image.ixx							
+	${include}/lighthouse/renderer/vulkan/texture.ixx
 	${include}/lighthouse/renderer/vulkan/swapchain.ixx			
 	${include}/lighthouse/renderer/vulkan/descriptor_set_layout.ixx			
 	${include}/lighthouse/renderer/vulkan/buffer.ixx						
@@ -114,7 +115,6 @@ target_sources(
 	${include}/lighthouse/entity.ixx
 	${include}/lighthouse/camera.ixx
 	${include}/lighthouse/time.ixx
-	${include}/lighthouse/renderer/vulkan/texture.ixx
 )
 
 target_sources(
@@ -161,6 +161,7 @@ target_sources(
 	${source}/lighthouse/entity.cpp
 	${source}/lighthouse/camera.cpp
 	${source}/lighthouse/time.cpp
+	${source}/lighthouse/renderer/vulkan/texture.cpp
 )
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_RELEASE}")
