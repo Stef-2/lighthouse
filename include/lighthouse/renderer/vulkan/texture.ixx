@@ -11,6 +11,7 @@ export module texture;
 
 import logical_device;
 import memory_allocator;
+import buffer;
 import image;
 
 #if not INTELLISENSE
@@ -28,8 +29,9 @@ export namespace lh
 		public:
 			struct create_info
 			{
-				image::create_info m_image_create_info {.m_image_usage = vk::ImageUsageFlagBits::eSampled /*| vk::ImageUsageFlagBits::eHostTransferEXT*/,
-														.m_image_layout = vk::ImageLayout::eReadOnlyOptimal
+				image::create_info m_image_create_info {.m_image_usage = vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eHostTransferEXT,
+														.m_image_layout = vk::ImageLayout::eReadOnlyOptimal,
+														.m_memory_type = vk::MemoryPropertyFlagBits::eHostVisible
 														};
 			};
 

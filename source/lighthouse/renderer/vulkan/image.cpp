@@ -22,7 +22,7 @@ namespace lh
 														 1,
 														 create_info.m_image_sample_count,
 														 create_info.m_image_tiling,
-														 create_info.m_image_usage | vk::ImageUsageFlagBits::eSampled,
+														 create_info.m_image_usage,
 														 create_info.m_image_sharing_mode,
 														 {}};
 
