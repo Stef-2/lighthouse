@@ -13,7 +13,8 @@ namespace lh
 					 const queue_families& queue_families,
 					 const create_info& create_info)
 			: m_graphics {*logical_device, queue_families.graphics().m_index, 0},
-			  m_present {*logical_device, queue_families.present().m_index, 0}
+			  m_present {*logical_device, queue_families.present().m_index, 0},
+			  m_transfer {*logical_device, queue_families.transfer().m_index, 0}
 		{}
 
 		auto queue::graphics() const -> const vk::raii::Queue&
@@ -24,6 +25,10 @@ namespace lh
 		auto queue::present() const -> const vk::raii::Queue&
 		{
 			return m_present;
+		}
+		auto queue::transfer() const -> const vk::raii::Queue&
+		{
+			return m_transfer;
 		}
 	}
 }

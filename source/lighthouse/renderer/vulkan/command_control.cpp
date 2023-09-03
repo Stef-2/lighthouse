@@ -1,5 +1,9 @@
 module;
 
+#if INTELLISENSE
+#include "vulkan/vulkan_raii.hpp"
+#endif
+
 module command_control;
 
 namespace lh
@@ -7,12 +11,12 @@ namespace lh
 	namespace vulkan
 	{
 
-		command_control::command_control(const vulkan::logical_device& logical_device,
-										 const vulkan::queue_families& queue_families,
+		command_control::command_control(const logical_device& logical_device,
+										 const queue_families::queue& queue,
 										 const create_info& create_info)
-			: m_buffers {nullptr}, m_usage_flags {create_info.m_usage_flags}
+			: m_buffers {nullptr}, m_fence {*logical_device, {}}, m_usage_flags {create_info.m_usage_flags}
 		{
-			m_object = {*logical_device, {create_info.m_pool_flags, queue_families.graphics().m_index}};
+			m_object = {*logical_device, {create_info.m_pool_flags, queue.m_index}};
 
 			auto command_buffers_info = vk::CommandBufferAllocateInfo {*m_object,
 																	   create_info.m_buffer_level,
@@ -38,6 +42,11 @@ namespace lh
 		auto command_control::reset() const -> void
 		{
 			m_object.reset(vk::CommandPoolResetFlagBits::eReleaseResources);
+		}
+
+		auto command_control::fence() const -> const vk::raii::Fence&
+		{
+			return m_fence;
 		}
 	}
 }

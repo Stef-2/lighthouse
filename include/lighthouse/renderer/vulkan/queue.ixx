@@ -30,10 +30,12 @@ export namespace lh
 
 			auto graphics() const -> const vk::raii::Queue&;
 			auto present() const -> const vk::raii::Queue&;
+			auto transfer() const -> const vk::raii::Queue&;
 
 		private:
 			vk::raii::Queue m_graphics;
 			vk::raii::Queue m_present;
+			vk::raii::Queue m_transfer;
 		};
 	}
 }

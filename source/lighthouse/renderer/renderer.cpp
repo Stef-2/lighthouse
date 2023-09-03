@@ -42,7 +42,8 @@ namespace lh
 								.m_extensions = m_physical_device.extensions().required_extensions()}},
 		  m_memory_allocator {m_instance, m_physical_device, m_logical_device},
 
-		  e1m4 {m_logical_device, m_queue_families},
+		  e1m4 {m_logical_device, m_queue_families.graphics()},
+		  m_transfer_control {m_logical_device, m_queue_families.transfer()},
 		  m_queue {m_logical_device, m_queue_families},
 		  m_swapchain {m_physical_device, m_logical_device, m_surface, m_queue_families, m_memory_allocator},
 		  m_common_descriptor_data {
@@ -113,7 +114,10 @@ namespace lh
 		  // m_camera_node {},
 		  m_camera {std::make_shared<lh::node>(), camera<camera_type::perspective>::create_info {}},
 		  m_model {1.0f},
-		m_texture {m_logical_device, m_memory_allocator, file_system::data_path() /= "textures/bricks.png"}
+		  m_texture {m_logical_device,
+					 m_memory_allocator,
+					 m_transfer_control.first_command_buffer(),
+					 file_system::data_path() /= "textures/bricks.png"}
 	{
 		m_vertex_buffer.map_data(*m_col_cube_data.data(), 0, sizeof(vulkan::vertex) * m_col_cube_data.size());
 		m_index_buffer.map_data(*m_col_cube_indices.data(),

@@ -27,15 +27,17 @@ export namespace lh
 				decltype(vk::CommandBufferAllocateInfo::commandBufferCount) m_num_buffers = {1};
 			};
 
-			command_control(const vulkan::logical_device&, const vulkan::queue_families&, const create_info& = {});
+			command_control(const logical_device&, const queue_families::queue&, const create_info& = {});
 
 			auto command_buffers() const -> const vk::raii::CommandBuffers&;
 			auto first_command_buffer() const -> const vk::raii::CommandBuffer&;
 			auto usage_flags() const -> const vk::CommandBufferUsageFlags&;
 			auto reset() const -> void;
+			auto fence() const -> const vk::raii::Fence&;
 
 		private:
 			vk::raii::CommandBuffers m_buffers;
+			vk::raii::Fence m_fence;
 			vk::CommandBufferUsageFlags m_usage_flags;
 		};
 	}

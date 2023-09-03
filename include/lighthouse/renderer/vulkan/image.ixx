@@ -38,6 +38,19 @@ export namespace lh
 
 				vk::MemoryPropertyFlagBits m_memory_type = vk::MemoryPropertyFlagBits::eDeviceLocal;
 			};
+			
+			struct layout_transition_data
+			{
+				vk::PipelineStageFlags2 m_source_pipeline_stage = vk::PipelineStageFlagBits2::eTopOfPipe;
+				vk::PipelineStageFlags2 m_destination_pipeline_stage = vk::PipelineStageFlagBits2::eTransfer;
+				vk::AccessFlags2 m_source_access_flags = {};
+				vk::AccessFlags2 m_destination_access_flags = vk::AccessFlagBits2::eTransferWrite;
+				vk::ImageLayout m_old_layout = vk::ImageLayout::eUndefined;
+				vk::ImageLayout m_new_layout = vk::ImageLayout::eTransferDstOptimal;
+				std::uint32_t m_source_queue_family = vk::QueueFamilyIgnored;
+				std::uint32_t m_destination_queue_family = vk::QueueFamilyIgnored;
+				vk::ImageSubresourceRange m_subresource_range = default_subresource_range();
+			};
 
 			image(nullptr_t);
 			image(const vulkan::logical_device&,
@@ -45,19 +58,26 @@ export namespace lh
 				  const vk::Extent2D&,
 				  const create_info& = {});
 
-			auto format() const -> const vk::Format&;
+			static auto default_subresource_range() -> const vk::ImageSubresourceRange&;
+			static auto default_subresource_layers() -> const vk::ImageSubresourceLayers&;
+
+			auto create_information() const -> const image::create_info&;
 			auto view() const -> const vk::raii::ImageView&;
+			auto transition_layout(const vk::raii::CommandBuffer&, const layout_transition_data& = {}) -> void;
 
 			auto allocation_info() const -> const vma::AllocationInfo&;
 			auto allocation_info() -> vma::AllocationInfo&;
 			auto allocation() const -> const vma::Allocation&;
 
 		private:
-			vk::Format m_format;
+			create_info m_create_info;
 			vk::raii::ImageView m_view;
 
 			vma::AllocationInfo m_allocation_info;
 			vma::Allocation m_allocation;
+
+			static const vk::ImageSubresourceRange s_default_subresource_range;
+			static const vk::ImageSubresourceLayers s_default_subresource_layers;
 		};
 	}
 }
