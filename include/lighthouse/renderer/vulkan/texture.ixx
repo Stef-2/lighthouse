@@ -39,6 +39,7 @@ export namespace lh
 			texture(const logical_device&,
 					const memory_allocator&,
 					const command_control&,
+					const vk::raii::Queue&,
 					const std::filesystem::path&,
 					const create_info& = {});
 

@@ -14,7 +14,9 @@ namespace lh
 		command_control::command_control(const logical_device& logical_device,
 										 const queue_families::queue& queue,
 										 const create_info& create_info)
-			: m_buffers {nullptr}, m_fence {*logical_device, {}}, m_usage_flags {create_info.m_usage_flags}
+			: m_buffers {nullptr},
+			  m_fence {*logical_device, vk::FenceCreateInfo {vk::FenceCreateFlagBits {}}},
+			  m_usage_flags {create_info.m_usage_flags}
 		{
 			m_object = {*logical_device, {create_info.m_pool_flags, queue.m_index}};
 

@@ -27,7 +27,8 @@ export namespace lh
 			enum class input_type
 			{
 				stage_input,
-				uniform_buffer
+				uniform_buffer,
+				sampled_image
 			};
 
 			enum class data_type

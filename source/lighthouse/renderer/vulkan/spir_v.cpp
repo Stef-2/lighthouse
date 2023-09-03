@@ -1,11 +1,17 @@
 module;
 
+#if INTELLISENSE
+#include "vulkan/vulkan_raii.hpp"
+import shader_input;
+#endif
+
 #include "vulkan/glslang/SPIRV/GlslangToSpv.h"
 #include "vulkan/utils/StandAlone.hpp"
 
 #include "vulkan/spirv_cross/spirv_reflect.hpp"
 
 module spir_v;
+
 import output;
 
 namespace
@@ -138,6 +144,10 @@ namespace lh
 			for (const auto& resource : resources.uniform_buffers)
 				shader_inputs.emplace_back(
 					create_shader_input(*compiler, resource, shader_input::input_type::uniform_buffer, m_stage));
+
+			for (const auto& resource : resources.sampled_images)
+				shader_inputs.emplace_back(
+					create_shader_input(*compiler, resource, shader_input::input_type::sampled_image, m_stage));
 
 			std::ranges::sort(shader_inputs, [](const auto& x, const auto& y) {
 				switch (x.m_type)

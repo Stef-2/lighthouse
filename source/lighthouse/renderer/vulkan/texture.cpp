@@ -22,11 +22,12 @@ namespace lh
 		texture::texture(const logical_device& logical_device,
 						 const memory_allocator& memory_allocator,
 						 const command_control& command_control,
+						 const vk::raii::Queue& queue,
 						 const std::filesystem::path& path,
 						 const create_info& create_info)
 			: m_image {nullptr}
 		{
-			const auto command_buffer = command_control.first_command_buffer();
+			const auto& command_buffer = command_control.first_command_buffer();
 			command_buffer.begin(command_control.usage_flags());
 
 			auto width = std::int32_t {};
@@ -47,14 +48,14 @@ namespace lh
 			const auto image_data_size = static_cast<std::uint32_t>(width) * static_cast<std::uint32_t>(height) *
 										 rgba_texel_size;
 
-			const auto staging_buffer =
-				mapped_buffer {logical_device,
-							   memory_allocator,
-							   image_data_size,
-							   mapped_buffer::create_info {
-								   .m_usage = vk::BufferUsageFlagBits::eTransferSrc,
-								   .m_allocation_flags = vma::AllocationCreateFlagBits::eMapped |
-														 vma::AllocationCreateFlagBits::eHostAccessSequentialWrite}};
+			const auto staging_buffer = mapped_buffer {
+				logical_device,
+				memory_allocator,
+				image_data_size,
+				mapped_buffer::create_info {
+					.m_usage = vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eShaderDeviceAddress,
+					.m_allocation_flags = vma::AllocationCreateFlagBits::eMapped |
+										  vma::AllocationCreateFlagBits::eHostAccessSequentialWrite}};
 
 			staging_buffer.map_data(*image_data, 0, image_data_size);
 			stbi_image_free(image_data);
@@ -74,19 +75,31 @@ namespace lh
 																 {},
 																 vk::Extent3D {static_cast<std::uint32_t>(width),
 																			   static_cast<std::uint32_t>(height),
-																			   0}};
+																			   1}};
 
 			command_buffer.copyBufferToImage2(vk::CopyBufferToImageInfo2 {
 				**staging_buffer, **m_image, vk::ImageLayout::eTransferDstOptimal, buffer_image_copy});
 
-			m_image.transition_layout(command_buffer,
-									  image::layout_transition_data {
-										  .m_source_pipeline_stage = vk::PipelineStageFlagBits2::eTransfer,
-										  .m_destination_pipeline_stage = vk::PipelineStageFlagBits2::eFragmentShader,
-										  .m_source_access_flags = vk::AccessFlagBits2::eTransferWrite,
-										  .m_destination_access_flags = vk::AccessFlagBits2::eShaderRead,
-										  .m_old_layout = vk::ImageLayout::eTransferDstOptimal,
-										  .m_new_layout = vk::ImageLayout::eShaderReadOnlyOptimal});
+			m_image.transition_layout(
+				command_buffer,
+				image::layout_transition_data {.m_source_pipeline_stage = vk::PipelineStageFlagBits2::eTransfer,
+											   .m_destination_pipeline_stage = vk::PipelineStageFlagBits2::eTransfer,
+											   .m_source_access_flags = vk::AccessFlagBits2::eTransferWrite,
+											   .m_destination_access_flags = vk::AccessFlagBits2::eTransferRead,
+											   .m_old_layout = vk::ImageLayout::eTransferDstOptimal,
+											   .m_new_layout = vk::ImageLayout::eShaderReadOnlyOptimal});
+
+			command_buffer.end();
+
+			const auto pipeline_stage_barrier = vk::PipelineStageFlags {vk::PipelineStageFlagBits::eTransfer};
+
+			const auto submit_info = vk::SubmitInfo {{}, {}, {*command_buffer}, {}};
+			queue.submit(submit_info, *command_control.fence());
+
+			logical_device->waitForFences(*command_control.fence(), true, 1'000'000'000);
+			logical_device->resetFences(*command_control.fence());
+
+			command_control.reset();
 		}
 	}
 }

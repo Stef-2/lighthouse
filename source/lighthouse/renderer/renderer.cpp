@@ -38,7 +38,11 @@ namespace lh
 								.m_queues = {vk::DeviceQueueCreateInfo {{},
 																		m_queue_families.graphics().m_index,
 																		1,
-																		&m_queue_families.graphics().m_priority}},
+																		&m_queue_families.graphics().m_priority},
+											 vk::DeviceQueueCreateInfo {{},
+																		m_queue_families.transfer().m_index,
+																		1,
+																		&m_queue_families.transfer().m_priority}},
 								.m_extensions = m_physical_device.extensions().required_extensions()}},
 		  m_memory_allocator {m_instance, m_physical_device, m_logical_device},
 
@@ -116,7 +120,8 @@ namespace lh
 		  m_model {1.0f},
 		  m_texture {m_logical_device,
 					 m_memory_allocator,
-					 m_transfer_control.first_command_buffer(),
+					 m_transfer_control,
+					 m_queue.transfer(),
 					 file_system::data_path() /= "textures/bricks.png"}
 	{
 		m_vertex_buffer.map_data(*m_col_cube_data.data(), 0, sizeof(vulkan::vertex) * m_col_cube_data.size());
