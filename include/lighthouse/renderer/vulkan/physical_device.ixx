@@ -30,7 +30,8 @@ export namespace lh
 																VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME,
 																VK_EXT_SHADER_OBJECT_EXTENSION_NAME,
 																VK_EXT_VERTEX_INPUT_DYNAMIC_STATE_EXTENSION_NAME,
-																VK_KHR_MAINTENANCE_5_EXTENSION_NAME}};
+																VK_KHR_MAINTENANCE_5_EXTENSION_NAME,
+																VK_EXT_HOST_IMAGE_COPY_EXTENSION_NAME}};
 
 				performance_score_t m_minimum_accepted_score {0xFFFFFFFF};
 			};
@@ -41,6 +42,7 @@ export namespace lh
 
 				vk::PhysicalDeviceDescriptorBufferPropertiesEXT m_descriptor_buffer_properties {};
 				vk::PhysicalDeviceShaderObjectPropertiesEXT m_shader_object_properties {};
+				vk::PhysicalDeviceHostImageCopyPropertiesEXT m_host_image_copy_properties {};
 			};
 
 			physical_device(const instance&, const create_info& = {});

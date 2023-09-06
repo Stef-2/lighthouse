@@ -2,11 +2,13 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan_raii.hpp"
+
 import shader_input;
+
+#include <iostream>
 #endif
 
-#include "vulkan/glslang/SPIRV/GlslangToSpv.h"
-#include "vulkan/utils/StandAlone.hpp"
+#include "vulkan/shaderc/shaderc.hpp"
 
 #include "vulkan/spirv_cross/spirv_reflect.hpp"
 
@@ -110,16 +112,10 @@ namespace lh
 		{}
 
 		spir_v::spir_v(const glsl_code_t& glsl_code, const create_info& create_info)
-			: m_code {}, m_entrypoint {}, m_stage {create_info.m_shader_stage}
-		{
-			glslang::InitializeProcess();
-
-			m_code = glsl_to_spirv::translate_shader(create_info.m_shader_stage, glsl_code);
-
-			glslang::FinalizeProcess();
-
-			m_entrypoint = reflect_shader_entrypoint();
-		}
+			: m_code {glsl_to_spirv::translate_shader(glsl_code)},
+			  m_entrypoint {reflect_shader_entrypoint()},
+			  m_stage {create_info.m_shader_stage}
+		{}
 
 		auto spir_v::reflect_shader_input() const -> std::vector<shader_input>
 		{
@@ -191,67 +187,22 @@ namespace lh
 			return m_code;
 		}
 
-		auto spir_v::glsl_to_spirv::translate_shader_stage(const vk::ShaderStageFlagBits& shader_stage) -> uint32_t
-		{
-			switch (shader_stage)
-			{
-				case vk::ShaderStageFlagBits::eVertex: return EShLangVertex;
-				case vk::ShaderStageFlagBits::eTessellationControl: return EShLangTessControl;
-				case vk::ShaderStageFlagBits::eTessellationEvaluation: return EShLangTessEvaluation;
-				case vk::ShaderStageFlagBits::eGeometry: return EShLangGeometry;
-				case vk::ShaderStageFlagBits::eFragment: return EShLangFragment;
-				case vk::ShaderStageFlagBits::eCompute: return EShLangCompute;
-				case vk::ShaderStageFlagBits::eRaygenNV: return EShLangRayGenNV;
-				case vk::ShaderStageFlagBits::eAnyHitNV: return EShLangAnyHitNV;
-				case vk::ShaderStageFlagBits::eClosestHitNV: return EShLangClosestHitNV;
-				case vk::ShaderStageFlagBits::eMissNV: return EShLangMissNV;
-				case vk::ShaderStageFlagBits::eIntersectionNV: return EShLangIntersectNV;
-				case vk::ShaderStageFlagBits::eCallableNV: return EShLangCallableNV;
-				case vk::ShaderStageFlagBits::eTaskNV: return EShLangTaskNV;
-				case vk::ShaderStageFlagBits::eMeshNV: return EShLangMeshNV;
-
-				default: return EShLangVertex;
-			}
-		}
-
-		auto spir_v::glsl_to_spirv::translate_shader(const vk::ShaderStageFlagBits& shader_stage,
-													 const glsl_code_t& shader_code) -> spir_v_bytecode_t
+		auto spir_v::glsl_to_spirv::translate_shader(const glsl_code_t& shader_code) -> spir_v_bytecode_t
 
 		{
-			const auto glsl_shader_stage = static_cast<EShLanguage>(translate_shader_stage(shader_stage));
+			const auto compiler = shaderc::Compiler {};
+			auto compile_options = shaderc::CompileOptions {};
+			compile_options.SetOptimizationLevel(shaderc_optimization_level_performance);
 
-			const char* shader_string[1] = {shader_code.data()};
+			const auto result = compiler.CompileGlslToSpv(shader_code.c_str(),
+														  shaderc_glsl_infer_from_source,
+														  "shader",
+														  compile_options);
 
-			auto glsl_shader = glslang::TShader(glsl_shader_stage);
-			glsl_shader.setStrings(shader_string, 1);
+			if (result.GetCompilationStatus() != shaderc_compilation_status_success)
+				output::error() << result.GetErrorMessage();
 
-			glsl_shader.setEnvInput(glslang::EShSource::EShSourceGlsl,
-									glsl_shader_stage,
-									glslang::EShClient::EShClientOpenGL,
-									glslang::EShTargetClientVersion::EShTargetOpenGL_450);
-
-			glsl_shader.setEnvClient(glslang::EShClient::EShClientVulkan,
-									 glslang::EShTargetClientVersion::EShTargetVulkan_1_3);
-
-			glsl_shader.setEnvTarget(glslang::EShTargetLanguage::EShTargetSpv,
-									 glslang::EShTargetLanguageVersion::EShTargetSpv_1_6);
-
-			const auto message_types = static_cast<EShMessages>(
-				EShMessages::EShMsgDefault | EShMessages::EShMsgSpvRules | EShMessages::EShMsgVulkanRules);
-
-			auto program = glslang::TProgram {};
-			program.addShader(&glsl_shader);
-
-			const auto parse = glsl_shader.parse(&DefaultTBuiltInResource, 450, true, message_types);
-			const auto link = program.link(message_types);
-
-			if (not parse or not link)
-				output::error() << glsl_shader.getInfoLog() << glsl_shader.getInfoDebugLog();
-
-			auto spirv_bytecode = spir_v_bytecode_t {};
-			glslang::GlslangToSpv(*program.getIntermediate(glsl_shader_stage), spirv_bytecode);
-
-			return spirv_bytecode;
+			return {result.cbegin(), result.cend()};
 		}
 	}
 }

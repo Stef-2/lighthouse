@@ -19,7 +19,9 @@ namespace lh
 {
 	namespace vulkan
 	{
-		texture::texture(const logical_device& logical_device,
+#pragma optimize("", off)
+		texture::texture(const physical_device& physical_device,
+						 const logical_device& logical_device,
 						 const memory_allocator& memory_allocator,
 						 const command_control& command_control,
 						 const vk::raii::Queue& queue,
@@ -27,6 +29,8 @@ namespace lh
 						 const create_info& create_info)
 			: m_image {nullptr}
 		{
+			const auto& physical_device_properties = physical_device.properties();
+
 			const auto& command_buffer = command_control.first_command_buffer();
 			command_buffer.begin(command_control.usage_flags());
 

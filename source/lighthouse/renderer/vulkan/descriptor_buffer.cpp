@@ -1,5 +1,9 @@
 module;
 
+#if INTELLISENSE
+#include "vulkan/vulkan.hpp"
+#endif
+
 module descriptor_buffer;
 import output;
 

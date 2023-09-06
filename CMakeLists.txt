@@ -266,10 +266,9 @@ target_link_libraries(
 	SPIRV.lib
 	SPIRV-Tools.lib
 	SPIRV-Tools-opt.lib
-	GenericCodeGen.lib
-	MachineIndependent.lib
-	OGLCompiler.lib
-	OSDependent.lib
+
+	shaderc.lib
+	shaderc_combined.lib
 
 	spirv-cross-core
 	spirv-cross-cpp.lib
@@ -278,7 +277,7 @@ target_link_libraries(
 
 	assimp-vc143-mt.lib
 
-	std_module
+	#std_module
 	#std_compat_module
 	vulkan_module
 )

@@ -47,8 +47,7 @@ export namespace lh
 
 			struct glsl_to_spirv
 			{
-				static auto translate_shader_stage(const vk::ShaderStageFlagBits&) -> uint32_t;
-				static auto translate_shader(const vk::ShaderStageFlagBits&, const glsl_code_t&) -> spir_v_bytecode_t;
+				static auto translate_shader(const glsl_code_t&) -> spir_v_bytecode_t;
 			};
 
 			spir_v_bytecode_t m_code;

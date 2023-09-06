@@ -20,11 +20,13 @@ namespace lh
 
 			const auto properties = m_object.getProperties2<vk::PhysicalDeviceProperties2,
 															vk::PhysicalDeviceDescriptorBufferPropertiesEXT,
-															vk::PhysicalDeviceShaderObjectPropertiesEXT>();
+															vk::PhysicalDeviceShaderObjectPropertiesEXT,
+															vk::PhysicalDeviceHostImageCopyPropertiesEXT>();
 
 			m_properties = {properties.get<vk::PhysicalDeviceProperties2>(),
 							properties.get<vk::PhysicalDeviceDescriptorBufferPropertiesEXT>(),
-							properties.get<vk::PhysicalDeviceShaderObjectPropertiesEXT>()};
+							properties.get<vk::PhysicalDeviceShaderObjectPropertiesEXT>(),
+							properties.get<vk::PhysicalDeviceHostImageCopyPropertiesEXT>()};
 		}
 
 		auto lh::vulkan::physical_device::extensions() const -> physical_extensions

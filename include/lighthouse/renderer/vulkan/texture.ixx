@@ -9,6 +9,7 @@ module;
 
 export module texture;
 
+import physical_device;
 import logical_device;
 import memory_allocator;
 import command_control;
@@ -36,7 +37,8 @@ export namespace lh
 														};
 			};
 
-			texture(const logical_device&,
+			texture(const physical_device&,
+					const logical_device&,
 					const memory_allocator&,
 					const command_control&,
 					const vk::raii::Queue&,
