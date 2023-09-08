@@ -36,7 +36,7 @@ namespace lh
 			  m_shader_objects {},
 			  m_uniform_buffers {},
 			  m_uniform_buffer_subdata {},
-			  m_descriptor_buffer {}
+			  m_resource_descriptor_buffer {}
 		{
 			auto unique_uniform_buffers = std::vector<shader_input> {};
 
@@ -83,8 +83,7 @@ namespace lh
 				buffer_offset += uniform_buffer.m_size;
 			}
 
-			m_descriptor_buffer = {
-				physical_device, logical_device, memory_allocator, m_descriptor_set_layout, m_uniform_buffer_subdata};
+			m_resource_descriptor_buffer = {physical_device, logical_device, memory_allocator, m_descriptor_set_layout};
 		}
 
 		auto pipeline_resource_generator::vertex_input_description() const -> const vulkan::vertex_input_description&
@@ -117,9 +116,9 @@ namespace lh
 			return m_uniform_buffer_subdata;
 		}
 
-		auto pipeline_resource_generator::descriptor_buffer() const -> const vulkan::descriptor_buffer&
+		auto pipeline_resource_generator::descriptor_buffer() -> vulkan::descriptor_buffer&
 		{
-			return m_descriptor_buffer;
+			return m_resource_descriptor_buffer;
 		}
 
 		auto pipeline_resource_generator::translate_shader_input_format(const shader_input& shader_input) const

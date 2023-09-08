@@ -4,6 +4,8 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan_raii.hpp"
+
+#include <vector>
 #endif
 
 export module physical_device;
@@ -42,7 +44,10 @@ export namespace lh
 
 				vk::PhysicalDeviceDescriptorBufferPropertiesEXT m_descriptor_buffer_properties {};
 				vk::PhysicalDeviceShaderObjectPropertiesEXT m_shader_object_properties {};
+
 				vk::PhysicalDeviceHostImageCopyPropertiesEXT m_host_image_copy_properties {};
+				std::vector<vk::ImageLayout> m_host_image_source_layouts {};
+				std::vector<vk::ImageLayout> m_host_image_destination_layouts {};
 			};
 
 			physical_device(const instance&, const create_info& = {});

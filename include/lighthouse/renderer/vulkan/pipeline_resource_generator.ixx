@@ -57,7 +57,7 @@ export namespace lh
 			auto shader_objects() const -> const std::vector<shader_object>&;
 			auto uniform_buffers() const -> const mapped_buffer&;
 			auto uniform_buffer_subdata() const -> const buffer_subdata&;
-			auto descriptor_buffer() const -> const descriptor_buffer&;
+			auto descriptor_buffer() -> descriptor_buffer&;
 
 		private:
 			auto translate_shader_input_format(const shader_input&) const -> const vk::Format;
@@ -70,7 +70,7 @@ export namespace lh
 			std::vector<shader_object> m_shader_objects;
 			mapped_buffer m_uniform_buffers;
 			buffer_subdata m_uniform_buffer_subdata;
-			vulkan::descriptor_buffer m_descriptor_buffer;
+			vulkan::descriptor_buffer m_resource_descriptor_buffer;
 		};
 	}
 }

@@ -2,6 +2,7 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan_raii.hpp"
+
 #include <vector>
 #endif
 
@@ -13,6 +14,7 @@ import logical_device;
 import memory_allocator;
 import descriptor_set_layout;
 import buffer;
+import texture;
 
 #if not INTELLISENSE
 import std.core;
@@ -28,13 +30,9 @@ export namespace lh
 		public:
 			struct create_info
 			{
-				vk::PipelineBindPoint m_bind_point;
-				vk::MemoryPropertyFlags descriptor_collection_memory_properties = {
+				vk::PipelineBindPoint m_bind_point = vk::PipelineBindPoint::eGraphics;
+				vk::MemoryPropertyFlags m_descriptor_buffer_memory_properties = {
 					vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent};
-				vk::BufferUsageFlags m_descriptor_buffer_usage =
-					vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT |
-					vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT |
-					vk::BufferUsageFlagBits::ePushDescriptorsDescriptorBufferEXT;
 			};
 
 			descriptor_buffer();
@@ -42,18 +40,27 @@ export namespace lh
 							  const logical_device&,
 							  const memory_allocator&,
 							  const descriptor_set_layout&,
-							  const buffer_subdata&,
 							  const create_info& = {});
 
-			auto buffer() -> const mapped_buffer&;
+			auto map_resource_data(const buffer_subdata&) -> void;
+			auto map_texture_data(const std::vector<const texture&>&) -> void;
+
+			auto resource_buffer() -> const mapped_buffer&;
+			auto combined_image_sampler_buffer() -> const mapped_buffer&;
 			auto bind(const vk::raii::CommandBuffer&, const vk::raii::PipelineLayout&) const -> void;
 
 		private:
 			auto descriptor_size(const physical_device&, const vk::DescriptorType&) -> const std::size_t;
 			auto descriptor_buffer_usage(const descriptor_set_layout&) -> const vk::BufferUsageFlags;
 
-			mapped_buffer m_descriptor_buffer;
-			std::vector<vk::DescriptorBufferBindingInfoEXT> m_binding_info;
+			mapped_buffer m_resource_descriptor_buffer;
+			mapped_buffer m_combined_image_sampler_descriptor_buffer;
+
+			std::vector<vk::DescriptorBufferBindingInfoEXT> m_descriptor_buffer_binding_info;
+
+			const physical_device* m_physical_device;
+			const logical_device* m_logical_device;
+			const descriptor_set_layout* m_descriptor_set_layout;
 
 			vk::PipelineBindPoint m_bind_point;
 		};

@@ -18,15 +18,39 @@ namespace lh
 			m_object = preferred_device(instance, create_info);
 			m_performance_score = performance_score(m_object);
 
+			auto host_image_properties = vk::PhysicalDeviceHostImageCopyPropertiesEXT {};
+			auto physical_device_properties = vk::PhysicalDeviceProperties2 {};
+			physical_device_properties.pNext = &host_image_properties;
+
+			m_object.getDispatcher()->vkGetPhysicalDeviceProperties2(*m_object,
+																	 &static_cast<VkPhysicalDeviceProperties2&>(
+																		 physical_device_properties));
+
+			auto host_image_source_layouts = std::vector<vk::ImageLayout>(host_image_properties.copySrcLayoutCount);
+			auto host_image_destination_layouts = std::vector<vk::ImageLayout>(
+				host_image_properties.copyDstLayoutCount);
+
+			host_image_properties = vk::PhysicalDeviceHostImageCopyPropertiesEXT {host_image_source_layouts,
+																				  host_image_destination_layouts};
+
+			m_object.getDispatcher()->vkGetPhysicalDeviceProperties2(*m_object,
+																	 &static_cast<VkPhysicalDeviceProperties2&>(
+																		 physical_device_properties));
+
 			const auto properties = m_object.getProperties2<vk::PhysicalDeviceProperties2,
 															vk::PhysicalDeviceDescriptorBufferPropertiesEXT,
-															vk::PhysicalDeviceShaderObjectPropertiesEXT,
-															vk::PhysicalDeviceHostImageCopyPropertiesEXT>();
+															vk::PhysicalDeviceShaderObjectPropertiesEXT>();
 
 			m_properties = {properties.get<vk::PhysicalDeviceProperties2>(),
 							properties.get<vk::PhysicalDeviceDescriptorBufferPropertiesEXT>(),
 							properties.get<vk::PhysicalDeviceShaderObjectPropertiesEXT>(),
-							properties.get<vk::PhysicalDeviceHostImageCopyPropertiesEXT>()};
+							host_image_properties,
+							host_image_source_layouts,
+							host_image_destination_layouts};
+
+			m_properties.m_host_image_copy_properties.pCopySrcLayouts = m_properties.m_host_image_source_layouts.data();
+			m_properties.m_host_image_copy_properties.pCopyDstLayouts =
+				m_properties.m_host_image_destination_layouts.data();
 		}
 
 		auto lh::vulkan::physical_device::extensions() const -> physical_extensions

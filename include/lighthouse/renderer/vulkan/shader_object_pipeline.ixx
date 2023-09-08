@@ -50,7 +50,7 @@ export namespace lh
 
 		private:
 			vulkan::descriptor_set_layout m_descriptor_set_layout;
-			//vulkan::descriptor_buffer m_descriptor_buffer;
+			//vulkan::descriptor_buffer m_resource_descriptor_buffer;
 			vulkan::vertex_input_description m_vertex_input_description;
 			vk::raii::PipelineLayout m_pipeline_layout;
 			std::vector<shader_object> m_shader_objects;

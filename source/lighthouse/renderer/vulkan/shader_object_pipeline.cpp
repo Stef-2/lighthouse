@@ -57,7 +57,7 @@ namespace lh
 		/*
 		auto shader_object_pipeline::descriptor_buffer() const -> const vulkan::descriptor_buffer&
 		{
-			return m_descriptor_buffer;
+			return m_resource_descriptor_buffer;
 		}*/
 
 		auto shader_object_pipeline::vertex_input_description() const -> const vulkan::vertex_input_description&
