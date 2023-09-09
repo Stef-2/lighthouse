@@ -4,6 +4,7 @@ module;
 #include "vulkan/vulkan_raii.hpp"
 
 #include <vector>
+#include <ranges>
 #endif
 
 export module descriptor_set_layout;
@@ -39,6 +40,10 @@ export namespace lh
 			};
 
 			descriptor_set_layout(const logical_device&, const std::vector<binding>&, const create_info& = {});
+
+			auto storage_descriptors() const -> const std::vector<const binding*>;
+			auto image_sampler_descriptors() const -> const std::vector<const binding*>;
+
 
 			auto bindings() const -> const std::vector<binding>&;
 

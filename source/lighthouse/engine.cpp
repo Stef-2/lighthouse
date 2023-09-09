@@ -1,3 +1,5 @@
+module;
+
 #include "vkfw/vkfw.hpp"
 
 module engine;

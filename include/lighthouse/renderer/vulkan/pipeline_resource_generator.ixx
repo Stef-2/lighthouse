@@ -65,8 +65,11 @@ export namespace lh
 				-> const vulkan::vertex_input_description;
 
 			vulkan::vertex_input_description m_vertex_input_description;
+
 			vulkan::descriptor_set_layout m_descriptor_set_layout;
+
 			vk::raii::PipelineLayout m_pipeline_layout;
+
 			std::vector<shader_object> m_shader_objects;
 			mapped_buffer m_uniform_buffers;
 			buffer_subdata m_uniform_buffer_subdata;

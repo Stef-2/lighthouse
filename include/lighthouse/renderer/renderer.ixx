@@ -87,7 +87,7 @@ export namespace lh
 		vulkan::mapped_buffer m_common_descriptor_data;
 
 		vulkan::descriptor_set_layout m_descriptor_set_layout;
-		vulkan::descriptor_buffer m_resource_descriptor_buffer;
+		//vulkan::descriptor_buffer m_resource_descriptor_buffer;
 
 		vulkan::spir_v m_vertex_spirv;
 		vulkan::spir_v m_fragment_spirv;

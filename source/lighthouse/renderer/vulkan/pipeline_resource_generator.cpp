@@ -1,5 +1,9 @@
 module;
 
+#if INTELLISENSE
+#include <ranges>
+#endif
+
 module pipeline_resource_generator;
 
 namespace

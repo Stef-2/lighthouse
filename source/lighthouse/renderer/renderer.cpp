@@ -61,11 +61,11 @@ namespace lh
 		  m_descriptor_set_layout {m_logical_device,
 								   {{0, vk::DescriptorType::eUniformBuffer, 1},
 									{1, vk::DescriptorType::eUniformBuffer, 1}}},
-
-		  m_resource_descriptor_buffer {m_physical_device,
-										m_logical_device,
-										m_memory_allocator,
-										m_descriptor_set_layout},
+		  /*
+			m_resource_descriptor_buffer {m_physical_device,
+										  m_logical_device,
+										  m_memory_allocator,
+										  m_descriptor_set_layout},*/
 
 		  m_vertex_buffer {
 			  m_logical_device,
@@ -128,10 +128,14 @@ namespace lh
 		m_index_buffer.map_data(*m_col_cube_indices.data(),
 								0,
 								sizeof(vulkan::vertex_index_t) * m_col_cube_indices.size());
+		/*
 		m_resource_descriptor_buffer.map_resource_data(
 			vulkan::buffer_subdata {&m_common_descriptor_data, {{0, 64}, {64, 4}}});
 		m_resource_generator.descriptor_buffer().map_resource_data(
-			vulkan::buffer_subdata {m_resource_generator.uniform_buffer_subdata()});
+			vulkan::buffer_subdata {m_resource_generator.uniform_buffer_subdata()});*/
+
+		m_resource_generator.descriptor_buffer().map_uniform_buffer_data(
+			0, vulkan::buffer_subdata {m_resource_generator.uniform_buffer_subdata()});
 
 		if (m_create_info.m_using_validation)
 			output::log() << info(m_create_info);
