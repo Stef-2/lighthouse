@@ -42,15 +42,14 @@ namespace lh
 															vk::PhysicalDeviceShaderObjectPropertiesEXT>();
 
 			m_properties = {properties.get<vk::PhysicalDeviceProperties2>(),
-							properties.get<vk::PhysicalDeviceDescriptorBufferPropertiesEXT>(),
 							properties.get<vk::PhysicalDeviceShaderObjectPropertiesEXT>(),
-							host_image_properties,
-							host_image_source_layouts,
-							host_image_destination_layouts};
+							{properties.get<vk::PhysicalDeviceDescriptorBufferPropertiesEXT>()},
+							{host_image_properties, host_image_source_layouts, host_image_destination_layouts}};
 
-			m_properties.m_host_image_copy_properties.pCopySrcLayouts = m_properties.m_host_image_source_layouts.data();
-			m_properties.m_host_image_copy_properties.pCopyDstLayouts =
-				m_properties.m_host_image_destination_layouts.data();
+			m_properties.m_host_image_copy_properties.m_properties.pCopySrcLayouts =
+				m_properties.m_host_image_copy_properties.m_source_layouts.data();
+			m_properties.m_host_image_copy_properties.m_properties.pCopyDstLayouts =
+				m_properties.m_host_image_copy_properties.m_destination_layouts.data();
 		}
 
 		auto lh::vulkan::physical_device::extensions() const -> physical_extensions

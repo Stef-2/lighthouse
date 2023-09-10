@@ -40,14 +40,26 @@ export namespace lh
 
 			struct physical_properties
 			{
+				struct descriptor_buffer
+				{
+					vk::PhysicalDeviceDescriptorBufferPropertiesEXT m_properties {};
+					std::uint16_t m_uniform_buffer_size {};
+					std::uint16_t m_uniform_buffer_offset {};
+					std::uint16_t m_combined_image_sampler_size {};
+					std::uint16_t m_combined_image_sampler_offset {};
+				};
+
+				struct host_image_copy
+				{
+					vk::PhysicalDeviceHostImageCopyPropertiesEXT m_properties {};
+					std::vector<vk::ImageLayout> m_source_layouts {};
+					std::vector<vk::ImageLayout> m_destination_layouts {};
+				};
+
 				vk::PhysicalDeviceProperties2 m_properties {};
-
-				vk::PhysicalDeviceDescriptorBufferPropertiesEXT m_descriptor_buffer_properties {};
 				vk::PhysicalDeviceShaderObjectPropertiesEXT m_shader_object_properties {};
-
-				vk::PhysicalDeviceHostImageCopyPropertiesEXT m_host_image_copy_properties {};
-				std::vector<vk::ImageLayout> m_host_image_source_layouts {};
-				std::vector<vk::ImageLayout> m_host_image_destination_layouts {};
+				descriptor_buffer m_descriptor_buffer_properties;
+				host_image_copy m_host_image_copy_properties;
 			};
 
 			physical_device(const instance&, const create_info& = {});

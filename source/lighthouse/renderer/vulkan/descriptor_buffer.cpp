@@ -3,7 +3,7 @@ module;
 #if INTELLISENSE
 #include "vulkan/vulkan.hpp"
 #endif
-
+#include "vulkan/vulkan.h"
 module descriptor_buffer;
 
 import output;
@@ -18,8 +18,6 @@ namespace lh
 			  m_logical_device {},
 			  m_descriptor_set_layout {},
 			  m_bind_point {vk::PipelineBindPoint::eGraphics},
-			  m_basic_uniform_buffer {nullptr},
-			  m_basic_combined_image_sampler {nullptr},
 			  m_resource_descriptor_buffer {},
 			  m_combined_image_sampler_descriptor_buffer {}
 		{}
@@ -34,23 +32,21 @@ namespace lh
 			  m_logical_device {&logical_device},
 			  m_descriptor_set_layout {&descriptor_set_layout},
 			  m_bind_point {create_info.m_bind_point},
-			  m_basic_uniform_buffer {*logical_device,
-									  {vk::DescriptorSetLayoutCreateFlagBits::eDescriptorBufferEXT,
-									   s_basic_uniform_buffer_binding}},
-			  m_basic_combined_image_sampler {*logical_device,
-											  {vk::DescriptorSetLayoutCreateFlagBits::eDescriptorBufferEXT,
-											   s_basic_combined_image_sampler_binding}},
 			  m_resource_descriptor_buffer {
 				  logical_device,
 				  memory_allocator,
-				  m_basic_uniform_buffer.getSizeEXT() * create_info.m_num_uniform_buffer_bindings,
+				  static_cast<vk::DeviceSize>(
+					  physical_device.properties().m_descriptor_buffer_properties.m_uniform_buffer_size) *
+					  create_info.m_num_uniform_buffer_bindings,
 				  mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
 														 vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT,
 											  .m_properties = create_info.m_descriptor_buffer_memory_properties}},
 			  m_combined_image_sampler_descriptor_buffer {
 				  logical_device,
 				  memory_allocator,
-				  m_basic_combined_image_sampler.getSizeEXT() * create_info.m_num_combined_image_sampler_bindings,
+				  static_cast<vk::DeviceSize>(
+					  physical_device.properties().m_descriptor_buffer_properties.m_combined_image_sampler_size) *
+					  create_info.m_num_combined_image_sampler_bindings,
 				  mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
 														 vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT,
 											  .m_properties = create_info.m_descriptor_buffer_memory_properties}}
@@ -67,8 +63,9 @@ namespace lh
 
 				m_descriptor_buffer_binding_info.emplace_back(
 					m_resource_descriptor_buffer.address() +
-						i * utility::aligned_size(binding_offset,
-												  descriptor_buffer_properties.descriptorBufferOffsetAlignment),
+						i * utility::aligned_size(
+								binding_offset,
+								descriptor_buffer_properties.m_properties.descriptorBufferOffsetAlignment),
 					descriptor_buffer_usage(*m_descriptor_set_layout));
 
 				const auto data_address_info = vk::DescriptorAddressInfoEXT {buffer_subdata.m_buffer->address() +
@@ -93,15 +90,16 @@ namespace lh
 														const buffer_subdata& buffer_subdata) -> void
 		{
 			const auto& descriptor_buffer_properties = m_physical_device->properties().m_descriptor_buffer_properties;
-			const auto descriptor_offset = m_basic_uniform_buffer.getBindingOffsetEXT(1);
+			const auto descriptor_offset = descriptor_buffer_properties.m_uniform_buffer_offset;
 			const auto binding_slot_offset = offset * descriptor_offset;
 
 			for (auto i = binding_slot_t {}; i < buffer_subdata.m_subdata.size(); i++)
 			{
 				m_descriptor_buffer_binding_info.emplace_back(
 					m_resource_descriptor_buffer.address() +
-						i * utility::aligned_size(descriptor_offset,
-												  descriptor_buffer_properties.descriptorBufferOffsetAlignment) +
+						i * utility::aligned_size(
+								static_cast<vk::DeviceSize>(descriptor_offset),
+								descriptor_buffer_properties.m_properties.descriptorBufferOffsetAlignment) +
 						i * binding_slot_offset,
 					vk::BufferUsageFlagBits::eShaderDeviceAddress |
 						vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT);
@@ -121,6 +119,13 @@ namespace lh
 						descriptor_buffer::descriptor_size(*m_physical_device, vk::DescriptorType::eUniformBuffer),
 						static_cast<std::byte*>(m_resource_descriptor_buffer.allocation_info().pMappedData) +
 							i * descriptor_offset + binding_slot_offset);
+				/*
+				auto wtf = static_cast<std::int64_t*>(m_resource_descriptor_buffer.allocation_info().pMappedData) +
+						   i * descriptor_offset + binding_slot_offset;
+
+				*wtf = (**m_logical_device)
+						   .getDescriptorEXT<std::int64_t>(
+							   vk::DescriptorGetInfoEXT {vk::DescriptorType::eUniformBuffer, {&data_address_info}});*/
 			}
 		}
 
@@ -146,7 +151,8 @@ namespace lh
 		auto descriptor_buffer::descriptor_size(const physical_device& physical_device,
 												const vk::DescriptorType& descriptor_type) -> const std::size_t
 		{
-			const auto& descriptor_properties = physical_device.properties().m_descriptor_buffer_properties;
+			const auto& descriptor_properties =
+				physical_device.properties().m_descriptor_buffer_properties.m_properties;
 
 			switch (descriptor_type)
 			{

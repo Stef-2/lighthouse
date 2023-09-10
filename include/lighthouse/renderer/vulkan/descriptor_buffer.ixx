@@ -68,22 +68,6 @@ export namespace lh
 
 			vk::PipelineBindPoint m_bind_point;
 
-			static constexpr inline auto s_basic_uniform_buffer_binding =
-				std::array<vk::DescriptorSetLayoutBinding, 2> {
-					vk::DescriptorSetLayoutBinding {
-						0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eAll},
-					vk::DescriptorSetLayoutBinding {
-						1, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eAll}};
-			vk::raii::DescriptorSetLayout m_basic_uniform_buffer;
-
-			static constexpr inline auto s_basic_combined_image_sampler_binding =
-				std::array<vk::DescriptorSetLayoutBinding, 2> {
-					vk::DescriptorSetLayoutBinding {
-						0, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eAll},
-					vk::DescriptorSetLayoutBinding {
-						1, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eAll}};
-			vk::raii::DescriptorSetLayout m_basic_combined_image_sampler;
-
 			mapped_buffer m_resource_descriptor_buffer;
 			mapped_buffer m_combined_image_sampler_descriptor_buffer;
 		};

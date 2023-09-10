@@ -61,6 +61,15 @@ export namespace lh
 		auto render() -> void;
 
 	private:
+		class implementation_inspector
+		{
+		public:
+			implementation_inspector(const vulkan::instance&,
+									 const vulkan::physical_device&,
+									 const vulkan::logical_device&,
+									 const vulkan::memory_allocator&);
+		};
+
 		auto info(const create_info&) -> string::string_t;
 
 		create_info m_create_info;
@@ -78,6 +87,9 @@ export namespace lh
 
 		vulkan::logical_device m_logical_device;
 		vulkan::memory_allocator m_memory_allocator;
+
+		implementation_inspector m_implementation_inspector;
+
 		vulkan::command_control e1m4;
 		vulkan::command_control m_transfer_control;
 

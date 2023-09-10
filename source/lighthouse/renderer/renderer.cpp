@@ -45,7 +45,7 @@ namespace lh
 																		&m_queue_families.transfer().m_priority}},
 								.m_extensions = m_physical_device.extensions().required_extensions()}},
 		  m_memory_allocator {m_instance, m_physical_device, m_logical_device},
-
+		  m_implementation_inspector(m_instance, m_physical_device, m_logical_device, m_memory_allocator),
 		  e1m4 {m_logical_device, m_queue_families.graphics()},
 		  m_transfer_control {m_logical_device, m_queue_families.transfer()},
 		  m_queue {m_logical_device, m_queue_families},
@@ -297,6 +297,36 @@ namespace lh
 		m_queue.present().presentKHR(presentInfoKHR);
 
 		m_logical_device->waitIdle();
+	}
+
+	renderer::implementation_inspector::implementation_inspector(const vulkan::instance& instance,
+																 const vulkan::physical_device& physical_device,
+																 const vulkan::logical_device& logical_device,
+																 const vulkan::memory_allocator& memory_allocator)
+	{
+		auto& descriptor_buffer_properties = const_cast<vulkan::physical_device::physical_properties&>(
+												 physical_device.properties())
+												 .m_descriptor_buffer_properties;
+
+		// record implementation defined descriptor properties
+		auto binding = std::array<vk::DescriptorSetLayoutBinding, 2> {
+			vk::DescriptorSetLayoutBinding {0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eAll},
+			vk::DescriptorSetLayoutBinding {1, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eAll}};
+		const auto basic_uniform_buffer = vk::raii::DescriptorSetLayout {
+			*logical_device, {vk::DescriptorSetLayoutCreateFlagBits::eDescriptorBufferEXT, binding}};
+
+		descriptor_buffer_properties.m_uniform_buffer_size = basic_uniform_buffer.getSizeEXT();
+		descriptor_buffer_properties.m_uniform_buffer_offset = basic_uniform_buffer.getBindingOffsetEXT(1);
+
+		binding[0].descriptorType = vk::DescriptorType::eCombinedImageSampler;
+		binding[1].descriptorType = vk::DescriptorType::eCombinedImageSampler;
+
+		const auto basic_combined_image_sampler = vk::raii::DescriptorSetLayout {
+			*logical_device, {vk::DescriptorSetLayoutCreateFlagBits::eDescriptorBufferEXT, binding}};
+
+		descriptor_buffer_properties.m_combined_image_sampler_size = basic_combined_image_sampler.getSizeEXT();
+		descriptor_buffer_properties.m_combined_image_sampler_offset = basic_combined_image_sampler.getBindingOffsetEXT(
+			1);
 	}
 
 	auto renderer::info(const create_info& create_info) -> string::string_t
