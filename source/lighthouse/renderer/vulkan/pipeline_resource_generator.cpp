@@ -13,14 +13,19 @@ namespace
 		auto bindings = std::vector<lh::vulkan::descriptor_set_layout::binding> {};
 
 		for (const auto& shader_input : shader_inputs)
-
-			if (shader_input.m_type == lh::vulkan::shader_input::input_type::uniform_buffer)
-
-				bindings.emplace_back(shader_input.m_descriptor_binding,
-									  vk::DescriptorType::eUniformBuffer,
-									  shader_input.m_array_dimension);
+			bindings.emplace_back(shader_input.m_descriptor_binding,
+								  shader_input.m_type,
+								  shader_input.m_array_dimension);
 
 		return bindings;
+	}
+
+	auto generate_unique_pipeline_inputs(const std::vector<lh::vulkan::shader_input>& pipeline_inputs)
+	{
+		auto unique_pipeline_inputs = lh::vulkan::unique_pipeline_inputs {};
+
+		for (const auto& input : pipeline_inputs)
+			if (input)
 	}
 }
 
@@ -31,50 +36,57 @@ namespace lh
 		pipeline_resource_generator::pipeline_resource_generator(const physical_device& physical_device,
 																 const logical_device& logical_device,
 																 const memory_allocator& memory_allocator,
-																 const pipeline_spir_v_code spir_v_code,
+																 const pipeline_glsl_code& shader_paths,
 																 const create_info& create_info)
-			: m_vertex_input_description {},
-			  m_descriptor_set_layout {logical_device,
-									   generate_descriptor_set_bindings(spir_v_code[0].reflect_shader_input())},
+			: m_spir_v {},
+			  m_vertex_input_description {},
+			  m_descriptor_set_layouts {},
 			  m_pipeline_layout {nullptr},
 			  m_shader_objects {},
 			  m_uniform_buffers {},
 			  m_uniform_buffer_subdata {},
-			  m_resource_descriptor_buffer {}
+			  m_resource_descriptor_buffer {physical_device, logical_device, memory_allocator}
 		{
-			auto unique_uniform_buffers = std::vector<shader_input> {};
+			auto pipeline_shader_inputs = std::vector<std::pair<vk::ShaderStageFlagBits, shader_input>> {};
 
-			for (const auto& shader_stage : spir_v_code)
+			for (const auto& shader_path : shader_paths)
 			{
-				const auto shader_inputs = shader_stage.reflect_shader_input();
+				m_spir_v.emplace_back(shader_path);
+				const auto& compiled_spir_v = m_spir_v.back();
 
-				if (shader_stage.stage() == vk::ShaderStageFlagBits::eVertex)
+				const auto shader_inputs = compiled_spir_v.reflect_shader_input();
+
+				if (compiled_spir_v.stage() == vk::ShaderStageFlagBits::eVertex)
 					m_vertex_input_description = generate_vertex_input_description(shader_inputs);
 
 				for (const auto& shader_input : shader_inputs)
-					if (shader_input.m_type == shader_input::input_type::uniform_buffer and
-						not std::ranges::contains(unique_uniform_buffers, shader_input))
-						unique_uniform_buffers.emplace_back(shader_input);
+				{
+					pipeline_shader_inputs.push_back({compiled_spir_v.stage(), shader_input});
+				}
 			}
-			m_descriptor_set_layout = std::move(
-				vulkan::descriptor_set_layout {logical_device,
-											   generate_descriptor_set_bindings(unique_uniform_buffers)});
-			m_pipeline_layout = {*logical_device, {{}, **m_descriptor_set_layout}};
+
+			m_descriptor_set_layouts = generate_descriptor_set_layouts(logical_device, pipeline_shader_inputs);
+
+			auto descriptor_sets = std::vector<const vk::DescriptorSetLayout> {};
+			for (const auto& set : m_descriptor_set_layouts)
+				descriptor_sets.push_back(*set);
+
+			m_pipeline_layout = {*logical_device, {{}, descriptor_sets}};
 
 			for (const auto& shader_stage : spir_v_code)
 				m_shader_objects.emplace_back(logical_device, shader_stage, m_descriptor_set_layout);
-
+			/*
 			const auto uniform_buffers_size = std::ranges::fold_left(unique_uniform_buffers,
 																	 vk::DeviceSize {},
 																	 [](auto size, const auto& element) {
 																		 size += element.m_size;
 																		 return std::move(size);
-																	 });
+																	 });*/
 
 			m_uniform_buffers = {
 				logical_device,
 				memory_allocator,
-				uniform_buffers_size,
+				1024,
 				vulkan::mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eUniformBuffer |
 															   vk::BufferUsageFlagBits::eShaderDeviceAddress,
 													.m_allocation_flags = vma::AllocationCreateFlagBits::eMapped}};
@@ -86,19 +98,18 @@ namespace lh
 				m_uniform_buffer_subdata.m_subdata.emplace_back(buffer_offset, uniform_buffer.m_size);
 				buffer_offset += uniform_buffer.m_size;
 			}
-
-			m_resource_descriptor_buffer = {physical_device, logical_device, memory_allocator, m_descriptor_set_layout};
 		}
 
 		auto pipeline_resource_generator::vertex_input_description() const -> const vulkan::vertex_input_description&
 		{
 			return m_vertex_input_description;
 		}
-
-		auto pipeline_resource_generator::descriptor_set_layout() const -> const vulkan::descriptor_set_layout&
+		/*
+		auto pipeline_resource_generator::descriptor_set_layouts() const
+			-> const std::vector<vulkan::raii::descriptor_set_layout>&
 		{
-			return m_descriptor_set_layout;
-		}
+			return m_descriptor_set_layouts;
+		}*/
 
 		auto pipeline_resource_generator::pipeline_layout() const -> const vk::raii::PipelineLayout&
 		{
@@ -245,7 +256,7 @@ namespace lh
 			auto offset = std::uint32_t {};
 
 			for (const auto& vertex_input : shader_inputs)
-				if (vertex_input.m_type == shader_input::input_type::stage_input)
+				if (vertex_input.m_type == shader_input::s_stage_input_flag)
 				{
 					vertex_description_size += vertex_input.m_size;
 
@@ -260,5 +271,64 @@ namespace lh
 			return {vertex_bindings, vertex_attributes};
 		}
 
+		auto pipeline_resource_generator::generate_descriptor_set_layouts(
+			const logical_device& logical_device,
+			const std::vector<std::pair<vk::ShaderStageFlagBits, shader_input>>& pipeline_shader_inputs) const
+			-> const std::vector<vk::raii::DescriptorSetLayout>
+		{
+			auto bindings =
+				std::vector<std::pair<decltype(shader_input::m_descriptor_set), vk::DescriptorSetLayoutBinding>> {};
+			auto descriptor_layouts = std::vector<vk::raii::DescriptorSetLayout> {};
+			auto num_descriptor_sets = decltype(shader_input::m_descriptor_set) {};
+
+			// accumulate bindings from the entire pipeline
+			for (const auto& shader_input : pipeline_shader_inputs)
+			{
+				// skip stage inputs
+				if (shader_input.second.m_type == shader_input::s_stage_input_flag)
+					continue;
+
+				const auto& input = shader_input.second;
+
+				bindings.push_back(
+					{input.m_descriptor_set,
+					 {input.m_descriptor_binding, input.m_type, input.m_array_dimension, shader_input.first}});
+
+				// record the total number of descriptor sets
+				num_descriptor_sets = std::max(num_descriptor_sets, input.m_descriptor_set);
+			};
+
+			// check for same bindings from multiple stages and connect them
+			for (auto& [set, binding] : bindings)
+			{
+				const auto& same_binding = std::ranges::find_if(bindings, [&binding](const auto& x) {
+					return binding != x.second and (binding.binding == x.second.binding and
+													binding.descriptorCount == x.second.descriptorCount and
+													binding.descriptorType == x.second.descriptorType and
+													binding.stageFlags != x.second.stageFlags);
+				});
+
+				binding.stageFlags |= same_binding->second.stageFlags;
+
+				bindings.erase(std::remove(bindings.begin(), bindings.end(), same_binding));
+			}
+
+			// fill descriptor set layouts
+			for (auto i = decltype(num_descriptor_sets) {}; i < num_descriptor_sets; i++)
+			{
+				auto set_bindings = std::vector<vk::DescriptorSetLayoutBinding> {};
+
+				for (const auto& [set, binding] : bindings)
+					if (set == i)
+						set_bindings.push_back(binding);
+
+				descriptor_layouts.emplace_back(
+					*logical_device,
+					vk::DescriptorSetLayoutCreateInfo {vk::DescriptorSetLayoutCreateFlagBits::eDescriptorBufferEXT,
+													   set_bindings});
+			}
+
+			return descriptor_layouts;
+		}
 	}
 }

@@ -22,14 +22,8 @@ export namespace lh
 	{
 		struct shader_input
 		{
-			static inline constexpr auto remove_inactive_inputs = true;
-
-			enum class input_type
-			{
-				stage_input,
-				uniform_buffer,
-				sampled_image
-			};
+			static inline constexpr auto s_remove_inactive_inputs = true;
+			static inline constexpr auto s_stage_input_flag = vk::DescriptorType::eInputAttachment;
 
 			enum class data_type
 			{
@@ -66,7 +60,7 @@ export namespace lh
 			uint32_t m_descriptor_location;
 			uint32_t m_descriptor_binding;
 
-			input_type m_type;
+			vk::DescriptorType m_type;
 			data_type m_data_type;
 			std::uint8_t m_rows;
 			std::uint8_t m_columns;
@@ -75,5 +69,11 @@ export namespace lh
 
 			std::vector<struct_member> m_members;
 		};
+
+		struct unique_pipeline_inputs
+		{
+			std::vector<shader_input> m_uniform_buffer_descriptors;
+			std::vector<shader_input> m_combined_image_sampler_descriptors;
+		};
 	}
-}
+}}))...........

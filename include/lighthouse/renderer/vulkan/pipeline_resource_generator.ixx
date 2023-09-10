@@ -4,6 +4,8 @@ module;
 #include "vulkan/vulkan_raii.hpp"
 
 #include <vector>
+#include <filesystem>
+#include <utility>
 #endif
 
 export module pipeline_resource_generator;
@@ -13,6 +15,7 @@ import logical_device;
 import memory_allocator;
 import descriptor_set_layout;
 import descriptor_buffer;
+import file_system;
 import shader_object;
 import buffer;
 import spir_v;
@@ -21,6 +24,7 @@ import vertex_input_description;
 
 #if not INTELLISENSE
 import std.core;
+import std.filesystem;
 #endif
 
 export namespace lh
@@ -30,17 +34,7 @@ export namespace lh
 		class pipeline_resource_generator
 		{
 		public:
-			using pipeline_spir_v_code = std::vector<vulkan::spir_v>;
-
-			struct shader_resources
-			{
-				std::vector<shader_object> m_shader_objects;
-				std::vector<vulkan::descriptor_set_layout> m_descriptor_set_layout;
-				vk::raii::PipelineLayout m_pipeline_layout;
-
-				vk::VertexInputBindingDescription2EXT m_bindings;
-				std::vector<vk::VertexInputAttributeDescription2EXT> m_attributes;
-			};
+			using pipeline_glsl_code = std::vector<std::filesystem::path>;
 
 			struct create_info
 			{};
@@ -48,11 +42,11 @@ export namespace lh
 			pipeline_resource_generator(const physical_device&,
 										const logical_device&,
 										const memory_allocator&,
-										const pipeline_spir_v_code,
+										const pipeline_glsl_code&,
 										const create_info& = {});
 
 			auto vertex_input_description() const -> const vulkan::vertex_input_description&;
-			auto descriptor_set_layout() const -> const descriptor_set_layout&;
+			//auto descriptor_set_layouts() const -> const std::vector<descriptor_set_layout>&;
 			auto pipeline_layout() const -> const vk::raii::PipelineLayout&;
 			auto shader_objects() const -> const std::vector<shader_object>&;
 			auto uniform_buffers() const -> const mapped_buffer&;
@@ -63,10 +57,14 @@ export namespace lh
 			auto translate_shader_input_format(const shader_input&) const -> const vk::Format;
 			auto generate_vertex_input_description(const std::vector<shader_input>&)
 				-> const vulkan::vertex_input_description;
+			auto generate_descriptor_set_layouts(const logical_device&, const std::vector<std::pair<vk::ShaderStageFlagBits, shader_input>>&) const
+				-> const std::vector<vk::raii::DescriptorSetLayout>;
 
+			std::vector<spir_v> m_spir_v;
 			vulkan::vertex_input_description m_vertex_input_description;
 
-			vulkan::descriptor_set_layout m_descriptor_set_layout;
+			//std::vector<vulkan::descriptor_set_layout> m_descriptor_set_layouts;
+			std::vector<vk::raii::DescriptorSetLayout> m_descriptor_set_layouts;
 
 			vk::raii::PipelineLayout m_pipeline_layout;
 

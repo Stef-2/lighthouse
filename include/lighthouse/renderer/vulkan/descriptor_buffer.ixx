@@ -40,14 +40,11 @@ export namespace lh
 				binding_slot_t m_num_combined_image_sampler_bindings = 8;
 			};
 
-			descriptor_buffer();
 			descriptor_buffer(const physical_device&,
 							  const logical_device&,
 							  const memory_allocator&,
-							  const descriptor_set_layout&,
 							  const create_info& = {});
 
-			auto map_resource_data(const buffer_subdata&) -> void;
 			auto map_uniform_buffer_data(const binding_slot_t& offset, const buffer_subdata&) -> void;
 			auto map_texture_data(const std::vector<const texture&>&) -> void;
 

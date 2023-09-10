@@ -3,8 +3,6 @@ module;
 #if INTELLISENSE
 #include "vulkan/vulkan_raii.hpp"
 
-import shader_input;
-
 #include <iostream>
 #endif
 
@@ -48,7 +46,7 @@ namespace
 
 	auto create_shader_input(const spirv_cross::CompilerGLSL& compiler,
 							 const spirv_cross::Resource& resource,
-							 const lh::vulkan::shader_input::input_type& input_type,
+							 const vk::DescriptorType& input_type,
 							 const vk::ShaderStageFlags& shader_stage)
 
 	{
@@ -107,14 +105,10 @@ namespace lh
 {
 	namespace vulkan
 	{
-		spir_v::spir_v(const spir_v_bytecode_t& spir_v_code, const create_info& create_info)
-			: m_code {spir_v_code}, m_stage {create_info.m_shader_stage}
-		{}
-
 		spir_v::spir_v(const glsl_code_t& glsl_code, const create_info& create_info)
 			: m_code {glsl_to_spirv::translate_shader(glsl_code)},
-			  m_entrypoint {reflect_shader_entrypoint()},
-			  m_stage {create_info.m_shader_stage}
+			  m_entrypoint {reflect_shader_entrypoint_and_stage().first},
+			  m_stage {reflect_shader_entrypoint_and_stage().second}
 		{}
 
 		auto spir_v::reflect_shader_input() const -> std::vector<shader_input>
@@ -122,7 +116,7 @@ namespace lh
 			auto compiler = std::make_unique<spirv_cross::CompilerGLSL>(m_code);
 			auto resources = compiler->get_shader_resources();
 
-			if constexpr (shader_input::remove_inactive_inputs)
+			if constexpr (shader_input::s_remove_inactive_inputs)
 			{
 				auto interface_variables = compiler->get_active_interface_variables();
 				resources = compiler->get_shader_resources(interface_variables);
@@ -135,23 +129,21 @@ namespace lh
 
 			for (const auto& resource : resources.stage_inputs)
 				shader_inputs.emplace_back(
-					create_shader_input(*compiler, resource, shader_input::input_type::stage_input, m_stage));
+					create_shader_input(*compiler, resource, shader_input::s_stage_input_flag, m_stage));
 
 			for (const auto& resource : resources.uniform_buffers)
 				shader_inputs.emplace_back(
-					create_shader_input(*compiler, resource, shader_input::input_type::uniform_buffer, m_stage));
+					create_shader_input(*compiler, resource, vk::DescriptorType::eUniformBuffer, m_stage));
 
 			for (const auto& resource : resources.sampled_images)
 				shader_inputs.emplace_back(
-					create_shader_input(*compiler, resource, shader_input::input_type::sampled_image, m_stage));
+					create_shader_input(*compiler, resource, vk::DescriptorType::eCombinedImageSampler, m_stage));
 
 			std::ranges::sort(shader_inputs, [](const auto& x, const auto& y) {
 				switch (x.m_type)
 				{
-					case shader_input::input_type::stage_input:
-						return (x.m_descriptor_location < y.m_descriptor_location);
-					case shader_input::input_type::uniform_buffer:
-						return (x.m_descriptor_binding < y.m_descriptor_binding);
+					case shader_input::s_stage_input_flag: return (x.m_descriptor_location < y.m_descriptor_location);
+					case vk::DescriptorType::eUniformBuffer: return (x.m_descriptor_binding < y.m_descriptor_binding);
 					default: break;
 				}
 			});
@@ -159,12 +151,26 @@ namespace lh
 			return shader_inputs;
 		}
 
-		auto spir_v::reflect_shader_entrypoint() const -> string::string_t
+		auto spir_v::reflect_shader_entrypoint_and_stage() const
+			-> const std::pair<string::string_t, vk::ShaderStageFlagBits>
 		{
 			const auto compiler = spirv_cross::CompilerGLSL {m_code};
 			const auto shader_stage_and_entrypoint = compiler.get_entry_points_and_stages();
+			auto shader_stage = vk::ShaderStageFlagBits {};
 
-			return shader_stage_and_entrypoint[0].name;
+			switch (shader_stage_and_entrypoint[0].execution_model)
+			{
+				case spv::ExecutionModel::ExecutionModelVertex:
+					shader_stage = vk::ShaderStageFlagBits::eVertex;
+					break;
+					;
+				case spv::ExecutionModel::ExecutionModelFragment:
+					shader_stage = vk::ShaderStageFlagBits::eFragment;
+					break;
+				default: shader_stage = vk::ShaderStageFlagBits::eAll;
+			}
+
+			return {shader_stage_and_entrypoint[0].name, shader_stage};
 		}
 
 		auto spir_v::code() const -> const spir_v_bytecode_t&

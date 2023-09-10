@@ -2,6 +2,8 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan.hpp"
+
+#include <utility>
 #endif
 
 export module spir_v;
@@ -27,12 +29,9 @@ export namespace lh
 			using glsl_code_t = string::string_t;
 
 			struct create_info
-			{
-				vk::ShaderStageFlagBits m_shader_stage = vk::ShaderStageFlagBits::eAll;
-			};
+			{};
 
 			spir_v(const glsl_code_t&, const create_info& = {});
-			spir_v(const spir_v_bytecode_t&, const create_info& = {});
 
 			auto reflect_shader_input() const -> std::vector<shader_input>;
 
@@ -43,7 +42,7 @@ export namespace lh
 			operator const spir_v_bytecode_t&();
 
 		private:
-			auto reflect_shader_entrypoint() const -> string::string_t;
+			auto reflect_shader_entrypoint_and_stage() const -> const std::pair<string::string_t, vk::ShaderStageFlagBits>;
 
 			struct glsl_to_spirv
 			{

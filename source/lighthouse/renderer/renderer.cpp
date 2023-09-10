@@ -49,11 +49,9 @@ namespace lh
 		  m_transfer_control {m_logical_device, m_queue_families.transfer()},
 		  m_queue {m_logical_device, m_queue_families},
 		  m_swapchain {m_physical_device, m_logical_device, m_surface, m_queue_families, m_memory_allocator},
-		  m_vertex_spirv {input::read_file(file_system::data_path() /= "shaders/basic.vert"),
-						  vulkan::spir_v::create_info {.m_shader_stage = vk::ShaderStageFlagBits::eVertex}},
+		  m_vertex_spirv {input::read_file(file_system::data_path() /= "shaders/basic.vert")},
 
-		  m_fragment_spirv {input::read_file(file_system::data_path() /= "shaders/basic.frag"),
-							vulkan::spir_v::create_info {.m_shader_stage = vk::ShaderStageFlagBits::eFragment}},
+		  m_fragment_spirv {input::read_file(file_system::data_path() /= "shaders/basic.frag")},
 		  m_resource_generator {m_physical_device,
 								m_logical_device,
 								m_memory_allocator,
