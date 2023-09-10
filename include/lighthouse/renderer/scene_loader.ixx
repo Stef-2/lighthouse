@@ -3,6 +3,7 @@ module;
 #if INTELLISENSE
 #include <vector>
 #include <filesystem>
+#include <cstdint>
 #endif
 
 #include "assimp/Importer.hpp"
