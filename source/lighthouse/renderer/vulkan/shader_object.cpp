@@ -1,6 +1,13 @@
 module;
 
+#if INTELLISENSE
+#include <cstdint>
+#include <ranges>
+#include <iostream>
+#endif
+
 module shader_object;
+
 import output;
 
 namespace lh
@@ -9,21 +16,20 @@ namespace lh
 	{
 		shader_object::shader_object(const logical_device& logical_device,
 									 const spir_v& spir_v,
-									 const descriptor_set_layout& descriptor_set_layout,
+									 const std::vector<vk::DescriptorSetLayout>& descriptor_set_layouts,
 									 const create_info& create_info)
 			: m_shader_stage {spir_v.stage()}
 		{
-
-			const auto shader_create_info = vk::ShaderCreateInfoEXT {create_info.m_modifier_flags,
-																	 m_shader_stage,
-																	 {},
-																	 create_info.m_code_type,
-																	 spir_v.code().size() *
-																		 sizeof(spir_v::spir_v_bytecode_t::value_type),
-																	 spir_v.code().data(),
-																	 spir_v.entrypoint().c_str(),
-																	 1,
-																	 &**descriptor_set_layout};
+			const auto shader_create_info =
+				vk::ShaderCreateInfoEXT {create_info.m_modifier_flags,
+										 m_shader_stage,
+										 *(std::ranges::find(s_shader_stage_chain, m_shader_stage) + 1),
+										 create_info.m_code_type,
+										 spir_v.code().size() * sizeof(spir_v::spir_v_bytecode_t::value_type),
+										 spir_v.code().data(),
+										 spir_v.entrypoint().c_str(),
+										 static_cast<std::uint32_t>(descriptor_set_layouts.size()),
+										 descriptor_set_layouts.data()};
 
 			m_object = {*logical_device, shader_create_info};
 		}

@@ -76,4 +76,4 @@ export namespace lh
 			std::vector<shader_input> m_combined_image_sampler_descriptors;
 		};
 	}
-}}))...........
+}

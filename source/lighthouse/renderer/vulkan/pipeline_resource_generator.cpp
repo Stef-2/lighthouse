@@ -1,6 +1,8 @@
 module;
 
 #if INTELLISENSE
+#include "vulkan/vulkan_raii.hpp"
+
 #include <ranges>
 #endif
 
@@ -20,12 +22,23 @@ namespace
 		return bindings;
 	}
 
-	auto generate_unique_pipeline_inputs(const std::vector<lh::vulkan::shader_input>& pipeline_inputs)
+	auto generate_unique_pipeline_inputs(
+		const std::vector<std::pair<vk::ShaderStageFlagBits, lh::vulkan::shader_input>>& pipeline_inputs)
 	{
 		auto unique_pipeline_inputs = lh::vulkan::unique_pipeline_inputs {};
 
-		for (const auto& input : pipeline_inputs)
-			if (input)
+		for (const auto& [stage, input] : pipeline_inputs)
+		{
+			if (input.m_type == vk::DescriptorType::eUniformBuffer and
+				not std::ranges::contains(unique_pipeline_inputs.m_uniform_buffer_descriptors, input))
+				unique_pipeline_inputs.m_uniform_buffer_descriptors.push_back(input);
+
+			if (input.m_type == vk::DescriptorType::eCombinedImageSampler and
+				not std::ranges::contains(unique_pipeline_inputs.m_combined_image_sampler_descriptors, input))
+				unique_pipeline_inputs.m_combined_image_sampler_descriptors.push_back(input);
+		}
+
+		return unique_pipeline_inputs;
 	}
 }
 
@@ -65,35 +78,44 @@ namespace lh
 				}
 			}
 
-			m_descriptor_set_layouts = generate_descriptor_set_layouts(logical_device, pipeline_shader_inputs);
+			const auto pipeline_descriptor_sets = generate_descriptor_set_layouts(logical_device,
+																				  pipeline_shader_inputs);
 
-			auto descriptor_sets = std::vector<const vk::DescriptorSetLayout> {};
-			for (const auto& set : m_descriptor_set_layouts)
-				descriptor_sets.push_back(*set);
+			auto descriptor_sets = std::vector<vk::DescriptorSetLayout> {};
 
+			for (auto i = std::uint16_t {0}; const auto& stage_descriptor_sets : pipeline_descriptor_sets)
+			{
+				m_shader_objects.emplace_back(logical_device, m_spir_v[i].stage(), stage_descriptor_sets);
+
+				for (const auto& stage_descriptor_set : stage_descriptor_sets)
+					descriptor_sets.push_back(*stage_descriptor_set);
+
+				i++;
+			}
 			m_pipeline_layout = {*logical_device, {{}, descriptor_sets}};
 
-			for (const auto& shader_stage : spir_v_code)
-				m_shader_objects.emplace_back(logical_device, shader_stage, m_descriptor_set_layout);
-			/*
-			const auto uniform_buffers_size = std::ranges::fold_left(unique_uniform_buffers,
-																	 vk::DeviceSize {},
-																	 [](auto size, const auto& element) {
-																		 size += element.m_size;
-																		 return std::move(size);
-																	 });*/
+			const auto unique_pipeline_inputs = generate_unique_pipeline_inputs(pipeline_shader_inputs);
+
+			const auto uniform_buffers_size =
+				std::ranges::fold_left(unique_pipeline_inputs.m_uniform_buffer_descriptors,
+									   vk::DeviceSize {},
+									   [](auto size, const auto& element) {
+										   size += element.m_size;
+										   return std::move(size);
+									   });
 
 			m_uniform_buffers = {
 				logical_device,
 				memory_allocator,
-				1024,
+				uniform_buffers_size,
 				vulkan::mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eUniformBuffer |
 															   vk::BufferUsageFlagBits::eShaderDeviceAddress,
 													.m_allocation_flags = vma::AllocationCreateFlagBits::eMapped}};
 
 			m_uniform_buffer_subdata.m_buffer = &m_uniform_buffers;
 
-			for (auto buffer_offset = vk::DeviceSize {}; const auto& uniform_buffer : unique_uniform_buffers)
+			for (auto buffer_offset = vk::DeviceSize {};
+				 const auto& uniform_buffer : unique_pipeline_inputs.m_uniform_buffer_descriptors)
 			{
 				m_uniform_buffer_subdata.m_subdata.emplace_back(buffer_offset, uniform_buffer.m_size);
 				buffer_offset += uniform_buffer.m_size;
@@ -274,12 +296,13 @@ namespace lh
 		auto pipeline_resource_generator::generate_descriptor_set_layouts(
 			const logical_device& logical_device,
 			const std::vector<std::pair<vk::ShaderStageFlagBits, shader_input>>& pipeline_shader_inputs) const
-			-> const std::vector<vk::raii::DescriptorSetLayout>
+			-> const std::vector<std::vector<vk::raii::DescriptorSetLayout>>
 		{
 			auto bindings =
 				std::vector<std::pair<decltype(shader_input::m_descriptor_set), vk::DescriptorSetLayoutBinding>> {};
-			auto descriptor_layouts = std::vector<vk::raii::DescriptorSetLayout> {};
+			auto descriptor_layouts = std::vector<std::vector<vk::raii::DescriptorSetLayout>> {};
 			auto num_descriptor_sets = decltype(shader_input::m_descriptor_set) {};
+			auto stages = std::vector<vk::ShaderStageFlagBits> {};
 
 			// accumulate bindings from the entire pipeline
 			for (const auto& shader_input : pipeline_shader_inputs)
@@ -296,6 +319,10 @@ namespace lh
 
 				// record the total number of descriptor sets
 				num_descriptor_sets = std::max(num_descriptor_sets, input.m_descriptor_set);
+
+				// record different pipeline stages
+				if (not std::ranges::contains(stages, shader_input.first))
+					stages.push_back(shader_input.first);
 			};
 
 			// check for same bindings from multiple stages and connect them
@@ -312,7 +339,7 @@ namespace lh
 
 				bindings.erase(std::remove(bindings.begin(), bindings.end(), same_binding));
 			}
-
+			/*
 			// fill descriptor set layouts
 			for (auto i = decltype(num_descriptor_sets) {}; i < num_descriptor_sets; i++)
 			{
@@ -326,6 +353,30 @@ namespace lh
 					*logical_device,
 					vk::DescriptorSetLayoutCreateInfo {vk::DescriptorSetLayoutCreateFlagBits::eDescriptorBufferEXT,
 													   set_bindings});
+			}*/
+
+			for (const auto& stage : stages)
+			{
+				auto stage_descriptor_sets = std::vector<vk::raii::DescriptorSetLayout> {};
+
+				for (auto i = decltype(num_descriptor_sets) {}; i < num_descriptor_sets; i++)
+				{
+					auto set_bindings = std::vector<vk::DescriptorSetLayoutBinding> {};
+
+					for (const auto& [set, binding] : bindings)
+					{
+						if (binding.stageFlags & stage and set == i)
+							set_bindings.push_back(binding);
+					}
+
+					stage_descriptor_sets.emplace_back(
+						*logical_device,
+						vk::DescriptorSetLayoutCreateInfo {vk::DescriptorSetLayoutCreateFlagBits::eDescriptorBufferEXT,
+														   set_bindings});
+					i++;
+				}
+
+				descriptor_layouts.push_back(stage_descriptor_sets);
 			}
 
 			return descriptor_layouts;

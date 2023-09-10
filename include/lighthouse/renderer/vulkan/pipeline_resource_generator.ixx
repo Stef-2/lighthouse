@@ -58,7 +58,7 @@ export namespace lh
 			auto generate_vertex_input_description(const std::vector<shader_input>&)
 				-> const vulkan::vertex_input_description;
 			auto generate_descriptor_set_layouts(const logical_device&, const std::vector<std::pair<vk::ShaderStageFlagBits, shader_input>>&) const
-				-> const std::vector<vk::raii::DescriptorSetLayout>;
+				-> const std::vector<std::vector<vk::raii::DescriptorSetLayout>>;
 
 			std::vector<spir_v> m_spir_v;
 			vulkan::vertex_input_description m_vertex_input_description;

@@ -9,7 +9,6 @@ module;
 export module shader_object;
 
 import raii_wrapper;
-import descriptor_set_layout;
 import logical_device;
 import spir_v;
 import shader_input;
@@ -31,7 +30,8 @@ export namespace lh
 				vk::ShaderCodeTypeEXT m_code_type = vk::ShaderCodeTypeEXT::eSpirv;
 			};
 
-			shader_object(const logical_device&, const spir_v&, const descriptor_set_layout&, const create_info& = {});
+			shader_object(const logical_device&, const spir_v&, const std::vector<vk::DescriptorSetLayout>&, const create_info& = {});
+			shader_object(const logical_device&, const std::vector<spir_v>&, const std::vector<vk::DescriptorSetLayout>&, const create_info& = {});
 
 			auto stage() const -> const vk::ShaderStageFlagBits&;
 			auto cache_binary_data(const std::filesystem::path&) const -> void;
@@ -39,6 +39,11 @@ export namespace lh
 
 		private:
 			vk::ShaderStageFlagBits m_shader_stage;
+
+			static inline constexpr auto s_shader_stage_chain = std::array<vk::ShaderStageFlagBits, 3> {
+				vk::ShaderStageFlagBits::eVertex,
+																   vk::ShaderStageFlagBits::eFragment,
+																   {}};
 		};
 	}
 }
