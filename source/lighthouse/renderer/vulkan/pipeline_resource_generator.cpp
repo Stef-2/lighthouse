@@ -8,6 +8,8 @@ module;
 
 module pipeline_resource_generator;
 
+import input;
+
 namespace
 {
 	auto generate_descriptor_set_bindings(const std::vector<lh::vulkan::shader_input>& shader_inputs)
@@ -64,7 +66,7 @@ namespace lh
 
 			for (const auto& shader_path : shader_paths)
 			{
-				m_spir_v.emplace_back(shader_path);
+				m_spir_v.emplace_back(lh::input::read_file(shader_path));
 				const auto& compiled_spir_v = m_spir_v.back();
 
 				const auto shader_inputs = compiled_spir_v.reflect_shader_input();
@@ -77,22 +79,58 @@ namespace lh
 					pipeline_shader_inputs.push_back({compiled_spir_v.stage(), shader_input});
 				}
 			}
-
-			const auto pipeline_descriptor_sets = generate_descriptor_set_layouts(logical_device,
-																				  pipeline_shader_inputs);
-
-			auto descriptor_sets = std::vector<vk::DescriptorSetLayout> {};
-
-			for (auto i = std::uint16_t {0}; const auto& stage_descriptor_sets : pipeline_descriptor_sets)
+			// todo
+			/*const auto pipeline_descriptor_set_layouts = generate_descriptor_set_layouts(logical_device,
+																						 pipeline_shader_inputs);*/
+			/*
+			auto per_pipeline_descriptor_sets = std::vector<std::vector<vk::DescriptorSetLayout>> {};
+			for (auto stage = std::uint16_t {}; const auto& pipeline_descriptor_set : m_descriptor_set_layouts)
 			{
-				m_shader_objects.emplace_back(logical_device, m_spir_v[i].stage(), stage_descriptor_sets);
-
-				for (const auto& stage_descriptor_set : stage_descriptor_sets)
-					descriptor_sets.push_back(*stage_descriptor_set);
-
-				i++;
+				for (auto set = std::uint16_t {}; const auto& descriptor_set : pipeline_descriptor_set)
+				{
+					 const auto wtf = *m_descriptor_set_layouts[stage][set];
+					 per_pipeline_descriptor_sets[stage][set] = wtf; //*m_descriptor_set_layouts[stage][set];
+					set++;
+				}
+				stage++;
 			}
-			m_pipeline_layout = {*logical_device, {{}, descriptor_sets}};
+			*/
+
+			/*
+			auto flattened_descriptor_sets = std::vector<vk::DescriptorSetLayout> {};
+
+			for (auto stage = std::uint16_t {}; const auto& stage_descriptor_sets : pipeline_descriptor_set_layouts)
+			{
+				m_descriptor_set_layouts.push_back(std::vector<vk::raii::DescriptorSetLayout> {});
+				for (auto& descriptor_set_layout : stage_descriptor_sets)
+					m_descriptor_set_layouts[stage].emplace_back(
+						vk::raii::DescriptorSetLayout {*logical_device, descriptor_set_layout});
+
+				m_shader_objects.emplace_back(logical_device, m_spir_v[stage], stage_descriptor_sets);
+				flattened_descriptor_sets.insert_range(flattened_descriptor_sets.end(), stage_descriptor_sets);
+				stage++;
+			}*/
+
+			m_descriptor_set_layouts.push_back({});
+			auto b = std::vector<vk::DescriptorSetLayoutBinding> {};
+			// auto v = std::vector<vk::DescriptorSetLayout>(8);
+			for (uint32_t i = 0; i < 8; i++)
+			{
+				b.push_back(vk::DescriptorSetLayoutBinding {
+					i, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eAll});
+			}
+			const auto wtf =
+				vk::DescriptorSetLayoutCreateInfo {vk::DescriptorSetLayoutCreateFlagBits::eDescriptorBufferEXT, b};
+			m_descriptor_set_layouts[0].emplace_back(vk::raii::DescriptorSetLayout {*logical_device, wtf});
+
+			for (auto i = 0; i < shader_paths.size(); i++)
+			{
+				m_shader_objects.emplace_back(logical_device,
+											  m_spir_v[i],
+											  std::vector<vk::DescriptorSetLayout> {*m_descriptor_set_layouts[0][0]});
+			}
+
+			m_pipeline_layout = {*logical_device, {{}, *m_descriptor_set_layouts[0][0]}};
 
 			const auto unique_pipeline_inputs = generate_unique_pipeline_inputs(pipeline_shader_inputs);
 
@@ -292,16 +330,16 @@ namespace lh
 
 			return {vertex_bindings, vertex_attributes};
 		}
-
+#pragma optimize("", off)
 		auto pipeline_resource_generator::generate_descriptor_set_layouts(
 			const logical_device& logical_device,
 			const std::vector<std::pair<vk::ShaderStageFlagBits, shader_input>>& pipeline_shader_inputs) const
-			-> const std::vector<std::vector<vk::raii::DescriptorSetLayout>>
+			-> const std::vector<std::vector<vk::DescriptorSetLayout>>
 		{
 			auto bindings =
 				std::vector<std::pair<decltype(shader_input::m_descriptor_set), vk::DescriptorSetLayoutBinding>> {};
-			auto descriptor_layouts = std::vector<std::vector<vk::raii::DescriptorSetLayout>> {};
-			auto num_descriptor_sets = decltype(shader_input::m_descriptor_set) {};
+			auto descriptor_layouts = std::vector<std::vector<vk::DescriptorSetLayout>> {};
+			auto descriptor_set_numbers = std::vector<std::uint16_t> {};
 			auto stages = std::vector<vk::ShaderStageFlagBits> {};
 
 			// accumulate bindings from the entire pipeline
@@ -318,7 +356,8 @@ namespace lh
 					 {input.m_descriptor_binding, input.m_type, input.m_array_dimension, shader_input.first}});
 
 				// record the total number of descriptor sets
-				num_descriptor_sets = std::max(num_descriptor_sets, input.m_descriptor_set);
+				if (not std::ranges::contains(descriptor_set_numbers, shader_input.second.m_descriptor_set))
+					descriptor_set_numbers.push_back(shader_input.second.m_descriptor_set);
 
 				// record different pipeline stages
 				if (not std::ranges::contains(stages, shader_input.first))
@@ -337,7 +376,7 @@ namespace lh
 
 				binding.stageFlags |= same_binding->second.stageFlags;
 
-				bindings.erase(std::remove(bindings.begin(), bindings.end(), same_binding));
+				// bindings.erase(std::remove(bindings.begin(), bindings.end(), same_binding));
 			}
 			/*
 			// fill descriptor set layouts
@@ -357,9 +396,9 @@ namespace lh
 
 			for (const auto& stage : stages)
 			{
-				auto stage_descriptor_sets = std::vector<vk::raii::DescriptorSetLayout> {};
+				auto stage_descriptor_sets = std::vector<vk::DescriptorSetLayout> {};
 
-				for (auto i = decltype(num_descriptor_sets) {}; i < num_descriptor_sets; i++)
+				for (auto i = std::uint16_t {}; i < descriptor_set_numbers.size(); i++)
 				{
 					auto set_bindings = std::vector<vk::DescriptorSetLayoutBinding> {};
 
@@ -368,12 +407,14 @@ namespace lh
 						if (binding.stageFlags & stage and set == i)
 							set_bindings.push_back(binding);
 					}
-
-					stage_descriptor_sets.emplace_back(
+					/*
+					logical_device->createDescriptorSetLayout(
+						{vk::DescriptorSetLayoutCreateFlagBits::eDescriptorBufferEXT, set_bindings});*/
+					stage_descriptor_sets.emplace_back(*vk::raii::DescriptorSetLayout {
 						*logical_device,
 						vk::DescriptorSetLayoutCreateInfo {vk::DescriptorSetLayoutCreateFlagBits::eDescriptorBufferEXT,
-														   set_bindings});
-					i++;
+														   set_bindings}});
+					// i++;
 				}
 
 				descriptor_layouts.push_back(stage_descriptor_sets);

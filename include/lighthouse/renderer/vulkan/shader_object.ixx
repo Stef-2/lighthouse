@@ -31,7 +31,7 @@ export namespace lh
 			};
 
 			shader_object(const logical_device&, const spir_v&, const std::vector<vk::DescriptorSetLayout>&, const create_info& = {});
-			shader_object(const logical_device&, const std::vector<spir_v>&, const std::vector<vk::DescriptorSetLayout>&, const create_info& = {});
+			//shader_object(const logical_device&, const std::vector<spir_v>&, const std::vector<vk::DescriptorSetLayout>&, const create_info& = {});
 
 			auto stage() const -> const vk::ShaderStageFlagBits&;
 			auto cache_binary_data(const std::filesystem::path&) const -> void;
