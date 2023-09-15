@@ -79,37 +79,6 @@ namespace lh
 					pipeline_shader_inputs.push_back({compiled_spir_v.stage(), shader_input});
 				}
 			}
-			// todo
-			/*const auto pipeline_descriptor_set_layouts = generate_descriptor_set_layouts(logical_device,
-																						 pipeline_shader_inputs);*/
-			/*
-			auto per_pipeline_descriptor_sets = std::vector<std::vector<vk::DescriptorSetLayout>> {};
-			for (auto stage = std::uint16_t {}; const auto& pipeline_descriptor_set : m_descriptor_set_layouts)
-			{
-				for (auto set = std::uint16_t {}; const auto& descriptor_set : pipeline_descriptor_set)
-				{
-					 const auto wtf = *m_descriptor_set_layouts[stage][set];
-					 per_pipeline_descriptor_sets[stage][set] = wtf; //*m_descriptor_set_layouts[stage][set];
-					set++;
-				}
-				stage++;
-			}
-			*/
-
-			/*
-			auto flattened_descriptor_sets = std::vector<vk::DescriptorSetLayout> {};
-
-			for (auto stage = std::uint16_t {}; const auto& stage_descriptor_sets : pipeline_descriptor_set_layouts)
-			{
-				m_descriptor_set_layouts.push_back(std::vector<vk::raii::DescriptorSetLayout> {});
-				for (auto& descriptor_set_layout : stage_descriptor_sets)
-					m_descriptor_set_layouts[stage].emplace_back(
-						vk::raii::DescriptorSetLayout {*logical_device, descriptor_set_layout});
-
-				m_shader_objects.emplace_back(logical_device, m_spir_v[stage], stage_descriptor_sets);
-				flattened_descriptor_sets.insert_range(flattened_descriptor_sets.end(), stage_descriptor_sets);
-				stage++;
-			}*/
 
 			m_descriptor_set_layouts.push_back({});
 			auto b = std::vector<vk::DescriptorSetLayoutBinding> {};

@@ -115,7 +115,7 @@ target_sources(
 	${include}/lighthouse/entity.ixx
 	${include}/lighthouse/camera.ixx
 	${include}/lighthouse/time.ixx
-)
+ "include/lighthouse/renderer/vulkan/global_descriptor.ixx")
 
 target_sources(
 	${PROJECT_NAME} PUBLIC
@@ -162,7 +162,7 @@ target_sources(
 	${source}/lighthouse/camera.cpp
 	${source}/lighthouse/time.cpp
 	${source}/lighthouse/renderer/vulkan/texture.cpp
-)
+ "source/lighthouse/renderer/vulkan/global_descriptor.cpp")
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_RELEASE}")
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
