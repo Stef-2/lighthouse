@@ -15,7 +15,6 @@ import memory_allocator;
 import descriptor_set_layout;
 import buffer;
 import texture;
-import global_descriptor;
 
 #if not INTELLISENSE
 import std.core;
@@ -44,12 +43,6 @@ export namespace lh
 			descriptor_buffer(const physical_device&,
 							  const logical_device&,
 							  const memory_allocator&,
-							  const create_info& = {});
-
-			descriptor_buffer(const physical_device&,
-							  const logical_device&,
-							  const memory_allocator&,
-							  const global_descriptor&,
 							  const create_info& = {});
 
 			auto map_uniform_buffer_data(const binding_slot_t& offset, const buffer_subdata&) -> void;

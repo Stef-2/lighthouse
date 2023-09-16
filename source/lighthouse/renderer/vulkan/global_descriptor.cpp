@@ -20,8 +20,7 @@ namespace lh
 			  m_pipeline_layout {nullptr}
 		{
 			auto descriptor_set_layout_usage = vk::DescriptorSetLayoutCreateFlags {
-				vk::DescriptorSetLayoutCreateFlagBits::eDescriptorBufferEXT/* |
-				vk::DescriptorSetLayoutCreateFlagBits::eUpdateAfterBindPool*/};
+				vk::DescriptorSetLayoutCreateFlagBits::eDescriptorBufferEXT};
 
 			// uniform buffers
 			auto bindings = std::vector<vk::DescriptorSetLayoutBinding> {};

@@ -16,7 +16,6 @@ import queue_families;
 import memory_allocator;
 import command_control;
 import queue;
-import global_descriptor;
 import image;
 import texture;
 import swapchain;
@@ -25,7 +24,6 @@ import shader_object;
 import descriptor_set_layout;
 import descriptor_buffer;
 import pipeline_resource_generator;
-import shader_object_pipeline;
 import lh_utility;
 import vertex_input_description;
 import vertex_buffer;
@@ -85,7 +83,6 @@ export namespace lh
 		vulkan::command_control m_transfer_control;
 		vulkan::queue m_queue;
 		vulkan::swapchain m_swapchain;
-		vulkan::global_descriptor m_global_descriptor;
 
 		vulkan::spir_v m_vertex_spirv;
 		vulkan::spir_v m_fragment_spirv;

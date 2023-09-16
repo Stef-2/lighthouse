@@ -4,6 +4,7 @@ module;
 #include "vulkan/vulkan_raii.hpp"
 
 #include <filesystem>
+#include <utility>
 #endif
 
 export module shader_object;
@@ -26,24 +27,46 @@ export namespace lh
 		public:
 			struct create_info
 			{
-				vk::ShaderCreateFlagsEXT m_modifier_flags {}; //= vk::ShaderCreateFlagBitsEXT::eLinkStage;
+				vk::ShaderCreateFlagsEXT m_modifier_flags = {};
 				vk::ShaderCodeTypeEXT m_code_type = vk::ShaderCodeTypeEXT::eSpirv;
 			};
 
 			shader_object(const logical_device&, const spir_v&, const std::vector<vk::DescriptorSetLayout>&, const create_info& = {});
-			//shader_object(const logical_device&, const std::vector<spir_v>&, const std::vector<vk::DescriptorSetLayout>&, const create_info& = {});
 
-			auto stage() const -> const vk::ShaderStageFlagBits&;
 			auto cache_binary_data(const std::filesystem::path&) const -> void;
+			auto stage() const -> const vk::ShaderStageFlagBits&;
 			auto bind(const vk::raii::CommandBuffer&) const -> void;
 
 		private:
 			vk::ShaderStageFlagBits m_shader_stage;
-
-			static inline constexpr auto s_shader_stage_chain = std::array<vk::ShaderStageFlagBits, 3> {
-				vk::ShaderStageFlagBits::eVertex,
-																   vk::ShaderStageFlagBits::eFragment,
-																   {}};
 		};
+
+		// ====================================================================
+
+		class shader_pipeline : public raii_wrapper<vk::raii::ShaderEXTs>
+		{
+		public:
+			shader_pipeline(const logical_device&,
+							const std::vector<std::pair<const spir_v&, const std::vector<vk::DescriptorSetLayout>&>>&,
+							const shader_object::create_info& = {.m_modifier_flags = vk::ShaderCreateFlagBitsEXT::eLinkStage});
+
+			auto cache_binary_data(const std::vector<std::filesystem::path>&) const -> void;
+			auto stages() const -> const std::vector<vk::ShaderStageFlagBits>&;
+			auto bind(const vk::raii::CommandBuffer&) const -> void;
+
+		private:
+			std::vector<vk::ShaderStageFlagBits> m_pipeline_stages;
+		};
+	}
+}
+
+module :private;
+
+namespace lh
+{
+	namespace vulkan
+	{
+		constexpr auto s_shader_stage_chain = std::array<vk::ShaderStageFlagBits, 3> {
+			vk::ShaderStageFlagBits::eVertex, vk::ShaderStageFlagBits::eFragment, {}};
 	}
 }
