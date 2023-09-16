@@ -11,6 +11,7 @@ export module debug_messanger;
 
 import raii_wrapper;
 import output;
+
 #if not INTELLISENSE
 import vulkan;
 #endif

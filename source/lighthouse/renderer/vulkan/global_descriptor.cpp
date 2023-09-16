@@ -12,10 +12,7 @@ namespace lh
 {
 	namespace vulkan
 	{
-		global_descriptor::global_descriptor(const physical_device& physical_device,
-											 const logical_device& logical_device,
-											 const memory_allocator& memory_allocator,
-											 const create_info& create_info)
+		global_descriptor::global_descriptor(const logical_device& logical_device, const create_info& create_info)
 			: m_immutable_sampler {*logical_device, create_info.m_immutable_sampler_properties},
 			  m_uniform_buffer_set {nullptr},
 			  m_storage_descriptor_set {nullptr},
@@ -23,14 +20,14 @@ namespace lh
 			  m_pipeline_layout {nullptr}
 		{
 			auto descriptor_set_layout_usage = vk::DescriptorSetLayoutCreateFlags {
-				vk::DescriptorSetLayoutCreateFlagBits::eDescriptorBufferEXT |
-				vk::DescriptorSetLayoutCreateFlagBits::eUpdateAfterBindPool};
+				vk::DescriptorSetLayoutCreateFlagBits::eDescriptorBufferEXT/* |
+				vk::DescriptorSetLayoutCreateFlagBits::eUpdateAfterBindPool*/};
 
 			// uniform buffers
 			auto bindings = std::vector<vk::DescriptorSetLayoutBinding> {};
 			bindings.reserve(create_info.m_num_uniform_buffers);
 
-			for (auto i = create_info::descriptor_type_size_t {}; create_info.m_num_uniform_buffers; i++)
+			for (auto i = create_info::descriptor_type_size_t {}; i < create_info.m_num_uniform_buffers; i++)
 				bindings.emplace_back(i, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eAll);
 
 			m_uniform_buffer_set = {
@@ -40,7 +37,7 @@ namespace lh
 			bindings = std::vector<vk::DescriptorSetLayoutBinding> {};
 			bindings.reserve(create_info.m_num_storage_descriptors);
 
-			for (auto i = create_info::descriptor_type_size_t {}; create_info.m_num_storage_descriptors; i++)
+			for (auto i = create_info::descriptor_type_size_t {}; i < create_info.m_num_storage_descriptors; i++)
 				bindings.emplace_back(i, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eAll);
 
 			m_storage_descriptor_set = {
@@ -50,12 +47,9 @@ namespace lh
 			bindings = std::vector<vk::DescriptorSetLayoutBinding> {};
 			bindings.reserve(create_info.m_num_storage_descriptors);
 
-			for (auto i = create_info::descriptor_type_size_t {}; create_info.m_num_storage_descriptors; i++)
-				bindings.emplace_back(i,
-									  vk::DescriptorType::eCombinedImageSampler,
-									  1,
-									  vk::ShaderStageFlagBits::eAll,
-									  &*m_immutable_sampler);
+			for (auto i = create_info::descriptor_type_size_t {}; i < create_info.m_num_storage_descriptors; i++)
+				bindings.emplace_back(
+					i, vk::DescriptorType::eSampler, 1, vk::ShaderStageFlagBits::eAll, &*m_immutable_sampler);
 
 			m_combined_image_sampler_set = {vk::raii::DescriptorSetLayout {
 				*logical_device,
@@ -82,6 +76,11 @@ namespace lh
 		auto global_descriptor::combined_image_sampler_set() const -> const vk::raii::DescriptorSetLayout&
 		{
 			return m_combined_image_sampler_set;
+		}
+
+		auto global_descriptor::pipeline_layout() const -> const vk::raii::PipelineLayout&
+		{
+			return m_pipeline_layout;
 		}
 	}
 }

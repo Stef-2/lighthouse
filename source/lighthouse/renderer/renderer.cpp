@@ -49,6 +49,7 @@ namespace lh
 		  m_transfer_control {m_logical_device, m_queue_families.transfer()},
 		  m_queue {m_logical_device, m_queue_families},
 		  m_swapchain {m_physical_device, m_logical_device, m_surface, m_queue_families, m_memory_allocator},
+		  m_global_descriptor {m_logical_device},
 		  m_vertex_spirv {input::read_file(file_system::data_path() /= "shaders/basic.vert")},
 
 		  m_fragment_spirv {input::read_file(file_system::data_path() /= "shaders/basic.frag")},

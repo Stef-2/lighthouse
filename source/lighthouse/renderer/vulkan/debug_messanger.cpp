@@ -82,7 +82,7 @@ namespace lh
 					break;
 				default: break;
 			}
-			std::cout << message;
+			// std::cout << message;
 
 			if constexpr (debug_messanger::m_only_report_once)
 				debug_messanger::m_previously_reported_messages.push_back(callback_data->messageIdNumber);

@@ -8,16 +8,14 @@ module;
 
 export module global_descriptor;
 
-import physical_device;
 import logical_device;
-import memory_allocator;
 
 #if not INTELLISENSE
 import std.core;
 import vulkan;
 #endif
 
-namespace lh
+export namespace lh
 {
 	namespace vulkan
 	{
@@ -28,9 +26,9 @@ namespace lh
 			{
 				using descriptor_type_size_t = std::uint16_t;
 
-				descriptor_type_size_t m_num_uniform_buffers = 8;
-				descriptor_type_size_t m_num_storage_descriptors = 8;
-				descriptor_type_size_t m_num_combined_image_samplers = 8;
+				descriptor_type_size_t m_num_uniform_buffers = 1024;
+				descriptor_type_size_t m_num_storage_descriptors = 1024;
+				descriptor_type_size_t m_num_combined_image_samplers = 1024;
 
 				vk::SamplerCreateInfo m_immutable_sampler_properties = {{},
 																		vk::Filter::eNearest,
@@ -50,14 +48,13 @@ namespace lh
 																		false};
 			};
 
-			global_descriptor(const physical_device&,
-							  const logical_device&,
-							  const memory_allocator&,
-							  const create_info& = {});
+			global_descriptor(const logical_device&, const create_info& = {});
+							  
 
 			auto uniform_buffer_set() const -> const vk::raii::DescriptorSetLayout&;
 			auto storage_descriptor_set() const -> const vk::raii::DescriptorSetLayout&;
 			auto combined_image_sampler_set() const -> const vk::raii::DescriptorSetLayout&;
+			auto pipeline_layout() const -> const vk::raii::PipelineLayout&;
 
 		private:
 			vk::raii::Sampler m_immutable_sampler;
