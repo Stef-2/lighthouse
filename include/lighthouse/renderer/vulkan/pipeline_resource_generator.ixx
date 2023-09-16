@@ -15,6 +15,7 @@ import logical_device;
 import memory_allocator;
 import descriptor_set_layout;
 import descriptor_buffer;
+import global_descriptor;
 import file_system;
 import shader_object;
 import buffer;
@@ -43,15 +44,13 @@ export namespace lh
 										const logical_device&,
 										const memory_allocator&,
 										const pipeline_glsl_code&,
+										const global_descriptor&,
 										const create_info& = {});
 
 			auto vertex_input_description() const -> const vulkan::vertex_input_description&;
-			//auto descriptor_set_layouts() const -> const std::vector<descriptor_set_layout>&;
-			auto pipeline_layout() const -> const vk::raii::PipelineLayout&;
 			auto shader_objects() const -> const std::vector<shader_object>&;
 			auto uniform_buffers() const -> const mapped_buffer&;
 			auto uniform_buffer_subdata() const -> const buffer_subdata&;
-			auto descriptor_buffer() -> descriptor_buffer&;
 
 		private:
 			auto translate_shader_input_format(const shader_input&) const -> const vk::Format;
@@ -62,11 +61,6 @@ export namespace lh
 
 			std::vector<spir_v> m_spir_v;
 			vulkan::vertex_input_description m_vertex_input_description;
-
-			//std::vector<vulkan::descriptor_set_layout> m_descriptor_set_layouts;
-			std::vector<std::vector<vk::raii::DescriptorSetLayout>> m_descriptor_set_layouts;
-
-			vk::raii::PipelineLayout m_pipeline_layout;
 
 			std::vector<shader_object> m_shader_objects;
 			mapped_buffer m_uniform_buffers;

@@ -97,6 +97,11 @@ namespace lh
 			return m_combined_image_sampler_set;
 		}
 
+		auto global_descriptor::descriptor_set_layouts() const -> const std::vector<vk::DescriptorSetLayout>
+		{
+			return {*m_uniform_buffer_set, *m_storage_descriptor_set, *m_combined_image_sampler_set};
+		}
+
 		auto global_descriptor::pipeline_layout() const -> const vk::raii::PipelineLayout&
 		{
 			return m_pipeline_layout;

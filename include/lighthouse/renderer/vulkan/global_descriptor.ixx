@@ -55,6 +55,7 @@ export namespace lh
 			auto uniform_buffer_set() const -> const vk::raii::DescriptorSetLayout&;
 			auto storage_descriptor_set() const -> const vk::raii::DescriptorSetLayout&;
 			auto combined_image_sampler_set() const -> const vk::raii::DescriptorSetLayout&;
+			auto descriptor_set_layouts() const -> const std::vector<vk::DescriptorSetLayout>;
 			auto pipeline_layout() const -> const vk::raii::PipelineLayout&;
 
 		private:

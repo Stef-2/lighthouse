@@ -58,7 +58,8 @@ namespace lh
 								m_logical_device,
 								m_memory_allocator,
 								{file_system::data_path() /= "shaders/basic.vert",
-								 file_system::data_path() /= "shaders/basic.frag"}},
+								 file_system::data_path() /= "shaders/basic.frag"},
+								m_global_descriptor},
 		  m_scene_loader {m_logical_device, m_memory_allocator, file_system::data_path() /= "models/xyz.obj"},
 		  m_camera {std::make_shared<lh::node>(), camera<camera_type::perspective>::create_info {}},
 		  m_texture {m_physical_device,
@@ -68,8 +69,9 @@ namespace lh
 					 m_queue.transfer(),
 					 file_system::data_path() /= "textures/bricks.png"}
 	{
-		m_resource_generator.descriptor_buffer().map_uniform_buffer_data(
-			0, vulkan::buffer_subdata {m_resource_generator.uniform_buffer_subdata()});
+		m_global_descriptor_buffer.map_uniform_buffer_data(0,
+														   vulkan::buffer_subdata {
+															   m_resource_generator.uniform_buffer_subdata()});
 
 		if (m_create_info.m_using_validation)
 			output::log() << info(m_create_info);
@@ -161,7 +163,7 @@ namespace lh
 		m_resource_generator.uniform_buffers().map_data(sin(time), 64);
 
 		// m_resource_descriptor_buffer.bind(command_buffer, m_pipeline_layout);
-		m_resource_generator.descriptor_buffer().bind(command_buffer, m_resource_generator.pipeline_layout());
+		m_global_descriptor_buffer.bind(command_buffer, m_global_descriptor.pipeline_layout());
 		//  ==================
 
 		command_buffer.bindShadersEXT({m_resource_generator.shader_objects()[0].stage(),

@@ -52,11 +52,12 @@ namespace lh
 																 const logical_device& logical_device,
 																 const memory_allocator& memory_allocator,
 																 const pipeline_glsl_code& shader_paths,
+																 const global_descriptor& global_descriptor,
 																 const create_info& create_info)
 			: m_spir_v {},
 			  m_vertex_input_description {},
-			  m_descriptor_set_layouts {},
-			  m_pipeline_layout {nullptr},
+			  // m_descriptor_set_layouts {},
+			  // m_pipeline_layout {nullptr},
 			  m_shader_objects {},
 			  m_uniform_buffers {},
 			  m_uniform_buffer_subdata {},
@@ -79,7 +80,7 @@ namespace lh
 					pipeline_shader_inputs.push_back({compiled_spir_v.stage(), shader_input});
 				}
 			}
-
+			/*
 			m_descriptor_set_layouts.push_back({});
 			auto b = std::vector<vk::DescriptorSetLayoutBinding> {};
 			// auto v = std::vector<vk::DescriptorSetLayout>(8);
@@ -91,15 +92,13 @@ namespace lh
 			const auto wtf =
 				vk::DescriptorSetLayoutCreateInfo {vk::DescriptorSetLayoutCreateFlagBits::eDescriptorBufferEXT, b};
 			m_descriptor_set_layouts[0].emplace_back(vk::raii::DescriptorSetLayout {*logical_device, wtf});
-
+			*/
 			for (auto i = 0; i < shader_paths.size(); i++)
 			{
-				m_shader_objects.emplace_back(logical_device,
-											  m_spir_v[i],
-											  std::vector<vk::DescriptorSetLayout> {*m_descriptor_set_layouts[0][0]});
+				m_shader_objects.emplace_back(logical_device, m_spir_v[i], global_descriptor.descriptor_set_layouts());
 			}
 
-			m_pipeline_layout = {*logical_device, {{}, *m_descriptor_set_layouts[0][0]}};
+			// m_pipeline_layout = {*logical_device, {{}, *m_descriptor_set_layouts[0][0]}};
 
 			const auto unique_pipeline_inputs = generate_unique_pipeline_inputs(pipeline_shader_inputs);
 
@@ -139,11 +138,11 @@ namespace lh
 		{
 			return m_descriptor_set_layouts;
 		}*/
-
+		/*
 		auto pipeline_resource_generator::pipeline_layout() const -> const vk::raii::PipelineLayout&
 		{
 			return m_pipeline_layout;
-		}
+		}*/
 
 		auto pipeline_resource_generator::shader_objects() const -> const std::vector<shader_object>&
 		{
@@ -159,11 +158,11 @@ namespace lh
 		{
 			return m_uniform_buffer_subdata;
 		}
-
+		/*
 		auto pipeline_resource_generator::descriptor_buffer() -> vulkan::descriptor_buffer&
 		{
 			return m_resource_descriptor_buffer;
-		}
+		}*/
 
 		auto pipeline_resource_generator::translate_shader_input_format(const shader_input& shader_input) const
 			-> const vk::Format
