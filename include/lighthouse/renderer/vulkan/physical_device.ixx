@@ -58,6 +58,7 @@ export namespace lh
 
 				vk::PhysicalDeviceProperties2 m_properties {};
 				vk::PhysicalDeviceShaderObjectPropertiesEXT m_shader_object_properties {};
+				vk::PhysicalDeviceDescriptorIndexingProperties m_descriptor_indexing_properties {};
 				descriptor_buffer m_descriptor_buffer_properties;
 				host_image_copy m_host_image_copy_properties;
 			};

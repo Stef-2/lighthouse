@@ -13,6 +13,7 @@ import physical_device;
 import logical_device;
 import memory_allocator;
 import descriptor_set_layout;
+import global_descriptor;
 import buffer;
 import texture;
 
@@ -45,6 +46,12 @@ export namespace lh
 							  const memory_allocator&,
 							  const create_info& = {});
 
+			descriptor_buffer(const physical_device&,
+							  const logical_device&,
+							  const memory_allocator&,
+							  const global_descriptor&,
+							  const create_info& = {});
+
 			auto map_uniform_buffer_data(const binding_slot_t& offset, const buffer_subdata&) -> void;
 			auto map_texture_data(const std::vector<const texture&>&) -> void;
 
@@ -54,7 +61,7 @@ export namespace lh
 
 		private:
 			auto descriptor_size(const physical_device&, const vk::DescriptorType&) -> const std::size_t;
-			auto descriptor_buffer_usage(const descriptor_set_layout&) -> const vk::BufferUsageFlags;
+			//auto descriptor_buffer_usage(const descriptor_set_layout&) -> const vk::BufferUsageFlags;
 
 			std::vector<vk::DescriptorBufferBindingInfoEXT> m_descriptor_buffer_binding_info;
 

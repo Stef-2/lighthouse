@@ -40,6 +40,32 @@ namespace lh
 											  .m_properties = create_info.m_descriptor_buffer_memory_properties}}
 		{}
 
+		descriptor_buffer::descriptor_buffer(const physical_device& physical_device,
+											 const logical_device& logical_device,
+											 const memory_allocator& memory_allocator,
+											 const global_descriptor& global_descriptor,
+											 const create_info& create_info)
+			: m_descriptor_buffer_binding_info {},
+			  m_physical_device {&physical_device},
+			  m_logical_device {&logical_device},
+			  m_bind_point {create_info.m_bind_point},
+			  m_resource_descriptor_buffer {
+				  logical_device,
+				  memory_allocator,
+				  global_descriptor.uniform_buffer_set().getSizeEXT() +
+					  global_descriptor.storage_descriptor_set().getSizeEXT(),
+				  mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
+														 vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT,
+											  .m_properties = create_info.m_descriptor_buffer_memory_properties}},
+			  m_combined_image_sampler_descriptor_buffer {
+				  logical_device,
+				  memory_allocator,
+				  global_descriptor.combined_image_sampler_set().getSizeEXT(),
+				  mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
+														 vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT,
+											  .m_properties = create_info.m_descriptor_buffer_memory_properties}}
+		{}
+
 		auto descriptor_buffer::map_uniform_buffer_data(const binding_slot_t& offset,
 														const buffer_subdata& buffer_subdata) -> void
 		{
@@ -120,7 +146,7 @@ namespace lh
 
 			std::unreachable();
 		}
-
+		/*
 		auto descriptor_buffer::descriptor_buffer_usage(const descriptor_set_layout& descriptor_set_layout)
 			-> const vk::BufferUsageFlags
 		{
@@ -142,6 +168,6 @@ namespace lh
 			}
 
 			return usage;
-		}
+		}*/
 	}
 }

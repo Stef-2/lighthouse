@@ -38,11 +38,13 @@ namespace lh
 																		 physical_device_properties));
 
 			const auto properties = m_object.getProperties2<vk::PhysicalDeviceProperties2,
-															vk::PhysicalDeviceDescriptorBufferPropertiesEXT,
-															vk::PhysicalDeviceShaderObjectPropertiesEXT>();
+															vk::PhysicalDeviceShaderObjectPropertiesEXT,
+															vk::PhysicalDeviceDescriptorIndexingProperties,
+															vk::PhysicalDeviceDescriptorBufferPropertiesEXT>();
 
 			m_properties = {properties.get<vk::PhysicalDeviceProperties2>(),
 							properties.get<vk::PhysicalDeviceShaderObjectPropertiesEXT>(),
+							properties.get<vk::PhysicalDeviceDescriptorIndexingProperties>(),
 							{properties.get<vk::PhysicalDeviceDescriptorBufferPropertiesEXT>()},
 							{host_image_properties, host_image_source_layouts, host_image_destination_layouts}};
 

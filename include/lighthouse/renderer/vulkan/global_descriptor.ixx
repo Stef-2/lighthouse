@@ -8,6 +8,7 @@ module;
 
 export module global_descriptor;
 
+import physical_device;
 import logical_device;
 
 #if not INTELLISENSE
@@ -22,12 +23,12 @@ export namespace lh
 		class global_descriptor
 		{
 		public:
+			using descriptor_type_size_t = std::uint32_t;
+
 			struct create_info
 			{
-				using descriptor_type_size_t = std::uint16_t;
-
-				descriptor_type_size_t m_num_uniform_buffers = 1024;
-				descriptor_type_size_t m_num_storage_descriptors = 1024;
+				descriptor_type_size_t m_num_uniform_buffers = 15;
+				descriptor_type_size_t m_num_storage_descriptors = 8;
 				descriptor_type_size_t m_num_combined_image_samplers = 1024;
 
 				vk::SamplerCreateInfo m_immutable_sampler_properties = {{},
@@ -48,7 +49,7 @@ export namespace lh
 																		false};
 			};
 
-			global_descriptor(const logical_device&, const create_info& = {});
+			global_descriptor(const physical_device&, const logical_device&, const create_info& = {});
 							  
 
 			auto uniform_buffer_set() const -> const vk::raii::DescriptorSetLayout&;
@@ -59,8 +60,13 @@ export namespace lh
 		private:
 			vk::raii::Sampler m_immutable_sampler;
 
+			descriptor_type_size_t m_num_uniform_buffers;
 			vk::raii::DescriptorSetLayout m_uniform_buffer_set;
+
+			descriptor_type_size_t m_num_storage_descriptors;
 			vk::raii::DescriptorSetLayout m_storage_descriptor_set;
+
+			descriptor_type_size_t m_num_combined_image_samplers;
 			vk::raii::DescriptorSetLayout m_combined_image_sampler_set;
 
 			vk::raii::PipelineLayout m_pipeline_layout;
