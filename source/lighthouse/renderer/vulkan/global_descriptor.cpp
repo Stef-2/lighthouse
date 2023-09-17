@@ -15,8 +15,7 @@ namespace lh
 		global_descriptor::global_descriptor(const physical_device& physical_device,
 											 const logical_device& logical_device,
 											 const create_info& create_info)
-			: m_immutable_sampler {*logical_device, create_info.m_immutable_sampler_properties},
-			  m_num_uniform_buffers {create_info.m_num_uniform_buffers},
+			: m_num_uniform_buffers {create_info.m_num_uniform_buffers},
 			  m_uniform_buffer_set {nullptr},
 			  m_num_storage_descriptors {create_info.m_num_storage_descriptors},
 			  m_storage_descriptor_set {nullptr},
@@ -67,13 +66,10 @@ namespace lh
 			bindings.reserve(create_info.m_num_storage_descriptors);
 
 			for (auto i = descriptor_type_size_t {}; i < create_info.m_num_storage_descriptors; i++)
-				bindings.emplace_back(
-					i, vk::DescriptorType::eSampler, 1, vk::ShaderStageFlagBits::eAll, &*m_immutable_sampler);
+				bindings.emplace_back(i, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eAll);
 
-			m_combined_image_sampler_set = {vk::raii::DescriptorSetLayout {
-				*logical_device,
-				{descriptor_set_layout_usage | vk::DescriptorSetLayoutCreateFlagBits::eEmbeddedImmutableSamplersEXT,
-				 bindings}}};
+			m_combined_image_sampler_set = {
+				vk::raii::DescriptorSetLayout {*logical_device, {descriptor_set_layout_usage, bindings}}};
 
 			// pipeline layout
 			auto descriptor_sets = std::array<vk::DescriptorSetLayout, 3> {*m_uniform_buffer_set,

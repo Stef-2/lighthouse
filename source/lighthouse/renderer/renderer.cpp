@@ -72,6 +72,7 @@ namespace lh
 		m_global_descriptor_buffer.map_uniform_buffer_data(0,
 														   vulkan::buffer_subdata {
 															   m_resource_generator.uniform_buffer_subdata()});
+		m_global_descriptor_buffer.map_texture_data({&m_texture});
 
 		if (m_create_info.m_using_validation)
 			output::log() << info(m_create_info);

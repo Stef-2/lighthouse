@@ -15,6 +15,7 @@ import memory_allocator;
 import command_control;
 import buffer;
 import image;
+import sampler;
 
 #if not INTELLISENSE
 import vulkan;
@@ -31,10 +32,8 @@ export namespace lh
 		public:
 			struct create_info
 			{
-				image::create_info m_image_create_info {.m_image_usage = vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst,
-														.m_image_layout = vk::ImageLayout::eTransferDstOptimal,
-														.m_memory_type = vk::MemoryPropertyFlagBits::eDeviceLocal
-														};
+				image::create_info m_image_create_info = {};
+				sampler::create_info m_sampler_create_info = {};
 			};
 
 			texture(const physical_device&,
@@ -46,9 +45,12 @@ export namespace lh
 					const create_info& = {});
 
 			auto image() const -> const vulkan::image&;
+			auto sampler() const -> const vulkan::sampler&;
 
 		private:
 			vulkan::image m_image;
+			vulkan::sampler m_sampler;
 		};
+
 	}
 }

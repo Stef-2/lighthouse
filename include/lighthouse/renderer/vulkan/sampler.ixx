@@ -13,17 +13,27 @@ export namespace lh
 {
 	namespace vulkan
 	{
-		class sampler : raii_wrapper<vk::raii::Sampler>
+		class sampler : public raii_wrapper<vk::raii::Sampler>
 		{
 		public:
 			struct create_info
 			{
-				vk::Filter m_filter = vk::Filter::eNearest;
-				vk::SamplerMipmapMode m_mipmap_mode = vk::SamplerMipmapMode::eNearest;
-				vk::SamplerAddressMode m_address_mode = vk::SamplerAddressMode::eClampToBorder;
-				vk::BorderColor m_border_color = vk::BorderColor::eFloatOpaqueBlack;
-				decltype(vk::SamplerCreateInfo::anisotropyEnable) m_using_anisotropy = {true};
-				decltype(vk::SamplerCreateInfo::maxAnisotropy) m_anisotropy = 16.0f;
+				vk::SamplerCreateInfo m_sampler_create_info = {{},
+																		vk::Filter::eNearest,
+																		vk::Filter::eNearest,
+																		vk::SamplerMipmapMode::eNearest,
+																		vk::SamplerAddressMode::eRepeat,
+																		vk::SamplerAddressMode::eRepeat,
+																		vk::SamplerAddressMode::eRepeat,
+																		0.0f,
+																		false,
+																		0.0f,
+																		false,
+																		vk::CompareOp::eNever,
+																		0.0f,
+																		0.0f,
+																		vk::BorderColor::eFloatTransparentBlack,
+																		false};
 			};
 
 			sampler(const logical_device&, const create_info& = {});

@@ -54,7 +54,6 @@ export namespace lh
 				vk::SharingMode m_sharing_mode = vk::SharingMode::eExclusive;
 				vk::SurfaceTransformFlagBitsKHR m_transform = vk::SurfaceTransformFlagBitsKHR::eIdentity;
 				vk::CompositeAlphaFlagBitsKHR m_alpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
-				vk::ImageViewType m_image_view_type = vk::ImageViewType::e2D;
 
 				color_attachment_create_info m_color_attachment_create_info = {};
 				depth_stencil_attachment_create_info m_depth_stencil_attachment_create_info = {};

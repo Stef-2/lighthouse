@@ -3,7 +3,8 @@ module;
 #if INTELLISENSE
 #include "vulkan/vulkan.hpp"
 #endif
-#include "vulkan/vulkan.h"
+// #include "vulkan/vulkan.h"
+
 module descriptor_buffer;
 
 import output;
@@ -16,7 +17,8 @@ namespace lh
 											 const logical_device& logical_device,
 											 const memory_allocator& memory_allocator,
 											 const create_info& create_info)
-			: m_descriptor_buffer_binding_info {},
+			: m_resource_descriptor_buffer_binding_info {},
+			  m_combined_image_sampler_descriptor_buffer_binding_info {},
 			  m_physical_device {&physical_device},
 			  m_logical_device {&logical_device},
 			  m_bind_point {create_info.m_bind_point},
@@ -45,7 +47,8 @@ namespace lh
 											 const memory_allocator& memory_allocator,
 											 const global_descriptor& global_descriptor,
 											 const create_info& create_info)
-			: m_descriptor_buffer_binding_info {},
+			: m_resource_descriptor_buffer_binding_info {},
+			  m_combined_image_sampler_descriptor_buffer_binding_info {},
 			  m_physical_device {&physical_device},
 			  m_logical_device {&logical_device},
 			  m_bind_point {create_info.m_bind_point},
@@ -75,7 +78,7 @@ namespace lh
 
 			for (auto i = binding_slot_t {}; i < buffer_subdata.m_subdata.size(); i++)
 			{
-				m_descriptor_buffer_binding_info.emplace_back(
+				m_resource_descriptor_buffer_binding_info.emplace_back(
 					m_resource_descriptor_buffer.address() +
 						i * utility::aligned_size(
 								static_cast<vk::DeviceSize>(descriptor_offset),
@@ -99,17 +102,44 @@ namespace lh
 						descriptor_buffer::descriptor_size(*m_physical_device, vk::DescriptorType::eUniformBuffer),
 						static_cast<std::byte*>(m_resource_descriptor_buffer.allocation_info().pMappedData) +
 							i * descriptor_offset + binding_slot_offset);
-				/*
-				auto wtf = static_cast<std::int64_t*>(m_resource_descriptor_buffer.allocation_info().pMappedData) +
-						   i * descriptor_offset + binding_slot_offset;
-
-				*wtf = (**m_logical_device)
-						   .getDescriptorEXT<std::int64_t>(
-							   vk::DescriptorGetInfoEXT {vk::DescriptorType::eUniformBuffer, {&data_address_info}});*/
 			}
 		}
 
-		auto descriptor_buffer::map_texture_data(const std::vector<const texture&>& textures) -> void {}
+		auto descriptor_buffer::map_texture_data(const std::vector<texture*>& textures) -> void
+		{
+			const auto& descriptor_buffer_properties = m_physical_device->properties().m_descriptor_buffer_properties;
+			const auto descriptor_offset = descriptor_buffer_properties.m_combined_image_sampler_offset;
+
+			for (auto i = binding_slot_t {}; i < textures.size(); i++)
+			{
+				m_combined_image_sampler_descriptor_buffer_binding_info.emplace_back(
+					m_combined_image_sampler_descriptor_buffer.address() +
+						i * utility::aligned_size(
+								static_cast<vk::DeviceSize>(descriptor_offset),
+								descriptor_buffer_properties.m_properties.descriptorBufferOffsetAlignment),
+					vk::BufferUsageFlagBits::eShaderDeviceAddress |
+						vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT);
+
+				const auto combined_image_sampler_data = vk::DescriptorImageInfo {
+					**textures[i]->sampler(),
+					*textures[i]->image().view(),
+					textures[i]->image().create_information().m_image_create_info.initialLayout};
+
+				const auto& descriptor_info = static_cast<VkDescriptorGetInfoEXT>(
+					vk::DescriptorGetInfoEXT {vk::DescriptorType::eCombinedImageSampler,
+											  {&combined_image_sampler_data}});
+
+				(*m_logical_device)
+					->getDispatcher()
+					->vkGetDescriptorEXT(***m_logical_device,
+										 &descriptor_info,
+										 descriptor_buffer::descriptor_size(*m_physical_device,
+																			vk::DescriptorType::eCombinedImageSampler),
+										 static_cast<std::byte*>(
+											 m_combined_image_sampler_descriptor_buffer.allocation_info().pMappedData) +
+											 i * descriptor_offset);
+			}
+		}
 
 		auto descriptor_buffer::resource_buffer() -> const mapped_buffer&
 		{
@@ -124,8 +154,20 @@ namespace lh
 		auto descriptor_buffer::bind(const vk::raii::CommandBuffer& command_buffer,
 									 const vk::raii::PipelineLayout& pipeline_layout) const -> void
 		{
-			command_buffer.bindDescriptorBuffersEXT(m_descriptor_buffer_binding_info);
+			auto combined_descriptor_buffer_binding_info = std::vector<vk::DescriptorBufferBindingInfoEXT> {};
+			combined_descriptor_buffer_binding_info.reserve(
+				m_resource_descriptor_buffer_binding_info.size() +
+				m_combined_image_sampler_descriptor_buffer_binding_info.size());
+			combined_descriptor_buffer_binding_info.insert_range(combined_descriptor_buffer_binding_info.end(),
+																 m_resource_descriptor_buffer_binding_info);
+			combined_descriptor_buffer_binding_info.insert_range(
+				combined_descriptor_buffer_binding_info.end(), m_combined_image_sampler_descriptor_buffer_binding_info);
+
+			command_buffer.bindDescriptorBuffersEXT(combined_descriptor_buffer_binding_info);
 			command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point, *pipeline_layout, 0, {0}, {0});
+
+			// command_buffer.bindDescriptorBuffersEXT(m_combined_image_sampler_descriptor_buffer_binding_info);
+			command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point, *pipeline_layout, 2, {2}, {0});
 		}
 
 		auto descriptor_buffer::descriptor_size(const physical_device& physical_device,
@@ -146,28 +188,5 @@ namespace lh
 
 			std::unreachable();
 		}
-		/*
-		auto descriptor_buffer::descriptor_buffer_usage(const descriptor_set_layout& descriptor_set_layout)
-			-> const vk::BufferUsageFlags
-		{
-			auto usage = vk::BufferUsageFlags {vk::BufferUsageFlagBits::eShaderDeviceAddress};
-
-			for (const auto& binding : descriptor_set_layout.bindings())
-			{
-				if (binding.m_type == vk::DescriptorType::eStorageBuffer or
-					binding.m_type == vk::DescriptorType::eStorageBufferDynamic or
-					binding.m_type == vk::DescriptorType::eUniformBuffer or
-					binding.m_type == vk::DescriptorType::eUniformBufferDynamic)
-
-					usage = usage | vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT;
-
-				if (binding.m_type == vk::DescriptorType::eCombinedImageSampler or
-					binding.m_type == vk::DescriptorType::eSampler)
-
-					usage = usage | vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT;
-			}
-
-			return usage;
-		}*/
 	}
 }

@@ -30,23 +30,6 @@ export namespace lh
 				descriptor_type_size_t m_num_uniform_buffers = 15;
 				descriptor_type_size_t m_num_storage_descriptors = 8;
 				descriptor_type_size_t m_num_combined_image_samplers = 1024;
-
-				vk::SamplerCreateInfo m_immutable_sampler_properties = {{},
-																		vk::Filter::eNearest,
-																		vk::Filter::eNearest,
-																		vk::SamplerMipmapMode::eNearest,
-																		vk::SamplerAddressMode::eRepeat,
-																		vk::SamplerAddressMode::eRepeat,
-																		vk::SamplerAddressMode::eRepeat,
-																		0.0f,
-																		false,
-																		0.0f,
-																		false,
-																		vk::CompareOp::eNever,
-																		0.0f,
-																		0.0f,
-																		vk::BorderColor::eFloatTransparentBlack,
-																		false};
 			};
 
 			global_descriptor(const physical_device&, const logical_device&, const create_info& = {});
@@ -59,8 +42,6 @@ export namespace lh
 			auto pipeline_layout() const -> const vk::raii::PipelineLayout&;
 
 		private:
-			vk::raii::Sampler m_immutable_sampler;
-
 			descriptor_type_size_t m_num_uniform_buffers;
 			vk::raii::DescriptorSetLayout m_uniform_buffer_set;
 

@@ -1,5 +1,9 @@
 module;
 
+#if INTELLISENSE
+#include <algorithm>
+#endif
+
 module swapchain;
 
 namespace lh
@@ -12,18 +16,32 @@ namespace lh
 							 const vulkan::queue_families& queue_families,
 							 const vulkan::memory_allocator& memory_allocator,
 							 const create_info& create_info)
-			: m_views {},
-			  m_depth_stencil_buffer {
-				  logical_device,
-				  memory_allocator,
-				  surface.extent(),
-				  image::create_info {.m_format = vk::Format::eD24UnormS8Uint,
-									  .m_image_usage = vk::ImageUsageFlagBits::eDepthStencilAttachment,
-									  .m_image_layout = vk::ImageLayout::eUndefined,
-									  .m_image_tiling = vk::ImageTiling::eOptimal,
-									  .m_image_aspect = vk::ImageAspectFlagBits::eDepth |
-														vk::ImageAspectFlagBits::eStencil}},
-			  m_surface {surface},
+			: m_surface {surface},
+			  m_views {},
+			  m_depth_stencil_buffer {logical_device,
+									  memory_allocator,
+									  {vk::Format::eD24UnormS8Uint,
+									   {{},
+										vk::ImageType::e2D,
+										vk::Format::eD24UnormS8Uint,
+										vk::Extent3D {surface.extent(), 1},
+										1,
+										1,
+										vk::SampleCountFlagBits::e1,
+										vk::ImageTiling::eOptimal,
+										vk::ImageUsageFlagBits::eDepthStencilAttachment,
+										vk::SharingMode::eExclusive},
+									   {{},
+										{},
+										vk::ImageViewType::e2D,
+										vk::Format::eD24UnormS8Uint,
+										{},
+										{vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil,
+										 0,
+										 vk::RemainingMipLevels,
+										 0,
+										 vk::RemainingArrayLayers}}}},
+
 			  m_current_image_index {},
 			  m_next_image_timeout {create_info.m_next_image_timeout},
 			  m_color_attachment {{},
@@ -69,12 +87,13 @@ namespace lh
 
 			m_views.reserve(m_object.getImages().size());
 
-			auto image_view_info = vk::ImageViewCreateInfo({},
-														   {},
-														   create_info.m_image_view_type,
-														   surface.format().surfaceFormat.format,
-														   {},
-														   {create_info.m_image_aspect, 0, 1, 0, 1});
+			auto image_view_info = vk::ImageViewCreateInfo(
+				{},
+				{},
+				vk::ImageViewType::e2D,
+				surface.format().surfaceFormat.format,
+				{},
+				{create_info.m_image_aspect, 0, vk::RemainingMipLevels, 0, vk::RemainingArrayLayers});
 
 			for (auto& image : m_object.getImages())
 			{

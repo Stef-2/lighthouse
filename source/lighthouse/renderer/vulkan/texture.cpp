@@ -27,7 +27,7 @@ namespace lh
 						 const vk::raii::Queue& queue,
 						 const std::filesystem::path& path,
 						 const create_info& create_info)
-			: m_image {nullptr}
+			: m_image {nullptr}, m_sampler {logical_device, create_info.m_sampler_create_info}
 		{
 			const auto& physical_device_properties = physical_device.properties();
 
@@ -64,18 +64,19 @@ namespace lh
 			staging_buffer.map_data(*image_data, 0, image_data_size);
 			stbi_image_free(image_data);
 
-			m_image = vulkan::image {logical_device,
-									 memory_allocator,
-									 vk::Extent2D {static_cast<std::uint32_t>(width),
-												   static_cast<std::uint32_t>(height)},
-									 create_info.m_image_create_info};
+			auto image_create_info = create_info.m_image_create_info;
+			image_create_info.m_image_create_info.usage |= vk::ImageUsageFlagBits::eTransferDst;
+			image_create_info.m_image_create_info.extent = vk::Extent3D {static_cast<std::uint32_t>(width),
+																		 static_cast<std::uint32_t>(height),
+																		 1};
+			m_image = vulkan::image {logical_device, memory_allocator, image_create_info};
 
 			m_image.transition_layout(command_buffer);
 
 			const auto buffer_image_copy = vk::BufferImageCopy2 {0,
 																 0,
 																 0,
-																 image::default_subresource_layers(),
+																 default_image_subresource_layers(),
 																 {},
 																 vk::Extent3D {static_cast<std::uint32_t>(width),
 																			   static_cast<std::uint32_t>(height),
@@ -104,6 +105,16 @@ namespace lh
 			logical_device->resetFences(*command_control.fence());
 
 			command_control.reset();
+		}
+
+		auto texture::image() const -> const vulkan::image&
+		{
+			return m_image;
+		}
+
+		auto texture::sampler() const -> const vulkan::sampler&
+		{
+			return m_sampler;
 		}
 	}
 }

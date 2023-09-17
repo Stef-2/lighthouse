@@ -53,7 +53,7 @@ export namespace lh
 							  const create_info& = {});
 
 			auto map_uniform_buffer_data(const binding_slot_t& offset, const buffer_subdata&) -> void;
-			auto map_texture_data(const std::vector<const texture&>&) -> void;
+			auto map_texture_data(const std::vector<texture*>&) -> void;
 
 			auto resource_buffer() -> const mapped_buffer&;
 			auto combined_image_sampler_buffer() -> const mapped_buffer&;
@@ -61,9 +61,9 @@ export namespace lh
 
 		private:
 			auto descriptor_size(const physical_device&, const vk::DescriptorType&) -> const std::size_t;
-			//auto descriptor_buffer_usage(const descriptor_set_layout&) -> const vk::BufferUsageFlags;
 
-			std::vector<vk::DescriptorBufferBindingInfoEXT> m_descriptor_buffer_binding_info;
+			std::vector<vk::DescriptorBufferBindingInfoEXT> m_resource_descriptor_buffer_binding_info;
+			std::vector<vk::DescriptorBufferBindingInfoEXT> m_combined_image_sampler_descriptor_buffer_binding_info;
 
 			const physical_device* m_physical_device;
 			const logical_device* m_logical_device;
