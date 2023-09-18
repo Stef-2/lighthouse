@@ -13,11 +13,13 @@ namespace lh
 			: m_extensions {preferred_device(instance, create_info).enumerateDeviceExtensionProperties(),
 							create_info.m_extensions},
 			  m_performance_score {0},
-			  m_properties {}
+			  m_properties {},
+			  m_features {}
 		{
 			m_object = preferred_device(instance, create_info);
 			m_performance_score = performance_score(m_object);
 
+			// physical device properties
 			auto host_image_properties = vk::PhysicalDeviceHostImageCopyPropertiesEXT {};
 			auto physical_device_properties = vk::PhysicalDeviceProperties2 {};
 			physical_device_properties.pNext = &host_image_properties;
@@ -40,11 +42,14 @@ namespace lh
 			const auto properties = m_object.getProperties2<vk::PhysicalDeviceProperties2,
 															vk::PhysicalDeviceShaderObjectPropertiesEXT,
 															vk::PhysicalDeviceDescriptorIndexingProperties,
-															vk::PhysicalDeviceDescriptorBufferPropertiesEXT>();
+															vk::PhysicalDeviceMaintenance5PropertiesKHR,
+															vk::PhysicalDeviceDescriptorBufferPropertiesEXT,
+															vk::PhysicalDeviceHostImageCopyPropertiesEXT>();
 
 			m_properties = {properties.get<vk::PhysicalDeviceProperties2>(),
 							properties.get<vk::PhysicalDeviceShaderObjectPropertiesEXT>(),
 							properties.get<vk::PhysicalDeviceDescriptorIndexingProperties>(),
+							properties.get<vk::PhysicalDeviceMaintenance5PropertiesKHR>(),
 							{properties.get<vk::PhysicalDeviceDescriptorBufferPropertiesEXT>()},
 							{host_image_properties, host_image_source_layouts, host_image_destination_layouts}};
 
@@ -52,6 +57,25 @@ namespace lh
 				m_properties.m_host_image_copy_properties.m_source_layouts.data();
 			m_properties.m_host_image_copy_properties.m_properties.pCopyDstLayouts =
 				m_properties.m_host_image_copy_properties.m_destination_layouts.data();
+
+			// physical device features
+			const auto features = m_object.getFeatures2<vk::PhysicalDeviceFeatures2,
+														vk::PhysicalDeviceDynamicRenderingFeatures,
+														vk::PhysicalDeviceShaderObjectFeaturesEXT,
+														vk::PhysicalDeviceVertexInputDynamicStateFeaturesEXT,
+														vk::PhysicalDeviceDescriptorIndexingFeatures,
+														vk::PhysicalDeviceDescriptorBufferFeaturesEXT,
+														vk::PhysicalDeviceMaintenance5FeaturesKHR,
+														vk::PhysicalDeviceHostImageCopyFeaturesEXT>();
+
+			m_features = {features.get<vk::PhysicalDeviceFeatures2>(),
+						  features.get<vk::PhysicalDeviceDynamicRenderingFeatures>(),
+						  features.get<vk::PhysicalDeviceShaderObjectFeaturesEXT>(),
+						  features.get<vk::PhysicalDeviceVertexInputDynamicStateFeaturesEXT>(),
+						  features.get<vk::PhysicalDeviceDescriptorIndexingFeatures>(),
+						  features.get<vk::PhysicalDeviceDescriptorBufferFeaturesEXT>(),
+						  features.get<vk::PhysicalDeviceMaintenance5FeaturesKHR>(),
+						  features.get<vk::PhysicalDeviceHostImageCopyFeaturesEXT>()};
 		}
 
 		auto lh::vulkan::physical_device::extensions() const -> physical_extensions
@@ -106,6 +130,11 @@ namespace lh
 		auto lh::vulkan::physical_device::properties() const -> const physical_properties&
 		{
 			return m_properties;
+		}
+
+		auto physical_device::features() const -> const physical_features&
+		{
+			return m_features;
 		}
 
 		auto lh::vulkan::physical_device::performance_score() const -> performance_score_t

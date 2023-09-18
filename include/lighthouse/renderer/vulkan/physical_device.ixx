@@ -59,8 +59,21 @@ export namespace lh
 				vk::PhysicalDeviceProperties2 m_properties {};
 				vk::PhysicalDeviceShaderObjectPropertiesEXT m_shader_object_properties {};
 				vk::PhysicalDeviceDescriptorIndexingProperties m_descriptor_indexing_properties {};
+				vk::PhysicalDeviceMaintenance5PropertiesKHR m_maintenance_t_properties {};
 				descriptor_buffer m_descriptor_buffer_properties;
 				host_image_copy m_host_image_copy_properties;
+			};
+
+			struct physical_features
+			{
+				vk::PhysicalDeviceFeatures2 m_features {};
+				vk::PhysicalDeviceDynamicRenderingFeatures m_dynamic_rendering_features;
+				vk::PhysicalDeviceShaderObjectFeaturesEXT m_shader_object_features {};
+				vk::PhysicalDeviceVertexInputDynamicStateFeaturesEXT m_vertex_dynamic_state_features {};
+				vk::PhysicalDeviceDescriptorIndexingFeatures m_descriptor_indexing_features {};
+				vk::PhysicalDeviceDescriptorBufferFeaturesEXT m_descriptor_buffer_features {};
+				vk::PhysicalDeviceMaintenance5FeaturesKHR m_maintenance_5_features {};
+				vk::PhysicalDeviceHostImageCopyFeaturesEXT m_host_image_copy_features {};
 			};
 
 			physical_device(const instance&, const create_info& = {});
@@ -68,6 +81,7 @@ export namespace lh
 			auto extensions() const -> physical_extensions;
 			auto performance_score() const -> performance_score_t;
 			auto properties() const -> const physical_properties&;
+			auto features() const -> const physical_features&;
 
 			auto info() const -> lh::string::string_t override;
 
@@ -78,6 +92,7 @@ export namespace lh
 			physical_extensions m_extensions;
 			performance_score_t m_performance_score;
 			physical_properties m_properties;
+			physical_features m_features;
 		};
 	}
 }
