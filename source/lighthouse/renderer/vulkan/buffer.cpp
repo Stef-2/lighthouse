@@ -13,16 +13,13 @@ namespace lh
 					   const memory_allocator& allocator,
 					   const vk::DeviceSize& size,
 					   const create_info& create_info)
-			: m_allocation_info {}, m_allocation {}, m_address {}, m_create_info {create_info}
+			: m_allocation_info {}, m_allocation {}, m_address {}, m_size {size}, m_create_info {create_info}
 		{
-			const auto buffer_info = vk::BufferCreateInfo({}, size, create_info.m_usage);
+			const auto buffer_info = vk::BufferCreateInfo({}, size, m_create_info.m_usage);
 
-			const auto allocation_create_info = vma::AllocationCreateInfo {create_info.m_allocation_flags,
-																		   vma::MemoryUsage::eAuto,
-																		   create_info.m_properties};
-
-			auto [buffer,
-				  allocation] = allocator->createBuffer(buffer_info, allocation_create_info, &m_allocation_info);
+			auto [buffer, allocation] = allocator->createBuffer(buffer_info,
+																m_create_info.m_allocation_create_info,
+																&m_allocation_info);
 
 			m_allocation = allocation;
 			m_object = {*logical_device, buffer};
@@ -73,8 +70,8 @@ namespace lh
 					 allocator,
 					 size,
 					 buffer::create_info {.m_usage = create_info.m_usage,
-										  .m_allocation_flags = create_info.m_allocation_flags,
-										  .m_properties = create_info.m_properties})
+										  .m_memory_properties = create_info.m_memory_properties,
+										  .m_allocation_create_info = create_info.m_allocation_create_info})
 
 		{}
 	}

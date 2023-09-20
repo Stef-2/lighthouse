@@ -30,7 +30,7 @@ namespace lh
 
 			// uniform buffers
 			m_num_uniform_buffers = std::min(std::min(physical_device_properties.m_descriptor_buffer_properties
-														  .m_properties.maxDescriptorBufferBindings,
+														  .m_memory_properties.maxDescriptorBufferBindings,
 													  physical_device_properties.m_descriptor_indexing_properties
 														  .maxPerStageDescriptorUpdateAfterBindUniformBuffers),
 											 create_info.m_num_uniform_buffers);
@@ -45,7 +45,7 @@ namespace lh
 
 			// storage descriptors
 			m_num_storage_descriptors = std::min(std::min(physical_device_properties.m_descriptor_buffer_properties
-															  .m_properties.maxDescriptorBufferBindings,
+															  .m_memory_properties.maxDescriptorBufferBindings,
 														  physical_device_properties.m_descriptor_indexing_properties
 															  .maxPerStageDescriptorUpdateAfterBindStorageBuffers),
 												 create_info.m_num_storage_descriptors);
@@ -59,17 +59,24 @@ namespace lh
 				vk::raii::DescriptorSetLayout {*logical_device, {descriptor_set_layout_usage, bindings}}};
 
 			// combined image samplers
-			m_num_combined_image_samplers = std::min(physical_device_properties.m_descriptor_buffer_properties
-														 .m_properties.maxEmbeddedImmutableSamplerBindings,
+			m_num_combined_image_samplers = std::min(physical_device_properties.m_descriptor_indexing_properties
+														 .maxDescriptorSetUpdateAfterBindSampledImages,
 													 create_info.m_num_combined_image_samplers);
-			bindings = std::vector<vk::DescriptorSetLayoutBinding> {};
-			bindings.reserve(create_info.m_num_storage_descriptors);
 
-			for (auto i = descriptor_type_size_t {}; i < create_info.m_num_storage_descriptors; i++)
-				bindings.emplace_back(i, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eAll);
+			const auto descriptor_indexing_flags = vk::DescriptorBindingFlags {
+				vk::DescriptorBindingFlagBits::ePartiallyBound | vk::DescriptorBindingFlagBits::eUpdateAfterBind |
+				vk::DescriptorBindingFlagBits::eVariableDescriptorCount};
+			const auto descriptor_indexing_bindings = vk::DescriptorSetLayoutBindingFlagsCreateInfo {
+				descriptor_indexing_flags};
 
-			m_combined_image_sampler_set = {
-				vk::raii::DescriptorSetLayout {*logical_device, {descriptor_set_layout_usage, bindings}}};
+			const auto combined_image_sampler_binding = vk::DescriptorSetLayoutBinding {
+				0, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eAll};
+
+			m_combined_image_sampler_set =
+				vk::raii::DescriptorSetLayout {*logical_device,
+											   vk::DescriptorSetLayoutCreateInfo {descriptor_set_layout_usage,
+																				  combined_image_sampler_binding,
+																				  &descriptor_indexing_bindings}};
 
 			// pipeline layout
 			auto descriptor_sets = std::array<vk::DescriptorSetLayout, 3> {*m_uniform_buffer_set,

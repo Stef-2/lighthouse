@@ -30,7 +30,7 @@ namespace lh
 					  create_info.m_num_uniform_buffer_bindings,
 				  mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
 														 vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT,
-											  .m_properties = create_info.m_descriptor_buffer_memory_properties}},
+											  .m_memory_properties = create_info.m_descriptor_buffer_memory_properties}},
 			  m_combined_image_sampler_descriptor_buffer {
 				  logical_device,
 				  memory_allocator,
@@ -39,7 +39,7 @@ namespace lh
 					  create_info.m_num_combined_image_sampler_bindings,
 				  mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
 														 vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT,
-											  .m_properties = create_info.m_descriptor_buffer_memory_properties}}
+											  .m_memory_properties = create_info.m_descriptor_buffer_memory_properties}}
 		{}
 
 		descriptor_buffer::descriptor_buffer(const physical_device& physical_device,
@@ -59,14 +59,14 @@ namespace lh
 					  global_descriptor.storage_descriptor_set().getSizeEXT(),
 				  mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
 														 vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT,
-											  .m_properties = create_info.m_descriptor_buffer_memory_properties}},
+											  .m_memory_properties = create_info.m_descriptor_buffer_memory_properties}},
 			  m_combined_image_sampler_descriptor_buffer {
 				  logical_device,
 				  memory_allocator,
 				  global_descriptor.combined_image_sampler_set().getSizeEXT(),
 				  mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
 														 vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT,
-											  .m_properties = create_info.m_descriptor_buffer_memory_properties}}
+											  .m_memory_properties = create_info.m_descriptor_buffer_memory_properties}}
 		{}
 
 		auto descriptor_buffer::map_uniform_buffer_data(const binding_slot_t& offset,
@@ -82,7 +82,7 @@ namespace lh
 					m_resource_descriptor_buffer.address() +
 						i * utility::aligned_size(
 								static_cast<vk::DeviceSize>(descriptor_offset),
-								descriptor_buffer_properties.m_properties.descriptorBufferOffsetAlignment) +
+								descriptor_buffer_properties.m_memory_properties.descriptorBufferOffsetAlignment) +
 						i * binding_slot_offset,
 					vk::BufferUsageFlagBits::eShaderDeviceAddress |
 						vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT);
@@ -116,7 +116,7 @@ namespace lh
 					m_combined_image_sampler_descriptor_buffer.address() +
 						i * utility::aligned_size(
 								static_cast<vk::DeviceSize>(descriptor_offset),
-								descriptor_buffer_properties.m_properties.descriptorBufferOffsetAlignment),
+								descriptor_buffer_properties.m_memory_properties.descriptorBufferOffsetAlignment),
 					vk::BufferUsageFlagBits::eShaderDeviceAddress |
 						vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT);
 
@@ -174,7 +174,7 @@ namespace lh
 												const vk::DescriptorType& descriptor_type) -> const std::size_t
 		{
 			const auto& descriptor_properties =
-				physical_device.properties().m_descriptor_buffer_properties.m_properties;
+				physical_device.properties().m_descriptor_buffer_properties.m_memory_properties;
 
 			switch (descriptor_type)
 			{

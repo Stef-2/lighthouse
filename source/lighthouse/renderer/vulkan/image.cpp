@@ -21,11 +21,10 @@ namespace lh
 					 const create_info& create_info)
 			: m_create_info {create_info}, m_view {nullptr}, m_allocation_info {}, m_allocation {}
 		{
-			const auto allocation_create_info = vma::AllocationCreateInfo {{}, vma::MemoryUsage::eAuto};
 			auto allocation_info = vma::AllocationInfo {};
 
 			auto [image, allocation] = memory_allocator->createImage(m_create_info.m_image_create_info,
-																	 allocation_create_info,
+																	 m_create_info.m_allocation_create_info,
 																	 allocation_info);
 
 			m_object = {*logical_device, image};

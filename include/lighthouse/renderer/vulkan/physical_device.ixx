@@ -42,7 +42,7 @@ export namespace lh
 			{
 				struct descriptor_buffer
 				{
-					vk::PhysicalDeviceDescriptorBufferPropertiesEXT m_properties {};
+					vk::PhysicalDeviceDescriptorBufferPropertiesEXT m_memory_properties {};
 					std::uint16_t m_uniform_buffer_size {};
 					std::uint16_t m_uniform_buffer_offset {};
 					std::uint16_t m_combined_image_sampler_size {};
@@ -51,12 +51,12 @@ export namespace lh
 
 				struct host_image_copy
 				{
-					vk::PhysicalDeviceHostImageCopyPropertiesEXT m_properties {};
+					vk::PhysicalDeviceHostImageCopyPropertiesEXT m_memory_properties {};
 					std::vector<vk::ImageLayout> m_source_layouts {};
 					std::vector<vk::ImageLayout> m_destination_layouts {};
 				};
 
-				vk::PhysicalDeviceProperties2 m_properties {};
+				vk::PhysicalDeviceProperties2 m_memory_properties {};
 				vk::PhysicalDeviceShaderObjectPropertiesEXT m_shader_object_properties {};
 				vk::PhysicalDeviceDescriptorIndexingProperties m_descriptor_indexing_properties {};
 				vk::PhysicalDeviceMaintenance5PropertiesKHR m_maintenance_t_properties {};
@@ -91,7 +91,7 @@ export namespace lh
 
 			physical_extensions m_extensions;
 			performance_score_t m_performance_score;
-			physical_properties m_properties;
+			physical_properties m_memory_properties;
 			physical_features m_features;
 		};
 	}

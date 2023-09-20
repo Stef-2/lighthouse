@@ -52,20 +52,19 @@ namespace lh
 			const auto image_data_size = static_cast<std::uint32_t>(width) * static_cast<std::uint32_t>(height) *
 										 rgba_texel_size;
 
-			const auto staging_buffer = mapped_buffer {
-				logical_device,
-				memory_allocator,
-				image_data_size,
-				mapped_buffer::create_info {
-					.m_usage = vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eShaderDeviceAddress,
-					.m_allocation_flags = vma::AllocationCreateFlagBits::eMapped |
-										  vma::AllocationCreateFlagBits::eHostAccessSequentialWrite}};
+			const auto staging_buffer = mapped_buffer {logical_device,
+													   memory_allocator,
+													   image_data_size,
+													   mapped_buffer::create_info {
+														   .m_usage = vk::BufferUsageFlagBits::eTransferSrc |
+																	  vk::BufferUsageFlagBits::eShaderDeviceAddress}};
 
 			staging_buffer.map_data(*image_data, 0, image_data_size);
 			stbi_image_free(image_data);
 
 			auto image_create_info = create_info.m_image_create_info;
 			image_create_info.m_image_create_info.usage |= vk::ImageUsageFlagBits::eTransferDst;
+			// image_create_info.m_image_create_info.usage |= vk::ImageUsageFlagBits::eHostTransferEXT;
 			image_create_info.m_image_create_info.extent = vk::Extent3D {static_cast<std::uint32_t>(width),
 																		 static_cast<std::uint32_t>(height),
 																		 1};

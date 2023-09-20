@@ -110,13 +110,12 @@ namespace lh
 										   return std::move(size);
 									   });
 
-			m_uniform_buffers = {
-				logical_device,
-				memory_allocator,
-				uniform_buffers_size,
-				vulkan::mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eUniformBuffer |
-															   vk::BufferUsageFlagBits::eShaderDeviceAddress,
-													.m_allocation_flags = vma::AllocationCreateFlagBits::eMapped}};
+			m_uniform_buffers = {logical_device,
+								 memory_allocator,
+								 uniform_buffers_size,
+								 vulkan::mapped_buffer::create_info {
+									 .m_usage = vk::BufferUsageFlagBits::eUniformBuffer |
+												vk::BufferUsageFlagBits::eShaderDeviceAddress}};
 
 			m_uniform_buffer_subdata.m_buffer = &m_uniform_buffers;
 

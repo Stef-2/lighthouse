@@ -23,8 +23,11 @@ export namespace lh
 			struct create_info
 			{
 				vk::BufferUsageFlags m_usage = {};
-				vma::AllocationCreateFlags m_allocation_flags = {};
-				vk::MemoryPropertyFlags m_properties = {};
+				vk::MemoryPropertyFlags m_memory_properties = vk::MemoryPropertyFlagBits::eDeviceLocal;
+				vma::AllocationCreateInfo m_allocation_create_info = {{},
+																	  vma::MemoryUsage::eAuto,
+																	  m_memory_properties,
+																	  m_memory_properties};
 			};
 
 			buffer(const logical_device&, const memory_allocator&, const vk::DeviceSize&, const create_info& = {});
@@ -55,9 +58,12 @@ export namespace lh
 			struct create_info
 			{
 				vk::BufferUsageFlags m_usage = {vk::BufferUsageFlagBits::eShaderDeviceAddress};
-				vma::AllocationCreateFlags m_allocation_flags = {vma::AllocationCreateFlagBits::eMapped};
-				vk::MemoryPropertyFlags m_properties = {vk::MemoryPropertyFlagBits::eHostVisible |
+				vk::MemoryPropertyFlags m_memory_properties = {vk::MemoryPropertyFlagBits::eHostVisible |
 														vk::MemoryPropertyFlagBits::eHostCoherent};
+				vma::AllocationCreateInfo m_allocation_create_info = {vma::AllocationCreateFlagBits::eMapped,
+																	  vma::MemoryUsage::eAuto,
+																	  m_memory_properties,
+																	  m_memory_properties};
 			};
 
 			mapped_buffer(const logical_device&,

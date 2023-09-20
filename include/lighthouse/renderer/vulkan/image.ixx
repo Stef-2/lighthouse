@@ -41,7 +41,12 @@ export namespace lh
 				vk::ImageViewCreateInfo m_image_view_create_info = {
 					{}, {}, vk::ImageViewType::e2D, m_format, {}, default_image_subresource_range()};
 
-				vk::MemoryPropertyFlagBits m_memory_type = vk::MemoryPropertyFlagBits::eDeviceLocal;
+				vk::MemoryPropertyFlagBits m_memory_properties = vk::MemoryPropertyFlagBits::eDeviceLocal;
+
+				vma::AllocationCreateInfo m_allocation_create_info = {{},
+																	  vma::MemoryUsage::eAutoPreferDevice,
+																	  m_memory_properties,
+																	  m_memory_properties};
 			};
 			
 			struct layout_transition_data

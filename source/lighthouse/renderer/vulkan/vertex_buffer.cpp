@@ -16,14 +16,13 @@ namespace lh
 			const auto vertex_buffer_size = sizeof(vertex) * vertices.size();
 			const auto index_buffer_size = sizeof(vertex_index_t) * indices.size();
 
-			m_vertex_and_index_buffer = {
-				logical_device,
-				memory_allocator,
-				vertex_buffer_size + index_buffer_size,
-				mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eVertexBuffer |
-													   vk::BufferUsageFlagBits::eIndexBuffer |
-													   vk::BufferUsageFlagBits::eShaderDeviceAddress,
-											.m_allocation_flags = vma::AllocationCreateFlagBits::eMapped}};
+			m_vertex_and_index_buffer = {logical_device,
+										 memory_allocator,
+										 vertex_buffer_size + index_buffer_size,
+										 mapped_buffer::create_info {
+											 .m_usage = vk::BufferUsageFlagBits::eVertexBuffer |
+														vk::BufferUsageFlagBits::eIndexBuffer |
+														vk::BufferUsageFlagBits::eShaderDeviceAddress}};
 
 			m_vertex_and_index_suballocations = {&m_vertex_and_index_buffer,
 												 std::vector<buffer_subdata::subdata> {{0, vertex_buffer_size},

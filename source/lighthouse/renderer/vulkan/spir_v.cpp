@@ -207,7 +207,7 @@ namespace lh
 
 			if (result.GetCompilationStatus() != shaderc_compilation_status_success)
 				output::error() << result.GetErrorMessage();
-
+			std::cout << output::error();
 			return {result.cbegin(), result.cend()};
 		}
 	}
