@@ -18,6 +18,7 @@ namespace lh
 		shader_object::shader_object(const logical_device& logical_device,
 									 const spir_v& spir_v,
 									 const std::vector<vk::DescriptorSetLayout>& descriptor_set_layouts,
+									 const std::vector<vk::PushConstantRange>& push_constants,
 									 const create_info& create_info)
 			: m_shader_stage {spir_v.stage()}
 		{
@@ -30,7 +31,9 @@ namespace lh
 										 spir_v.code().data(),
 										 spir_v.entrypoint().c_str(),
 										 static_cast<std::uint32_t>(descriptor_set_layouts.size()),
-										 descriptor_set_layouts.data()};
+										 descriptor_set_layouts.data(),
+										 static_cast<std::uint32_t>(push_constants.size()),
+										 push_constants.data()};
 
 			m_object = {*logical_device, shader_create_info};
 		}

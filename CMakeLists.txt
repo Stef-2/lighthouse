@@ -115,7 +115,7 @@ target_sources(
 	${include}/lighthouse/entity.ixx
 	${include}/lighthouse/camera.ixx
 	${include}/lighthouse/time.ixx
- "include/lighthouse/renderer/vulkan/global_descriptor.ixx")
+ "include/lighthouse/renderer/vulkan/global_descriptor.ixx" "include/lighthouse/geometry.ixx")
 
 target_sources(
 	${PROJECT_NAME} PUBLIC

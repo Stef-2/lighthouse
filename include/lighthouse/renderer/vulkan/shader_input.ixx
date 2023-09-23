@@ -43,6 +43,31 @@ export namespace lh
 				sampler
 			};
 
+			enum class storage_class
+			{
+				uniform_constant,
+				input,
+				uniform,
+				output,
+				workgroup,
+				cross_workgroup,
+				private_storage,
+				function,
+				generic,
+				push_constant,
+				atomic_counter,
+				image,
+				storage_buffer,
+				callable_data_KHR,
+				incoming_callable_data_KHR,
+				ray_payload_KHR,
+				hit_attribute_KHR,
+				incoming_ray_payload_KHR,
+				shader_record_buffer_KHR,
+				physical_storage_buffer,
+				task_payload_workgroup_EXT
+			};
+
 			struct struct_member
 			{
 				data_type m_data_type;
@@ -61,6 +86,7 @@ export namespace lh
 			uint32_t m_descriptor_binding;
 
 			vk::DescriptorType m_type;
+			storage_class m_storage_class;
 			data_type m_data_type;
 			std::uint8_t m_rows;
 			std::uint8_t m_columns;
@@ -74,6 +100,7 @@ export namespace lh
 		{
 			std::vector<shader_input> m_uniform_buffer_descriptors;
 			std::vector<shader_input> m_combined_image_sampler_descriptors;
+			shader_input m_push_constant;
 		};
 	}
 }

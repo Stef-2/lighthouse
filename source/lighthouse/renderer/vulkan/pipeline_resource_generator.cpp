@@ -38,6 +38,10 @@ namespace
 			if (input.m_type == vk::DescriptorType::eCombinedImageSampler and
 				not std::ranges::contains(unique_pipeline_inputs.m_combined_image_sampler_descriptors, input))
 				unique_pipeline_inputs.m_combined_image_sampler_descriptors.push_back(input);
+
+			if (input.m_type == vk::DescriptorType::eUniformBuffer and
+				input.m_storage_class == lh::vulkan::shader_input::storage_class::push_constant)
+				unique_pipeline_inputs.m_push_constant = input;
 		}
 
 		return unique_pipeline_inputs;
@@ -93,14 +97,21 @@ namespace lh
 				vk::DescriptorSetLayoutCreateInfo {vk::DescriptorSetLayoutCreateFlagBits::eDescriptorBufferEXT, b};
 			m_descriptor_set_layouts[0].emplace_back(vk::raii::DescriptorSetLayout {*logical_device, wtf});
 			*/
+			const auto unique_pipeline_inputs = generate_unique_pipeline_inputs(pipeline_shader_inputs);
+			const auto push_constant_range = vk::PushConstantRange {vk::ShaderStageFlagBits::eAll,
+																	0,
+																	static_cast<std::uint32_t>(
+																		unique_pipeline_inputs.m_push_constant.m_size)};
+
 			for (auto i = 0; i < shader_paths.size(); i++)
 			{
-				m_shader_objects.emplace_back(logical_device, m_spir_v[i], global_descriptor.descriptor_set_layouts());
+				m_shader_objects.emplace_back(logical_device,
+											  m_spir_v[i],
+											  global_descriptor.descriptor_set_layouts(),
+											  std::vector<vk::PushConstantRange> {push_constant_range});
 			}
 
 			// m_pipeline_layout = {*logical_device, {{}, *m_descriptor_set_layouts[0][0]}};
-
-			const auto unique_pipeline_inputs = generate_unique_pipeline_inputs(pipeline_shader_inputs);
 
 			const auto uniform_buffers_size =
 				std::ranges::fold_left(unique_pipeline_inputs.m_uniform_buffer_descriptors,
@@ -110,12 +121,13 @@ namespace lh
 										   return std::move(size);
 									   });
 
-			m_uniform_buffers = {logical_device,
-								 memory_allocator,
-								 uniform_buffers_size,
-								 vulkan::mapped_buffer::create_info {
-									 .m_usage = vk::BufferUsageFlagBits::eUniformBuffer |
-												vk::BufferUsageFlagBits::eShaderDeviceAddress}};
+			if (uniform_buffers_size > 0)
+				m_uniform_buffers = {logical_device,
+									 memory_allocator,
+									 uniform_buffers_size,
+									 vulkan::mapped_buffer::create_info {
+										 .m_usage = vk::BufferUsageFlagBits::eUniformBuffer |
+													vk::BufferUsageFlagBits::eShaderDeviceAddress}};
 
 			m_uniform_buffer_subdata.m_buffer = &m_uniform_buffers;
 

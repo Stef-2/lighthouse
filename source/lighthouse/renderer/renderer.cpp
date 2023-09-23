@@ -172,6 +172,11 @@ namespace lh
 									  {**m_resource_generator.shader_objects()[0],
 									   **m_resource_generator.shader_objects()[1]});
 
+		int wtf = 1;
+		command_buffer.pushConstants<int>(*m_global_descriptor.pipeline_layout(),
+										  vk::ShaderStageFlagBits::eAll,
+										  0,
+										  wtf);
 		command_buffer.drawIndexed(m_scene_loader.meshes()[0].indices().size(), 1, 0, 0, 0);
 		command_buffer.endRendering();
 

@@ -44,6 +44,38 @@ namespace
 		}
 	}
 
+	auto translate_storage_class(const spv::StorageClass& storage_class)
+	{
+		using return_type = lh::vulkan::shader_input::storage_class;
+
+		switch (storage_class)
+		{
+			case spv::StorageClass::StorageClassUniformConstant: return return_type::uniform_constant;
+			case spv::StorageClass::StorageClassInput: return return_type::input;
+			case spv::StorageClass::StorageClassUniform: return return_type::uniform;
+			case spv::StorageClass::StorageClassOutput: return return_type::output;
+			case spv::StorageClass::StorageClassWorkgroup: return return_type::workgroup;
+			case spv::StorageClass::StorageClassCrossWorkgroup: return return_type::cross_workgroup;
+			case spv::StorageClass::StorageClassPrivate: return return_type::private_storage;
+			case spv::StorageClass::StorageClassFunction: return return_type::function;
+			case spv::StorageClass::StorageClassGeneric: return return_type::generic;
+			case spv::StorageClass::StorageClassPushConstant: return return_type::push_constant;
+			case spv::StorageClass::StorageClassAtomicCounter: return return_type::atomic_counter;
+			case spv::StorageClass::StorageClassImage: return return_type::image;
+			case spv::StorageClass::StorageClassStorageBuffer: return return_type::storage_buffer;
+			case spv::StorageClass::StorageClassCallableDataKHR: return return_type::callable_data_KHR;
+			case spv::StorageClass::StorageClassIncomingCallableDataKHR: return return_type::incoming_callable_data_KHR;
+			case spv::StorageClass::StorageClassRayPayloadKHR: return return_type::ray_payload_KHR;
+			case spv::StorageClass::StorageClassHitAttributeKHR: return return_type::hit_attribute_KHR;
+			case spv::StorageClass::StorageClassIncomingRayPayloadKHR: return return_type::incoming_ray_payload_KHR;
+			case spv::StorageClass::StorageClassShaderRecordBufferKHR: return return_type::shader_record_buffer_KHR;
+			case spv::StorageClass::StorageClassPhysicalStorageBuffer: return return_type::physical_storage_buffer;
+			case spv::StorageClass::StorageClassTaskPayloadWorkgroupEXT: return return_type::task_payload_workgroup_EXT;
+
+			default: lh::output::warning() << "unrecognized spir_v storage class: " + storage_class; break;
+		}
+	}
+
 	auto create_shader_input(const spirv_cross::CompilerGLSL& compiler,
 							 const spirv_cross::Resource& resource,
 							 const vk::DescriptorType& input_type,
@@ -56,6 +88,7 @@ namespace
 		const auto location = compiler.get_decoration(resource.id, spv::Decoration::DecorationLocation);
 		const auto binding = compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding);
 
+		const auto storage_class = compiler.get_storage_class(resource.id);
 		const auto data_type = compiler.get_type_from_variable(resource.id).basetype;
 		const auto rows = compiler.get_type_from_variable(resource.id).vecsize;
 		const auto columns = compiler.get_type_from_variable(resource.id).columns;
@@ -70,6 +103,7 @@ namespace
 											   location,
 											   binding,
 											   input_type,
+											   translate_storage_class(storage_class),
 											   translate_data_type(data_type),
 											   static_cast<std::uint8_t>(rows),
 											   static_cast<std::uint8_t>(columns),
@@ -138,6 +172,10 @@ namespace lh
 			for (const auto& resource : resources.sampled_images)
 				shader_inputs.emplace_back(
 					create_shader_input(*compiler, resource, vk::DescriptorType::eCombinedImageSampler, m_stage));
+
+			for (const auto& resource : resources.push_constant_buffers)
+				shader_inputs.emplace_back(
+					create_shader_input(*compiler, resource, vk::DescriptorType::eUniformBuffer, m_stage));
 
 			std::ranges::sort(shader_inputs, [](const auto& x, const auto& y) {
 				switch (x.m_type)
