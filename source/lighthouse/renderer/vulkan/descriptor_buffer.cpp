@@ -3,7 +3,6 @@ module;
 #if INTELLISENSE
 #include "vulkan/vulkan.hpp"
 #endif
-// #include "vulkan/vulkan.h"
 
 module descriptor_buffer;
 
@@ -77,20 +76,37 @@ namespace lh
 			}
 		}
 
-		auto descriptor_buffer::map_texture_data(const std::vector<texture*>& textures) -> void
+		[[nodiscard]] auto descriptor_buffer::register_textures(const std::vector<texture*>& textures)
+			-> const std::vector<binding_slot_t>
 		{
 			const auto& descriptor_buffer_properties = m_physical_device.properties().m_descriptor_buffer_properties;
 			const auto descriptor_offset = descriptor_buffer_properties.m_combined_image_sampler_offset;
 
+			auto texture_registry = std::vector<binding_slot_t> {};
+			texture_registry.reserve(textures.size());
+
 			for (auto i = binding_slot_t {}; i < textures.size(); i++)
 			{
-				m_combined_image_sampler_descriptor_buffer_binding_info.emplace_back(
+				// check if any bindings are empty
+				auto empty_slot = std::ranges::find(m_combined_image_sampler_descriptor_buffer_binding_info,
+													vk::DescriptorBufferBindingInfoEXT {});
+
+				// if none are, create a new one at the end
+				if (empty_slot == m_combined_image_sampler_descriptor_buffer_binding_info.end())
+				{
+					m_combined_image_sampler_descriptor_buffer_binding_info.resize(
+						m_combined_image_sampler_descriptor_buffer_binding_info.size() + 1);
+					empty_slot = m_combined_image_sampler_descriptor_buffer_binding_info.end() - 1;
+				}
+
+				m_combined_image_sampler_descriptor_buffer_binding_info[std::distance(
+					m_combined_image_sampler_descriptor_buffer_binding_info.begin(), empty_slot)] = {
 					m_combined_image_sampler_descriptor_buffer.address() +
 						i * utility::aligned_size(
 								static_cast<vk::DeviceSize>(descriptor_offset),
 								descriptor_buffer_properties.m_properties.descriptorBufferOffsetAlignment),
 					vk::BufferUsageFlagBits::eShaderDeviceAddress |
-						vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT);
+						vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT};
 
 				const auto combined_image_sampler_data = vk::DescriptorImageInfo {
 					**textures[i]->sampler(),
@@ -110,7 +126,19 @@ namespace lh
 										 static_cast<std::byte*>(
 											 m_combined_image_sampler_descriptor_buffer.allocation_info().pMappedData) +
 											 i * descriptor_offset);
+
+				texture_registry.push_back(
+					std::distance(m_combined_image_sampler_descriptor_buffer_binding_info.begin(), empty_slot));
 			}
+
+			return texture_registry;
+		}
+
+		auto descriptor_buffer::unregister_textures(const std::vector<binding_slot_t>& binding_slots) -> void
+		{
+			for (const auto& binding : binding_slots)
+				m_combined_image_sampler_descriptor_buffer_binding_info[binding] =
+					vk::DescriptorBufferBindingInfoEXT {};
 		}
 
 		auto descriptor_buffer::resource_buffer() -> const mapped_buffer&
@@ -126,19 +154,13 @@ namespace lh
 		auto descriptor_buffer::bind(const vk::raii::CommandBuffer& command_buffer,
 									 const vk::raii::PipelineLayout& pipeline_layout) const -> void
 		{
-			auto combined_descriptor_buffer_binding_info = std::vector<vk::DescriptorBufferBindingInfoEXT> {};
-			combined_descriptor_buffer_binding_info.reserve(
-				m_resource_descriptor_buffer_binding_info.size() +
-				m_combined_image_sampler_descriptor_buffer_binding_info.size());
-			combined_descriptor_buffer_binding_info.insert_range(combined_descriptor_buffer_binding_info.end(),
-																 m_resource_descriptor_buffer_binding_info);
-			combined_descriptor_buffer_binding_info.insert_range(
-				combined_descriptor_buffer_binding_info.end(), m_combined_image_sampler_descriptor_buffer_binding_info);
+			auto combined_descriptor_bindings = m_resource_descriptor_buffer_binding_info;
+			combined_descriptor_bindings.insert_range(combined_descriptor_bindings.end(),
+													  m_combined_image_sampler_descriptor_buffer_binding_info);
 
-			command_buffer.bindDescriptorBuffersEXT(combined_descriptor_buffer_binding_info);
+			command_buffer.bindDescriptorBuffersEXT(combined_descriptor_bindings);
+
 			command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point, *pipeline_layout, 0, {0}, {0});
-
-			// command_buffer.bindDescriptorBuffersEXT(m_combined_image_sampler_descriptor_buffer_binding_info);
 			command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point, *pipeline_layout, 2, {2}, {0});
 		}
 

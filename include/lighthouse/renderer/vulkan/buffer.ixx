@@ -2,6 +2,9 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan_raii.hpp"
+
+#include <vector>
+#include <cstring>
 #endif
 
 export module buffer;
@@ -70,8 +73,9 @@ export namespace lh
 						  const memory_allocator&,
 						  const vk::DeviceSize&,
 						  const mapped_buffer::create_info& = {});
-
+			
 			template <typename T>
+			requires (not std::is_pointer_v<T>)
 			auto map_data(const T& data, const std::size_t& offset = 0, const std::size_t& size = sizeof(T)) const
 			{
 				const auto map = static_cast<uint8_t*>(m_allocation_info.pMappedData) + offset;

@@ -45,7 +45,8 @@ export namespace lh
 							  const create_info& = {});
 
 			auto map_uniform_buffer_data(const binding_slot_t& offset, const buffer_subdata&) -> void;
-			auto map_texture_data(const std::vector<texture*>&) -> void;
+			[[nodiscard]] auto register_textures(const std::vector<texture*>&) -> const std::vector<binding_slot_t>;
+			auto unregister_textures(const std::vector<binding_slot_t>&) -> void;
 
 			auto resource_buffer() -> const mapped_buffer&;
 			auto combined_image_sampler_buffer() -> const mapped_buffer&;
