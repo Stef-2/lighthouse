@@ -64,8 +64,8 @@ namespace lh
 			  // m_pipeline_layout {nullptr},
 			  m_shader_objects {},
 			  m_uniform_buffers {},
-			  m_uniform_buffer_subdata {},
-			  m_resource_descriptor_buffer {physical_device, logical_device, memory_allocator}
+			  m_uniform_buffer_subdata {}
+		// m_resource_descriptor_buffer {physical_device, logical_device, memory_allocator}
 		{
 			auto pipeline_shader_inputs = std::vector<std::pair<vk::ShaderStageFlagBits, shader_input>> {};
 
@@ -105,10 +105,7 @@ namespace lh
 
 			for (auto i = 0; i < shader_paths.size(); i++)
 			{
-				m_shader_objects.emplace_back(logical_device,
-											  m_spir_v[i],
-											  global_descriptor.descriptor_set_layouts(),
-											  std::vector<vk::PushConstantRange> {push_constant_range});
+				m_shader_objects.emplace_back(logical_device, m_spir_v[i], global_descriptor.descriptor_set_layouts());
 			}
 
 			// m_pipeline_layout = {*logical_device, {{}, *m_descriptor_set_layouts[0][0]}};
@@ -303,13 +300,13 @@ namespace lh
 												   vertex_input.m_descriptor_binding,
 												   translate_shader_input_format(vertex_input),
 												   offset);
-					offset = vertex_input.m_size;
+					offset += vertex_input.m_size;
 				}
 			vertex_bindings = {0, vertex_description_size, vk::VertexInputRate::eVertex, 1};
 
 			return {vertex_bindings, vertex_attributes};
 		}
-#pragma optimize("", off)
+		// #pragma optimize("", off)
 		auto pipeline_resource_generator::generate_descriptor_set_layouts(
 			const logical_device& logical_device,
 			const std::vector<std::pair<vk::ShaderStageFlagBits, shader_input>>& pipeline_shader_inputs) const

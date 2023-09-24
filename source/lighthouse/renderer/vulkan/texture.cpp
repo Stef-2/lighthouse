@@ -64,7 +64,6 @@ namespace lh
 
 			auto image_create_info = create_info.m_image_create_info;
 			image_create_info.m_image_create_info.usage |= vk::ImageUsageFlagBits::eTransferDst;
-			// image_create_info.m_image_create_info.usage |= vk::ImageUsageFlagBits::eHostTransferEXT;
 			image_create_info.m_image_create_info.extent = vk::Extent3D {static_cast<std::uint32_t>(width),
 																		 static_cast<std::uint32_t>(height),
 																		 1};

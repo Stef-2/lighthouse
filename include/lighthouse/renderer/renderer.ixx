@@ -93,6 +93,7 @@ export namespace lh
 		vulkan::pipeline_resource_generator m_resource_generator;
 		scene_loader m_scene_loader;
 		lh::camera<camera_type::perspective> m_camera;
-		vulkan::texture m_texture;
+		vulkan::texture m_texture1;
+		vulkan::texture m_texture2;
 	};
 }

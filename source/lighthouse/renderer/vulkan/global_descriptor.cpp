@@ -64,7 +64,7 @@ namespace lh
 													 create_info.m_num_combined_image_samplers);
 
 			const auto descriptor_indexing_flags = vk::DescriptorBindingFlags {
-				vk::DescriptorBindingFlagBits::ePartiallyBound | vk::DescriptorBindingFlagBits::eUpdateAfterBind |
+				vk::DescriptorBindingFlagBits::ePartiallyBound |
 				vk::DescriptorBindingFlagBits::eVariableDescriptorCount};
 			const auto descriptor_indexing_bindings = vk::DescriptorSetLayoutBindingFlagsCreateInfo {
 				descriptor_indexing_flags};

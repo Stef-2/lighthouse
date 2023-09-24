@@ -60,19 +60,25 @@ namespace lh
 								{file_system::data_path() /= "shaders/basic.vert",
 								 file_system::data_path() /= "shaders/basic.frag"},
 								m_global_descriptor},
-		  m_scene_loader {m_logical_device, m_memory_allocator, file_system::data_path() /= "models/xyz.obj"},
+		  m_scene_loader {m_logical_device, m_memory_allocator, file_system::data_path() /= "models/cube.obj"},
 		  m_camera {std::make_shared<lh::node>(), camera<camera_type::perspective>::create_info {}},
-		  m_texture {m_physical_device,
-					 m_logical_device,
-					 m_memory_allocator,
-					 m_transfer_control,
-					 m_queue.transfer(),
-					 file_system::data_path() /= "textures/bricks.png"}
+		  m_texture1 {m_physical_device,
+					  m_logical_device,
+					  m_memory_allocator,
+					  m_transfer_control,
+					  m_queue.transfer(),
+					  file_system::data_path() /= "textures/grooved_bricks/basecolor.png"},
+		  m_texture2 {m_physical_device,
+					  m_logical_device,
+					  m_memory_allocator,
+					  m_transfer_control,
+					  m_queue.transfer(),
+					  file_system::data_path() /= "textures/grooved_bricks/normal.png"}
 	{
 		m_global_descriptor_buffer.map_uniform_buffer_data(0,
 														   vulkan::buffer_subdata {
 															   m_resource_generator.uniform_buffer_subdata()});
-		m_global_descriptor_buffer.map_texture_data({&m_texture});
+		m_global_descriptor_buffer.map_texture_data({&m_texture1, &m_texture2});
 
 		if (m_create_info.m_using_validation)
 			output::log() << info(m_create_info);
@@ -159,11 +165,11 @@ namespace lh
 		glm::mat4x4 clip = glm::mat4x4(
 			1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.5f, 1.0f);
 
+		std::array<std::uint32_t, 8> mi = {0, 0, 0, 0, 1, 1, 1, 1};
 		auto test_camera = /*clip **/ perspective * view * glm::mat4x4 {1.0f};
 		m_resource_generator.uniform_buffers().map_data(test_camera);
-		m_resource_generator.uniform_buffers().map_data(sin(time), 64);
+		m_resource_generator.uniform_buffers().map_data(mi, 64);
 
-		// m_resource_descriptor_buffer.bind(command_buffer, m_pipeline_layout);
 		m_global_descriptor_buffer.bind(command_buffer, m_global_descriptor.pipeline_layout());
 		//  ==================
 
@@ -171,12 +177,12 @@ namespace lh
 									   m_resource_generator.shader_objects()[1].stage()},
 									  {**m_resource_generator.shader_objects()[0],
 									   **m_resource_generator.shader_objects()[1]});
-
+		/*
 		int wtf = 1;
 		command_buffer.pushConstants<int>(*m_global_descriptor.pipeline_layout(),
 										  vk::ShaderStageFlagBits::eAll,
 										  0,
-										  wtf);
+										  wtf);*/
 		command_buffer.drawIndexed(m_scene_loader.meshes()[0].indices().size(), 1, 0, 0, 0);
 		command_buffer.endRendering();
 

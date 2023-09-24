@@ -40,11 +40,11 @@ export namespace lh
 				binding_slot_t m_num_uniform_buffer_bindings = 8;
 				binding_slot_t m_num_combined_image_sampler_bindings = 8;
 			};
-
+			/*
 			descriptor_buffer(const physical_device&,
 							  const logical_device&,
 							  const memory_allocator&,
-							  const create_info& = {});
+							  const create_info& = {});*/
 
 			descriptor_buffer(const physical_device&,
 							  const logical_device&,

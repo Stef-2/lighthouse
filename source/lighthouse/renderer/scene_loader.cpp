@@ -2,6 +2,7 @@ module;
 
 #include "assimp/scene.h"
 #include "glm/vec4.hpp"
+#include "glm/vec2.hpp"
 #include "glm/gtc/random.hpp"
 
 module scene_loader;
@@ -38,13 +39,12 @@ namespace lh
 					const auto& normals = mesh.mNormals[v];
 					const auto& tex_coords = mesh.HasTextureCoords(0) ? mesh.mTextureCoords[0][v] : aiVector3D {};
 
+					vertices.emplace_back(glm::vec4 {vertex.x, vertex.y, vertex.z, 1.0f},
+										  glm::vec4 {normals.x, normals.y, normals.z, 1.0f},
+										  glm::vec2 {tex_coords.x, tex_coords.y});
 					/*
-					vertices.emplace_back(glm::vec3 {vertex.x, vertex.y, vertex.z},
-										  glm::vec3 {normals.x, normals.y, normals.z},
-										  glm::vec2 {tex_coords.x, tex_coords.y});*/
-
 					vertices.emplace_back(glm::vec4 {vertex.x, vertex.y, vertex.z, 1},
-										  glm::linearRand(glm::vec4(0), glm::vec4(1)));
+										  glm::linearRand(glm::vec4(0), glm::vec4(1)));*/
 				}
 
 				for (auto f = std::size_t {}; f < mesh.mNumFaces; ++f)

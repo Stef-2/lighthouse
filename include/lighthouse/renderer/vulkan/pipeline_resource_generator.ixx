@@ -65,7 +65,7 @@ export namespace lh
 			std::vector<shader_object> m_shader_objects;
 			mapped_buffer m_uniform_buffers;
 			buffer_subdata m_uniform_buffer_subdata;
-			vulkan::descriptor_buffer m_resource_descriptor_buffer;
+			//vulkan::descriptor_buffer m_resource_descriptor_buffer;
 		};
 	}
 }

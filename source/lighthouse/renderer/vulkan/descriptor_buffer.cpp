@@ -12,35 +12,36 @@ import output;
 namespace lh
 {
 	namespace vulkan
-	{
-		descriptor_buffer::descriptor_buffer(const physical_device& physical_device,
-											 const logical_device& logical_device,
-											 const memory_allocator& memory_allocator,
-											 const create_info& create_info)
-			: m_resource_descriptor_buffer_binding_info {},
-			  m_combined_image_sampler_descriptor_buffer_binding_info {},
-			  m_physical_device {&physical_device},
-			  m_logical_device {&logical_device},
-			  m_bind_point {create_info.m_bind_point},
-			  m_resource_descriptor_buffer {
-				  logical_device,
-				  memory_allocator,
-				  static_cast<vk::DeviceSize>(
-					  physical_device.properties().m_descriptor_buffer_properties.m_uniform_buffer_size) *
-					  create_info.m_num_uniform_buffer_bindings,
-				  mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
-														 vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT,
-											  .m_memory_properties = create_info.m_descriptor_buffer_memory_properties}},
-			  m_combined_image_sampler_descriptor_buffer {
-				  logical_device,
-				  memory_allocator,
-				  static_cast<vk::DeviceSize>(
-					  physical_device.properties().m_descriptor_buffer_properties.m_combined_image_sampler_size) *
-					  create_info.m_num_combined_image_sampler_bindings,
-				  mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
-														 vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT,
-											  .m_memory_properties = create_info.m_descriptor_buffer_memory_properties}}
-		{}
+	{ /*
+		 descriptor_buffer::descriptor_buffer(const physical_device& physical_device,
+											  const logical_device& logical_device,
+											  const memory_allocator& memory_allocator,
+											  const create_info& create_info)
+			 : m_resource_descriptor_buffer_binding_info {},
+			   m_combined_image_sampler_descriptor_buffer_binding_info {},
+			   m_physical_device {&physical_device},
+			   m_logical_device {&logical_device},
+			   m_bind_point {create_info.m_bind_point},
+			   m_resource_descriptor_buffer {
+				   logical_device,
+				   memory_allocator,
+				   static_cast<vk::DeviceSize>(
+					   physical_device.properties().m_descriptor_buffer_properties.m_uniform_buffer_size) *
+					   create_info.m_num_uniform_buffer_bindings,
+				   mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
+														  vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT,
+											   .m_memory_properties =
+		 create_info.m_descriptor_buffer_memory_properties}}, m_combined_image_sampler_descriptor_buffer {
+				   logical_device,
+				   memory_allocator,
+				   static_cast<vk::DeviceSize>(
+					   physical_device.properties().m_descriptor_buffer_properties.m_combined_image_sampler_size) *
+					   create_info.m_num_combined_image_sampler_bindings,
+				   mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
+														  vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT,
+											   .m_memory_properties =
+		 create_info.m_descriptor_buffer_memory_properties}}
+		 {}*/
 
 		descriptor_buffer::descriptor_buffer(const physical_device& physical_device,
 											 const logical_device& logical_device,
@@ -59,7 +60,8 @@ namespace lh
 					  global_descriptor.storage_descriptor_set().getSizeEXT(),
 				  mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
 														 vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT,
-											  .m_memory_properties = create_info.m_descriptor_buffer_memory_properties}},
+											  .m_memory_properties =
+												  create_info.m_descriptor_buffer_memory_properties}},
 			  m_combined_image_sampler_descriptor_buffer {
 				  logical_device,
 				  memory_allocator,
