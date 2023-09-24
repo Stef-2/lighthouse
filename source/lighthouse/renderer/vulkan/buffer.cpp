@@ -74,5 +74,10 @@ namespace lh
 										  .m_allocation_create_info = create_info.m_allocation_create_info})
 
 		{}
+
+		auto buffer_subdata::operator[](std::size_t index) const -> const buffer_subdata::subdata&
+		{
+			return m_subdata[index];
+		}
 	}
 }

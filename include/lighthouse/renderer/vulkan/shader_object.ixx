@@ -34,8 +34,7 @@ export namespace lh
 			shader_object(
 				const logical_device&,
 				const spir_v&,
-				const std::vector<vk::DescriptorSetLayout>&,
-				const std::vector<vk::PushConstantRange>& = {}, const create_info& = {});
+				const std::vector<vk::DescriptorSetLayout>&, const create_info& = {});
 
 			auto cache_binary_data(const std::filesystem::path&) const -> void;
 			auto stage() const -> const vk::ShaderStageFlagBits&;
@@ -50,8 +49,11 @@ export namespace lh
 		class shader_pipeline : public raii_wrapper<vk::raii::ShaderEXTs>
 		{
 		public:
+			using raii_wrapper::raii_wrapper;
+			using individual_stage_data_t = std::pair<const spir_v&, const std::vector<vk::DescriptorSetLayout>>;
+
 			shader_pipeline(const logical_device&,
-							const std::vector<std::pair<const spir_v&, const std::vector<vk::DescriptorSetLayout>&>>&,
+							const std::vector<individual_stage_data_t>&,
 							const shader_object::create_info& = {.m_modifier_flags = vk::ShaderCreateFlagBitsEXT::eLinkStage});
 
 			auto cache_binary_data(const std::vector<std::filesystem::path>&) const -> void;

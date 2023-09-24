@@ -37,7 +37,7 @@ export namespace lh
 
 			auto code() const -> const spir_v_bytecode_t&;
 			auto stage() const -> const vk::ShaderStageFlagBits&;
-			auto entrypoint() const -> const string::string_t;
+			auto entrypoint() const -> const string::string_t&;
 
 			operator const spir_v_bytecode_t&();
 

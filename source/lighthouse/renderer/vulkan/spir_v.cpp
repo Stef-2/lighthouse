@@ -221,7 +221,7 @@ namespace lh
 			return m_stage;
 		}
 
-		auto spir_v::entrypoint() const -> const string::string_t
+		auto spir_v::entrypoint() const -> const string::string_t&
 		{
 			return m_entrypoint;
 		}

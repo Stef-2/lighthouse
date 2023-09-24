@@ -51,8 +51,6 @@ export namespace lh
 			descriptor_type_size_t m_num_combined_image_samplers;
 			vk::raii::DescriptorSetLayout m_combined_image_sampler_set;
 
-			//vk::raii::DescriptorSetLayout m_push_descriptor_set;
-
 			vk::raii::PipelineLayout m_pipeline_layout;
 		};
 	}

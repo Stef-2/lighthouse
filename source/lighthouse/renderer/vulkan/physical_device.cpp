@@ -13,7 +13,7 @@ namespace lh
 			: m_extensions {preferred_device(instance, create_info).enumerateDeviceExtensionProperties(),
 							create_info.m_extensions},
 			  m_performance_score {0},
-			  m_memory_properties {},
+			  m_properties {},
 			  m_features {}
 		{
 			m_object = preferred_device(instance, create_info);
@@ -46,17 +46,17 @@ namespace lh
 															vk::PhysicalDeviceDescriptorBufferPropertiesEXT,
 															vk::PhysicalDeviceHostImageCopyPropertiesEXT>();
 
-			m_memory_properties = {properties.get<vk::PhysicalDeviceProperties2>(),
+			m_properties = {properties.get<vk::PhysicalDeviceProperties2>(),
 							properties.get<vk::PhysicalDeviceShaderObjectPropertiesEXT>(),
 							properties.get<vk::PhysicalDeviceDescriptorIndexingProperties>(),
 							properties.get<vk::PhysicalDeviceMaintenance5PropertiesKHR>(),
 							{properties.get<vk::PhysicalDeviceDescriptorBufferPropertiesEXT>()},
 							{host_image_properties, host_image_source_layouts, host_image_destination_layouts}};
 
-			m_memory_properties.m_host_image_copy_properties.m_memory_properties.pCopySrcLayouts =
-				m_memory_properties.m_host_image_copy_properties.m_source_layouts.data();
-			m_memory_properties.m_host_image_copy_properties.m_memory_properties.pCopyDstLayouts =
-				m_memory_properties.m_host_image_copy_properties.m_destination_layouts.data();
+			m_properties.m_host_image_copy_properties.m_properties.pCopySrcLayouts =
+				m_properties.m_host_image_copy_properties.m_source_layouts.data();
+			m_properties.m_host_image_copy_properties.m_properties.pCopyDstLayouts =
+				m_properties.m_host_image_copy_properties.m_destination_layouts.data();
 
 			// physical device features
 			const auto features = m_object.getFeatures2<vk::PhysicalDeviceFeatures2,
@@ -129,7 +129,7 @@ namespace lh
 
 		auto lh::vulkan::physical_device::properties() const -> const physical_properties&
 		{
-			return m_memory_properties;
+			return m_properties;
 		}
 
 		auto physical_device::features() const -> const physical_features&

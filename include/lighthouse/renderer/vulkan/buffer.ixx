@@ -90,6 +90,8 @@ export namespace lh
 				vk::DeviceSize m_size;
 			};
 
+			auto operator[](std::size_t) const -> const subdata&;
+
 			lh::non_owning_ptr<mapped_buffer> m_buffer;
 			std::vector<subdata> m_subdata;
 		};

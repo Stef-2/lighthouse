@@ -36,15 +36,7 @@ export namespace lh
 				vk::PipelineBindPoint m_bind_point = vk::PipelineBindPoint::eGraphics;
 				vk::MemoryPropertyFlags m_descriptor_buffer_memory_properties = {
 					vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent};
-
-				binding_slot_t m_num_uniform_buffer_bindings = 8;
-				binding_slot_t m_num_combined_image_sampler_bindings = 8;
 			};
-			/*
-			descriptor_buffer(const physical_device&,
-							  const logical_device&,
-							  const memory_allocator&,
-							  const create_info& = {});*/
 
 			descriptor_buffer(const physical_device&,
 							  const logical_device&,
@@ -65,10 +57,8 @@ export namespace lh
 			std::vector<vk::DescriptorBufferBindingInfoEXT> m_resource_descriptor_buffer_binding_info;
 			std::vector<vk::DescriptorBufferBindingInfoEXT> m_combined_image_sampler_descriptor_buffer_binding_info;
 
-			const physical_device* m_physical_device;
-			const logical_device* m_logical_device;
-
-			const descriptor_set_layout* m_descriptor_set_layout;
+			const physical_device& m_physical_device;
+			const logical_device& m_logical_device;
 
 			vk::PipelineBindPoint m_bind_point;
 

@@ -165,7 +165,7 @@ namespace lh
 		glm::mat4x4 clip = glm::mat4x4(
 			1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.5f, 1.0f);
 
-		std::array<std::uint32_t, 8> mi = {0, 0, 0, 0, 1, 1, 1, 1};
+		glm::ivec4 mi = {0, 1, 1, 1};
 		auto test_camera = /*clip **/ perspective * view * glm::mat4x4 {1.0f};
 		m_resource_generator.uniform_buffers().map_data(test_camera);
 		m_resource_generator.uniform_buffers().map_data(mi, 64);
@@ -173,16 +173,8 @@ namespace lh
 		m_global_descriptor_buffer.bind(command_buffer, m_global_descriptor.pipeline_layout());
 		//  ==================
 
-		command_buffer.bindShadersEXT({m_resource_generator.shader_objects()[0].stage(),
-									   m_resource_generator.shader_objects()[1].stage()},
-									  {**m_resource_generator.shader_objects()[0],
-									   **m_resource_generator.shader_objects()[1]});
-		/*
-		int wtf = 1;
-		command_buffer.pushConstants<int>(*m_global_descriptor.pipeline_layout(),
-										  vk::ShaderStageFlagBits::eAll,
-										  0,
-										  wtf);*/
+		m_resource_generator.shader_pipeline().bind(command_buffer);
+
 		command_buffer.drawIndexed(m_scene_loader.meshes()[0].indices().size(), 1, 0, 0, 0);
 		command_buffer.endRendering();
 

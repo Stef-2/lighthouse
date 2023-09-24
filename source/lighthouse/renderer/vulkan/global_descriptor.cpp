@@ -30,7 +30,7 @@ namespace lh
 
 			// uniform buffers
 			m_num_uniform_buffers = std::min(std::min(physical_device_properties.m_descriptor_buffer_properties
-														  .m_memory_properties.maxDescriptorBufferBindings,
+														  .m_properties.maxDescriptorBufferBindings,
 													  physical_device_properties.m_descriptor_indexing_properties
 														  .maxPerStageDescriptorUpdateAfterBindUniformBuffers),
 											 create_info.m_num_uniform_buffers);
@@ -45,7 +45,7 @@ namespace lh
 
 			// storage descriptors
 			m_num_storage_descriptors = std::min(std::min(physical_device_properties.m_descriptor_buffer_properties
-															  .m_memory_properties.maxDescriptorBufferBindings,
+															  .m_properties.maxDescriptorBufferBindings,
 														  physical_device_properties.m_descriptor_indexing_properties
 															  .maxPerStageDescriptorUpdateAfterBindStorageBuffers),
 												 create_info.m_num_storage_descriptors);

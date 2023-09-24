@@ -18,7 +18,6 @@ namespace lh
 		shader_object::shader_object(const logical_device& logical_device,
 									 const spir_v& spir_v,
 									 const std::vector<vk::DescriptorSetLayout>& descriptor_set_layouts,
-									 const std::vector<vk::PushConstantRange>& push_constants,
 									 const create_info& create_info)
 			: m_shader_stage {spir_v.stage()}
 		{
@@ -31,9 +30,7 @@ namespace lh
 										 spir_v.code().data(),
 										 spir_v.entrypoint().c_str(),
 										 static_cast<std::uint32_t>(descriptor_set_layouts.size()),
-										 descriptor_set_layouts.data(),
-										 static_cast<std::uint32_t>(push_constants.size()),
-										 push_constants.data()};
+										 descriptor_set_layouts.data()};
 
 			m_object = {*logical_device, shader_create_info};
 		}
@@ -58,10 +55,11 @@ namespace lh
 			command_buffer.bindShadersEXT(m_shader_stage, *m_object);
 		}
 
-		shader_pipeline::shader_pipeline(
-			const logical_device& logical_device,
-			const std::vector<std::pair<const spir_v&, const std::vector<vk::DescriptorSetLayout>&>>& pipeline_data,
-			const shader_object::create_info& create_info)
+		// ==========================================================================
+
+		shader_pipeline::shader_pipeline(const logical_device& logical_device,
+										 const std::vector<shader_pipeline::individual_stage_data_t>& pipeline_data,
+										 const shader_object::create_info& create_info)
 			: m_pipeline_stages {}
 		{
 			auto pipeline_create_info = std::vector<vk::ShaderCreateInfoEXT> {};
@@ -112,11 +110,17 @@ namespace lh
 			const auto shaders = std::ranges::fold_left(m_object,
 														std::vector<vk::ShaderEXT> {},
 														[](auto pipeline, const auto& element) {
-															pipeline.push_back(*element);
+															pipeline.emplace_back(*element);
 															return std::move(pipeline);
 														});
-
-			command_buffer.bindShadersEXT(m_pipeline_stages, shaders);
+			command_buffer.bindShadersEXT(
+				m_pipeline_stages,
+				shaders); /*
+			   command_buffer.getDispatcher()->vkCmdBindShadersEXT(static_cast<VkCommandBuffer>(*command_buffer),
+															 m_pipeline_stages.size(),
+															 reinterpret_cast<const VkShaderStageFlagBits*>(
+																 m_pipeline_stages.data()),
+															 reinterpret_cast<const VkShaderEXT*>(m_object.data()));*/
 		}
 	}
 }
