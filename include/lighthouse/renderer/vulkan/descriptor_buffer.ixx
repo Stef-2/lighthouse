@@ -5,7 +5,7 @@ module;
 
 #include <vector>
 #endif
-
+//#include "vulkan/vulkan_raii.hpp"
 export module descriptor_buffer;
 
 import vulkan_utility;
@@ -37,7 +37,7 @@ export namespace lh
 				vk::MemoryPropertyFlags m_descriptor_buffer_memory_properties = {
 					vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent};
 			};
-
+			
 			descriptor_buffer(const physical_device&,
 							  const logical_device&,
 							  const memory_allocator&,
@@ -55,13 +55,12 @@ export namespace lh
 		private:
 			auto descriptor_size(const physical_device&, const vk::DescriptorType&) -> const std::size_t;
 
-			std::vector<vk::DescriptorBufferBindingInfoEXT> m_resource_descriptor_buffer_binding_info;
-			std::vector<vk::DescriptorBufferBindingInfoEXT> m_combined_image_sampler_descriptor_buffer_binding_info;
-
 			const physical_device& m_physical_device;
 			const logical_device& m_logical_device;
-
 			vk::PipelineBindPoint m_bind_point;
+			
+			std::vector<vk::DescriptorBufferBindingInfoEXT> m_resource_descriptor_buffer_binding_info;
+			std::vector<vk::DescriptorBufferBindingInfoEXT> m_combined_image_sampler_descriptor_buffer_binding_info;
 
 			mapped_buffer m_resource_descriptor_buffer;
 			mapped_buffer m_combined_image_sampler_descriptor_buffer;

@@ -5,6 +5,7 @@ module;
 
 #include <cstdint>
 #include <filesystem>
+#include <vector>
 #endif
 
 export module texture;
@@ -46,10 +47,13 @@ export namespace lh
 
 			auto image() const -> const vulkan::image&;
 			auto sampler() const -> const vulkan::sampler&;
+			auto descriptor() const -> const std::vector<std::byte>&;
 
 		private:
 			vulkan::image m_image;
 			vulkan::sampler m_sampler;
+
+			std::vector<std::byte> m_descriptor;
 		};
 
 	}

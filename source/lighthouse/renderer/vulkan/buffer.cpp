@@ -23,13 +23,7 @@ namespace lh
 
 			m_allocation = allocation;
 			m_object = {*logical_device, buffer};
-			// m_address = m_object.getDevice().getBufferAddress(*m_object);
-			auto address_info = VkBufferDeviceAddressInfo {};
-			address_info.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
-			address_info.pNext = nullptr;
-			address_info.buffer = *m_object;
-			// vk::DispatchLoaderStatic::vkGetBufferDeviceAddress()
-			m_address = logical_device->getDispatcher()->vkGetBufferDeviceAddress(**logical_device, &address_info);
+			m_address = logical_device->getBufferAddress(*m_object);
 		}
 
 		auto buffer::allocation() const -> const vma::Allocation&

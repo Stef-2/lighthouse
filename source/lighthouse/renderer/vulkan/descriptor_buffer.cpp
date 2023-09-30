@@ -3,7 +3,9 @@ module;
 #if INTELLISENSE
 #include "vulkan/vulkan.hpp"
 #endif
-
+// #include "vulkan/vulkan_raii.hpp"
+// #include "vulkan/vulkan_structs.hpp"
+// #include "vulkan/vulkan_funcs.hpp"
 module descriptor_buffer;
 
 import output;
@@ -17,11 +19,11 @@ namespace lh
 											 const memory_allocator& memory_allocator,
 											 const global_descriptor& global_descriptor,
 											 const create_info& create_info)
-			: m_resource_descriptor_buffer_binding_info {},
-			  m_combined_image_sampler_descriptor_buffer_binding_info {},
-			  m_physical_device {physical_device},
+			: m_physical_device {physical_device},
 			  m_logical_device {logical_device},
 			  m_bind_point {create_info.m_bind_point},
+			  m_resource_descriptor_buffer_binding_info {},
+			  m_combined_image_sampler_descriptor_buffer_binding_info {},
 			  m_resource_descriptor_buffer {
 				  logical_device,
 				  memory_allocator,
@@ -62,17 +64,13 @@ namespace lh
 																				 buffer_subdata.m_subdata[i].m_offset,
 																			 buffer_subdata.m_subdata[i].m_size};
 
-				const auto& descriptor_info = static_cast<VkDescriptorGetInfoEXT>(
-					vk::DescriptorGetInfoEXT {vk::DescriptorType::eUniformBuffer, {&data_address_info}});
-
-				(*m_logical_device)
-					.getDispatcher()
-					->vkGetDescriptorEXT(
-						**m_logical_device,
-						&descriptor_info,
-						descriptor_buffer::descriptor_size(m_physical_device, vk::DescriptorType::eUniformBuffer),
-						static_cast<std::byte*>(m_resource_descriptor_buffer.allocation_info().pMappedData) +
-							i * descriptor_offset + binding_slot_offset);
+				void* data_address = static_cast<std::byte*>(
+										 m_resource_descriptor_buffer.allocation_info().pMappedData) +
+									 i * descriptor_offset + binding_slot_offset;
+				m_logical_device->getDescriptorEXT(
+					{vk::DescriptorType::eUniformBuffer, {&data_address_info}},
+					descriptor_buffer_properties.m_properties.uniformBufferDescriptorSize,
+					data_address);
 			}
 		}
 
@@ -113,19 +111,14 @@ namespace lh
 					*textures[i]->image().view(),
 					textures[i]->image().create_information().m_image_create_info.initialLayout};
 
-				const auto& descriptor_info = static_cast<VkDescriptorGetInfoEXT>(
-					vk::DescriptorGetInfoEXT {vk::DescriptorType::eCombinedImageSampler,
-											  {&combined_image_sampler_data}});
+				void* data_address = static_cast<std::byte*>(
+										 m_combined_image_sampler_descriptor_buffer.allocation_info().pMappedData) +
+									 i * descriptor_offset;
 
-				(*m_logical_device)
-					.getDispatcher()
-					->vkGetDescriptorEXT(**m_logical_device,
-										 &descriptor_info,
-										 descriptor_buffer::descriptor_size(m_physical_device,
-																			vk::DescriptorType::eCombinedImageSampler),
-										 static_cast<std::byte*>(
-											 m_combined_image_sampler_descriptor_buffer.allocation_info().pMappedData) +
-											 i * descriptor_offset);
+				m_logical_device->getDescriptorEXT(
+					{vk::DescriptorType::eCombinedImageSampler, {&combined_image_sampler_data}},
+					descriptor_buffer_properties.m_properties.combinedImageSamplerDescriptorSize,
+					data_address);
 
 				texture_registry.push_back(
 					std::distance(m_combined_image_sampler_descriptor_buffer_binding_info.begin(), empty_slot));
@@ -136,9 +129,21 @@ namespace lh
 
 		auto descriptor_buffer::unregister_textures(const std::vector<binding_slot_t>& binding_slots) -> void
 		{
+			const auto descriptor_size = descriptor_buffer::descriptor_size(m_physical_device,
+																			vk::DescriptorType::eCombinedImageSampler);
+			const auto null_data = std::vector<std::byte>(descriptor_size);
+			const void* wtf = null_data.data();
+
 			for (const auto& binding : binding_slots)
+			{
+				void* omg = static_cast<std::byte*>(
+								m_combined_image_sampler_descriptor_buffer.allocation_info().pMappedData) +
+							binding * descriptor_size;
+
+				std::memcpy(omg, wtf, descriptor_size);
 				m_combined_image_sampler_descriptor_buffer_binding_info[binding] =
 					vk::DescriptorBufferBindingInfoEXT {};
+			}
 		}
 
 		auto descriptor_buffer::resource_buffer() -> const mapped_buffer&

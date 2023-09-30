@@ -79,7 +79,7 @@ namespace lh
 														   vulkan::buffer_subdata {
 															   m_resource_generator.uniform_buffer_subdata()});
 		auto wtf = m_global_descriptor_buffer.register_textures({&m_texture1, &m_texture2});
-		m_global_descriptor_buffer.unregister_textures({1});
+		// m_global_descriptor_buffer.unregister_textures({1});
 
 		if (m_create_info.m_using_validation)
 			output::log() << info(m_create_info);

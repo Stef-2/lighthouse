@@ -923,7 +923,7 @@ export namespace VULKAN_HPP_NAMESPACE
   //=== VK_VERSION_1_2 ===
   using VULKAN_HPP_NAMESPACE::MaxDriverInfoSize;
   using VULKAN_HPP_NAMESPACE::MaxDriverNameSize;
-
+  /*
   //=== VK_KHR_device_group_creation ===
   using VULKAN_HPP_NAMESPACE::MaxDeviceGroupSizeKhr;
 
@@ -937,7 +937,7 @@ export namespace VULKAN_HPP_NAMESPACE
   //=== VK_AMDX_shader_enqueue ===
   using VULKAN_HPP_NAMESPACE::ShaderIndexUnusedAmdx;
 #endif /*VK_ENABLE_BETA_EXTENSIONS*/
-
+  /*
   //=== VK_KHR_ray_tracing_pipeline ===
   using VULKAN_HPP_NAMESPACE::ShaderUnusedKhr;
 
@@ -958,7 +958,8 @@ export namespace VULKAN_HPP_NAMESPACE
   using VULKAN_HPP_NAMESPACE::Remaining3DSlicesExt;
 
   //=== VK_EXT_shader_module_identifier ===
-  using VULKAN_HPP_NAMESPACE::MaxShaderModuleIdentifierSizeExt;
+//   using VULKAN_H/*PP_NAMESPACE::MaxShaderModuleIdentifierSizeExt;
+// */
 
   //========================
   //=== CONSTEXPR VALUEs ===
