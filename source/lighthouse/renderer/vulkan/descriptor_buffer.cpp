@@ -125,6 +125,33 @@ namespace lh
 			return texture_registry;
 		}
 
+		auto descriptor_buffer::put_tex(const std::vector<texture>& textures) -> void
+		{
+			const auto& descriptor_buffer_properties = m_physical_device.properties().m_descriptor_buffer_properties;
+			const auto descriptor_offset = descriptor_buffer_properties.m_combined_image_sampler_offset;
+
+			m_combined_image_sampler_descriptor_buffer_binding_info = {};
+			m_combined_image_sampler_descriptor_buffer_binding_info.reserve(textures.size());
+
+			for (auto i = std::uint32_t {}; const auto& texture : textures)
+			{
+				m_combined_image_sampler_descriptor_buffer_binding_info.emplace_back(
+					m_combined_image_sampler_descriptor_buffer.address() +
+						i * utility::aligned_size(
+								static_cast<vk::DeviceSize>(descriptor_offset),
+								descriptor_buffer_properties.m_properties.descriptorBufferOffsetAlignment),
+					vk::BufferUsageFlagBits::eShaderDeviceAddress |
+						vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT);
+
+				void* dst = static_cast<std::byte*>(
+								m_combined_image_sampler_descriptor_buffer.allocation_info().pMappedData) +
+							i * descriptor_offset;
+				// void* src = (texture.descriptor().data());
+				std::memcpy(dst, texture.descriptor().data(), texture.descriptor().size());
+				i++;
+			}
+		}
+
 		auto descriptor_buffer::unregister_textures(const std::vector<binding_slot_t>& binding_slots) -> void
 		{
 			const auto descriptor_size = descriptor_buffer::descriptor_size(m_physical_device,

@@ -11,7 +11,7 @@ namespace lh
 													   const memory_allocator& memory_allocator,
 													   const std::vector<spir_v>& shaders,
 													   const create_info& create_info)
-			: m_pipeline_layout {nullptr}, m_shader_objects {}, m_descriptor_set_layout {}
+			: m_pipeline_layout {nullptr}, m_shader_objects {}
 		{
 			m_shader_objects.reserve(shaders.size());
 
@@ -32,8 +32,8 @@ namespace lh
 				m_shader_objects.emplace_back(logical_device,
 											  spir_v,
 											  *m_descriptor_set_layout,
-											  shader_object::create_info {.m_modifier_flags = create_info.m_modifier_flags,
-																		  .m_code_type = create_info.m_code_type});*/
+											  shader_object::create_info {.m_modifier_flags =
+				create_info.m_modifier_flags, .m_code_type = create_info.m_code_type});*/
 			}
 
 			// m_pipeline_layout = std::move(vk::raii::PipelineLayout {logical_device, {{},
@@ -49,11 +49,11 @@ namespace lh
 		{
 			return m_pipeline_layout;
 		}
-
+		/*
 		auto shader_object_pipeline::descriptor_set_layout() const -> const vulkan::descriptor_set_layout&
 		{
 			return m_descriptor_set_layout;
-		}
+		}*/
 		/*
 		auto shader_object_pipeline::descriptor_buffer() const -> const vulkan::descriptor_buffer&
 		{

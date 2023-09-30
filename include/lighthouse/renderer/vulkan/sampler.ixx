@@ -16,6 +16,8 @@ export namespace lh
 		class sampler : public raii_wrapper<vk::raii::Sampler>
 		{
 		public:
+			using raii_wrapper::raii_wrapper;
+
 			struct create_info
 			{
 				vk::SamplerCreateInfo m_sampler_create_info = {{},

@@ -12,7 +12,6 @@ import vulkan_utility;
 import physical_device;
 import logical_device;
 import memory_allocator;
-import descriptor_set_layout;
 import global_descriptor;
 import buffer;
 import texture;
@@ -46,6 +45,7 @@ export namespace lh
 
 			auto map_uniform_buffer_data(const binding_slot_t& offset, const buffer_subdata&) -> void;
 			[[nodiscard]] auto register_textures(const std::vector<texture*>&) -> const std::vector<binding_slot_t>;
+			auto put_tex(const std::vector<texture>&) -> void;
 			auto unregister_textures(const std::vector<binding_slot_t>&) -> void;
 
 			auto resource_buffer() -> const mapped_buffer&;

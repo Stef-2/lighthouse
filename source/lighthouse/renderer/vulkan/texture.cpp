@@ -19,6 +19,8 @@ namespace lh
 {
 	namespace vulkan
 	{
+		texture::texture() : m_image {nullptr}, m_sampler {nullptr}, m_descriptor {} {}
+
 		texture::texture(const physical_device& physical_device,
 						 const logical_device& logical_device,
 						 const memory_allocator& memory_allocator,
@@ -26,7 +28,10 @@ namespace lh
 						 const vk::raii::Queue& queue,
 						 const std::filesystem::path& path,
 						 const create_info& create_info)
-			: m_image {nullptr}, m_sampler {logical_device, create_info.m_sampler_create_info}, m_descriptor {}
+			: m_image {nullptr},
+			  m_sampler {logical_device, create_info.m_sampler_create_info},
+			  m_descriptor_image_info {},
+			  m_descriptor {}
 		{
 			const auto& physical_device_properties = physical_device.properties();
 
@@ -103,14 +108,13 @@ namespace lh
 
 			command_control.reset();
 
-			const auto combined_image_sampler_data = vk::DescriptorImageInfo {
+			m_descriptor_image_info = vk::DescriptorImageInfo {
 				**m_sampler, *m_image.view(), m_image.create_information().m_image_create_info.initialLayout};
 
 			m_descriptor.resize(physical_device.properties()
 									.m_descriptor_buffer_properties.m_properties.combinedImageSamplerDescriptorSize);
 
-			logical_device->getDescriptorEXT({vk::DescriptorType::eCombinedImageSampler,
-											  {&combined_image_sampler_data}},
+			logical_device->getDescriptorEXT({vk::DescriptorType::eCombinedImageSampler, {&m_descriptor_image_info}},
 											 physical_device_properties.m_descriptor_buffer_properties.m_properties
 												 .combinedImageSamplerDescriptorSize,
 											 m_descriptor.data());
@@ -125,6 +129,12 @@ namespace lh
 		{
 			return m_sampler;
 		}
+
+		auto texture::descriptor_image_info() const -> const vk::DescriptorImageInfo&
+		{
+			return m_descriptor_image_info;
+		}
+
 		auto texture::descriptor() const -> const std::vector<std::byte>&
 		{
 			return m_descriptor;

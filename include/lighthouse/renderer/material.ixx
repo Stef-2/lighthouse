@@ -32,13 +32,16 @@ export namespace lh
 
 		};
 
-		material(const physical_device&,
-				 const logical_device&,
-				 const memory_allocator&,
-				 const command_control&,
+		material(const vulkan::physical_device&,
+				 const vulkan::logical_device&,
+				 const vulkan::memory_allocator&,
+				 const vulkan::command_control&,
 				 const vk::raii::Queue&,
 				 const std::vector<std::filesystem::path>&,
 				 const create_info& = {});
+
+		auto textures() const -> const std::vector<vulkan::texture>&;
 	private:
+		std::vector<vulkan::texture> m_textures;
 	};
 }

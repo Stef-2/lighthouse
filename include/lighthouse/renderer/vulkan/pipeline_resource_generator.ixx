@@ -13,7 +13,6 @@ export module pipeline_resource_generator;
 import physical_device;
 import logical_device;
 import memory_allocator;
-import descriptor_set_layout;
 import descriptor_buffer;
 import global_descriptor;
 import file_system;

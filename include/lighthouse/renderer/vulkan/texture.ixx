@@ -37,6 +37,7 @@ export namespace lh
 				sampler::create_info m_sampler_create_info = {};
 			};
 
+			texture();
 			texture(const physical_device&,
 					const logical_device&,
 					const memory_allocator&,
@@ -47,12 +48,14 @@ export namespace lh
 
 			auto image() const -> const vulkan::image&;
 			auto sampler() const -> const vulkan::sampler&;
+			auto descriptor_image_info() const -> const vk::DescriptorImageInfo&;
 			auto descriptor() const -> const std::vector<std::byte>&;
 
 		private:
 			vulkan::image m_image;
 			vulkan::sampler m_sampler;
 
+			vk::DescriptorImageInfo m_descriptor_image_info;
 			std::vector<std::byte> m_descriptor;
 		};
 

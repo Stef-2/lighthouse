@@ -73,12 +73,20 @@ namespace lh
 					  m_memory_allocator,
 					  m_transfer_control,
 					  m_queue.transfer(),
-					  file_system::data_path() /= "textures/grooved_bricks/normal.png"}
+					  file_system::data_path() /= "textures/grooved_bricks/normal.png"},
+		  m_material {m_physical_device,
+					  m_logical_device,
+					  m_memory_allocator,
+					  m_transfer_control,
+					  m_queue.transfer(),
+					  {file_system::data_path() /= "textures/grooved_bricks/basecolor.png",
+					   file_system::data_path() /= "textures/grooved_bricks/normal.png"}}
 	{
 		m_global_descriptor_buffer.map_uniform_buffer_data(0,
 														   vulkan::buffer_subdata {
 															   m_resource_generator.uniform_buffer_subdata()});
-		auto wtf = m_global_descriptor_buffer.register_textures({&m_texture1, &m_texture2});
+		// auto wtf = m_global_descriptor_buffer.register_textures({&m_texture1, &m_texture2});
+		m_global_descriptor_buffer.put_tex(m_material.textures());
 		// m_global_descriptor_buffer.unregister_textures({1});
 
 		if (m_create_info.m_using_validation)

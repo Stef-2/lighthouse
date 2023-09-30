@@ -19,10 +19,10 @@ import queue;
 import global_descriptor;
 import image;
 import texture;
+import material;
 import swapchain;
 import spir_v;
 import shader_object;
-import descriptor_set_layout;
 import descriptor_buffer;
 import pipeline_resource_generator;
 import lh_utility;
@@ -95,5 +95,6 @@ export namespace lh
 		lh::camera<camera_type::perspective> m_camera;
 		vulkan::texture m_texture1;
 		vulkan::texture m_texture2;
+		material m_material;
 	};
 }
