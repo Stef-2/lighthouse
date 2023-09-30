@@ -5,7 +5,7 @@ module;
 
 #include <vector>
 #endif
-//#include "vulkan/vulkan_raii.hpp"
+
 export module descriptor_buffer;
 
 import vulkan_utility;

@@ -9,7 +9,6 @@ export module image;
 import raii_wrapper;
 import logical_device;
 import memory_allocator;
-import surface;
 
 export namespace lh
 {

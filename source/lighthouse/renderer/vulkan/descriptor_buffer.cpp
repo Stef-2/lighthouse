@@ -3,9 +3,7 @@ module;
 #if INTELLISENSE
 #include "vulkan/vulkan.hpp"
 #endif
-// #include "vulkan/vulkan_raii.hpp"
-// #include "vulkan/vulkan_structs.hpp"
-// #include "vulkan/vulkan_funcs.hpp"
+
 module descriptor_buffer;
 
 import output;

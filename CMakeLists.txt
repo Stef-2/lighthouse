@@ -99,7 +99,7 @@ target_sources(
 	${include}/lighthouse/renderer/vulkan/image.ixx							
 	${include}/lighthouse/renderer/vulkan/texture.ixx
 	${include}/lighthouse/renderer/vulkan/swapchain.ixx			
-	${include}/lighthouse/renderer/vulkan/descriptor_set_layout.ixx			
+				
 	${include}/lighthouse/renderer/vulkan/buffer.ixx						
 	${include}/lighthouse/renderer/vulkan/sampler.ixx						
 	${include}/lighthouse/renderer/vulkan/descriptor_buffer.ixx				
@@ -115,7 +115,10 @@ target_sources(
 	${include}/lighthouse/entity.ixx
 	${include}/lighthouse/camera.ixx
 	${include}/lighthouse/time.ixx
- "include/lighthouse/renderer/vulkan/global_descriptor.ixx" "include/lighthouse/geometry.ixx")
+	${include}/lighthouse/renderer/vulkan/global_descriptor.ixx
+	${include}/lighthouse/geometry.ixx
+	${include}/lighthouse/renderer/material.ixx
+)
 
 target_sources(
 	${PROJECT_NAME} PUBLIC
@@ -141,7 +144,7 @@ target_sources(
 	${source}/lighthouse/renderer/vulkan/queue.cpp
 	${source}/lighthouse/renderer/vulkan/image.cpp
 	${source}/lighthouse/renderer/vulkan/swapchain.cpp
-	${source}/lighthouse/renderer/vulkan/descriptor_set_layout.cpp
+	
 	${source}/lighthouse/renderer/vulkan/buffer.cpp
 	${source}/lighthouse/renderer/vulkan/sampler.cpp
 	${source}/lighthouse/renderer/vulkan/descriptor_buffer.cpp
@@ -162,7 +165,8 @@ target_sources(
 	${source}/lighthouse/camera.cpp
 	${source}/lighthouse/time.cpp
 	${source}/lighthouse/renderer/vulkan/texture.cpp
- "source/lighthouse/renderer/vulkan/global_descriptor.cpp")
+	${source}/lighthouse/renderer/vulkan/global_descriptor.cpp
+ "source/lighthouse/renderer/material.cpp")
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_RELEASE}")
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")

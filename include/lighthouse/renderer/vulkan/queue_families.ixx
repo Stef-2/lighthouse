@@ -1,5 +1,9 @@
 module;
 
+#if INTELLISENSE
+#include <cstdint>
+#endif
+
 #include <compare>
 
 export module queue_families;
