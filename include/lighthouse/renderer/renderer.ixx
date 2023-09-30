@@ -25,7 +25,7 @@ import spir_v;
 import shader_object;
 import descriptor_buffer;
 import pipeline_resource_generator;
-import lh_utility;
+import lighthouse_utility;
 import vertex_input_description;
 import vertex_buffer;
 import vertex_format;

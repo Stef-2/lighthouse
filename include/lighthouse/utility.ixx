@@ -1,6 +1,6 @@
 module;
 
-export module lh_utility;
+export module lighthouse_utility;
 
 export namespace lh
 {

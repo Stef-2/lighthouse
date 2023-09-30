@@ -11,7 +11,7 @@ export module entity;
 
 import node;
 import window;
-import lh_utility;
+import lighthouse_utility;
 
 export namespace lh
 {

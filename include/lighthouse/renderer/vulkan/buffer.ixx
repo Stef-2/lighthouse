@@ -9,7 +9,7 @@ module;
 
 export module buffer;
 
-import lh_utility;
+import lighthouse_utility;
 import raii_wrapper;
 import logical_device;
 import memory_allocator;

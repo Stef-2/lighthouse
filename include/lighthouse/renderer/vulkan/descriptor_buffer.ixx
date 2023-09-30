@@ -14,7 +14,7 @@ import logical_device;
 import memory_allocator;
 import global_descriptor;
 import buffer;
-import texture;
+import material;
 
 #if not INTELLISENSE
 import std.core;
@@ -44,19 +44,16 @@ export namespace lh
 							  const create_info& = {});
 
 			auto map_uniform_buffer_data(const binding_slot_t& offset, const buffer_subdata&) -> void;
-			[[nodiscard]] auto register_textures(const std::vector<texture*>&) -> const std::vector<binding_slot_t>;
-			auto put_tex(const std::vector<texture>&) -> void;
-			auto unregister_textures(const std::vector<binding_slot_t>&) -> void;
+			auto map_material(const material&) -> void;
 
 			auto resource_buffer() -> const mapped_buffer&;
 			auto combined_image_sampler_buffer() -> const mapped_buffer&;
 			auto bind(const vk::raii::CommandBuffer&, const vk::raii::PipelineLayout&) const -> void;
 
 		private:
-			auto descriptor_size(const physical_device&, const vk::DescriptorType&) -> const std::size_t;
-
 			const physical_device& m_physical_device;
 			const logical_device& m_logical_device;
+
 			vk::PipelineBindPoint m_bind_point;
 			
 			std::vector<vk::DescriptorBufferBindingInfoEXT> m_resource_descriptor_buffer_binding_info;

@@ -17,7 +17,7 @@ set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API "aa1f7df0-828a-4fcd-9afc-2dc80491aca
 #add_compile_options(/reference lighthose_string=C:/Users/Stefan/source/repos/lighthouse/build/MSVC-x64-RelWithDebInfo/CMakeFiles/lighthouse.dir/lighthouse_string.ifc)
 #set(ENV{IFCPATH} "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.37.32822/ifc/x64/Release")
 
-# Path
+# path
 cmake_path(SET source ${CMAKE_CURRENT_SOURCE_DIR}/source)
 cmake_path(SET include ${CMAKE_CURRENT_SOURCE_DIR}/include)
 cmake_path(SET module ${CMAKE_CURRENT_SOURCE_DIR}/module)
@@ -78,13 +78,12 @@ target_sources(
 	${include}/lighthouse/renderer/vulkan/vulkan_string.ixx
 	${include}/lighthouse/renderer/vulkan/vertex_format.ixx
 	${include}/lighthouse/renderer/vulkan/vertex_input_description.ixx
-	${include}/lighthouse/renderer/vulkan/vk_utility.ixx
+	${include}/lighthouse/renderer/vulkan/vulkan_utility.ixx
 	${include}/lighthouse/renderer/vulkan/index_format.ixx
 	${include}/lighthouse/engine.ixx										
 	${include}/lighthouse/renderer/renderer.ixx								
 	${include}/lighthouse/version.ixx										
 	${include}/lighthouse/node.ixx											
-	#${source}/vulkan/shaders.cpp
 	${include}/lighthouse/operating_system/memory.ixx						
 	${include}/lighthouse/renderer/vulkan/extension.ixx						
 	${include}/lighthouse/renderer/vulkan/instance.ixx						
@@ -99,14 +98,12 @@ target_sources(
 	${include}/lighthouse/renderer/vulkan/image.ixx							
 	${include}/lighthouse/renderer/vulkan/texture.ixx
 	${include}/lighthouse/renderer/vulkan/swapchain.ixx			
-				
 	${include}/lighthouse/renderer/vulkan/buffer.ixx						
 	${include}/lighthouse/renderer/vulkan/sampler.ixx						
 	${include}/lighthouse/renderer/vulkan/descriptor_buffer.ixx				
 	${include}/lighthouse/renderer/vulkan/spir_v.ixx						
 	${include}/lighthouse/renderer/vulkan/shader_object.ixx					
-	${include}/lighthouse/renderer/vulkan/vertex_buffer.ixx					
-	${include}/lighthouse/renderer/vulkan/shader_object_pipeline.ixx		
+	${include}/lighthouse/renderer/vulkan/vertex_buffer.ixx
 	${include}/lighthouse/renderer/scene_loader.ixx							
 	${include}/lighthouse/renderer/vulkan/pipeline_resource_generator.ixx	
 	${include}/lighthouse/renderer/vulkan/shader_input.ixx					
@@ -118,6 +115,7 @@ target_sources(
 	${include}/lighthouse/renderer/vulkan/global_descriptor.ixx
 	${include}/lighthouse/geometry.ixx
 	${include}/lighthouse/renderer/material.ixx
+	${include}/lighthouse/renderer/vulkan/descriptor_resource_buffer.ixx
 )
 
 target_sources(
@@ -151,7 +149,7 @@ target_sources(
 	${source}/lighthouse/renderer/vulkan/spir_v.cpp
 	${source}/lighthouse/renderer/vulkan/shader_object.cpp
 	${source}/lighthouse/renderer/vulkan/vertex_buffer.cpp
-	${source}/lighthouse/renderer/vulkan/shader_object_pipeline.cpp
+	
 	${source}/lighthouse/renderer/scene_loader.cpp
 	${source}/lighthouse/renderer/vulkan/pipeline_resource_generator.cpp
 	${source}/lighthouse/renderer/vulkan/shader_input.cpp
@@ -166,12 +164,13 @@ target_sources(
 	${source}/lighthouse/time.cpp
 	${source}/lighthouse/renderer/vulkan/texture.cpp
 	${source}/lighthouse/renderer/vulkan/global_descriptor.cpp
- "source/lighthouse/renderer/material.cpp")
+	${source}/lighthouse/renderer/material.cpp
+ "source/lighthouse/renderer/vulkan/descriptor_resource_buffer.cpp")
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_RELEASE}")
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
 
-# Compiler options
+# compiler options
 if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
 
   target_compile_options(
@@ -189,7 +188,7 @@ if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
 		${PROJECT_NAME} PUBLIC
 		# MSVC linker settings
 		/INCREMENTAL /CGTHREADS:8 /VERBOSE:INCR /LTCG#/${library}/std/std.obj
-		# No console
+		# no console
 		#/SUBSYSTEM:windows /ENTRY:mainCRTStartup
 	)
 endif()
@@ -207,7 +206,7 @@ if(${CMAKE_CXX_COMPILER_ID} MATCHES GNU)
 	
 endif()
 
-# Preprocessor definitions
+# preprocessor definitions
 target_compile_definitions(
 	${PROJECT_NAME} PUBLIC
 
@@ -237,7 +236,7 @@ target_compile_definitions(
 	INTELLISENSE=__INTELLISENSE__
 )
 
-# Include
+# include
 target_include_directories(
 	${PROJECT_NAME} PUBLIC
 
@@ -251,7 +250,7 @@ target_include_directories(
 	$ENV{IFCPATH}/Release
 )
 
-# Libraries
+# libraries
 target_link_directories(
 	${PROJECT_NAME} PUBLIC
 

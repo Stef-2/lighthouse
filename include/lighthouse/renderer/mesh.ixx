@@ -9,7 +9,7 @@ export module mesh;
 
 import node;
 import bounding_volume;
-import lh_utility;
+import lighthouse_utility;
 import index_format;
 import logical_device;
 import memory_allocator;
