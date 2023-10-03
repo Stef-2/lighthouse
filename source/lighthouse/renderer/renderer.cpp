@@ -1,13 +1,7 @@
 module;
 
-#include "vulkan/utils/geometries.hpp"
-#include "vulkan/utils/math.hpp"
 #include "vkfw/vkfw.hpp"
-
 #include "glm/mat4x4.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtx/transform.hpp"
-#include "glm/gtc/quaternion.hpp"
 #include "glm/ext.hpp"
 
 #include "vulkan/utils/raii/raii_utils.hpp"
@@ -17,6 +11,7 @@ module;
 #endif
 
 module renderer;
+
 import output;
 import file_system;
 
@@ -223,6 +218,15 @@ namespace lh
 
 		descriptor_buffer_properties.m_uniform_buffer_size = basic_uniform_buffer.getSizeEXT();
 		descriptor_buffer_properties.m_uniform_buffer_offset = basic_uniform_buffer.getBindingOffsetEXT(1);
+
+		binding[0].descriptorType = vk::DescriptorType::eStorageBuffer;
+		binding[1].descriptorType = vk::DescriptorType::eStorageBuffer;
+
+		const auto basic_storage_buffer = vk::raii::DescriptorSetLayout {
+			*logical_device, {vk::DescriptorSetLayoutCreateFlagBits::eDescriptorBufferEXT, binding}};
+
+		descriptor_buffer_properties.m_storage_buffer_size = basic_storage_buffer.getSizeEXT();
+		descriptor_buffer_properties.m_storage_buffer_offset = basic_storage_buffer.getBindingOffsetEXT(1);
 
 		binding[0].descriptorType = vk::DescriptorType::eCombinedImageSampler;
 		binding[1].descriptorType = vk::DescriptorType::eCombinedImageSampler;

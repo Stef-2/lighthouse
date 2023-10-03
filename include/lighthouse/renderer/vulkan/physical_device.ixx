@@ -45,6 +45,8 @@ export namespace lh
 					vk::PhysicalDeviceDescriptorBufferPropertiesEXT m_properties {};
 					std::uint16_t m_uniform_buffer_size {};
 					std::uint16_t m_uniform_buffer_offset {};
+					std::uint16_t m_storage_buffer_size {};
+					std::uint16_t m_storage_buffer_offset {};
 					std::uint16_t m_combined_image_sampler_size {};
 					std::uint16_t m_combined_image_sampler_offset {};
 				};

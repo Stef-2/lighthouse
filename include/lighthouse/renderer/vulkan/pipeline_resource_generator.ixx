@@ -21,6 +21,7 @@ import buffer;
 import spir_v;
 import shader_input;
 import vertex_input_description;
+import descriptor_resource_buffer;
 
 #if not INTELLISENSE
 import std.core;
@@ -62,6 +63,7 @@ export namespace lh
 			vulkan::shader_pipeline m_shader_pipeline;
 			mapped_buffer m_uniform_buffers;
 			buffer_subdata m_uniform_buffer_subdata;
+			descriptor_resource_buffer m_resource_descriptor_buffer;
 		};
 	}
 }

@@ -50,7 +50,8 @@ namespace lh
 			  m_vertex_input_description {},
 			  m_shader_pipeline {},
 			  m_uniform_buffers {},
-			  m_uniform_buffer_subdata {}
+			  m_uniform_buffer_subdata {},
+			  m_resource_descriptor_buffer {}
 		{
 			auto pipeline_shader_inputs = std::vector<std::pair<vk::ShaderStageFlagBits, shader_input>> {};
 
