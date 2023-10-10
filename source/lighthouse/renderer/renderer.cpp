@@ -70,8 +70,8 @@ namespace lh
 																m_resource_generator.uniform_buffer_subdata()});*/
 
 		m_global_descriptor_buffer.map_resource_buffer(m_resource_generator.descriptor_buffer());
-		// auto wtf = m_global_descriptor_buffer.register_textures({&m_texture1, &m_texture2});
 		m_global_descriptor_buffer.map_material(m_material);
+		// auto wtf = m_global_descriptor_buffer.register_textures({&m_texture1, &m_texture2});
 		// m_global_descriptor_buffer.unregister_textures({1});
 
 		if (m_create_info.m_using_validation)
@@ -165,6 +165,7 @@ namespace lh
 		m_resource_generator.uniform_buffers().map_data(test_camera);
 		m_resource_generator.uniform_buffers().map_data(mi, 64);*/
 		m_resource_generator.descriptor_buffer().map_binding_data(0, test_camera);
+		m_resource_generator.descriptor_buffer().map_binding_data(1, mi);
 
 		m_global_descriptor_buffer.bind(command_buffer, m_global_descriptor.pipeline_layout());
 		//  ==================

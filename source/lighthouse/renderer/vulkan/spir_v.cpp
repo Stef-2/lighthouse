@@ -169,6 +169,10 @@ namespace lh
 				shader_inputs.emplace_back(
 					create_shader_input(*compiler, resource, vk::DescriptorType::eUniformBuffer, m_stage));
 
+			for (const auto& resource : resources.storage_buffers)
+				shader_inputs.emplace_back(
+					create_shader_input(*compiler, resource, vk::DescriptorType::eStorageBuffer, m_stage));
+
 			for (const auto& resource : resources.sampled_images)
 				shader_inputs.emplace_back(
 					create_shader_input(*compiler, resource, vk::DescriptorType::eCombinedImageSampler, m_stage));

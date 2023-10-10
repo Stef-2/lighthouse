@@ -3,7 +3,7 @@ module;
 #if INTELLISENSE
 #include "vulkan_raii.hpp"
 #endif
-
+#include "glm/vec4.hpp"
 module descriptor_resource_buffer;
 
 import vulkan_utility;
@@ -59,14 +59,12 @@ namespace lh
 				m_buffer_subdata.m_subdata.emplace_back(subdata);
 
 				m_descriptors.emplace_back();
-				m_descriptors.back().second.resize(binding_size);
+				m_descriptors.back().first = descriptor_type;
+				m_descriptors.back().second.resize(descriptor_size);
 
-				const auto data_address_info = vk::DescriptorAddressInfoEXT {m_buffer_subdata.m_buffer->address() +
-																				 subdata.m_offset,
-																			 subdata.m_size};
-
-				void* data_address = static_cast<std::byte*>(m_data_buffer.allocation_info().pMappedData) +
-									 combined_offset;
+				const auto data_address_info = vk::DescriptorAddressInfoEXT {
+					m_buffer_subdata.m_buffer->address() + m_buffer_subdata.m_subdata.back().m_offset,
+					m_buffer_subdata.m_subdata.back().m_size};
 
 				logical_device->getDescriptorEXT({descriptor_type, {&data_address_info}},
 												 descriptor_size,

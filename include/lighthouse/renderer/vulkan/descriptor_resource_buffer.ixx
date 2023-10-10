@@ -28,7 +28,7 @@ export namespace lh
 		{
 		public:
 			using binding_slot_t = std::uint16_t;
-			using descriptor_data_t = std::pair<vk::DescriptorType,std::vector<std::byte>>;
+			using descriptor_data_t = std::pair<vk::DescriptorType, std::vector<std::byte>>;
 
 			struct create_info
 			{
@@ -54,12 +54,13 @@ export namespace lh
 			requires(not std::is_pointer_v<T>)
 			auto map_binding_data(const binding_slot_t& binding, const T& data) const
 			{
-				m_data_buffer.map_data(data, m_buffer_subdata[binding].m_offset, m_buffer_subdata[binding].m_size);
+				m_data_buffer.map_data(data, m_buffer_subdata.m_subdata[binding].m_offset, m_buffer_subdata.m_subdata[binding].m_size);
 			}
 
 			auto mapped_buffer() const -> const vulkan::mapped_buffer&;
 			auto descriptors() const -> const std::vector<descriptor_data_t>&;
 		private:
+
 			vulkan::mapped_buffer m_data_buffer;
 			buffer_subdata m_buffer_subdata;
 			std::vector<descriptor_data_t> m_descriptors;
