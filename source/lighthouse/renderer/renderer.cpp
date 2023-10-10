@@ -57,18 +57,6 @@ namespace lh
 								m_global_descriptor},
 		  m_scene_loader {m_logical_device, m_memory_allocator, file_system::data_path() /= "models/cube.obj"},
 		  m_camera {std::make_shared<lh::node>(), camera<camera_type::perspective>::create_info {}},
-		  m_texture1 {m_physical_device,
-					  m_logical_device,
-					  m_memory_allocator,
-					  m_transfer_control,
-					  m_queue.transfer(),
-					  file_system::data_path() /= "textures/grooved_bricks/basecolor.png"},
-		  m_texture2 {m_physical_device,
-					  m_logical_device,
-					  m_memory_allocator,
-					  m_transfer_control,
-					  m_queue.transfer(),
-					  file_system::data_path() /= "textures/grooved_bricks/normal.png"},
 		  m_material {m_physical_device,
 					  m_logical_device,
 					  m_memory_allocator,
@@ -76,10 +64,12 @@ namespace lh
 					  m_queue.transfer(),
 					  {file_system::data_path() /= "textures/grooved_bricks/basecolor.png",
 					   file_system::data_path() /= "textures/grooved_bricks/normal.png"}}
-	{
-		m_global_descriptor_buffer.map_uniform_buffer_data(0,
-														   vulkan::buffer_subdata {
-															   m_resource_generator.uniform_buffer_subdata()});
+	{ /*
+		 m_global_descriptor_buffer.map_uniform_buffer_data(0,
+															vulkan::buffer_subdata {
+																m_resource_generator.uniform_buffer_subdata()});*/
+
+		m_global_descriptor_buffer.map_resource_buffer(m_resource_generator.descriptor_buffer());
 		// auto wtf = m_global_descriptor_buffer.register_textures({&m_texture1, &m_texture2});
 		m_global_descriptor_buffer.map_material(m_material);
 		// m_global_descriptor_buffer.unregister_textures({1});
@@ -171,8 +161,10 @@ namespace lh
 
 		glm::ivec4 mi = {0, 1, 2, 3};
 		auto test_camera = /*clip **/ perspective * view * glm::mat4x4 {1.0f};
+		/*
 		m_resource_generator.uniform_buffers().map_data(test_camera);
-		m_resource_generator.uniform_buffers().map_data(mi, 64);
+		m_resource_generator.uniform_buffers().map_data(mi, 64);*/
+		m_resource_generator.descriptor_buffer().map_binding_data(0, test_camera);
 
 		m_global_descriptor_buffer.bind(command_buffer, m_global_descriptor.pipeline_layout());
 		//  ==================

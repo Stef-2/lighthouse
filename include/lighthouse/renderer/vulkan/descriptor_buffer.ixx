@@ -15,6 +15,7 @@ import memory_allocator;
 import global_descriptor;
 import buffer;
 import material;
+import descriptor_resource_buffer;
 
 #if not INTELLISENSE
 import std.core;
@@ -45,6 +46,7 @@ export namespace lh
 
 			auto map_uniform_buffer_data(const binding_slot_t& offset, const buffer_subdata&) -> void;
 			auto map_material(const material&) -> void;
+			auto map_resource_buffer(const descriptor_resource_buffer&) -> void;
 
 			auto resource_buffer() -> const mapped_buffer&;
 			auto combined_image_sampler_buffer() -> const mapped_buffer&;

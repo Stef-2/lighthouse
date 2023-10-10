@@ -23,6 +23,10 @@ namespace
 				not std::ranges::contains(unique_pipeline_inputs.m_uniform_buffer_descriptors, input))
 				unique_pipeline_inputs.m_uniform_buffer_descriptors.push_back(input);
 
+			if (input.m_type == vk::DescriptorType::eStorageBuffer and
+				not std::ranges::contains(unique_pipeline_inputs.m_storage_buffer_descriptors, input))
+				unique_pipeline_inputs.m_storage_buffer_descriptors.push_back(input);
+
 			if (input.m_type == vk::DescriptorType::eCombinedImageSampler and
 				not std::ranges::contains(unique_pipeline_inputs.m_combined_image_sampler_descriptors, input))
 				unique_pipeline_inputs.m_combined_image_sampler_descriptors.push_back(input);
@@ -49,8 +53,8 @@ namespace lh
 			: m_spir_v {},
 			  m_vertex_input_description {},
 			  m_shader_pipeline {},
-			  m_uniform_buffers {},
-			  m_uniform_buffer_subdata {},
+			  // m_uniform_buffers {},
+			  // m_uniform_buffer_subdata {},
 			  m_resource_descriptor_buffer {}
 		{
 			auto pipeline_shader_inputs = std::vector<std::pair<vk::ShaderStageFlagBits, shader_input>> {};
@@ -80,11 +84,22 @@ namespace lh
 			const auto uniform_buffers_size =
 				std::ranges::fold_left(unique_pipeline_inputs.m_uniform_buffer_descriptors,
 									   vk::DeviceSize {},
-									   [](auto size, const auto& element) {
+									   [](auto&& size, const auto& element) {
 										   size += element.m_size;
 										   return std::move(size);
 									   });
 
+			const auto storage_buffers_size =
+				std::ranges::fold_left(unique_pipeline_inputs.m_storage_buffer_descriptors,
+									   vk::DeviceSize {},
+									   [](auto&& size, const auto& element) {
+										   size += element.m_size;
+										   return std::move(size);
+									   });
+
+			auto resource_buffer_subdata =
+				std::vector<descriptor_resource_buffer::create_info::binding_type_and_subdata_t> {};
+			/*
 			if (uniform_buffers_size > 0)
 				m_uniform_buffers = {logical_device,
 									 memory_allocator,
@@ -93,14 +108,38 @@ namespace lh
 										 .m_usage = vk::BufferUsageFlagBits::eUniformBuffer |
 													vk::BufferUsageFlagBits::eShaderDeviceAddress}};
 
-			m_uniform_buffer_subdata.m_buffer = &m_uniform_buffers;
+			m_uniform_buffer_subdata.m_buffer = &m_uniform_buffers;*/
 
 			for (auto buffer_offset = vk::DeviceSize {};
 				 const auto& uniform_buffer : unique_pipeline_inputs.m_uniform_buffer_descriptors)
 			{
-				m_uniform_buffer_subdata.m_subdata.emplace_back(buffer_offset, uniform_buffer.m_size);
+				// m_uniform_buffer_subdata.m_subdata.emplace_back(buffer_offset, uniform_buffer.m_size);
+
+				resource_buffer_subdata.emplace_back(
+					std::pair {vk::DescriptorType::eUniformBuffer,
+							   buffer_subdata::subdata {buffer_offset, uniform_buffer.m_size}});
+
 				buffer_offset += uniform_buffer.m_size;
 			}
+
+			for (auto buffer_offset = vk::DeviceSize {};
+				 const auto& storage_buffer : unique_pipeline_inputs.m_storage_buffer_descriptors)
+			{
+				resource_buffer_subdata.emplace_back(
+					std::pair {vk::DescriptorType::eStorageBuffer,
+							   buffer_subdata::subdata {buffer_offset, storage_buffer.m_size}});
+
+				buffer_offset += storage_buffer.m_size;
+			}
+
+			m_resource_descriptor_buffer = {physical_device,
+											logical_device,
+											memory_allocator,
+											uniform_buffers_size + storage_buffers_size,
+											{{.m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
+														 vk::BufferUsageFlagBits::eUniformBuffer |
+														 vk::BufferUsageFlagBits::eStorageBuffer},
+											 resource_buffer_subdata}};
 		}
 
 		auto pipeline_resource_generator::vertex_input_description() const -> const vulkan::vertex_input_description&
@@ -113,6 +152,11 @@ namespace lh
 			return m_shader_pipeline;
 		}
 
+		auto pipeline_resource_generator::descriptor_buffer() const -> const vulkan::descriptor_resource_buffer&
+		{
+			return m_resource_descriptor_buffer;
+		}
+		/*
 		auto pipeline_resource_generator::uniform_buffers() const -> const mapped_buffer&
 		{
 			return m_uniform_buffers;
@@ -122,7 +166,7 @@ namespace lh
 		{
 			return m_uniform_buffer_subdata;
 		}
-
+		*/
 		auto pipeline_resource_generator::translate_shader_input_format(const shader_input& shader_input) const
 			-> const vk::Format
 		{

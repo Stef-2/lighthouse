@@ -1,7 +1,10 @@
 module;
 
 #if INTELLISENSE
+#include "vulkan.hpp"
+
 #include <cstdint>
+#include <utility>
 #include <vector>
 #endif
 
@@ -25,12 +28,14 @@ export namespace lh
 		{
 		public:
 			using binding_slot_t = std::uint16_t;
-			using descriptor_data_t = std::vector<std::byte>;
+			using descriptor_data_t = std::pair<vk::DescriptorType,std::vector<std::byte>>;
 
 			struct create_info
 			{
+				using binding_type_and_subdata_t = std::pair<vk::DescriptorType, buffer_subdata::subdata>;
+
 				mapped_buffer::create_info m_buffer_create_info = {};
-				std::vector<buffer_subdata::subdata> m_subdata = {};
+				std::vector<binding_type_and_subdata_t> m_subdata = {};
 			};
 
 			descriptor_resource_buffer();
@@ -42,20 +47,22 @@ export namespace lh
 
 			descriptor_resource_buffer(const descriptor_resource_buffer&) = delete;
 			auto operator=(const descriptor_resource_buffer&) = delete;
+			descriptor_resource_buffer(descriptor_resource_buffer&&) noexcept = default;
+			descriptor_resource_buffer& operator=(descriptor_resource_buffer&&) noexcept = default;
 
 			template <typename T>
 			requires(not std::is_pointer_v<T>)
-			auto map_binding_data(const binding_slot_t& binding, const T& data)
+			auto map_binding_data(const binding_slot_t& binding, const T& data) const
 			{
 				m_data_buffer.map_data(data, m_buffer_subdata[binding].m_offset, m_buffer_subdata[binding].m_size);
 			}
 
 			auto mapped_buffer() const -> const vulkan::mapped_buffer&;
-			auto descriptor() const -> const std::vector<descriptor_data_t>&;
+			auto descriptors() const -> const std::vector<descriptor_data_t>&;
 		private:
 			vulkan::mapped_buffer m_data_buffer;
 			buffer_subdata m_buffer_subdata;
-			std::vector<descriptor_data_t> m_descriptor;
+			std::vector<descriptor_data_t> m_descriptors;
 		};
 	}
 }
