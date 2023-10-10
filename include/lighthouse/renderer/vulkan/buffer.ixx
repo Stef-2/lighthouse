@@ -4,6 +4,7 @@ module;
 #include "vulkan/vulkan_raii.hpp"
 
 #include <vector>
+#include <cstddef>
 #include <cstring>
 #endif
 
@@ -78,9 +79,9 @@ export namespace lh
 			requires (not std::is_pointer_v<T>)
 			auto map_data(const T& data, const std::size_t& offset = 0, const std::size_t& size = sizeof(T)) const
 			{
-				const auto map = static_cast<uint8_t*>(m_allocation_info.pMappedData) + offset;
+				const auto destination = static_cast<std::byte*>(m_allocation_info.pMappedData) + offset;
 
-				std::memcpy(map, &data, size);
+				std::memcpy(destination, &data, size);
 			}
 
 		private:

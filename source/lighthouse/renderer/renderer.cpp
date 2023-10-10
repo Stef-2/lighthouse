@@ -70,6 +70,7 @@ namespace lh
 																m_resource_generator.uniform_buffer_subdata()});*/
 
 		m_global_descriptor_buffer.map_resource_buffer(m_resource_generator.descriptor_buffer());
+		// m_global_descriptor_buffer.map_uniform_buffer_data(0, m_resource_generator.descriptor_buffer().subdata());
 		m_global_descriptor_buffer.map_material(m_material);
 		// auto wtf = m_global_descriptor_buffer.register_textures({&m_texture1, &m_texture2});
 		// m_global_descriptor_buffer.unregister_textures({1});
@@ -155,17 +156,26 @@ namespace lh
 
 		auto view = m_camera.view();
 
+		struct test
+		{
+			glm::mat4x4 wtf;
+			float t;
+		};
+
 		auto perspective = m_camera.projection();
 		glm::mat4x4 clip = glm::mat4x4(
 			1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.5f, 1.0f);
-
 		glm::ivec4 mi = {0, 1, 2, 3};
 		auto test_camera = /*clip **/ perspective * view * glm::mat4x4 {1.0f};
+		test omg {test_camera, 1.0f};
 		/*
 		m_resource_generator.uniform_buffers().map_data(test_camera);
 		m_resource_generator.uniform_buffers().map_data(mi, 64);*/
 		m_resource_generator.descriptor_buffer().map_binding_data(0, test_camera);
 		m_resource_generator.descriptor_buffer().map_binding_data(1, mi);
+		m_resource_generator.descriptor_buffer().map_binding_data(2, mi);
+		// m_resource_generator.descriptor_buffer().mapped_buffer().map_data(test_camera);
+		// m_resource_generator.descriptor_buffer().mapped_buffer().map_data(mi, 64);
 
 		m_global_descriptor_buffer.bind(command_buffer, m_global_descriptor.pipeline_layout());
 		//  ==================

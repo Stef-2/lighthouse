@@ -47,8 +47,7 @@ export namespace lh
 
 			descriptor_resource_buffer(const descriptor_resource_buffer&) = delete;
 			auto operator=(const descriptor_resource_buffer&) = delete;
-			descriptor_resource_buffer(descriptor_resource_buffer&&) noexcept = default;
-			descriptor_resource_buffer& operator=(descriptor_resource_buffer&&) noexcept = default;
+			descriptor_resource_buffer& operator=(descriptor_resource_buffer&&) noexcept;
 
 			template <typename T>
 			requires(not std::is_pointer_v<T>)
@@ -59,6 +58,7 @@ export namespace lh
 
 			auto mapped_buffer() const -> const vulkan::mapped_buffer&;
 			auto descriptors() const -> const std::vector<descriptor_data_t>&;
+			auto subdata() const -> const buffer_subdata&;
 		private:
 
 			vulkan::mapped_buffer m_data_buffer;

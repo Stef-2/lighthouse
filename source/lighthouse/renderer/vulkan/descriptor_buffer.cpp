@@ -153,6 +153,7 @@ namespace lh
 			command_buffer.bindDescriptorBuffersEXT(combined_descriptor_bindings);
 
 			command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point, *pipeline_layout, 0, {0}, {0});
+			command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point, *pipeline_layout, 1, {1}, {0});
 			command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point, *pipeline_layout, 2, {2}, {0});
 		}
 	}

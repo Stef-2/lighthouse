@@ -56,7 +56,7 @@ namespace lh
 												 ? descriptor_buffer_properties.uniformBufferDescriptorSize
 												 : descriptor_buffer_properties.storageBufferDescriptorSize;
 
-				m_buffer_subdata.m_subdata.emplace_back(subdata);
+				m_buffer_subdata.m_subdata.push_back(subdata);
 
 				m_descriptors.emplace_back();
 				m_descriptors.back().first = descriptor_type;
@@ -74,6 +74,20 @@ namespace lh
 			}
 		}
 
+		descriptor_resource_buffer& descriptor_resource_buffer::operator=(descriptor_resource_buffer&& other) noexcept
+		{
+			m_data_buffer = std::move(other.m_data_buffer);
+			m_buffer_subdata = std::move(other.m_buffer_subdata);
+			m_buffer_subdata.m_buffer = &m_data_buffer;
+			m_descriptors = std::move(other.m_descriptors);
+
+			other.m_data_buffer = {};
+			other.m_buffer_subdata = {};
+			other.m_descriptors = {};
+
+			return *this;
+		}
+
 		auto descriptor_resource_buffer::mapped_buffer() const -> const vulkan::mapped_buffer&
 		{
 			return m_data_buffer;
@@ -82,6 +96,10 @@ namespace lh
 		auto descriptor_resource_buffer::descriptors() const -> const std::vector<descriptor_data_t>&
 		{
 			return m_descriptors;
+		}
+		auto descriptor_resource_buffer::subdata() const -> const buffer_subdata&
+		{
+			return m_buffer_subdata;
 		}
 	}
 }

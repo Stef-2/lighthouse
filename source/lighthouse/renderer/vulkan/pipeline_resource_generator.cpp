@@ -127,7 +127,7 @@ namespace lh
 			{
 				resource_buffer_subdata.emplace_back(
 					std::pair {vk::DescriptorType::eStorageBuffer,
-							   buffer_subdata::subdata {buffer_offset, storage_buffer.m_size /*84, 16*/}});
+							   buffer_subdata::subdata {/*buffer_offset, storage_buffer.m_size*/ 80, 16}});
 
 				buffer_offset += storage_buffer.m_size;
 			}
