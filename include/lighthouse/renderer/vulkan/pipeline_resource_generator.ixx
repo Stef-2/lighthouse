@@ -50,8 +50,6 @@ export namespace lh
 			auto vertex_input_description() const -> const vulkan::vertex_input_description&;
 			auto shader_pipeline() const -> const vulkan::shader_pipeline&;
 			auto descriptor_buffer() const -> const vulkan::descriptor_resource_buffer&;
-			//auto uniform_buffers() const -> const mapped_buffer&;
-			//auto uniform_buffer_subdata() const -> const buffer_subdata&;
 
 		private:
 			auto translate_shader_input_format(const shader_input&) const -> const vk::Format;
@@ -61,9 +59,7 @@ export namespace lh
 			std::vector<spir_v> m_spir_v;
 			vulkan::vertex_input_description m_vertex_input_description;
 
-			vulkan::shader_pipeline m_shader_pipeline;/*
-			mapped_buffer m_uniform_buffers;
-			buffer_subdata m_uniform_buffer_subdata;*/
+			vulkan::shader_pipeline m_shader_pipeline;
 			descriptor_resource_buffer m_resource_descriptor_buffer;
 		};
 	}

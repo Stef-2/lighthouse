@@ -75,15 +75,15 @@ export namespace lh
 				std::uint8_t m_colums;
 				std::uint32_t m_array_dimension;
 				vk::DeviceSize m_size;
-				vk::DeviceSize m_offset;
+				std::uint32_t m_offset;
 			};
 
 			auto operator()(const shader_input&) const -> std::size_t;
 			auto operator==(const shader_input&) const -> bool;
 
-			uint32_t m_descriptor_set;
-			uint32_t m_descriptor_location;
-			uint32_t m_descriptor_binding;
+			std::uint32_t m_descriptor_set;
+			std::uint32_t m_descriptor_location;
+			std::uint32_t m_descriptor_binding;
 
 			vk::DescriptorType m_type;
 			storage_class m_storage_class;
@@ -92,6 +92,9 @@ export namespace lh
 			std::uint8_t m_columns;
 			std::uint32_t m_array_dimension;
 			vk::DeviceSize m_size;
+			std::uint32_t m_set_offset;
+			std::uint32_t m_binding_offset;
+			std::uint32_t m_location_offset;
 
 			std::vector<struct_member> m_members;
 		};

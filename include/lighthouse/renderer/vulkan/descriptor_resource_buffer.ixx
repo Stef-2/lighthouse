@@ -51,18 +51,29 @@ export namespace lh
 
 			template <typename T>
 			requires(not std::is_pointer_v<T>)
-			auto map_binding_data(const binding_slot_t& binding, const T& data) const
+			auto map_uniform_data(const binding_slot_t& binding, const T& data) const
 			{
-				m_data_buffer.map_data(data, m_buffer_subdata.m_subdata[binding].m_offset, m_buffer_subdata.m_subdata[binding].m_size);
+				m_data_buffer.map_data(data,
+									   m_uniform_buffer_subdata.m_subdata[binding].m_offset,
+									   m_uniform_buffer_subdata.m_subdata[binding].m_size);
+			}
+
+			template <typename T>
+			requires(not std::is_pointer_v<T>)
+			auto map_storage_data(const binding_slot_t& binding, const T& data) const
+			{
+				m_data_buffer.map_data(data,
+									   m_storage_buffer_subdata.m_subdata[binding].m_offset,
+									   m_storage_buffer_subdata.m_subdata[binding].m_size);
 			}
 
 			auto mapped_buffer() const -> const vulkan::mapped_buffer&;
 			auto descriptors() const -> const std::vector<descriptor_data_t>&;
-			auto subdata() const -> const buffer_subdata&;
-		private:
 
+		private:
 			vulkan::mapped_buffer m_data_buffer;
-			buffer_subdata m_buffer_subdata;
+			buffer_subdata m_uniform_buffer_subdata;
+			buffer_subdata m_storage_buffer_subdata;
 			std::vector<descriptor_data_t> m_descriptors;
 		};
 	}

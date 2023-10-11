@@ -50,12 +50,7 @@ namespace lh
 																 const pipeline_glsl_code& shader_paths,
 																 const global_descriptor& global_descriptor,
 																 const create_info& create_info)
-			: m_spir_v {},
-			  m_vertex_input_description {},
-			  m_shader_pipeline {},
-			  // m_uniform_buffers {},
-			  // m_uniform_buffer_subdata {},
-			  m_resource_descriptor_buffer {}
+			: m_spir_v {}, m_vertex_input_description {}, m_shader_pipeline {}, m_resource_descriptor_buffer {}
 		{
 			auto pipeline_shader_inputs = std::vector<std::pair<vk::ShaderStageFlagBits, shader_input>> {};
 
@@ -99,35 +94,28 @@ namespace lh
 
 			auto resource_buffer_subdata =
 				std::vector<descriptor_resource_buffer::create_info::binding_type_and_subdata_t> {};
-			/*
-			if (uniform_buffers_size > 0)
-				m_uniform_buffers = {logical_device,
-									 memory_allocator,
-									 uniform_buffers_size,
-									 vulkan::mapped_buffer::create_info {
-										 .m_usage = vk::BufferUsageFlagBits::eUniformBuffer |
-													vk::BufferUsageFlagBits::eShaderDeviceAddress}};
 
-			m_uniform_buffer_subdata.m_buffer = &m_uniform_buffers;*/
+			auto resoruce_descriptor_buffer_usage = vk::BufferUsageFlags {
+				vk::BufferUsageFlagBits::eShaderDeviceAddress};
 
-			for (auto buffer_offset = vk::DeviceSize {};
-				 const auto& uniform_buffer : unique_pipeline_inputs.m_uniform_buffer_descriptors)
+			auto buffer_offset = vk::DeviceSize {};
+
+			for (const auto& uniform_buffer : unique_pipeline_inputs.m_uniform_buffer_descriptors)
 			{
-				// m_uniform_buffer_subdata.m_subdata.emplace_back(buffer_offset, uniform_buffer.m_size);
-
 				resource_buffer_subdata.emplace_back(
 					std::pair {vk::DescriptorType::eUniformBuffer,
 							   buffer_subdata::subdata {buffer_offset, uniform_buffer.m_size}});
+				resoruce_descriptor_buffer_usage |= vk::BufferUsageFlagBits::eUniformBuffer;
 
 				buffer_offset += uniform_buffer.m_size;
 			}
 
-			for (auto buffer_offset = vk::DeviceSize {};
-				 const auto& storage_buffer : unique_pipeline_inputs.m_storage_buffer_descriptors)
+			for (const auto& storage_buffer : unique_pipeline_inputs.m_storage_buffer_descriptors)
 			{
 				resource_buffer_subdata.emplace_back(
 					std::pair {vk::DescriptorType::eStorageBuffer,
-							   buffer_subdata::subdata {/*buffer_offset, storage_buffer.m_size*/ 80, 16}});
+							   buffer_subdata::subdata {buffer_offset, storage_buffer.m_size}});
+				resoruce_descriptor_buffer_usage |= vk::BufferUsageFlagBits::eStorageBuffer;
 
 				buffer_offset += storage_buffer.m_size;
 			}
@@ -136,10 +124,7 @@ namespace lh
 											logical_device,
 											memory_allocator,
 											uniform_buffers_size + storage_buffers_size,
-											{{.m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
-														 vk::BufferUsageFlagBits::eUniformBuffer |
-														 vk::BufferUsageFlagBits::eStorageBuffer},
-											 resource_buffer_subdata}};
+											{{.m_usage = resoruce_descriptor_buffer_usage}, resource_buffer_subdata}};
 		}
 
 		auto pipeline_resource_generator::vertex_input_description() const -> const vulkan::vertex_input_description&
@@ -156,17 +141,7 @@ namespace lh
 		{
 			return m_resource_descriptor_buffer;
 		}
-		/*
-		auto pipeline_resource_generator::uniform_buffers() const -> const mapped_buffer&
-		{
-			return m_uniform_buffers;
-		}
 
-		auto pipeline_resource_generator::uniform_buffer_subdata() const -> const buffer_subdata&
-		{
-			return m_uniform_buffer_subdata;
-		}
-		*/
 		auto pipeline_resource_generator::translate_shader_input_format(const shader_input& shader_input) const
 			-> const vk::Format
 		{

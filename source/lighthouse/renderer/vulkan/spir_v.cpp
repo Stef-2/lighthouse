@@ -83,11 +83,11 @@ namespace
 
 	{
 		constexpr auto byte_divisor = std::uint8_t {8};
+		constexpr auto spir_v_word_length = std::uint8_t {4};
 
 		const auto set = compiler.get_decoration(resource.id, spv::Decoration::DecorationDescriptorSet);
-		const auto location = compiler.get_decoration(resource.id, spv::Decoration::DecorationLocation);
 		const auto binding = compiler.get_decoration(resource.id, spv::Decoration::DecorationBinding);
-
+		const auto location = compiler.get_decoration(resource.id, spv::Decoration::DecorationLocation);
 		const auto storage_class = compiler.get_storage_class(resource.id);
 		const auto data_type = compiler.get_type_from_variable(resource.id).basetype;
 		const auto rows = compiler.get_type_from_variable(resource.id).vecsize;
@@ -99,6 +99,13 @@ namespace
 							  ? compiler.get_type_from_variable(resource.id).width / byte_divisor * rows * columns
 							  : compiler.get_declared_struct_size(compiler.get_type(resource.base_type_id));
 
+		auto set_offset = std::uint32_t {};
+		compiler.get_binary_offset_for_decoration(resource.id, spv::Decoration::DecorationDescriptorSet, set_offset);
+		auto binding_offset = std::uint32_t {};
+		compiler.get_binary_offset_for_decoration(resource.id, spv::Decoration::DecorationBinding, binding_offset);
+		auto location_offset = std::uint32_t {};
+		compiler.get_binary_offset_for_decoration(resource.id, spv::Decoration::DecorationLocation, location_offset);
+
 		auto input = lh::vulkan::shader_input {set,
 											   location,
 											   binding,
@@ -108,7 +115,10 @@ namespace
 											   static_cast<std::uint8_t>(rows),
 											   static_cast<std::uint8_t>(columns),
 											   array_dimension,
-											   size};
+											   size,
+											   set_offset * spir_v_word_length,
+											   binding_offset * spir_v_word_length,
+											   location_offset * spir_v_word_length};
 
 		for (std::size_t i {}; const auto& member : compiler.get_type(resource.base_type_id).member_types)
 		{
@@ -185,7 +195,15 @@ namespace lh
 				switch (x.m_type)
 				{
 					case shader_input::s_stage_input_flag: return (x.m_descriptor_location < y.m_descriptor_location);
-					case vk::DescriptorType::eUniformBuffer: return (x.m_descriptor_binding < y.m_descriptor_binding);
+					case vk::DescriptorType::eUniformBuffer:
+						return (x.m_descriptor_binding < y.m_descriptor_binding and
+								x.m_descriptor_set == y.m_descriptor_set);
+					case vk::DescriptorType::eStorageBuffer:
+						return (x.m_descriptor_binding < y.m_descriptor_binding and
+								x.m_descriptor_set == y.m_descriptor_set);
+					case vk::DescriptorType::eCombinedImageSampler:
+						return (x.m_descriptor_binding < y.m_descriptor_binding and
+								x.m_descriptor_set == y.m_descriptor_set);
 					default: break;
 				}
 			});
