@@ -76,22 +76,6 @@ namespace lh
 
 			m_shader_pipeline = {logical_device, pipeline_data};
 
-			const auto uniform_buffers_size =
-				std::ranges::fold_left(unique_pipeline_inputs.m_uniform_buffer_descriptors,
-									   vk::DeviceSize {},
-									   [](auto&& size, const auto& element) {
-										   size += element.m_size;
-										   return std::move(size);
-									   });
-
-			const auto storage_buffers_size =
-				std::ranges::fold_left(unique_pipeline_inputs.m_storage_buffer_descriptors,
-									   vk::DeviceSize {},
-									   [](auto&& size, const auto& element) {
-										   size += element.m_size;
-										   return std::move(size);
-									   });
-
 			auto resource_buffer_subdata =
 				std::vector<descriptor_resource_buffer::create_info::binding_type_and_subdata_t> {};
 
@@ -123,8 +107,11 @@ namespace lh
 			m_resource_descriptor_buffer = {physical_device,
 											logical_device,
 											memory_allocator,
-											uniform_buffers_size + storage_buffers_size,
-											{{.m_usage = resoruce_descriptor_buffer_usage}, resource_buffer_subdata}};
+											buffer_offset,
+											{{.m_usage = {vk::BufferUsageFlagBits::eShaderDeviceAddress |
+														  vk::BufferUsageFlagBits::eUniformBuffer |
+														  vk::BufferUsageFlagBits::eStorageBuffer}},
+											 resource_buffer_subdata}};
 		}
 
 		auto pipeline_resource_generator::vertex_input_description() const -> const vulkan::vertex_input_description&

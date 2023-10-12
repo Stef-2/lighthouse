@@ -166,6 +166,7 @@ namespace lh
 		glm::mat4x4 clip = glm::mat4x4(
 			1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.5f, 1.0f);
 		glm::ivec4 mi = {0, 1, 2, 3};
+		glm::ivec4 mi1 = {1, 1, 1, 1};
 		auto test_camera = /*clip **/ perspective * view * glm::mat4x4 {1.0f};
 		test omg {test_camera, 1.0f};
 		/*
@@ -173,7 +174,8 @@ namespace lh
 		m_resource_generator.uniform_buffers().map_data(mi, 64);*/
 		m_resource_generator.descriptor_buffer().map_uniform_data(0, test_camera);
 		m_resource_generator.descriptor_buffer().map_uniform_data(1, mi);
-		m_resource_generator.descriptor_buffer().map_storage_data(0, mi);
+		m_resource_generator.descriptor_buffer().map_storage_data(0, mi1);
+		m_resource_generator.descriptor_buffer().map_storage_data(1, mi1);
 		// m_resource_generator.descriptor_buffer().mapped_buffer().map_data(test_camera);
 		// m_resource_generator.descriptor_buffer().mapped_buffer().map_data(mi, 64);
 

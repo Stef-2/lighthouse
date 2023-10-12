@@ -196,14 +196,14 @@ namespace lh
 				{
 					case shader_input::s_stage_input_flag: return (x.m_descriptor_location < y.m_descriptor_location);
 					case vk::DescriptorType::eUniformBuffer:
-						return (x.m_descriptor_binding < y.m_descriptor_binding and
-								x.m_descriptor_set == y.m_descriptor_set);
+						return (x.m_descriptor_binding < y.m_descriptor_binding/* and
+								x.m_descriptor_set == y.m_descriptor_set*/);
 					case vk::DescriptorType::eStorageBuffer:
-						return (x.m_descriptor_binding < y.m_descriptor_binding and
-								x.m_descriptor_set == y.m_descriptor_set);
+						return (x.m_descriptor_binding < y.m_descriptor_binding/* and
+								x.m_descriptor_set == y.m_descriptor_set*/);
 					case vk::DescriptorType::eCombinedImageSampler:
-						return (x.m_descriptor_binding < y.m_descriptor_binding and
-								x.m_descriptor_set == y.m_descriptor_set);
+						return (x.m_descriptor_binding < y.m_descriptor_binding/* and
+								x.m_descriptor_set == y.m_descriptor_set*/);
 					default: break;
 				}
 			});

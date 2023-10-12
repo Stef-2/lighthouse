@@ -80,10 +80,13 @@ namespace lh
 		descriptor_resource_buffer& descriptor_resource_buffer::operator=(descriptor_resource_buffer&& other) noexcept
 		{
 			m_data_buffer = std::move(other.m_data_buffer);
+
 			m_uniform_buffer_subdata = std::move(other.m_uniform_buffer_subdata);
 			m_storage_buffer_subdata = std::move(other.m_storage_buffer_subdata);
+
 			m_uniform_buffer_subdata.m_buffer = &m_data_buffer;
 			m_storage_buffer_subdata.m_buffer = &m_data_buffer;
+
 			m_descriptors = std::move(other.m_descriptors);
 
 			other.m_data_buffer = {};

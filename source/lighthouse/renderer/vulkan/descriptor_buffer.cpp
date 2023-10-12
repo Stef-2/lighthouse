@@ -90,15 +90,15 @@ namespace lh
 					vk::BufferUsageFlagBits::eShaderDeviceAddress |
 						vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT);
 
-				void* destination = static_cast<std::byte*>(
-										m_combined_image_sampler_descriptor_buffer.allocation_info().pMappedData) +
-									i * descriptor_offset;
+				auto destination = static_cast<std::byte*>(
+									   m_combined_image_sampler_descriptor_buffer.allocation_info().pMappedData) +
+								   i * descriptor_offset;
 				std::memcpy(destination, texture.descriptor().data(), texture.descriptor().size());
 
 				i++;
 			}
 		}
-
+#pragma optimize("", off)
 		auto descriptor_buffer::map_resource_buffer(const descriptor_resource_buffer& resource_buffer) -> void
 		{
 			const auto& descriptor_buffer_properties = m_physical_device.properties().m_descriptor_buffer_properties;
@@ -109,9 +109,7 @@ namespace lh
 			for (auto combined_offset = vk::DeviceSize {}, combined_alligned_offset = vk::DeviceSize {};
 				 const auto& [descriptor_type, descriptor_data] : resource_buffer.descriptors())
 			{
-				const auto descriptor_offset = descriptor_type == vk::DescriptorType::eUniformBuffer
-												   ? descriptor_buffer_properties.m_uniform_buffer_offset
-												   : descriptor_buffer_properties.m_storage_buffer_offset;
+				const auto descriptor_offset = descriptor_data.size();
 
 				const auto alligned_offset =
 					utility::aligned_size(static_cast<vk::DeviceSize>(descriptor_offset),
@@ -122,9 +120,8 @@ namespace lh
 					vk::BufferUsageFlagBits::eShaderDeviceAddress |
 						vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT);
 
-				void* destination = static_cast<std::byte*>(
-										m_resource_descriptor_buffer.allocation_info().pMappedData) +
-									combined_offset;
+				auto destination = static_cast<std::byte*>(m_resource_descriptor_buffer.allocation_info().pMappedData) +
+								   combined_offset;
 
 				std::memcpy(destination, descriptor_data.data(), descriptor_data.size());
 
@@ -152,8 +149,12 @@ namespace lh
 
 			command_buffer.bindDescriptorBuffersEXT(combined_descriptor_bindings);
 
+			std::vector<std::uint32_t> indices {0, 2, 4};
+			std::vector<vk::DeviceSize> offsets {0, 0, 0};
+
+			// command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point, *pipeline_layout, 0, indices, offsets);
 			command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point, *pipeline_layout, 0, {0}, {0});
-			command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point, *pipeline_layout, 1, {1}, {0});
+			command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point, *pipeline_layout, 1, {0}, {0});
 			command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point, *pipeline_layout, 2, {2}, {0});
 		}
 	}

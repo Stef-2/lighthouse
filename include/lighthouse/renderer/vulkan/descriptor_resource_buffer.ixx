@@ -6,6 +6,7 @@ module;
 #include <cstdint>
 #include <utility>
 #include <vector>
+#include <concepts>
 #endif
 
 export module descriptor_resource_buffer;
