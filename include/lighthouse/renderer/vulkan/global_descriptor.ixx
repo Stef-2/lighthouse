@@ -27,8 +27,8 @@ export namespace lh
 
 			struct create_info
 			{
-				descriptor_type_size_t m_num_uniform_buffers = 15;
-				descriptor_type_size_t m_num_storage_descriptors = 8;
+				descriptor_type_size_t m_num_uniform_buffers = 2;
+				descriptor_type_size_t m_num_storage_descriptors = 2;
 				descriptor_type_size_t m_num_combined_image_samplers = 1024;
 			};
 

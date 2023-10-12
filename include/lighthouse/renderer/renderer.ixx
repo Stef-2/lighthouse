@@ -2,12 +2,9 @@ module;
 export module renderer;
 
 import window;
-import node;
 import lighthouse_string;
 import version;
-import file_system;
 import scene_loader;
-import extension;
 import instance;
 import physical_device;
 import logical_device;
@@ -17,24 +14,12 @@ import memory_allocator;
 import command_control;
 import queue;
 import global_descriptor;
-import image;
-import texture;
 import material;
 import swapchain;
-import spir_v;
 import shader_object;
 import descriptor_buffer;
 import pipeline_resource_generator;
-import lighthouse_utility;
-import vertex_input_description;
-import vertex_buffer;
-import vertex_format;
-import index_format;
-import buffer;
-import input;
-import mesh;
 import camera;
-import time;
 
 #if not INTELLISENSE
 import std.core;
@@ -88,8 +73,6 @@ export namespace lh
 		vulkan::global_descriptor m_global_descriptor;
 		vulkan::descriptor_buffer m_global_descriptor_buffer;
 
-		vulkan::spir_v m_vertex_spirv;
-		vulkan::spir_v m_fragment_spirv;
 		vulkan::pipeline_resource_generator m_resource_generator;
 		scene_loader m_scene_loader;
 		lh::camera<camera_type::perspective> m_camera;

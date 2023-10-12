@@ -1,10 +1,7 @@
 module;
 
-#include "vkfw/vkfw.hpp"
 #include "glm/mat4x4.hpp"
 #include "glm/ext.hpp"
-
-#include "vulkan/utils/raii/raii_utils.hpp"
 
 #if INTELLISENSE
 #include "vulkan/vulkan_raii.hpp"
@@ -46,9 +43,6 @@ namespace lh
 		  m_swapchain {m_physical_device, m_logical_device, m_surface, m_queue_families, m_memory_allocator},
 		  m_global_descriptor {m_physical_device, m_logical_device},
 		  m_global_descriptor_buffer {m_physical_device, m_logical_device, m_memory_allocator, m_global_descriptor},
-		  m_vertex_spirv {input::read_file(file_system::data_path() /= "shaders/basic.vert")},
-
-		  m_fragment_spirv {input::read_file(file_system::data_path() /= "shaders/basic.frag")},
 		  m_resource_generator {m_physical_device,
 								m_logical_device,
 								m_memory_allocator,
@@ -152,7 +146,7 @@ namespace lh
 
 		m_scene_loader.meshes()[0].vertex_buffer().bind(command_buffer);
 
-		const auto time = static_cast<float>(vkfw::getTime().value);
+		// const auto time = static_cast<float>(vkfw::getTime().value);
 
 		auto view = m_camera.view();
 
@@ -196,7 +190,7 @@ namespace lh
 		vk::SubmitInfo submitInfo(*semaphore, waitDestinationStageMask, *command_buffer);
 		m_queue.graphics().submit(submitInfo, *drawFence);
 
-		while (vk::Result::eTimeout == m_logical_device->waitForFences({*drawFence}, VK_TRUE, vk::su::FenceTimeout))
+		while (vk::Result::eTimeout == m_logical_device->waitForFences({*drawFence}, true, 1000000))
 			;
 
 		vk::PresentInfoKHR presentInfoKHR(nullptr, **m_swapchain, image_index);

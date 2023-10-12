@@ -150,13 +150,13 @@ namespace lh
 			command_buffer.bindDescriptorBuffersEXT(combined_descriptor_bindings);
 
 			std::vector<std::uint32_t> indices {
-				0, 0, static_cast<std::uint32_t>(m_resource_descriptor_buffer_binding_info.size())};
+				0, 0, 4 /*static_cast<std::uint32_t>(m_resource_descriptor_buffer_binding_info.size())*/};
 			std::vector<vk::DeviceSize> offsets {0, 0, 0};
 
 			command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point, *pipeline_layout, 0, indices, offsets);
 			// command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point, *pipeline_layout, 0, {0}, {0});
 			// command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point, *pipeline_layout, 1, {0}, {0});
-			// command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point, *pipeline_layout, 2, {7}, {0});
+			// command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point, *pipeline_layout, 2, {4}, {0});
 		}
 	}
 }
