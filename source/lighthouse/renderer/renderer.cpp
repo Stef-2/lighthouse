@@ -174,8 +174,8 @@ namespace lh
 		m_resource_generator.uniform_buffers().map_data(mi, 64);*/
 		m_resource_generator.descriptor_buffer().map_uniform_data(0, test_camera);
 		m_resource_generator.descriptor_buffer().map_uniform_data(1, mi);
-		m_resource_generator.descriptor_buffer().map_storage_data(0, mi1);
-		m_resource_generator.descriptor_buffer().map_storage_data(1, mi1);
+		m_resource_generator.descriptor_buffer().map_storage_data(0, mi);
+		m_resource_generator.descriptor_buffer().map_storage_data(1, mi);
 		// m_resource_generator.descriptor_buffer().mapped_buffer().map_data(test_camera);
 		// m_resource_generator.descriptor_buffer().mapped_buffer().map_data(mi, 64);
 

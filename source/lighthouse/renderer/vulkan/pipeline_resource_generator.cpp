@@ -108,10 +108,7 @@ namespace lh
 											logical_device,
 											memory_allocator,
 											buffer_offset,
-											{{.m_usage = {vk::BufferUsageFlagBits::eShaderDeviceAddress |
-														  vk::BufferUsageFlagBits::eUniformBuffer |
-														  vk::BufferUsageFlagBits::eStorageBuffer}},
-											 resource_buffer_subdata}};
+											{{.m_usage = resoruce_descriptor_buffer_usage}, resource_buffer_subdata}};
 		}
 
 		auto pipeline_resource_generator::vertex_input_description() const -> const vulkan::vertex_input_description&
