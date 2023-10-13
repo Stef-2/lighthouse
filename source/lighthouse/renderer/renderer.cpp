@@ -147,7 +147,7 @@ namespace lh
 		vk::PresentInfoKHR presentInfoKHR(nullptr, **m_swapchain, image_index);
 		m_queue.present().presentKHR(presentInfoKHR);
 
-		m_logical_device->waitIdle();
+		// m_logical_device->waitIdle();
 	}
 
 	renderer::implementation_inspector::implementation_inspector(const vulkan::instance& instance,

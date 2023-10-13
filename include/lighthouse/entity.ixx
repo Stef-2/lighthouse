@@ -9,6 +9,10 @@ module;
 
 export module entity;
 
+#if not INTELLISENSE
+import std.core;
+#endif
+
 import node;
 import window;
 import lighthouse_utility;
@@ -18,7 +22,6 @@ export namespace lh
 	class entity
 	{
 	public:
-		using transformation_t = node::transformation_t;
 		using normalized_direction_t = glm::vec3;
 		using vector3_t = glm::vec3;
 		using rotation_t = glm::quat;
@@ -36,9 +39,9 @@ export namespace lh
 		auto rotate_absolute(const rotation_t&) -> void;
 		auto scale_absolute(const vector3_t&) -> void;
 
-		auto local_transformation(const transformation_t&) -> void;
-		auto local_transformation() const -> const transformation_t&;
-		auto global_transformation() const -> const transformation_t&;
+		auto local_transformation(const node::transformation_t&) -> void;
+		auto local_transformation() const -> const node::transformation_t&;
+		auto global_transformation() const -> const node::transformation_t&;
 
 		auto position() const -> const vector3_t& { return m_position; }
 		auto rotation() const -> const rotation_t& { return m_rotation; }

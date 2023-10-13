@@ -55,7 +55,7 @@ export namespace lh
 			return s_up_direction;
 		}
 
-		auto view() const -> const entity::transformation_t&
+		auto view() const -> const node::transformation_t&
 		{
 			return local_transformation();
 		}

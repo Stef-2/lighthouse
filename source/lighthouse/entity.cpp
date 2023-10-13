@@ -76,12 +76,12 @@ namespace lh
 		m_node_requires_reconstruction = true;
 	}
 
-	auto entity::local_transformation(const transformation_t& transformation) -> void
+	auto entity::local_transformation(const node::transformation_t& transformation) -> void
 	{
 		m_node->local_transformation(transformation);
 	}
 
-	auto entity::local_transformation() const -> const transformation_t&
+	auto entity::local_transformation() const -> const node::transformation_t&
 	{
 		if (m_node_requires_reconstruction)
 			reconstruct_node();
@@ -89,7 +89,7 @@ namespace lh
 		return m_node->local_transformation();
 	}
 
-	auto entity::global_transformation() const -> const transformation_t&
+	auto entity::global_transformation() const -> const node::transformation_t&
 	{
 		return m_node->global_transformation();
 	}
