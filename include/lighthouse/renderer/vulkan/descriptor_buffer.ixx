@@ -44,11 +44,11 @@ export namespace lh
 							  const global_descriptor&,
 							  const create_info& = {});
 
-			auto map_uniform_buffer_data(const binding_slot_t& offset, const buffer_subdata&) -> void;
+			//auto map_uniform_buffer_data(const binding_slot_t& offset, const buffer_subdata&) -> void;
 			auto map_material(const material&) -> void;
 			auto map_resource_buffer(const descriptor_resource_buffer&) -> void;
 
-			auto resource_buffer() -> const mapped_buffer&;
+			//auto resource_buffer() -> const mapped_buffer&;
 			auto combined_image_sampler_buffer() -> const mapped_buffer&;
 			auto bind(const vk::raii::CommandBuffer&, const vk::raii::PipelineLayout&) const -> void;
 
@@ -58,10 +58,12 @@ export namespace lh
 
 			vk::PipelineBindPoint m_bind_point;
 			
-			std::vector<vk::DescriptorBufferBindingInfoEXT> m_resource_descriptor_buffer_binding_info;
+			std::vector<vk::DescriptorBufferBindingInfoEXT> m_uniform_descriptor_buffer_binding_info;
+			std::vector<vk::DescriptorBufferBindingInfoEXT> m_storage_descriptor_buffer_binding_info;
 			std::vector<vk::DescriptorBufferBindingInfoEXT> m_combined_image_sampler_descriptor_buffer_binding_info;
 
-			mapped_buffer m_resource_descriptor_buffer;
+			mapped_buffer m_uniform_descriptor_buffer;
+			mapped_buffer m_storage_descriptor_buffer;
 			mapped_buffer m_combined_image_sampler_descriptor_buffer;
 		};
 	}
