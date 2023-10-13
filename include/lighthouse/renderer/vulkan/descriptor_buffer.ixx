@@ -44,12 +44,9 @@ export namespace lh
 							  const global_descriptor&,
 							  const create_info& = {});
 
-			//auto map_uniform_buffer_data(const binding_slot_t& offset, const buffer_subdata&) -> void;
 			auto map_material(const material&) -> void;
 			auto map_resource_buffer(const descriptor_resource_buffer&) -> void;
 
-			//auto resource_buffer() -> const mapped_buffer&;
-			auto combined_image_sampler_buffer() -> const mapped_buffer&;
 			auto bind(const vk::raii::CommandBuffer&, const vk::raii::PipelineLayout&) const -> void;
 
 		private:

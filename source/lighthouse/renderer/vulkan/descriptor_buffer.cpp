@@ -47,38 +47,6 @@ namespace lh
 														 vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT,
 											  .m_memory_properties = create_info.m_descriptor_buffer_memory_properties}}
 		{}
-		/*
-		auto descriptor_buffer::map_uniform_buffer_data(const binding_slot_t& offset,
-														const buffer_subdata& buffer_subdata) -> void
-		{
-			const auto& descriptor_buffer_properties = m_physical_device.properties().m_descriptor_buffer_properties;
-			const auto descriptor_offset = descriptor_buffer_properties.m_uniform_buffer_offset;
-			const auto binding_slot_offset = offset * descriptor_offset;
-
-			for (auto i = binding_slot_t {}; i < buffer_subdata.m_subdata.size(); i++)
-			{
-				m_resource_descriptor_buffer_binding_info.emplace_back(
-					m_resource_descriptor_buffer.address() +
-						i * utility::aligned_size(
-								static_cast<vk::DeviceSize>(descriptor_offset),
-								descriptor_buffer_properties.m_properties.descriptorBufferOffsetAlignment) +
-						i * binding_slot_offset,
-					vk::BufferUsageFlagBits::eShaderDeviceAddress |
-						vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT);
-
-				const auto data_address_info = vk::DescriptorAddressInfoEXT {buffer_subdata.m_buffer->address() +
-																				 buffer_subdata.m_subdata[i].m_offset,
-																			 buffer_subdata.m_subdata[i].m_size};
-
-				void* data_address = static_cast<std::byte*>(
-										 m_resource_descriptor_buffer.allocation_info().pMappedData) +
-									 i * descriptor_offset + binding_slot_offset;
-				m_logical_device->getDescriptorEXT(
-					{vk::DescriptorType::eUniformBuffer, {&data_address_info}},
-					descriptor_buffer_properties.m_properties.uniformBufferDescriptorSize,
-					data_address);
-			}
-		}*/
 
 		auto descriptor_buffer::map_material(const material& material) -> void
 		{
@@ -106,76 +74,53 @@ namespace lh
 				i++;
 			}
 		}
-		// #pragma optimize("", off)
+
 		auto descriptor_buffer::map_resource_buffer(const descriptor_resource_buffer& resource_buffer) -> void
 		{
 			const auto& descriptor_buffer_properties = m_physical_device.properties().m_descriptor_buffer_properties;
 
-			// m_resource_descriptor_buffer_binding_info = {};
 			m_uniform_descriptor_buffer_binding_info = {};
 			m_storage_descriptor_buffer_binding_info = {};
-			// m_resource_descriptor_buffer_binding_info.reserve(resource_buffer.descriptors().size());
 
-			std::uint32_t ubs = {};
-			std::uint32_t sbs = {};
-
-			for (auto combined_offset = vk::DeviceSize {}, combined_alligned_offset = vk::DeviceSize {};
+			for (auto num_uniform_descriptors = std::uint16_t {}, num_storage_descriptors = std::uint16_t {};
 				 const auto& [descriptor_type, descriptor_data] : resource_buffer.descriptors())
 			{
-				const auto descriptor_offset = descriptor_data.size();
+				const auto descriptor_size = descriptor_data.size();
 
 				const auto alligned_offset =
-					utility::aligned_size(static_cast<vk::DeviceSize>(descriptor_offset),
+					utility::aligned_size(static_cast<vk::DeviceSize>(descriptor_size),
 										  descriptor_buffer_properties.m_properties.descriptorBufferOffsetAlignment);
-				/*
-				m_resource_descriptor_buffer_binding_info.emplace_back(
-					m_resource_descriptor_buffer.address() + combined_alligned_offset,
-					vk::BufferUsageFlagBits::eShaderDeviceAddress |
-						vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT);*/
 
-				auto ub_destination = static_cast<std::byte*>(
-										  m_uniform_descriptor_buffer.allocation_info().pMappedData) +
-									  ubs * 8;
-
-				auto sb_destination = static_cast<std::byte*>(
-										  m_storage_descriptor_buffer.allocation_info().pMappedData) +
-									  sbs * 16;
-
-				auto destination = descriptor_type == vk::DescriptorType::eUniformBuffer ? ub_destination
-																						 : sb_destination;
-
-				std::memcpy(destination, descriptor_data.data(), descriptor_data.size());
-
-				combined_offset += descriptor_offset;
-				combined_alligned_offset += alligned_offset;
+				auto memcpy_destination = static_cast<void*>(nullptr);
 
 				if (descriptor_type == vk::DescriptorType::eUniformBuffer)
 				{
-					m_uniform_descriptor_buffer_binding_info.emplace_back(
-						m_uniform_descriptor_buffer.address() + 256 * ubs,
-						vk::BufferUsageFlagBits::eShaderDeviceAddress |
-							vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT);
-					ubs++;
-				}
-				if (descriptor_type == vk::DescriptorType::eStorageBuffer)
-				{
-					m_storage_descriptor_buffer_binding_info.emplace_back(
-						m_storage_descriptor_buffer.address() + 256 * sbs,
-						vk::BufferUsageFlagBits::eShaderDeviceAddress |
-							vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT);
-					sbs++;
-				}
-			}
-		}
-		/*
-		auto descriptor_buffer::resource_buffer() -> const mapped_buffer&
-		{
-			return m_resource_descriptor_buffer;
-		}*/
+					memcpy_destination = static_cast<std::byte*>(
+											 m_uniform_descriptor_buffer.allocation_info().pMappedData) +
+										 num_uniform_descriptors * descriptor_size;
 
-		auto descriptor_buffer::combined_image_sampler_buffer() -> const mapped_buffer&
-		{
-			return m_combined_image_sampler_descriptor_buffer;
+					m_uniform_descriptor_buffer_binding_info.emplace_back(
+						m_uniform_descriptor_buffer.address() + alligned_offset * num_uniform_descriptors,
+						vk::BufferUsageFlagBits::eShaderDeviceAddress |
+							vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT);
+
+					num_uniform_descriptors++;
+				} else
+				{
+					memcpy_destination = static_cast<std::byte*>(
+											 m_storage_descriptor_buffer.allocation_info().pMappedData) +
+										 num_storage_descriptors * descriptor_size;
+
+					m_storage_descriptor_buffer_binding_info.emplace_back(
+						m_storage_descriptor_buffer.address() + alligned_offset * num_storage_descriptors,
+						vk::BufferUsageFlagBits::eShaderDeviceAddress |
+							vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT);
+
+					num_storage_descriptors++;
+				}
+
+				std::memcpy(memcpy_destination, descriptor_data.data(), descriptor_data.size());
+			}
 		}
 
 		auto descriptor_buffer::bind(const vk::raii::CommandBuffer& command_buffer,
@@ -203,9 +148,6 @@ namespace lh
 			std::vector<vk::DeviceSize> offsets {0, 0, 0};
 
 			command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point, *pipeline_layout, 0, indices, {0, 0, 0});
-			// command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point, *pipeline_layout, 0, {0}, {0});
-			// command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point, *pipeline_layout, 1, {2}, {0});
-			// command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point, *pipeline_layout, 2, {4}, {0});
 		}
 	}
 }
