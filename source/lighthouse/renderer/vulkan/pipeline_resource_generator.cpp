@@ -50,14 +50,15 @@ namespace lh
 																 const pipeline_glsl_code& shader_paths,
 																 const global_descriptor& global_descriptor,
 																 const create_info& create_info)
-			: m_spir_v {}, m_vertex_input_description {}, m_shader_pipeline {}, m_resource_descriptor_buffer {}
+			: m_vertex_input_description {}, m_shader_pipeline {}, m_resource_descriptor_buffer {}
 		{
 			auto pipeline_shader_inputs = std::vector<std::pair<vk::ShaderStageFlagBits, shader_input>> {};
+			auto spir_v = std::vector<vulkan::spir_v> {};
 
 			for (const auto& shader_path : shader_paths)
 			{
-				m_spir_v.emplace_back(lh::input::read_file(shader_path));
-				const auto& compiled_spir_v = m_spir_v.back();
+				spir_v.emplace_back(lh::input::read_file(shader_path));
+				const auto& compiled_spir_v = spir_v.back();
 
 				const auto shader_inputs = compiled_spir_v.reflect_shader_input();
 
@@ -71,8 +72,8 @@ namespace lh
 			const auto unique_pipeline_inputs = generate_unique_pipeline_inputs(pipeline_shader_inputs);
 
 			auto pipeline_data = std::vector<shader_pipeline::individual_stage_data_t> {};
-			for (const auto& spir_v : m_spir_v)
-				pipeline_data.emplace_back(spir_v, global_descriptor.descriptor_set_layouts());
+			for (const auto& stage_spir_v : spir_v)
+				pipeline_data.emplace_back(stage_spir_v, global_descriptor.descriptor_set_layouts());
 
 			m_shader_pipeline = {logical_device, pipeline_data};
 
@@ -124,6 +125,14 @@ namespace lh
 		auto pipeline_resource_generator::descriptor_buffer() const -> const vulkan::descriptor_resource_buffer&
 		{
 			return m_resource_descriptor_buffer;
+		}
+
+		auto pipeline_resource_generator::bind(const vk::raii::CommandBuffer& command_buffer) const -> void
+		{
+			command_buffer.setVertexInputEXT(m_vertex_input_description.m_bindings,
+											 m_vertex_input_description.m_attributes);
+
+			m_shader_pipeline.bind(command_buffer);
 		}
 
 		auto pipeline_resource_generator::translate_shader_input_format(const shader_input& shader_input) const

@@ -50,15 +50,15 @@ export namespace lh
 			auto vertex_input_description() const -> const vulkan::vertex_input_description&;
 			auto shader_pipeline() const -> const vulkan::shader_pipeline&;
 			auto descriptor_buffer() const -> const vulkan::descriptor_resource_buffer&;
+			auto bind(const vk::raii::CommandBuffer&) const -> void;
+
 
 		private:
 			auto translate_shader_input_format(const shader_input&) const -> const vk::Format;
 			auto generate_vertex_input_description(const std::vector<shader_input>&)
 				-> const vulkan::vertex_input_description;
 
-			std::vector<spir_v> m_spir_v;
 			vulkan::vertex_input_description m_vertex_input_description;
-
 			vulkan::shader_pipeline m_shader_pipeline;
 			descriptor_resource_buffer m_resource_descriptor_buffer;
 		};

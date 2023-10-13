@@ -116,7 +116,7 @@ target_sources(
 	${include}/lighthouse/geometry.ixx
 	${include}/lighthouse/renderer/material.ixx
 	${include}/lighthouse/renderer/vulkan/descriptor_resource_buffer.ixx
-)
+ "include/lighthouse/renderer/vulkan/dynamic_rendering_state.ixx")
 
 target_sources(
 	${PROJECT_NAME} PUBLIC
@@ -165,7 +165,7 @@ target_sources(
 	${source}/lighthouse/renderer/vulkan/texture.cpp
 	${source}/lighthouse/renderer/vulkan/global_descriptor.cpp
 	${source}/lighthouse/renderer/material.cpp
- "source/lighthouse/renderer/vulkan/descriptor_resource_buffer.cpp")
+ "source/lighthouse/renderer/vulkan/descriptor_resource_buffer.cpp" "source/lighthouse/renderer/vulkan/dynamic_rendering_state.cpp")
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_RELEASE}")
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")

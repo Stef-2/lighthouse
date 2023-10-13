@@ -41,6 +41,14 @@ namespace lh
 		  m_transfer_control {m_logical_device, m_queue_families.transfer()},
 		  m_queue {m_logical_device, m_queue_families},
 		  m_swapchain {m_physical_device, m_logical_device, m_surface, m_queue_families, m_memory_allocator},
+		  m_dynamic_rendering_state {vulkan::dynamic_rendering_state::create_info {
+			  .m_viewport = vk::Viewport(0.0f,
+										 static_cast<float>(m_surface.extent().height),
+										 static_cast<float>(m_surface.extent().width),
+										 -static_cast<float>(m_surface.extent().height),
+										 0.0f,
+										 1.0f),
+			  .m_scissor = vk::Rect2D(vk::Offset2D(0, 0), m_surface.extent())}},
 		  m_global_descriptor {m_physical_device, m_logical_device},
 		  m_global_descriptor_buffer {m_physical_device, m_logical_device, m_memory_allocator, m_global_descriptor},
 		  m_resource_generator {m_physical_device,
@@ -57,7 +65,8 @@ namespace lh
 					  m_transfer_control,
 					  m_queue.transfer(),
 					  {file_system::data_path() /= "textures/grooved_bricks/basecolor.png",
-					   file_system::data_path() /= "textures/grooved_bricks/normal.png"}}
+					   file_system::data_path() /= "textures/grooved_bricks/normal.png",
+					   file_system::data_path() /= "textures/grooved_bricks/ambientocclusion.png"}}
 	{ /*
 		 m_global_descriptor_buffer.map_uniform_buffer_data(0,
 															vulkan::buffer_subdata {
@@ -95,9 +104,7 @@ namespace lh
 	auto renderer::render() -> void
 	{
 		vk::raii::Semaphore semaphore(m_logical_device, vk::SemaphoreCreateInfo());
-		const auto& pos = m_camera.position();
-		const auto& rot = m_camera.rotation();
-		m_window.vkfw_window().setTitle(glm::to_string(pos) + " - " + glm::to_string(rot));
+
 		e1m4.reset();
 		const auto& command_buffer = e1m4.first_command_buffer();
 		command_buffer.begin({e1m4.usage_flags()});
@@ -106,77 +113,21 @@ namespace lh
 
 		command_buffer.beginRendering(render_info);
 
-		command_buffer.setViewportWithCountEXT(vk::Viewport(0.0f,
-															static_cast<float>(m_surface.extent().height),
-															static_cast<float>(m_surface.extent().width),
-															-static_cast<float>(m_surface.extent().height),
-															0.0f,
-															1.0f));
-
-		command_buffer.setScissorWithCountEXT(vk::Rect2D(vk::Offset2D(0, 0), m_surface.extent()));
-		command_buffer.setCullModeEXT(vk::CullModeFlagBits::eBack);
-		command_buffer.setFrontFaceEXT(vk::FrontFace::eClockwise);
-		command_buffer.setDepthTestEnableEXT(true);
-		command_buffer.setDepthWriteEnableEXT(true);
-		command_buffer.setDepthCompareOpEXT(vk::CompareOp::eLessOrEqual);
-		command_buffer.setPrimitiveTopologyEXT(vk::PrimitiveTopology::eTriangleList);
-		command_buffer.setRasterizerDiscardEnableEXT(false);
-		command_buffer.setPolygonModeEXT(vk::PolygonMode::eFill);
-		command_buffer.setRasterizationSamplesEXT(vk::SampleCountFlagBits::e1);
-		command_buffer.setSampleMaskEXT(vk::SampleCountFlagBits::e1, 1);
-		command_buffer.setAlphaToCoverageEnableEXT(false);
-		command_buffer.setDepthBiasEnable(false);
-		command_buffer.setStencilTestEnable(false);
-		command_buffer.setPrimitiveRestartEnable(false);
-		command_buffer.setColorBlendEnableEXT(0, {true, false});
-		command_buffer.setColorBlendEquationEXT(0,
-												{vk::ColorBlendEquationEXT {vk::BlendFactor::eSrcAlpha,
-																			vk::BlendFactor::eOneMinusSrcAlpha,
-																			vk::BlendOp::eAdd,
-																			vk::BlendFactor::eOne,
-																			vk::BlendFactor::eZero,
-																			vk::BlendOp::eAdd},
-												 {}});
-		command_buffer.setColorWriteMaskEXT(0,
-											{vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG |
-											 vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA});
-
-		command_buffer.setVertexInputEXT(m_resource_generator.vertex_input_description().m_bindings,
-										 m_resource_generator.vertex_input_description().m_attributes);
-
+		m_dynamic_rendering_state.bind(command_buffer);
 		m_scene_loader.meshes()[0].vertex_buffer().bind(command_buffer);
 
-		// const auto time = static_cast<float>(vkfw::getTime().value);
-
-		auto view = m_camera.view();
-
-		struct test
-		{
-			glm::mat4x4 wtf;
-			float t;
-		};
-
-		auto perspective = m_camera.projection();
-		glm::mat4x4 clip = glm::mat4x4(
-			1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.5f, 1.0f);
 		glm::ivec4 mi = {0, 1, 2, 3};
-		glm::ivec4 mi1 = {1, 1, 1, 1};
-		auto test_camera = /*clip **/ perspective * view * glm::mat4x4 {1.0f};
-		test omg {test_camera, 1.0f};
-		/*
-		m_resource_generator.uniform_buffers().map_data(test_camera);
-		m_resource_generator.uniform_buffers().map_data(mi, 64);*/
+
+		auto test_camera = m_camera.projection() * m_camera.view() * glm::mat4x4 {1.0f};
+
 		m_resource_generator.descriptor_buffer().map_uniform_data(0, test_camera);
 		m_resource_generator.descriptor_buffer().map_uniform_data(1, mi);
 		m_resource_generator.descriptor_buffer().map_storage_data(0, mi);
-		m_resource_generator.descriptor_buffer().map_storage_data(1, mi);
-		// m_resource_generator.descriptor_buffer().mapped_buffer().map_data(test_camera);
-		// m_resource_generator.descriptor_buffer().mapped_buffer().map_data(mi, 64);
 
 		m_global_descriptor_buffer.bind(command_buffer, m_global_descriptor.pipeline_layout());
 		//  ==================
 
-		m_resource_generator.shader_pipeline().bind(command_buffer);
+		m_resource_generator.bind(command_buffer);
 
 		command_buffer.drawIndexed(m_scene_loader.meshes()[0].indices().size(), 1, 0, 0, 0);
 		command_buffer.endRendering();

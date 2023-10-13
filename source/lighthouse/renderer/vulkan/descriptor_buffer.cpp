@@ -135,17 +135,14 @@ namespace lh
 			command_buffer.bindDescriptorBuffersEXT(combined_descriptor_bindings);
 
 			constexpr auto uniform_descriptor_index = std::uint32_t {};
-			const auto storage_descriptor_index = uniform_descriptor_index +
-												  static_cast<std::uint32_t>(
-													  m_storage_descriptor_buffer_binding_info.size());
-			const auto combined_image_sampler_descriptor_index =
-				storage_descriptor_index +
-				static_cast<std::uint32_t>(m_combined_image_sampler_descriptor_buffer_binding_info.size());
+			const auto storage_descriptor_index = static_cast<std::uint32_t>(
+				m_uniform_descriptor_buffer_binding_info.size());
+			const auto combined_image_sampler_descriptor_index = static_cast<std::uint32_t>(
+				m_uniform_descriptor_buffer_binding_info.size() + m_storage_descriptor_buffer_binding_info.size());
 
 			std::vector<std::uint32_t> indices {uniform_descriptor_index,
 												storage_descriptor_index,
 												combined_image_sampler_descriptor_index};
-			std::vector<vk::DeviceSize> offsets {0, 0, 0};
 
 			command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point, *pipeline_layout, 0, indices, {0, 0, 0});
 		}

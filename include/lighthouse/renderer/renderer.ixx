@@ -16,7 +16,7 @@ import queue;
 import global_descriptor;
 import material;
 import swapchain;
-import shader_object;
+import dynamic_rendering_state;
 import descriptor_buffer;
 import pipeline_resource_generator;
 import camera;
@@ -69,6 +69,7 @@ export namespace lh
 		vulkan::command_control m_transfer_control;
 		vulkan::queue m_queue;
 		vulkan::swapchain m_swapchain;
+		vulkan::dynamic_rendering_state m_dynamic_rendering_state;
 
 		vulkan::global_descriptor m_global_descriptor;
 		vulkan::descriptor_buffer m_global_descriptor_buffer;
