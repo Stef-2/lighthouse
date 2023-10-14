@@ -64,6 +64,15 @@ namespace lh
 	public:
 		using parameter_precision_t = float;
 
+		struct shader_data
+		{
+			glm::vec4 m_position;
+			glm::vec4 m_color;
+			float m_intensity;
+			parameter_precision_t m_spread_angle;
+			parameter_precision_t m_sharpness;
+		};
+
 	private:
 		parameter_precision_t m_spread_angle;
 		parameter_precision_t m_sharpness;

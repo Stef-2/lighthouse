@@ -160,7 +160,7 @@ namespace lh
 			auto compiler = std::make_unique<spirv_cross::CompilerGLSL>(m_code);
 			auto resources = compiler->get_shader_resources();
 
-			if constexpr (shader_input::s_remove_inactive_inputs)
+			if constexpr (remove_inactive_inputs)
 			{
 				auto interface_variables = compiler->get_active_interface_variables();
 				resources = compiler->get_shader_resources(interface_variables);

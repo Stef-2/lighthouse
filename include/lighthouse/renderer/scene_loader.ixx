@@ -30,12 +30,11 @@ export namespace lh
 	public:
 		struct create_info
 		{
-			std::int32_t m_importer_postprocess = aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph |
-												   aiProcess_GenNormals |
-												  aiProcess_GenUVCoords | aiProcess_Triangulate |
-												  aiProcess_FlipWindingOrder |
-												  aiProcess_JoinIdenticalVertices | aiProcess_ImproveCacheLocality |
-												  aiProcess_LimitBoneWeights | aiProcess_GenBoundingBoxes;
+			std::int32_t m_importer_postprocess = {
+				aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph | aiProcess_GenNormals | aiProcess_CalcTangentSpace |
+				aiProcess_GenUVCoords | aiProcess_Triangulate | aiProcess_FlipWindingOrder |
+				aiProcess_JoinIdenticalVertices | aiProcess_ImproveCacheLocality | aiProcess_LimitBoneWeights |
+				aiProcess_GenBoundingBoxes};
 		};
 
 		scene_loader(const vulkan::logical_device&,

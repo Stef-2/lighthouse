@@ -1,7 +1,7 @@
 module;
 
 #include "assimp/scene.h"
-#include "glm/vec4.hpp"
+#include "glm/vec3.hpp"
 #include "glm/vec2.hpp"
 #include "glm/gtc/random.hpp"
 
@@ -35,16 +35,17 @@ namespace lh
 
 				for (auto v = std::size_t {}; v < mesh.mNumVertices; ++v)
 				{
-					const auto& vertex = mesh.mVertices[v];
-					const auto& normals = mesh.mNormals[v];
+					const auto& position = mesh.mVertices[v];
+					const auto& normal = mesh.mNormals[v];
+					const auto& tangent = mesh.mTangents[v];
+					const auto& bitangent = mesh.mBitangents[v];
 					const auto& tex_coords = mesh.HasTextureCoords(0) ? mesh.mTextureCoords[0][v] : aiVector3D {};
 
-					vertices.emplace_back(glm::vec4 {vertex.x, vertex.y, vertex.z, 1.0f},
-										  glm::vec4 {normals.x, normals.y, normals.z, 1.0f},
+					vertices.emplace_back(glm::vec3 {position.x, position.y, position.z},
+										  glm::vec3 {normal.x, normal.y, normal.z},
+										  glm::vec3 {tangent.x, tangent.y, tangent.z},
+										  glm::vec3 {bitangent.x, bitangent.y, bitangent.z},
 										  glm::vec2 {tex_coords.x, tex_coords.y});
-					/*
-					vertices.emplace_back(glm::vec4 {vertex.x, vertex.y, vertex.z, 1},
-										  glm::linearRand(glm::vec4(0), glm::vec4(1)));*/
 				}
 
 				for (auto f = std::size_t {}; f < mesh.mNumFaces; ++f)

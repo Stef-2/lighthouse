@@ -33,7 +33,7 @@ namespace lh
 
 		auto time_between(const time_point_t& x, const time_point_t& y) -> const duration_t
 		{
-			return duration_t {x - y};
+			return std::chrono::duration_cast<precision_t>(x - y);
 		}
 
 		auto delta_time() -> const floating_time_t

@@ -22,7 +22,6 @@ export namespace lh
 	{
 		struct shader_input
 		{
-			static inline constexpr auto s_remove_inactive_inputs = true;
 			static inline constexpr auto s_stage_input_flag = vk::DescriptorType::eInputAttachment;
 
 			enum class data_type

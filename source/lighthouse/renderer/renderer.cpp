@@ -121,13 +121,13 @@ namespace lh
 		struct test
 		{
 			glm::mat4x4 x;
-			float t;
+			glm::vec4 t;
 		};
 
 		auto test_camera = m_camera.projection() * m_camera.view() * glm::mat4x4 {1.0f};
 		auto wtf = time::now();
-		std::cout << wtf << '\n';
-		test t {test_camera, wtf};
+
+		test t {test_camera, {wtf, 0, 0, 0}};
 
 		m_resource_generator.descriptor_buffer().map_uniform_data(0, t);
 		m_resource_generator.descriptor_buffer().map_uniform_data(1, mi);
