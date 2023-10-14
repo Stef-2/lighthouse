@@ -1,6 +1,7 @@
 module;
 
 #if INTELLISENSE
+#include <utility>
 #include <cstdint>
 #endif
 
@@ -17,50 +18,76 @@ export namespace lh
 {
 	namespace colors
 	{
-		class color : glm::vec4
+		enum class color_mode
+		{
+			rgb,
+			hsv,
+			hsl = hsv,
+			default_mode = rgb
+		};
+
+		enum class color_component
+		{
+			red,
+			green,
+			blue,
+			alpha,
+			hue,
+			saturation,
+			value,
+			luminosity
+		};
+
+		class color : public glm::vec4
 		{
 		public:
+			using color_component_t = float;
 			using integer_encoding_t = std::uint32_t;
 
-			using glm::vec4::vec4;
-
-			struct hex24
-			{const integer_encoding_t color : 24;};
-
-			struct hex32
+			struct hex_24
 			{const integer_encoding_t color;};
 
-			color(const glm::vec3&);
-			color(const glm::vec4&);
-			color(const glm::ivec3&);
-			color(const glm::ivec4&);
+			struct hex_32
+			{const integer_encoding_t color;};
+			
+			color();
+			color(const glm::vec3&, color_mode = color_mode::default_mode);
+			color(const glm::vec4&, color_mode = color_mode::default_mode);
+			color(const glm::ivec3&, color_mode = color_mode::default_mode);
+			color(const glm::ivec4&, color_mode = color_mode::default_mode);
 
-			color(const hex24&);
-			color(const hex32&);
+			color(const hex_24&, color_mode = color_mode::default_mode);
+			color(const hex_32&, color_mode = color_mode::default_mode);
 
+			auto color_mode() const -> const colors::color_mode&;
+			auto color_mode(const colors::color_mode&) -> void;
+			auto mix(const color&, float ratio = 0.5f) const -> color;
+
+			auto component(color_component) const -> color_component_t;
+
+			operator glm::vec3() const;
 			operator glm::vec4&();
 			explicit operator integer_encoding_t() const;
 
-			auto mix(const color&, float ratio = 0.5f) const -> color;
-
 		private:
+			colors::color_mode m_color_mode;
 		};
-		/*
+		
 		// grayscales
-		const color white {1.0f, 1.0f, 1.0f, 1.0f};
-		const color black {0.0f, 0.0f, 0.0f, 1.0f};
-		const color gray {0.5f, 0.5f, 0.5f, 1.0f};
-		const color none {0.0f, 0.0f, 0.0f, 0.0f};
-
+		const color white {glm::vec4 {1.0f, 1.0f, 1.0f, 1.0f}};
+		const color black {glm::vec4 {0.0f, 0.0f, 0.0f, 1.0f}};
+		const color gray {glm::vec4 {0.5f, 0.5f, 0.5f, 1.0f}};
+		const color none {glm::vec4 {0.0f, 0.0f, 0.0f, 0.0f}};
+		
 		// primaries
-		const color red {1.0f, 0.0f, 0.0f, 1.0f};
-		const color green {0.0f, 1.0f, 0.0f, 1.0f};
-		const color blue {0.0f, 0.0f, 1.0f, 1.0f};
+		const color red {glm::vec4 {1.0f, 0.0f, 0.0f, 1.0f}};
+		const color green {glm::vec4 {0.0f, 1.0f, 0.0f, 1.0f}};
+		const color blue {glm::vec4 {0.0f, 0.0f, 1.0f, 1.0f}};
 
 		// secondaries
-		const color yellow {1.0f, 1.0f, 0.0f, 1.0f};
-		const color cyan {0.0f, 1.0f, 1.0f, 1.0f};
-		const color magenta {1.0f, 0.0f, 1.0f, 1.0f};
+		const color yellow {glm::vec4 {1.0f, 1.0f, 0.0f, 1.0f}};
+		const color cyan {glm::vec4 {0.0f, 1.0f, 1.0f, 1.0f}};
+		const color magenta {glm::vec4 {1.0f, 0.0f, 1.0f, 1.0f}};
 
 		// tertiaries
 		const color red_yellow {red.mix(yellow)};
@@ -76,6 +103,6 @@ export namespace lh
 		const color& spring_green {green_cyan};
 		const color& azure {blue_cyan};
 		const color& rose {red_magenta};
-		const color& violet {blue_magenta};*/
+		const color& violet {blue_magenta};
 	}
 }

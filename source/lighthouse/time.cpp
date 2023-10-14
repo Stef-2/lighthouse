@@ -31,14 +31,15 @@ namespace lh
 			return s_engine_start_time;
 		}
 
-		auto time_between(const time_point_t& x, const time_point_t& y) -> const time_duration_t
+		auto time_between(const time_point_t& x, const time_point_t& y) -> const duration_t
 		{
-			return std::abs(std::chrono::duration_cast<precision_t>(x - y).count());
+			return duration_t {x - y};
 		}
-		auto delta_time() -> const delta_time_t
+
+		auto delta_time() -> const floating_time_t
 		{
 			const auto now = clock_t::now();
-			const auto delta_time = std::chrono::duration<delta_time_t>(now - s_previous_frame_time);
+			const auto delta_time = std::chrono::duration<floating_time_t>(now - s_previous_frame_time);
 			s_previous_frame_time = now;
 
 			return delta_time.count();

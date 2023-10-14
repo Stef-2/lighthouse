@@ -11,6 +11,7 @@ module renderer;
 
 import output;
 import file_system;
+import time;
 
 // #pragma optimize("", off)
 namespace lh
@@ -117,10 +118,18 @@ namespace lh
 		m_scene_loader.meshes()[0].vertex_buffer().bind(command_buffer);
 
 		glm::ivec4 mi = {0, 1, 2, 3};
+		struct test
+		{
+			glm::mat4x4 x;
+			float t;
+		};
 
 		auto test_camera = m_camera.projection() * m_camera.view() * glm::mat4x4 {1.0f};
+		auto wtf = time::now();
+		std::cout << wtf << '\n';
+		test t {test_camera, wtf};
 
-		m_resource_generator.descriptor_buffer().map_uniform_data(0, test_camera);
+		m_resource_generator.descriptor_buffer().map_uniform_data(0, t);
 		m_resource_generator.descriptor_buffer().map_uniform_data(1, mi);
 		m_resource_generator.descriptor_buffer().map_storage_data(0, mi);
 
@@ -145,7 +154,7 @@ namespace lh
 			;
 
 		vk::PresentInfoKHR presentInfoKHR(nullptr, **m_swapchain, image_index);
-		m_queue.present().presentKHR(presentInfoKHR);
+		std::ignore = m_queue.present().presentKHR(presentInfoKHR);
 
 		// m_logical_device->waitIdle();
 	}

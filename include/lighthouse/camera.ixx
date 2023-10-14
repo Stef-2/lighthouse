@@ -72,7 +72,7 @@ export namespace lh
 			return glm::cross(view_direction(), s_up_direction);
 		}
 
-		auto look_at(const entity::vector3_t& target) -> void
+		auto look_at(const entity::position_t& target) -> void
 		{
 			auto view = glm::quatLookAt(glm::normalize(m_position + target), s_up_direction);
 			// don't ask

@@ -17,14 +17,14 @@ namespace lh
 		// it needs to be decomposed into components
 		if (node->local_transformation() != node::transformation_t {1.0f})
 		{
-			auto skew = vector3_t {};
+			auto skew = glm::vec3 {};
 			auto perspective = glm::vec4 {};
 
 			glm::decompose(node->local_transformation(), m_scale, m_rotation, m_position, skew, perspective);
 		}
 	}
 
-	auto entity::translate_relative(const vector3_t& translation) -> void
+	auto entity::translate_relative(const position_t& translation) -> void
 	{
 		m_position += translation;
 		m_node_requires_reconstruction = true;
@@ -36,41 +36,41 @@ namespace lh
 		m_node_requires_reconstruction = true;
 	}
 
-	auto entity::rotate_relative(const vector3_t& rotation) -> void
+	auto entity::rotate_relative(const rotation_t& rotation) -> void
 	{
 		m_rotation = m_rotation * rotation_t {rotation};
 		m_node_requires_reconstruction = true;
 	}
-	auto entity::rotate_relative(const rotation_t& rotation) -> void
+	auto entity::rotate_relative(const orientation_t& rotation) -> void
 	{
 		m_rotation = m_rotation * rotation;
 		m_node_requires_reconstruction = true;
 	}
 
-	auto entity::scale_relative(const vector3_t& scaling) -> void
+	auto entity::scale_relative(const scale_t& scaling) -> void
 	{
 		m_scale += scaling;
 		m_node_requires_reconstruction = true;
 	}
 
-	auto entity::translate_absolute(const vector3_t& translation) -> void
+	auto entity::translate_absolute(const position_t& translation) -> void
 	{
 		m_position = translation;
 		m_node_requires_reconstruction = true;
 	}
 
-	auto entity::rotate_absolute(const vector3_t& rotation) -> void
+	auto entity::rotate_absolute(const rotation_t& rotation) -> void
 	{
 		m_rotation = rotation_t {rotation};
 	}
 
-	auto entity::rotate_absolute(const rotation_t& rotation) -> void
+	auto entity::rotate_absolute(const orientation_t& rotation) -> void
 	{
 		m_rotation = rotation;
 		m_node_requires_reconstruction = true;
 	}
 
-	auto entity::scale_absolute(const vector3_t& scaling) -> void
+	auto entity::scale_absolute(const scale_t& scaling) -> void
 	{
 		m_scale = scaling;
 		m_node_requires_reconstruction = true;
