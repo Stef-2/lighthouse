@@ -10,6 +10,7 @@ import color;
 namespace lh
 {
 	// abstract base light class, defining common light attributes
+	// light intensity is encoded into color's alpha channel
 	class light
 	{
 	public:
@@ -24,7 +25,6 @@ namespace lh
 		light() = default;
 
 		colors::color m_color;
-		intensity_t m_intensity;
 	};
 
 	// abstract base physical light class
@@ -52,10 +52,8 @@ namespace lh
 		{
 			glm::vec4 m_position;
 			glm::vec4 m_color;
-			float m_intensity;
 		};
 	private:
-		static constexpr inline auto wtf = sizeof shader_data;
 	};
 
 	// specialized physical light, radiates light in a cone
@@ -68,9 +66,9 @@ namespace lh
 		{
 			glm::vec4 m_position;
 			glm::vec4 m_color;
-			float m_intensity;
 			parameter_precision_t m_spread_angle;
 			parameter_precision_t m_sharpness;
+			float m_alignment_padding[2] = {0.0f, 0.0f};
 		};
 
 	private:
@@ -82,6 +80,12 @@ namespace lh
 	class directional_light : public light
 	{
 	public:
+		struct shader_data
+		{
+			glm::vec4 m_position;
+			glm::vec4 m_rotation;
+			glm::vec4 m_color;
+		};
 
 	private:
 		entity::position_t m_position;
@@ -92,8 +96,14 @@ namespace lh
 	class ambient_light : public light
 	{
 	public:
+		struct shader_data
+		{
+			glm::vec4 m_position;
+			glm::vec4 m_color;
+		};
 
 	private:
+		entity::position_t m_position;
 	};
 }
 
@@ -101,9 +111,9 @@ module :private;
 
 namespace lh
 {
-	// given a physical light's intensity and the inverse square intensity decay law,
+	// given a physical light's intensity and the inverse square law for light intensity decay,
 	// we can calculate the distance past which a physical light's color contribution can be discarded for added performance
-	// threshold is an arbitrary value that we consider to no longer provide a significant contribution to final
+	// threshold is an arbitrary value that is considered to no longer provide a significant contribution to final
 	// lighting output
 	constexpr auto physical_light_distance_threshold = 100.0f;
 }

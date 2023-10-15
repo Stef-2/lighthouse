@@ -60,6 +60,6 @@ namespace lh
 {
 	namespace vulkan
 	{
-		inline constexpr auto remove_inactive_inputs = true;
+		constexpr auto remove_inactive_inputs = true;
 	}
 }

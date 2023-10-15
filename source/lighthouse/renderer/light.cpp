@@ -13,17 +13,17 @@ namespace lh
 
 	auto light::color(const colors::color& color) -> void
 	{
-		m_color = color;
+		m_color = glm::vec4 {color.r, color.g, color.b, m_color.a};
 	}
 
 	auto light::intensity() const -> const intensity_t&
 	{
-		return m_intensity;
+		return m_color.a;
 	}
 
 	auto light::intensity(const intensity_t& intensity) -> void
 	{
-		m_intensity = intensity;
+		m_color.a = intensity;
 	}
 
 	auto physical_light::intensity(const intensity_t& intensity) -> void
@@ -34,7 +34,7 @@ namespace lh
 		// this lights contribution can be discarded
 		// threshold is an arbitrary value that we consider to no longer provide a significant contribution to final
 		// lighting output
-		m_effective_radius = glm::sqrt(m_intensity / physical_light_distance_threshold);
+		m_effective_radius = glm::sqrt(m_color.a / physical_light_distance_threshold);
 	}
 
 	auto physical_light::effective_radius() const -> const light::intensity_t&
@@ -45,7 +45,7 @@ namespace lh
 	auto physical_light::intensity_at(const entity::position_t& position) const -> light::intensity_t
 	{
 		// physical light decay is proportional to inverse of the square of the distance between the source and point X
-		return m_intensity * (1 / glm::pow(glm::distance(this->m_position, position), 2));
+		return m_color.a * (1 / glm::pow(glm::distance(this->m_position, position), 2));
 	}
 
 }

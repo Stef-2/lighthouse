@@ -30,7 +30,12 @@ namespace lh
 	namespace vulkan
 	{
 		descriptor_resource_buffer::descriptor_resource_buffer()
-			: m_data_buffer {}, m_uniform_buffer_subdata {}, m_storage_buffer_subdata {}, m_descriptors {}
+			: m_physical_device {},
+			  m_logical_device {},
+			  m_data_buffer {},
+			  m_uniform_buffer_subdata {},
+			  m_storage_buffer_subdata {},
+			  m_descriptors {}
 		{}
 
 		descriptor_resource_buffer::descriptor_resource_buffer(const physical_device& physical_device,
@@ -38,7 +43,9 @@ namespace lh
 															   const memory_allocator& memory_allocator,
 															   const vk::DeviceSize& buffer_size,
 															   const create_info& create_info)
-			: m_data_buffer {logical_device, memory_allocator, buffer_size, create_info.m_buffer_create_info},
+			: m_physical_device {&physical_device},
+			  m_logical_device {&logical_device},
+			  m_data_buffer {logical_device, memory_allocator, buffer_size, create_info.m_buffer_create_info},
 			  m_uniform_buffer_subdata {&m_data_buffer},
 			  m_storage_buffer_subdata {&m_data_buffer},
 			  m_descriptors {}
@@ -95,6 +102,16 @@ namespace lh
 			other.m_descriptors = {};
 
 			return *this;
+		}
+
+		auto descriptor_resource_buffer::add_resource(const create_info::binding_type_and_subdata_t& resource) -> void
+		{
+			const auto descriptor_buffer_properties =
+				m_physical_device->properties().m_descriptor_buffer_properties.m_properties;
+
+			const auto descriptor_size = resource.first == vk::DescriptorType::eUniformBuffer
+											 ? descriptor_buffer_properties.uniformBufferDescriptorSize
+											 : descriptor_buffer_properties.storageBufferDescriptorSize;
 		}
 
 		auto descriptor_resource_buffer::mapped_buffer() const -> const vulkan::mapped_buffer&
