@@ -41,7 +41,7 @@ export namespace lh
 		class color : public glm::vec4
 		{
 		public:
-			using color_component_t = float;
+			using color_component_t = decltype(glm::vec4::a);
 			using integer_encoding_t = std::uint32_t;
 
 			struct hex_24
@@ -51,6 +51,12 @@ export namespace lh
 			{const integer_encoding_t color;};
 			
 			color();
+			color(const color_component_t&,
+				  const color_component_t&,
+				  const color_component_t&,
+				  const color_component_t& = 1.0f,
+				  color_mode = color_mode::default_mode);
+
 			color(const glm::vec3&, color_mode = color_mode::default_mode);
 			color(const glm::vec4&, color_mode = color_mode::default_mode);
 			color(const glm::ivec3&, color_mode = color_mode::default_mode);

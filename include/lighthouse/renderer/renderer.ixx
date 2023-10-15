@@ -20,6 +20,7 @@ import dynamic_rendering_state;
 import descriptor_buffer;
 import pipeline_resource_generator;
 import camera;
+import light;
 
 #if not INTELLISENSE
 import std.core;
@@ -73,6 +74,7 @@ export namespace lh
 
 		vulkan::global_descriptor m_global_descriptor;
 		vulkan::descriptor_buffer m_global_descriptor_buffer;
+		global_light_descriptor_buffer m_global_light_descriptor_buffer;
 
 		vulkan::pipeline_resource_generator m_resource_generator;
 		scene_loader m_scene_loader;

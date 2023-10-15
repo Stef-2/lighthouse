@@ -13,6 +13,14 @@ namespace lh
 
 		color::color() : glm::vec4 {}, m_color_mode {color_mode::rgb} {}
 
+		color::color(const color_component_t& x,
+					 const color_component_t& y,
+					 const color_component_t& z,
+					 const color_component_t& w,
+					 colors::color_mode color_mode)
+			: glm::vec4 {x, y, z, w}, m_color_mode {color_mode}
+		{}
+
 		color::color(const glm::vec3& vec3, colors::color_mode color_mode)
 			: glm::vec4 {vec3.r, vec3.g, vec3.b, 1.0f}, m_color_mode {color_mode}
 		{}

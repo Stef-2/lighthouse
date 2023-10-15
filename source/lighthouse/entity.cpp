@@ -24,6 +24,14 @@ namespace lh
 		}
 	}
 
+	entity::entity(const position_t& position, const rotation_t rotation, const scale_t& scale)
+		: m_position {position},
+		  m_rotation {rotation},
+		  m_scale {scale},
+		  m_node_requires_reconstruction {true},
+		  m_node {std::make_shared<node>()}
+	{}
+
 	auto entity::translate_relative(const position_t& translation) -> void
 	{
 		m_position += translation;

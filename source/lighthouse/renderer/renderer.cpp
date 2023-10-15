@@ -52,6 +52,7 @@ namespace lh
 			  .m_scissor = vk::Rect2D(vk::Offset2D(0, 0), m_surface.extent())}},
 		  m_global_descriptor {m_physical_device, m_logical_device},
 		  m_global_descriptor_buffer {m_physical_device, m_logical_device, m_memory_allocator, m_global_descriptor},
+		  m_global_light_descriptor_buffer {m_physical_device, m_logical_device, m_memory_allocator},
 		  m_resource_generator {m_physical_device,
 								m_logical_device,
 								m_memory_allocator,

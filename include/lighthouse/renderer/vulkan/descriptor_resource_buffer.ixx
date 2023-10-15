@@ -68,14 +68,10 @@ export namespace lh
 									   m_storage_buffer_subdata.m_subdata[binding].m_size);
 			}
 
-			auto add_resource(const create_info::binding_type_and_subdata_t&) -> void;
 			auto mapped_buffer() const -> const vulkan::mapped_buffer&;
 			auto descriptors() const -> const std::vector<descriptor_data_t>&;
 
 		private:
-			const vulkan::physical_device* m_physical_device;
-			const vulkan::logical_device* m_logical_device;
-
 			vulkan::mapped_buffer m_data_buffer;
 			buffer_subdata m_uniform_buffer_subdata;
 			buffer_subdata m_storage_buffer_subdata;

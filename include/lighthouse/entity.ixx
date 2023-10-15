@@ -29,6 +29,7 @@ export namespace lh
 		using orientation_t = glm::quat;
 
 		entity(std::shared_ptr<node> = std::make_shared<node>());
+		entity(const position_t&, const rotation_t = {}, const scale_t& = {});
 
 		auto translate_relative(const position_t&) -> void;
 		auto translate_relative(const normalized_direction_t&, float) -> void;
