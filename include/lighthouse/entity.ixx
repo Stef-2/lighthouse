@@ -46,11 +46,11 @@ export namespace lh
 		auto local_transformation() const -> const node::transformation_t&;
 		auto global_transformation() const -> const node::transformation_t&;
 
-		auto position() const -> const position_t& { return m_position; }
-		auto rotation() const -> const orientation_t& { return m_rotation; }
-		auto scale() const -> const scale_t& { return m_scale; }
-
 	protected:
+		virtual auto on_position_change() -> void {};
+		virtual auto on_rotation_change() -> void {};
+		virtual auto on_scale_change() -> void {};
+
 		auto reconstruct_node() const -> void;
 
 		position_t m_position;

@@ -1,6 +1,8 @@
 module;
 
 #if INTELLISENSE
+#include "vulkan/vulkan.hpp"
+
 #include <cstdint>
 #include <vector>
 #endif
@@ -28,9 +30,12 @@ export namespace lh
 	class light
 	{
 	public:
+		using light_stack_size_t = std::uint16_t;
 		using intensity_t = float;
 
 		light(const colors::color&, const intensity_t&);
+		light(const light&) = delete;
+		light& operator=(const light&) = delete;
 
 		auto color() const -> const colors::color&;
 		auto color(const colors::color&) -> void;
@@ -40,9 +45,9 @@ export namespace lh
 		friend class global_light_descriptor_buffer;
 
 	protected:
-		virtual auto register_light() -> void = 0;
-
 		colors::color m_color;
+		light_stack_size_t m_light_stack_index;
+
 		static inline global_light_descriptor_buffer* s_global_light_descriptor_buffer;
 	};
 
@@ -63,6 +68,10 @@ export namespace lh
 		auto intensity_at(const entity::position_t&) const -> light::intensity_t;
 
 	protected:
+		auto on_position_change() -> void override final;
+		auto on_rotation_change() -> void override final;
+		virtual auto update_light_on_stack() -> void = 0;
+
 		light::intensity_t m_effective_radius;
 	};
 
@@ -79,7 +88,7 @@ export namespace lh
 		point_light(const lh::colors::color&, const light::intensity_t&, const entity::position_t&);
 
 	private:
-		auto register_light() -> void override final;
+		auto update_light_on_stack() -> void override final;
 	};
 
 	// specialized physical light, radiates light in a cone
@@ -91,19 +100,33 @@ export namespace lh
 		struct shader_data
 		{
 			glm::vec4 m_position;
+			glm::vec4 m_rotation;
 			glm::vec4 m_color;
 			parameter_precision_t m_spread_angle;
 			parameter_precision_t m_sharpness;
-			float m_alignment_padding[2] = {0.0f, 0.0f};
+			parameter_precision_t m_alignment_padding[2] = {0.0f, 0.0f};
 		};
 
+		spot_light(const lh::colors::color&,
+				   const light::intensity_t&,
+				   const entity::position_t&,
+				   const parameter_precision_t& spread_angle = 45.0f,
+				   const parameter_precision_t& sharpness = 1.0f);
+
+		auto spread_angle() const -> const parameter_precision_t&;
+		auto spread_angle(const parameter_precision_t&) -> void;
+		auto sharpness() const -> const parameter_precision_t&;
+		auto sharpness(const parameter_precision_t&) -> void;
+
 	private:
+		auto update_light_on_stack() -> void override final;
+
 		parameter_precision_t m_spread_angle;
 		parameter_precision_t m_sharpness;
 	};
 
 	// specialized non physical light, radiates parallel light rays with an infinite radius and no decay
-	class directional_light final : public light
+	class directional_light final : public physical_light
 	{
 	public:
 		struct shader_data
@@ -113,13 +136,16 @@ export namespace lh
 			glm::vec4 m_color;
 		};
 
+		directional_light(const colors::color&,
+						  const light::intensity_t&,
+						  const entity::position_t&,
+						  const entity::rotation_t);
 	private:
-		entity::position_t m_position;
-		entity::rotation_t m_rotation;
+		auto update_light_on_stack() -> void override final;
 	};
 
 	// specialized non physical light, applies linearly decaying lighting in affected radius
-	class ambient_light final : public light
+	class ambient_light final : public physical_light
 	{
 	public:
 		struct shader_data
@@ -128,8 +154,10 @@ export namespace lh
 			glm::vec4 m_color;
 		};
 
+		ambient_light(const colors::color&, const light::intensity_t&, const entity::position_t&);
+
 	private:
-		entity::position_t m_position;
+		auto update_light_on_stack() -> void override final;
 	};
 
 	// ===========================================================================
@@ -139,41 +167,41 @@ export namespace lh
 	public:
 		struct create_info
 		{
-			using light_size_t = std::uint16_t;
-
-			light_size_t m_point_lights = 1024;
-			light_size_t m_spot_lights = 512;
-			light_size_t m_directional_lights = 32;
-			light_size_t m_ambient_lights = 512;
+			light::light_stack_size_t m_point_lights = 1024;
+			light::light_stack_size_t m_spot_lights = 512;
+			light::light_stack_size_t m_directional_lights = 32;
+			light::light_stack_size_t m_ambient_lights = 512;
 		};
 
-		struct light_info_data
-		{
-			std::uint32_t m_num_active_point_lights = {};
-			std::vector<std::uint32_t> m_active_spot_lights = {};
-
-			std::uint32_t m_num_active_spot_lights = {};
-			std::vector<std::uint32_t> m_active_directional_lights = {};
-
-			std::uint32_t m_num_active_directional_lights = {};
-			std::vector<std::uint32_t> m_active_point_lights = {};
-
-			std::uint32_t m_num_active_ambient_lights = {};
-			std::vector<std::uint32_t> m_active_ambient_lights = {};
-		};
-
+		friend class light;
+		friend class physical_light;
 		friend class point_light;
+		friend class spot_light;
+		friend class directional_light;
+		friend class ambient_light;
 
 		global_light_descriptor_buffer(const vulkan::physical_device&,
 									   const vulkan::logical_device&,
 									   const vulkan::memory_allocator&,
 									   const create_info& = {});
 
+		auto light_storage_bindings() const -> const std::vector<vk::DescriptorBufferBindingInfoEXT>&;
+
 	private:
+		auto map_point_lights() -> void;
+		auto map_spot_lights() -> void;
+		auto map_directional_lights() -> void;
+		auto map_ambient_lights() -> void;
+
 		create_info m_create_info;
-		light_info_data m_light_info_data;
+
 		std::vector<point_light::shader_data> m_point_light_data;
+		std::vector<spot_light::shader_data> m_spot_light_data;
+		std::vector<directional_light::shader_data> m_directional_light_data;
+		std::vector<ambient_light::shader_data> m_ambient_light_data;
+
 		vulkan::descriptor_resource_buffer m_light_resource_buffer;
+		std::vector<vk::DescriptorBufferBindingInfoEXT> m_light_storage_descriptor_buffer_binding_info;
 	};
 }
 

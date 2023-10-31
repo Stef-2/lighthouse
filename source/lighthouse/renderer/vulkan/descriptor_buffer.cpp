@@ -6,6 +6,7 @@ module;
 
 module descriptor_buffer;
 
+import vulkan_utility;
 import output;
 
 namespace lh
@@ -45,6 +46,14 @@ namespace lh
 				  global_descriptor.combined_image_sampler_set().getSizeEXT(),
 				  mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
 														 vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT,
+											  .m_memory_properties =
+												  create_info.m_descriptor_buffer_memory_properties}},
+			  m_light_storage_descriptor_buffer {
+				  logical_device,
+				  memory_allocator,
+				  global_descriptor.light_storage_set().getSizeEXT(),
+				  mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
+														 vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT,
 											  .m_memory_properties = create_info.m_descriptor_buffer_memory_properties}}
 		{}
 

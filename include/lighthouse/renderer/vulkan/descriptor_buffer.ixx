@@ -8,7 +8,6 @@ module;
 
 export module descriptor_buffer;
 
-import vulkan_utility;
 import physical_device;
 import logical_device;
 import memory_allocator;
@@ -46,6 +45,7 @@ export namespace lh
 
 			auto map_material(const material&) -> void;
 			auto map_resource_buffer(const descriptor_resource_buffer&) -> void;
+			auto map_lights(const descriptor_resource_buffer&) -> void;
 
 			auto bind(const vk::raii::CommandBuffer&, const vk::raii::PipelineLayout&) const -> void;
 
@@ -62,6 +62,7 @@ export namespace lh
 			mapped_buffer m_uniform_descriptor_buffer;
 			mapped_buffer m_storage_descriptor_buffer;
 			mapped_buffer m_combined_image_sampler_descriptor_buffer;
+			mapped_buffer m_light_storage_descriptor_buffer;
 		};
 	}
 }
