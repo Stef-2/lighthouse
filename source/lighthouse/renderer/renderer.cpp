@@ -51,8 +51,12 @@ namespace lh
 										 1.0f),
 			  .m_scissor = vk::Rect2D(vk::Offset2D(0, 0), m_surface.extent())}},
 		  m_global_descriptor {m_physical_device, m_logical_device},
-		  m_global_descriptor_buffer {m_physical_device, m_logical_device, m_memory_allocator, m_global_descriptor},
 		  m_global_light_descriptor_buffer {m_physical_device, m_logical_device, m_memory_allocator},
+		  m_global_descriptor_buffer {m_physical_device,
+									  m_logical_device,
+									  m_memory_allocator,
+									  m_global_descriptor,
+									  m_global_light_descriptor_buffer},
 		  m_resource_generator {m_physical_device,
 								m_logical_device,
 								m_memory_allocator,
@@ -78,6 +82,8 @@ namespace lh
 		m_global_descriptor_buffer.map_resource_buffer(m_resource_generator.descriptor_buffer());
 		// m_global_descriptor_buffer.map_uniform_buffer_data(0, m_resource_generator.descriptor_buffer().subdata());
 		m_global_descriptor_buffer.map_material(m_material);
+		m_global_light_descriptor_buffer.light_resource_buffer().mapped_buffer().map_data(
+			point_light::shader_data {glm::vec4 {1.0f, 0.0f, 0.0f, 0.0f}, glm::vec4 {1.0f, 0.0f, 0.0f, 0.0f}});
 		// auto wtf = m_global_descriptor_buffer.register_textures({&m_texture1, &m_texture2});
 		// m_global_descriptor_buffer.unregister_textures({1});
 

@@ -185,6 +185,7 @@ export namespace lh
 									   const vulkan::memory_allocator&,
 									   const create_info& = {});
 
+		auto light_resource_buffer() const -> const vulkan::descriptor_resource_buffer&;
 		auto light_storage_bindings() const -> const std::vector<vk::DescriptorBufferBindingInfoEXT>&;
 
 	private:

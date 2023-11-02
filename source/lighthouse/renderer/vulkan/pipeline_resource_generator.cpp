@@ -24,7 +24,8 @@ namespace
 				unique_pipeline_inputs.m_uniform_buffer_descriptors.push_back(input);
 
 			if (input.m_type == vk::DescriptorType::eStorageBuffer and
-				not std::ranges::contains(unique_pipeline_inputs.m_storage_buffer_descriptors, input))
+				not std::ranges::contains(unique_pipeline_inputs.m_storage_buffer_descriptors, input) and
+				input.m_descriptor_set != 3)
 				unique_pipeline_inputs.m_storage_buffer_descriptors.push_back(input);
 
 			if (input.m_type == vk::DescriptorType::eCombinedImageSampler and

@@ -15,6 +15,7 @@ import global_descriptor;
 import buffer;
 import material;
 import descriptor_resource_buffer;
+import light;
 
 #if not INTELLISENSE
 import std.core;
@@ -41,17 +42,19 @@ export namespace lh
 							  const logical_device&,
 							  const memory_allocator&,
 							  const global_descriptor&,
+								const global_light_descriptor_buffer&,
 							  const create_info& = {});
 
 			auto map_material(const material&) -> void;
 			auto map_resource_buffer(const descriptor_resource_buffer&) -> void;
-			auto map_lights(const descriptor_resource_buffer&) -> void;
+			//auto map_lights(const descriptor_resource_buffer&) -> void;
 
 			auto bind(const vk::raii::CommandBuffer&, const vk::raii::PipelineLayout&) const -> void;
 
 		private:
 			const physical_device& m_physical_device;
 			const logical_device& m_logical_device;
+			const global_light_descriptor_buffer& m_global_light_descriptor_buffer;
 
 			vk::PipelineBindPoint m_bind_point;
 			

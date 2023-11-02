@@ -17,9 +17,11 @@ namespace lh
 											 const logical_device& logical_device,
 											 const memory_allocator& memory_allocator,
 											 const global_descriptor& global_descriptor,
+											 const global_light_descriptor_buffer& global_light_descriptor_buffer,
 											 const create_info& create_info)
 			: m_physical_device {physical_device},
 			  m_logical_device {logical_device},
+			  m_global_light_descriptor_buffer {global_light_descriptor_buffer},
 			  m_bind_point {create_info.m_bind_point},
 			  m_uniform_descriptor_buffer_binding_info {},
 			  m_storage_descriptor_buffer_binding_info {},
@@ -55,7 +57,20 @@ namespace lh
 				  mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
 														 vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT,
 											  .m_memory_properties = create_info.m_descriptor_buffer_memory_properties}}
-		{}
+		{
+			for (auto i = light::light_stack_size_t {};
+				 const auto& [descriptor_type, light_descriptor] :
+				 m_global_light_descriptor_buffer.light_resource_buffer().descriptors())
+			{
+				auto memcpy_destination = static_cast<std::byte*>(
+											  m_light_storage_descriptor_buffer.allocation_info().pMappedData) +
+										  i * light_descriptor.size();
+
+				std::memcpy(memcpy_destination, light_descriptor.data(), light_descriptor.size());
+
+				i++;
+			}
+		}
 
 		auto descriptor_buffer::map_material(const material& material) -> void
 		{
@@ -75,10 +90,10 @@ namespace lh
 					vk::BufferUsageFlagBits::eShaderDeviceAddress |
 						vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT);
 
-				auto destination = static_cast<std::byte*>(
-									   m_combined_image_sampler_descriptor_buffer.allocation_info().pMappedData) +
-								   i * descriptor_offset;
-				std::memcpy(destination, texture.descriptor().data(), texture.descriptor().size());
+				auto memcpy_destination =
+					static_cast<std::byte*>(m_combined_image_sampler_descriptor_buffer.allocation_info().pMappedData) +
+					i * descriptor_offset;
+				std::memcpy(memcpy_destination, texture.descriptor().data(), texture.descriptor().size());
 
 				i++;
 			}
@@ -140,6 +155,8 @@ namespace lh
 													  m_storage_descriptor_buffer_binding_info);
 			combined_descriptor_bindings.insert_range(combined_descriptor_bindings.end(),
 													  m_combined_image_sampler_descriptor_buffer_binding_info);
+			combined_descriptor_bindings.insert_range(combined_descriptor_bindings.end(),
+													  m_global_light_descriptor_buffer.light_storage_bindings());
 
 			command_buffer.bindDescriptorBuffersEXT(combined_descriptor_bindings);
 
@@ -148,12 +165,16 @@ namespace lh
 				m_uniform_descriptor_buffer_binding_info.size());
 			const auto combined_image_sampler_descriptor_index = static_cast<std::uint32_t>(
 				m_uniform_descriptor_buffer_binding_info.size() + m_storage_descriptor_buffer_binding_info.size());
+			const auto light_storage_descriptor_index = static_cast<std::uint32_t>(
+				m_uniform_descriptor_buffer_binding_info.size() + m_storage_descriptor_buffer_binding_info.size() +
+				m_combined_image_sampler_descriptor_buffer_binding_info.size());
 
 			std::vector<std::uint32_t> indices {uniform_descriptor_index,
 												storage_descriptor_index,
-												combined_image_sampler_descriptor_index};
+												combined_image_sampler_descriptor_index,
+												light_storage_descriptor_index};
 
-			command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point, *pipeline_layout, 0, indices, {0, 0, 0});
+			command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point, *pipeline_layout, 0, indices, {0, 0, 0, 0});
 		}
 	}
 }
