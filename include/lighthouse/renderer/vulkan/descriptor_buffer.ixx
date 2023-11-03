@@ -54,13 +54,14 @@ export namespace lh
 		private:
 			const physical_device& m_physical_device;
 			const logical_device& m_logical_device;
-			const global_light_descriptor_buffer& m_global_light_descriptor_buffer;
+			//const global_light_descriptor_buffer& m_global_light_descriptor_buffer;
 
 			vk::PipelineBindPoint m_bind_point;
 			
 			std::vector<vk::DescriptorBufferBindingInfoEXT> m_uniform_descriptor_buffer_binding_info;
 			std::vector<vk::DescriptorBufferBindingInfoEXT> m_storage_descriptor_buffer_binding_info;
 			std::vector<vk::DescriptorBufferBindingInfoEXT> m_combined_image_sampler_descriptor_buffer_binding_info;
+			std::vector<vk::DescriptorBufferBindingInfoEXT> m_light_storage_descriptor_buffer_binding_info;
 
 			mapped_buffer m_uniform_descriptor_buffer;
 			mapped_buffer m_storage_descriptor_buffer;

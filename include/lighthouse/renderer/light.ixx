@@ -167,10 +167,10 @@ export namespace lh
 	public:
 		struct create_info
 		{
-			light::light_stack_size_t m_point_lights = 1024;
-			light::light_stack_size_t m_spot_lights = 512;
-			light::light_stack_size_t m_directional_lights = 32;
-			light::light_stack_size_t m_ambient_lights = 512;
+			light::light_stack_size_t m_point_lights = 8;
+			light::light_stack_size_t m_spot_lights = 4;
+			light::light_stack_size_t m_directional_lights = 2;
+			light::light_stack_size_t m_ambient_lights = 4;
 		};
 
 		friend class light;
@@ -186,7 +186,8 @@ export namespace lh
 									   const create_info& = {});
 
 		auto light_resource_buffer() const -> const vulkan::descriptor_resource_buffer&;
-		auto light_storage_bindings() const -> const std::vector<vk::DescriptorBufferBindingInfoEXT>&;
+		//auto light_storage_bindings() const -> const std::vector<vk::DescriptorBufferBindingInfoEXT>&;
+		auto create_information() const -> const create_info&;
 
 	private:
 		auto map_point_lights() -> void;
@@ -202,7 +203,6 @@ export namespace lh
 		std::vector<ambient_light::shader_data> m_ambient_light_data;
 
 		vulkan::descriptor_resource_buffer m_light_resource_buffer;
-		std::vector<vk::DescriptorBufferBindingInfoEXT> m_light_storage_descriptor_buffer_binding_info;
 	};
 }
 
