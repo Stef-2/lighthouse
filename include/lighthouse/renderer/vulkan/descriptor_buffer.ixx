@@ -47,11 +47,12 @@ export namespace lh
 
 			auto map_material(const material&) -> void;
 			auto map_resource_buffer(const descriptor_resource_buffer&) -> void;
-			auto map_lights() -> void;
 
 			auto bind(const vk::raii::CommandBuffer&, const vk::raii::PipelineLayout&) const -> void;
 
 		private:
+			auto map_lights() -> void;
+
 			const physical_device& m_physical_device;
 			const logical_device& m_logical_device;
 			const global_light_descriptor_buffer& m_global_light_descriptor_buffer;

@@ -82,7 +82,6 @@ namespace lh
 		m_global_descriptor_buffer.map_resource_buffer(m_resource_generator.descriptor_buffer());
 		// m_global_descriptor_buffer.map_uniform_buffer_data(0, m_resource_generator.descriptor_buffer().subdata());
 		m_global_descriptor_buffer.map_material(m_material);
-		m_global_descriptor_buffer.map_lights();
 		/*
 		m_global_light_descriptor_buffer.light_resource_buffer().mapped_buffer().map_data(
 			point_light::shader_data {glm::vec4 {1.0f, 1.0f, 1.0f, 1.0f}, glm::vec4 {1.0f, 1.0f, 1.0f, 1.0f}});*/

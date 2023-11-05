@@ -58,7 +58,9 @@ namespace lh
 				  mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
 														 vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT,
 											  .m_memory_properties = create_info.m_descriptor_buffer_memory_properties}}
-		{}
+		{
+			map_lights();
+		}
 
 		auto descriptor_buffer::map_material(const material& material) -> void
 		{
@@ -146,7 +148,7 @@ namespace lh
 			{
 				auto memcpy_destination = static_cast<std::byte*>(
 											  m_light_storage_descriptor_buffer.allocation_info().pMappedData) +
-										  i * 16;
+										  i * descriptor_buffer_properties.m_storage_buffer_offset;
 
 				std::memcpy(memcpy_destination, light_descriptor.data(), light_descriptor.size());
 
@@ -160,7 +162,7 @@ namespace lh
 			m_light_storage_descriptor_buffer_binding_info.emplace_back(
 				m_light_storage_descriptor_buffer.address(),
 				vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT);
-			/*
+
 			m_light_storage_descriptor_buffer_binding_info.emplace_back(
 				m_light_storage_descriptor_buffer.address() +
 					global_light_create_info.m_point_lights * aligned_binding_offset,
@@ -177,8 +179,7 @@ namespace lh
 					global_light_create_info.m_point_lights * aligned_binding_offset +
 					global_light_create_info.m_spot_lights * aligned_binding_offset +
 					global_light_create_info.m_directional_lights * aligned_binding_offset,
-				vk::BufferUsageFlagBits::eShaderDeviceAddress |
-			vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT);*/
+				vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT);
 		}
 
 		auto descriptor_buffer::bind(const vk::raii::CommandBuffer& command_buffer,

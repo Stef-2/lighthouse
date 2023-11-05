@@ -30,7 +30,7 @@ export namespace lh
 				descriptor_type_size_t m_num_uniform_buffers = 15;
 				descriptor_type_size_t m_num_storage_descriptors = 8;
 				descriptor_type_size_t m_num_combined_image_samplers = 1024;
-				descriptor_type_size_t m_num_light_storage_bindings = 1;
+				descriptor_type_size_t m_num_light_storage_bindings = 4;
 			};
 
 			global_descriptor(const physical_device&, const logical_device&, const create_info& = {});
