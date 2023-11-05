@@ -65,10 +65,10 @@ namespace lh
 														 .maxDescriptorSetUpdateAfterBindSampledImages,
 													 create_info.m_num_combined_image_samplers);
 
-			const auto descriptor_indexing_flags = vk::DescriptorBindingFlags {
+			auto descriptor_indexing_flags = std::vector<vk::DescriptorBindingFlags> {
 				vk::DescriptorBindingFlagBits::ePartiallyBound |
 				vk::DescriptorBindingFlagBits::eVariableDescriptorCount};
-			const auto descriptor_indexing_bindings = vk::DescriptorSetLayoutBindingFlagsCreateInfo {
+			auto descriptor_indexing_bindings = vk::DescriptorSetLayoutBindingFlagsCreateInfo {
 				descriptor_indexing_flags};
 
 			const auto combined_image_sampler_binding = vk::DescriptorSetLayoutBinding {
@@ -82,12 +82,19 @@ namespace lh
 			// light storage
 			bindings = std::vector<vk::DescriptorSetLayoutBinding> {};
 			bindings.reserve(create_info.m_num_light_storage_bindings);
+			descriptor_indexing_flags = {};
+			descriptor_indexing_flags.reserve(create_info.m_num_light_storage_bindings);
+			descriptor_indexing_bindings = vk::DescriptorSetLayoutBindingFlagsCreateInfo {};
 
 			for (auto i = descriptor_type_size_t {}; i < create_info.m_num_light_storage_bindings; i++)
+			{
 				bindings.emplace_back(i, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eAll);
+				descriptor_indexing_flags.emplace_back(vk::DescriptorBindingFlagBits::ePartiallyBound);
+			}
 
-			m_light_storage_descriptor_set = {
-				vk::raii::DescriptorSetLayout {*logical_device, {descriptor_set_layout_usage, bindings}}};
+			descriptor_indexing_bindings = {descriptor_indexing_flags};
+			m_light_storage_descriptor_set = {vk::raii::DescriptorSetLayout {
+				*logical_device, {descriptor_set_layout_usage, bindings /*, &descriptor_indexing_bindings*/}}};
 
 			// pipeline layout
 			auto descriptor_sets = std::array<vk::DescriptorSetLayout, 4> {*m_uniform_buffer_set,

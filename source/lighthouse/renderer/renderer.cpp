@@ -73,7 +73,7 @@ namespace lh
 					  {file_system::data_path() /= "textures/grooved_bricks/basecolor.png",
 					   file_system::data_path() /= "textures/grooved_bricks/normal.png",
 					   file_system::data_path() /= "textures/grooved_bricks/ambientocclusion.png"}},
-		  m_point_light {{1.0f, 1.0f, 1.0f, 1.0f}, 1.0f, {1.0f, 1.0f, 1.0f}}
+		  m_point_light {{1.0f, 0.0f, 0.0f, 1.0f}, 1.0f, {1.0f, 0.0f, 0.0f}}
 	{ /*
 		 m_global_descriptor_buffer.map_uniform_buffer_data(0,
 															vulkan::buffer_subdata {
@@ -82,8 +82,10 @@ namespace lh
 		m_global_descriptor_buffer.map_resource_buffer(m_resource_generator.descriptor_buffer());
 		// m_global_descriptor_buffer.map_uniform_buffer_data(0, m_resource_generator.descriptor_buffer().subdata());
 		m_global_descriptor_buffer.map_material(m_material);
+		m_global_descriptor_buffer.map_lights();
+		/*
 		m_global_light_descriptor_buffer.light_resource_buffer().mapped_buffer().map_data(
-			point_light::shader_data {glm::vec4 {1.0f, 1.0f, 1.0f, 1.0f}, glm::vec4 {1.0f, 1.0f, 1.0f, 1.0f}});
+			point_light::shader_data {glm::vec4 {1.0f, 1.0f, 1.0f, 1.0f}, glm::vec4 {1.0f, 1.0f, 1.0f, 1.0f}});*/
 		// auto wtf = m_global_descriptor_buffer.register_textures({&m_texture1, &m_texture2});
 		// m_global_descriptor_buffer.unregister_textures({1});
 
@@ -132,14 +134,24 @@ namespace lh
 			glm::vec4 t;
 		};
 
+		struct pl
+		{
+			glm::vec4 position;
+			glm::vec4 color;
+		};
+
 		auto test_camera = m_camera.projection() * m_camera.view() * glm::mat4x4 {1.0f};
 		auto wtf = time::now();
 
 		test t {test_camera, {wtf, 0, 0, 0}};
+		pl _pl {{1.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}};
 
 		m_resource_generator.descriptor_buffer().map_uniform_data(0, t);
 		m_resource_generator.descriptor_buffer().map_uniform_data(1, mi);
 		m_resource_generator.descriptor_buffer().map_storage_data(0, mi);
+
+		// m_global_light_descriptor_buffer.light_resource_buffer().mapped_buffer().map_data(_pl);
+		m_global_light_descriptor_buffer.light_resource_buffer().map_storage_data(0, _pl);
 
 		m_global_descriptor_buffer.bind(command_buffer, m_global_descriptor.pipeline_layout());
 		//  ==================
