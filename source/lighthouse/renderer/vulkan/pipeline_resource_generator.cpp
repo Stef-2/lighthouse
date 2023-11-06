@@ -9,6 +9,7 @@ module;
 module pipeline_resource_generator;
 
 import input;
+import light;
 
 namespace
 {
@@ -25,7 +26,7 @@ namespace
 
 			if (input.m_type == vk::DescriptorType::eStorageBuffer and
 				not std::ranges::contains(unique_pipeline_inputs.m_storage_buffer_descriptors, input) and
-				input.m_descriptor_set != 3)
+				input.m_descriptor_set != lh::light::reserved_light_descriptor_set_number)
 				unique_pipeline_inputs.m_storage_buffer_descriptors.push_back(input);
 
 			if (input.m_type == vk::DescriptorType::eCombinedImageSampler and

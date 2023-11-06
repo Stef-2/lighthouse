@@ -259,8 +259,8 @@ namespace lh
 		*/
 		buffer_subdata.emplace_back(
 			vk::DescriptorType::eStorageBuffer,
-			vulkan::buffer_subdata::subdata {0, /*create_info.m_point_lights*/ 1 * sizeof point_light::shader_data});
-		/*
+			vulkan::buffer_subdata::subdata {0, create_info.m_point_lights * sizeof point_light::shader_data});
+
 		buffer_subdata.emplace_back(
 			vk::DescriptorType::eStorageBuffer,
 			vulkan::buffer_subdata::subdata {create_info.m_point_lights * sizeof point_light::shader_data,
@@ -277,49 +277,15 @@ namespace lh
 										create_info.m_point_lights * sizeof point_light::shader_data +
 											create_info.m_spot_lights * sizeof spot_light::shader_data +
 											create_info.m_directional_lights * sizeof directional_light::shader_data,
-										create_info.m_ambient_lights * sizeof ambient_light::shader_data});*/
+										create_info.m_ambient_lights * sizeof ambient_light::shader_data});
 
 		m_light_resource_buffer = {physical_device,
 								   logical_device,
 								   memory_allocator,
-								   256,
+								   buffer_size,
 								   {{.m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
 												vk::BufferUsageFlagBits::eStorageBuffer},
 									buffer_subdata}};
-		/*
-		for (auto i = light::light_stack_size_t {}; i < combined_lights_size; i++)
-		{
-			m_light_storage_descriptor_buffer_binding_info.emplace_back(
-				m_light_resource_buffer.mapped_buffer().address() +
-					i * vulkan::utility::aligned_size(
-							static_cast<vk::DeviceSize>(descriptor_buffer_properties.m_storage_buffer_size),
-							descriptor_buffer_properties.m_properties.descriptorBufferOffsetAlignment),
-				vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT);
-		}
-		*/
-		/*
-		const auto aligned_binding_offset = vulkan::utility::aligned_size(
-			static_cast<vk::DeviceSize>(descriptor_buffer_properties.m_storage_buffer_size),
-			descriptor_buffer_properties.m_properties.descriptorBufferOffsetAlignment);
-
-		m_light_storage_descriptor_buffer_binding_info.emplace_back(
-			m_light_resource_buffer.mapped_buffer().address(),
-			vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT);
-
-		m_light_storage_descriptor_buffer_binding_info.emplace_back(
-			m_light_resource_buffer.mapped_buffer().address() + create_info.m_point_lights * aligned_binding_offset,
-			vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT);
-
-		m_light_storage_descriptor_buffer_binding_info.emplace_back(
-			m_light_resource_buffer.mapped_buffer().address() + create_info.m_point_lights * aligned_binding_offset +
-				create_info.m_spot_lights * aligned_binding_offset,
-			vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT);
-
-		m_light_storage_descriptor_buffer_binding_info.emplace_back(
-			m_light_resource_buffer.mapped_buffer().address() + create_info.m_point_lights * aligned_binding_offset +
-				create_info.m_spot_lights * aligned_binding_offset +
-				create_info.m_directional_lights * aligned_binding_offset,
-			vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT);*/
 	}
 
 	auto global_light_descriptor_buffer::light_resource_buffer() const -> const vulkan::descriptor_resource_buffer&

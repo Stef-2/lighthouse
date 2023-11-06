@@ -73,7 +73,9 @@ namespace lh
 					  {file_system::data_path() /= "textures/grooved_bricks/basecolor.png",
 					   file_system::data_path() /= "textures/grooved_bricks/normal.png",
 					   file_system::data_path() /= "textures/grooved_bricks/ambientocclusion.png"}},
-		  m_point_light {{1.0f, 0.0f, 0.0f, 1.0f}, 1.0f, {1.0f, 0.0f, 0.0f}}
+		  m_point_light {{1.0f, 0.0f, 0.0f, 1.0f}, 1.0f, {1.0f, 0.0f, 0.0f}},
+		  m_point_light2 {{0.0f, 0.0f, 1.0f, 1.0f}, 1.0f, {0.0f, 0.0f, 1.0f}},
+		  m_spot_light {{0.0f, 1.0f, 0.0f, 1.0f}, 1.0f, {0.0f, 0.0f, 1.0f}}
 	{ /*
 		 m_global_descriptor_buffer.map_uniform_buffer_data(0,
 															vulkan::buffer_subdata {
@@ -150,7 +152,7 @@ namespace lh
 		m_resource_generator.descriptor_buffer().map_storage_data(0, mi);
 
 		// m_global_light_descriptor_buffer.light_resource_buffer().mapped_buffer().map_data(_pl);
-		m_global_light_descriptor_buffer.light_resource_buffer().map_storage_data(0, _pl);
+		// m_global_light_descriptor_buffer.light_resource_buffer().map_storage_data(0, _pl);
 
 		m_global_descriptor_buffer.bind(command_buffer, m_global_descriptor.pipeline_layout());
 		//  ==================

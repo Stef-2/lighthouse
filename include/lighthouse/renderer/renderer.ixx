@@ -81,5 +81,7 @@ export namespace lh
 		lh::camera<camera_type::perspective> m_camera;
 		material m_material;
 		point_light m_point_light;
+		point_light m_point_light2;
+		spot_light m_spot_light;
 	};
 }

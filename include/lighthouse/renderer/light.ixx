@@ -33,6 +33,9 @@ export namespace lh
 		using light_stack_size_t = std::uint16_t;
 		using intensity_t = float;
 
+		static inline constexpr auto num_light_types = 4;
+		static inline constexpr auto reserved_light_descriptor_set_number = 3;
+
 		light(const colors::color&, const intensity_t&);
 		light(const light&) = delete;
 		light& operator=(const light&) = delete;
