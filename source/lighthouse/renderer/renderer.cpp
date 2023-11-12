@@ -74,8 +74,13 @@ namespace lh
 					   file_system::data_path() /= "textures/grooved_bricks/normal.png",
 					   file_system::data_path() /= "textures/grooved_bricks/ambientocclusion.png"}},
 		  m_point_light {{1.0f, 0.0f, 0.0f, 1.0f}, 1.0f, {1.0f, 0.0f, 0.0f}},
-		  m_point_light2 {{0.0f, 0.0f, 1.0f, 1.0f}, 1.0f, {0.0f, 0.0f, 1.0f}},
-		  m_spot_light {{0.0f, 1.0f, 0.0f, 1.0f}, 1.0f, {0.0f, 0.0f, 1.0f}}
+		  m_point_light2 {{0.0f, 1.0f, 0.0f, 1.0f}, 1.0f, {0.0f, 1.0f, 0.0f}},
+		  m_spot_light {{0.5f, 0.5f, 0.0f, 1.0f}, 1.0f, {0.0f, 0.0f, 1.0f}},
+		  m_spot_light2 {{0.0f, 0.5f, 0.5f, 1.0f}, 1.0f, {0.0f, 0.0f, 1.0f}},
+		  m_dir_light {{1.0f, 0.5f, 0.5f, 1.0f}, 1.0f, {0.0f, 0.0f, 1.0f}, {0.0f, -1.0f, 0.0f}},
+		  m_dir_light2 {{0.5f, 1.0f, 0.5f, 1.0f}, 1.0f, {0.0f, 0.0f, 1.0f}, {0.0f, -1.0f, 0.0f}},
+		  m_amb_light {{1.0f, 0.0f, 0.0f, 1.0f}, 1.0f, {1.0f, 0.0f, 0.0f}},
+		  m_amb_light2 {{0.0f, 1.0f, 0.0f, 1.0f}, 1.0f, {1.0f, 0.0f, 0.0f}}
 	{ /*
 		 m_global_descriptor_buffer.map_uniform_buffer_data(0,
 															vulkan::buffer_subdata {

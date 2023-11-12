@@ -83,5 +83,10 @@ export namespace lh
 		point_light m_point_light;
 		point_light m_point_light2;
 		spot_light m_spot_light;
+		spot_light m_spot_light2;
+		directional_light m_dir_light;
+		directional_light m_dir_light2;
+		ambient_light m_amb_light;
+		ambient_light m_amb_light2;
 	};
 }

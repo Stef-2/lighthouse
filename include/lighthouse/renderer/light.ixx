@@ -31,6 +31,7 @@ export namespace lh
 	{
 	public:
 		using light_stack_size_t = std::uint16_t;
+		using parameter_precision_t = float;
 		using intensity_t = float;
 
 		static inline constexpr auto num_light_types = 4;
@@ -41,7 +42,6 @@ export namespace lh
 		light& operator=(const light&) = delete;
 
 		auto color() const -> const colors::color&;
-		auto color(const colors::color&) -> void;
 		auto intensity() const -> const intensity_t&;
 		virtual auto intensity(const intensity_t&) -> void;
 
@@ -66,6 +66,7 @@ export namespace lh
 					   const entity::rotation_t = {},
 					   const entity::scale_t = {});
 
+		auto color(const colors::color&) -> void;
 		auto intensity(const intensity_t&) -> void override final;
 		auto effective_radius() const -> const light::intensity_t&;
 		auto intensity_at(const entity::position_t&) const -> light::intensity_t;
@@ -74,6 +75,7 @@ export namespace lh
 		auto on_position_change() -> void override final;
 		auto on_rotation_change() -> void override final;
 		virtual auto update_light_on_stack() -> void = 0;
+		virtual auto remove_light_from_stack() -> void = 0;
 
 		light::intensity_t m_effective_radius;
 	};
@@ -92,14 +94,13 @@ export namespace lh
 
 	private:
 		auto update_light_on_stack() -> void override final;
+		auto remove_light_from_stack() -> void override final;
 	};
 
 	// specialized physical light, radiates light in a cone
 	class spot_light final : public physical_light
 	{
 	public:
-		using parameter_precision_t = float;
-
 		struct shader_data
 		{
 			glm::vec4 m_position;
@@ -155,12 +156,16 @@ export namespace lh
 		{
 			glm::vec4 m_position;
 			glm::vec4 m_color;
+			parameter_precision_t m_decay_factor = 0.0f;
+			parameter_precision_t m_alignment_padding[3] = {0.0f, 0.0f, 0.0f};
 		};
 
-		ambient_light(const colors::color&, const light::intensity_t&, const entity::position_t&);
+		ambient_light(const colors::color&, const light::intensity_t&, const entity::position_t&, const parameter_precision_t& decay_factor = 0.0f);
 
 	private:
 		auto update_light_on_stack() -> void override final;
+
+		parameter_precision_t m_decay_factor;
 	};
 
 	// ===========================================================================
@@ -189,7 +194,6 @@ export namespace lh
 									   const create_info& = {});
 
 		auto light_resource_buffer() const -> const vulkan::descriptor_resource_buffer&;
-		//auto light_storage_bindings() const -> const std::vector<vk::DescriptorBufferBindingInfoEXT>&;
 		auto create_information() const -> const create_info&;
 
 	private:
@@ -199,6 +203,11 @@ export namespace lh
 		auto map_ambient_lights() -> void;
 
 		create_info m_create_info;
+
+		std::vector<point_light*> m_point_lights;
+		std::vector<spot_light*> m_spot_lights;
+		std::vector<directional_light*> m_directional_lights;
+		std::vector<ambient_light*> m_ambient_lights;
 
 		std::vector<point_light::shader_data> m_point_light_data;
 		std::vector<spot_light::shader_data> m_spot_light_data;
