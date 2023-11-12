@@ -42,7 +42,7 @@ export namespace lh
 							  const logical_device&,
 							  const memory_allocator&,
 							  const global_descriptor&,
-								const global_light_descriptor_buffer&,
+								const global_light_manager&,
 							  const create_info& = {});
 
 			auto map_material(const material&) -> void;
@@ -55,7 +55,7 @@ export namespace lh
 
 			const physical_device& m_physical_device;
 			const logical_device& m_logical_device;
-			const global_light_descriptor_buffer& m_global_light_descriptor_buffer;
+			const global_light_manager& m_global_light_descriptor_buffer;
 
 			vk::PipelineBindPoint m_bind_point;
 			

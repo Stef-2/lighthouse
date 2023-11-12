@@ -73,7 +73,7 @@ export namespace lh
 		vulkan::dynamic_rendering_state m_dynamic_rendering_state;
 
 		vulkan::global_descriptor m_global_descriptor;
-		global_light_descriptor_buffer m_global_light_descriptor_buffer;
+		global_light_manager m_global_light_descriptor_buffer;
 		vulkan::descriptor_buffer m_global_descriptor_buffer;
 
 		vulkan::pipeline_resource_generator m_resource_generator;

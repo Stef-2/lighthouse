@@ -31,6 +31,7 @@ export namespace lh
 	{
 	public:
 		using light_stack_size_t = std::uint16_t;
+		using global_light_offset_t = std::uint64_t;
 		using parameter_precision_t = float;
 		using intensity_t = float;
 
@@ -45,13 +46,15 @@ export namespace lh
 		auto intensity() const -> const intensity_t&;
 		virtual auto intensity(const intensity_t&) -> void;
 
-		friend class global_light_descriptor_buffer;
+		friend class global_light_manager;
 
 	protected:
+		virtual auto global_light_buffer_offset() -> global_light_offset_t = 0;
+
 		colors::color m_color;
 		light_stack_size_t m_light_stack_index;
 
-		static inline global_light_descriptor_buffer* s_global_light_descriptor_buffer;
+		static inline global_light_manager* s_global_light_manager;
 	};
 
 	// abstract base physical light class
@@ -93,6 +96,8 @@ export namespace lh
 		point_light(const lh::colors::color&, const light::intensity_t&, const entity::position_t&);
 
 	private:
+		auto global_light_buffer_offset() -> global_light_offset_t override final;
+
 		auto update_light_on_stack() -> void override final;
 		auto remove_light_from_stack() -> void override final;
 	};
@@ -123,7 +128,10 @@ export namespace lh
 		auto sharpness(const parameter_precision_t&) -> void;
 
 	private:
+		auto global_light_buffer_offset() -> global_light_offset_t override final;
+
 		auto update_light_on_stack() -> void override final;
+		auto remove_light_from_stack() -> void override final;
 
 		parameter_precision_t m_spread_angle;
 		parameter_precision_t m_sharpness;
@@ -145,7 +153,10 @@ export namespace lh
 						  const entity::position_t&,
 						  const entity::rotation_t);
 	private:
+		auto global_light_buffer_offset() -> global_light_offset_t override final;
+
 		auto update_light_on_stack() -> void override final;
+		auto remove_light_from_stack() -> void override final;
 	};
 
 	// specialized non physical light, applies linearly decaying lighting in affected radius
@@ -163,14 +174,17 @@ export namespace lh
 		ambient_light(const colors::color&, const light::intensity_t&, const entity::position_t&, const parameter_precision_t& decay_factor = 0.0f);
 
 	private:
+		auto global_light_buffer_offset() -> global_light_offset_t override final;
+
 		auto update_light_on_stack() -> void override final;
+		auto remove_light_from_stack() -> void override final;
 
 		parameter_precision_t m_decay_factor;
 	};
 
 	// ===========================================================================
 
-	class global_light_descriptor_buffer
+	class global_light_manager
 	{
 	public:
 		struct create_info
@@ -188,7 +202,7 @@ export namespace lh
 		friend class directional_light;
 		friend class ambient_light;
 
-		global_light_descriptor_buffer(const vulkan::physical_device&,
+		global_light_manager(const vulkan::physical_device&,
 									   const vulkan::logical_device&,
 									   const vulkan::memory_allocator&,
 									   const create_info& = {});
@@ -197,22 +211,12 @@ export namespace lh
 		auto create_information() const -> const create_info&;
 
 	private:
-		auto map_point_lights() -> void;
-		auto map_spot_lights() -> void;
-		auto map_directional_lights() -> void;
-		auto map_ambient_lights() -> void;
-
 		create_info m_create_info;
 
 		std::vector<point_light*> m_point_lights;
 		std::vector<spot_light*> m_spot_lights;
 		std::vector<directional_light*> m_directional_lights;
 		std::vector<ambient_light*> m_ambient_lights;
-
-		std::vector<point_light::shader_data> m_point_light_data;
-		std::vector<spot_light::shader_data> m_spot_light_data;
-		std::vector<directional_light::shader_data> m_directional_light_data;
-		std::vector<ambient_light::shader_data> m_ambient_light_data;
 
 		vulkan::descriptor_resource_buffer m_light_resource_buffer;
 	};

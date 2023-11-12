@@ -17,11 +17,11 @@ namespace lh
 											 const logical_device& logical_device,
 											 const memory_allocator& memory_allocator,
 											 const global_descriptor& global_descriptor,
-											 const global_light_descriptor_buffer& global_light_descriptor_buffer,
+											 const global_light_manager& global_light_manager,
 											 const create_info& create_info)
 			: m_physical_device {physical_device},
 			  m_logical_device {logical_device},
-			  m_global_light_descriptor_buffer {global_light_descriptor_buffer},
+			  m_global_light_descriptor_buffer {global_light_manager},
 			  m_bind_point {create_info.m_bind_point},
 			  m_uniform_descriptor_buffer_binding_info {},
 			  m_storage_descriptor_buffer_binding_info {},
