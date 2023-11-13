@@ -81,7 +81,7 @@ namespace lh
 						vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT);
 
 				auto memcpy_destination =
-					static_cast<std::byte*>(m_combined_image_sampler_descriptor_buffer.allocation_info().pMappedData) +
+					static_cast<std::byte*>(m_combined_image_sampler_descriptor_buffer.mapped_data_pointer()) +
 					i * descriptor_offset;
 				std::memcpy(memcpy_destination, texture.descriptor().data(), texture.descriptor().size());
 
@@ -110,7 +110,7 @@ namespace lh
 				if (descriptor_type == vk::DescriptorType::eUniformBuffer)
 				{
 					memcpy_destination = static_cast<std::byte*>(
-											 m_uniform_descriptor_buffer.allocation_info().pMappedData) +
+											 m_uniform_descriptor_buffer.mapped_data_pointer()) +
 										 num_uniform_descriptors * descriptor_size;
 
 					m_uniform_descriptor_buffer_binding_info.emplace_back(
@@ -122,7 +122,7 @@ namespace lh
 				} else
 				{
 					memcpy_destination = static_cast<std::byte*>(
-											 m_storage_descriptor_buffer.allocation_info().pMappedData) +
+											 m_storage_descriptor_buffer.mapped_data_pointer()) +
 										 num_storage_descriptors * descriptor_size;
 
 					m_storage_descriptor_buffer_binding_info.emplace_back(
@@ -147,7 +147,7 @@ namespace lh
 				 m_global_light_descriptor_buffer.light_resource_buffer().descriptors())
 			{
 				auto memcpy_destination = static_cast<std::byte*>(
-											  m_light_storage_descriptor_buffer.allocation_info().pMappedData) +
+											  m_light_storage_descriptor_buffer.mapped_data_pointer()) +
 										  i * descriptor_buffer_properties.m_storage_buffer_offset;
 
 				std::memcpy(memcpy_destination, light_descriptor.data(), light_descriptor.size());

@@ -65,9 +65,15 @@ namespace lh
 					 size,
 					 buffer::create_info {.m_usage = create_info.m_usage,
 										  .m_memory_properties = create_info.m_memory_properties,
-										  .m_allocation_create_info = create_info.m_allocation_create_info})
+										  .m_allocation_create_info = create_info.m_allocation_create_info}),
+			  m_mapped_data_pointer {m_allocation_info.pMappedData}
 
 		{}
+
+		auto mapped_buffer::mapped_data_pointer() const -> void*
+		{
+			return m_mapped_data_pointer;
+		}
 
 		auto buffer_subdata::operator[](std::size_t index) const -> const buffer_subdata::subdata&
 		{

@@ -114,7 +114,7 @@ namespace lh
 		return m_node->local_transformation();
 	}
 
-	auto entity::global_transformation() const -> const node::transformation_t&
+	auto entity::global_transformation() const -> const node::transformation_t
 	{
 		return m_node->global_transformation();
 	}

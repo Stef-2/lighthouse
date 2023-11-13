@@ -44,7 +44,7 @@ export namespace lh
 
 		auto local_transformation(const node::transformation_t&) -> void;
 		auto local_transformation() const -> const node::transformation_t&;
-		auto global_transformation() const -> const node::transformation_t&;
+		auto global_transformation() const -> const node::transformation_t;
 
 	protected:
 		virtual auto on_position_change() -> void {};

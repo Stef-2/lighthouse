@@ -7,7 +7,8 @@ module;
 #include <vector>
 #endif
 
-#include "glm/vec4.hpp"
+#include "glm/glm.hpp"
+#include "glm/gtc/quaternion.hpp"
 
 export module light;
 
@@ -94,6 +95,7 @@ export namespace lh
 		};
 
 		point_light(const lh::colors::color&, const light::intensity_t&, const entity::position_t&);
+		~point_light();
 
 	private:
 		auto global_light_buffer_offset() -> global_light_offset_t override final;
@@ -121,6 +123,7 @@ export namespace lh
 				   const entity::position_t&,
 				   const parameter_precision_t& spread_angle = 45.0f,
 				   const parameter_precision_t& sharpness = 1.0f);
+		~spot_light();
 
 		auto spread_angle() const -> const parameter_precision_t&;
 		auto spread_angle(const parameter_precision_t&) -> void;
@@ -152,6 +155,8 @@ export namespace lh
 						  const light::intensity_t&,
 						  const entity::position_t&,
 						  const entity::rotation_t);
+		~directional_light();
+
 	private:
 		auto global_light_buffer_offset() -> global_light_offset_t override final;
 
@@ -172,6 +177,10 @@ export namespace lh
 		};
 
 		ambient_light(const colors::color&, const light::intensity_t&, const entity::position_t&, const parameter_precision_t& decay_factor = 0.0f);
+		~ambient_light();
+
+		auto decay_factor() const -> const parameter_precision_t&;
+		auto decay_factor(const parameter_precision_t&) -> void;
 
 	private:
 		auto global_light_buffer_offset() -> global_light_offset_t override final;

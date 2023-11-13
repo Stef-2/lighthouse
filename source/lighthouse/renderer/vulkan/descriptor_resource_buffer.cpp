@@ -3,7 +3,9 @@ module;
 #if INTELLISENSE
 #include "vulkan_raii.hpp"
 #endif
+
 #include "glm/vec4.hpp"
+
 module descriptor_resource_buffer;
 
 import vulkan_utility;

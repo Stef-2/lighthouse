@@ -75,6 +75,8 @@ export namespace lh
 						  const vk::DeviceSize&,
 						  const mapped_buffer::create_info& = {});
 			
+			auto mapped_data_pointer() const -> void*;
+
 			template <typename T>
 			requires (not std::is_pointer_v<T>)
 			auto map_data(const T& data, const std::size_t& offset = 0, const std::size_t& size = sizeof(T)) const
@@ -85,6 +87,7 @@ export namespace lh
 			}
 
 		private:
+			void* m_mapped_data_pointer;
 		};
 
 		struct buffer_subdata

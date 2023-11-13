@@ -93,6 +93,11 @@ namespace lh
 		update_light_on_stack();
 	}
 
+	point_light::~point_light()
+	{
+		remove_light_from_stack();
+	}
+
 	auto point_light::global_light_buffer_offset() -> global_light_offset_t
 	{
 		return m_light_stack_index * sizeof shader_data;
@@ -101,7 +106,7 @@ namespace lh
 	auto point_light::update_light_on_stack() -> void
 	{
 		s_global_light_manager->light_resource_buffer().mapped_buffer().map_data(
-			shader_data {glm::vec4 {m_position, 1.0f}, m_color}, m_light_stack_index * sizeof shader_data);
+			shader_data {glm::vec4 {m_position, 1.0f}, m_color}, global_light_buffer_offset());
 	}
 
 	auto point_light::remove_light_from_stack() -> void
@@ -113,8 +118,20 @@ namespace lh
 		for (auto& element : subsequent_elements)
 			element->m_light_stack_index--;
 
+		auto this_light_data =
+			static_cast<shader_data*>(
+				s_global_light_manager->light_resource_buffer().mapped_buffer().mapped_data_pointer()) +
+			global_light_buffer_offset();
+
+		auto last_light_data =
+			static_cast<shader_data*>(
+				s_global_light_manager->light_resource_buffer().mapped_buffer().mapped_data_pointer()) +
+			s_global_light_manager->m_point_lights.size() * sizeof shader_data;
+
 		s_global_light_manager->m_point_lights.erase(s_global_light_manager->m_point_lights.begin() +
 													 m_light_stack_index);
+
+		if (not s_global_light_manager->m_point_lights.empty())
 	}
 
 	// ===========================================================================
@@ -129,6 +146,11 @@ namespace lh
 		s_global_light_manager->m_spot_lights.push_back(this);
 		m_light_stack_index = s_global_light_manager->m_spot_lights.size() - 1;
 		update_light_on_stack();
+	}
+
+	spot_light::~spot_light()
+	{
+		remove_light_from_stack();
 	}
 
 	auto spot_light::spread_angle() const -> const parameter_precision_t&
@@ -153,7 +175,7 @@ namespace lh
 		update_light_on_stack();
 	}
 
-	auto spot_light::global_light_buffer_offset() -> global_light_offset_t override final
+	auto spot_light::global_light_buffer_offset() -> global_light_offset_t
 	{
 		return s_global_light_manager->create_information().m_point_lights * sizeof point_light::shader_data +
 			   m_light_stack_index * sizeof shader_data;
@@ -167,8 +189,7 @@ namespace lh
 						 m_color,
 						 m_spread_angle,
 						 m_sharpness},
-			s_global_light_manager->create_information().m_point_lights * sizeof point_light::shader_data +
-				m_light_stack_index * sizeof shader_data);
+			global_light_buffer_offset());
 	}
 
 	auto spot_light::remove_light_from_stack() -> void
@@ -197,6 +218,11 @@ namespace lh
 		update_light_on_stack();
 	}
 
+	directional_light::~directional_light()
+	{
+		remove_light_from_stack();
+	}
+
 	auto directional_light::global_light_buffer_offset() -> global_light_offset_t
 	{
 		return s_global_light_manager->create_information().m_point_lights * sizeof point_light::shader_data +
@@ -210,9 +236,7 @@ namespace lh
 			shader_data {glm::vec4 {m_position, 1.0f},
 						 glm::vec4 {glm::degrees(glm::eulerAngles(m_rotation)), 1.0f},
 						 m_color},
-			s_global_light_manager->create_information().m_point_lights * sizeof point_light::shader_data +
-				s_global_light_manager->create_information().m_spot_lights * sizeof spot_light::shader_data +
-				m_light_stack_index * sizeof shader_data);
+			global_light_buffer_offset());
 	}
 
 	auto directional_light::remove_light_from_stack() -> void
@@ -238,26 +262,38 @@ namespace lh
 	{
 		s_global_light_manager->m_ambient_lights.push_back(this);
 		m_light_stack_index = s_global_light_manager->m_ambient_lights.size() - 1;
+		ulos<ambient_light>();
+	}
+
+	ambient_light::~ambient_light()
+	{
+		remove_light_from_stack();
+	}
+
+	auto ambient_light::decay_factor() const -> const parameter_precision_t&
+	{
+		return m_decay_factor;
+	}
+
+	auto ambient_light::decay_factor(const parameter_precision_t& decay_factor) -> void
+	{
+		m_decay_factor = decay_factor;
 		update_light_on_stack();
 	}
 
-	auto ambient_light::global_light_buffer_offset() -> global_light_offset_t override final
+	auto ambient_light::global_light_buffer_offset() -> global_light_offset_t
 	{
-		s_global_light_manager->create_information().m_point_lights * sizeof point_light::shader_data +
-			s_global_light_manager->create_information().m_spot_lights * sizeof spot_light::shader_data +
-			s_global_light_manager->create_information().m_directional_lights * sizeof directional_light::shader_data +
-			m_light_stack_index * sizeof shader_data;
+		return s_global_light_manager->create_information().m_point_lights * sizeof point_light::shader_data +
+			   s_global_light_manager->create_information().m_spot_lights * sizeof spot_light::shader_data +
+			   s_global_light_manager->create_information().m_directional_lights *
+				   sizeof directional_light::shader_data +
+			   m_light_stack_index * sizeof shader_data;
 	}
 
 	auto ambient_light::update_light_on_stack() -> void
 	{
 		s_global_light_manager->light_resource_buffer().mapped_buffer().map_data(
-			shader_data {glm::vec4 {m_position, 1.0f}, m_color, m_decay_factor},
-			s_global_light_manager->create_information().m_point_lights * sizeof point_light::shader_data +
-				s_global_light_manager->create_information().m_spot_lights * sizeof spot_light::shader_data +
-				s_global_light_manager->create_information().m_directional_lights *
-					sizeof directional_light::shader_data +
-				m_light_stack_index * sizeof shader_data);
+			shader_data {glm::vec4 {m_position, 1.0f}, m_color, m_decay_factor}, global_light_buffer_offset());
 	}
 
 	auto ambient_light::remove_light_from_stack() -> void
@@ -295,45 +331,42 @@ namespace lh
 		m_directional_lights.reserve(create_info.m_directional_lights);
 		m_ambient_lights.reserve(create_info.m_ambient_lights);
 
-		const auto buffer_size = create_info.m_point_lights * sizeof point_light::shader_data +
-								 create_info.m_spot_lights * sizeof spot_light::shader_data +
-								 create_info.m_directional_lights * sizeof directional_light::shader_data +
-								 create_info.m_ambient_lights * sizeof ambient_light::shader_data;
+		const auto point_light_buffer_size = create_info.m_point_lights * sizeof point_light::shader_data;
+		const auto spot_light_buffer_size = create_info.m_spot_lights * sizeof spot_light::shader_data;
+		const auto directional_light_buffer_size = create_info.m_directional_lights *
+												   sizeof directional_light::shader_data;
+		const auto ambient_light_buffer_size = create_info.m_ambient_lights * sizeof ambient_light::shader_data;
+
+		const auto combined_buffer_size = point_light_buffer_size + spot_light_buffer_size +
+										  directional_light_buffer_size + ambient_light_buffer_size;
 
 		auto buffer_subdata = decltype(vulkan::descriptor_resource_buffer::create_info::m_subdata) {};
 
-		buffer_subdata.reserve(create_info.m_point_lights + create_info.m_spot_lights +
+		buffer_subdata.reserve(static_cast<std::size_t>(create_info.m_point_lights) + create_info.m_spot_lights +
 							   create_info.m_directional_lights + create_info.m_ambient_lights);
 
 		const auto combined_lights_size = create_info.m_point_lights + create_info.m_spot_lights +
 										  create_info.m_directional_lights + create_info.m_ambient_lights;
 
-		buffer_subdata.emplace_back(
-			vk::DescriptorType::eStorageBuffer,
-			vulkan::buffer_subdata::subdata {0, create_info.m_point_lights * sizeof point_light::shader_data});
-
-		buffer_subdata.emplace_back(
-			vk::DescriptorType::eStorageBuffer,
-			vulkan::buffer_subdata::subdata {create_info.m_point_lights * sizeof point_light::shader_data,
-											 create_info.m_spot_lights * sizeof spot_light::shader_data});
-
-		buffer_subdata.emplace_back(
-			vk::DescriptorType::eStorageBuffer,
-			vulkan::buffer_subdata::subdata {create_info.m_point_lights * sizeof point_light::shader_data +
-												 create_info.m_spot_lights * sizeof spot_light::shader_data,
-											 create_info.m_directional_lights * sizeof directional_light::shader_data});
+		buffer_subdata.emplace_back(vk::DescriptorType::eStorageBuffer,
+									vulkan::buffer_subdata::subdata {0, point_light_buffer_size});
 
 		buffer_subdata.emplace_back(vk::DescriptorType::eStorageBuffer,
-									vulkan::buffer_subdata::subdata {
-										create_info.m_point_lights * sizeof point_light::shader_data +
-											create_info.m_spot_lights * sizeof spot_light::shader_data +
-											create_info.m_directional_lights * sizeof directional_light::shader_data,
-										create_info.m_ambient_lights * sizeof ambient_light::shader_data});
+									vulkan::buffer_subdata::subdata {point_light_buffer_size, spot_light_buffer_size});
+
+		buffer_subdata.emplace_back(vk::DescriptorType::eStorageBuffer,
+									vulkan::buffer_subdata::subdata {point_light_buffer_size + spot_light_buffer_size,
+																	 directional_light_buffer_size});
+
+		buffer_subdata.emplace_back(vk::DescriptorType::eStorageBuffer,
+									vulkan::buffer_subdata::subdata {point_light_buffer_size + spot_light_buffer_size +
+																		 directional_light_buffer_size,
+																	 ambient_light_buffer_size});
 
 		m_light_resource_buffer = {physical_device,
 								   logical_device,
 								   memory_allocator,
-								   buffer_size,
+								   combined_buffer_size,
 								   {{.m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
 												vk::BufferUsageFlagBits::eStorageBuffer},
 									buffer_subdata}};
