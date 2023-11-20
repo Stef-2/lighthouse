@@ -27,11 +27,6 @@ namespace lh
 		return m_color.a;
 	}
 
-	auto light::intensity(const intensity_t& intensity) -> void
-	{
-		m_color.a = intensity;
-	}
-
 	// ===========================================================================
 
 	physical_light::physical_light(const colors::color& color,
@@ -40,24 +35,28 @@ namespace lh
 								   const entity::rotation_t rotation,
 								   const entity::scale_t scale)
 		: light {color, intensity}, entity {position, rotation, scale}
-	{}
+	{
+		calculate_effective_radius();
+	}
 
 	auto physical_light::color(const colors::color& color) -> void
 	{
 		m_color = {color.r, color.g, color.b, m_color.a};
+		m_effective_radius = glm::sqrt(m_color.a / physical_light_distance_threshold);
+
 		update_light_on_stack();
 	}
 
 	auto physical_light::intensity(const intensity_t& intensity) -> void
 	{
-		light::intensity(intensity);
+		m_color.a = intensity;
 		update_light_on_stack();
 
 		// given the inverse square intensity decay law, calculate the distance past which
 		// this lights contribution can be discarded
 		// threshold is an arbitrary value that is considered to no longer provide a significant contribution to final
 		// lighting output
-		m_effective_radius = glm::sqrt(m_color.a / physical_light_distance_threshold);
+		calculate_effective_radius();
 	}
 
 	auto physical_light::effective_radius() const -> const light::intensity_t&
@@ -79,6 +78,11 @@ namespace lh
 	auto physical_light::on_rotation_change() -> void
 	{
 		update_light_on_stack();
+	}
+
+	auto physical_light::calculate_effective_radius() -> void
+	{
+		m_effective_radius = glm::sqrt(m_color.a / physical_light_distance_threshold);
 	}
 
 	// ===========================================================================
@@ -196,6 +200,7 @@ namespace lh
 	{
 		s_global_light_manager->m_ambient_lights.push_back(this);
 		m_light_stack_index = s_global_light_manager->m_ambient_lights.size() - 1;
+		update_light_on_stack();
 	}
 
 	ambient_light::~ambient_light()
@@ -296,5 +301,25 @@ namespace lh
 	auto global_light_manager::create_information() const -> const create_info&
 	{
 		return m_create_info;
+	}
+
+	auto global_light_manager::point_lights() const -> const std::vector<point_light*>&
+	{
+		return m_point_lights;
+	}
+
+	auto global_light_manager::spot_lights() const -> const std::vector<spot_light*>&
+	{
+		return m_spot_lights;
+	}
+
+	auto global_light_manager::directional_lights() const -> const std::vector<directional_light*>&
+	{
+		return m_directional_lights;
+	}
+
+	auto global_light_manager::ambient_lights() const -> const std::vector<ambient_light*>&
+	{
+		return m_ambient_lights;
 	}
 }

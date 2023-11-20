@@ -80,20 +80,10 @@ namespace lh
 		  m_dir_light {{1.0f, 0.5f, 0.5f, 1.0f}, 1.0f, {0.0f, 0.0f, 1.0f}, {0.0f, -1.0f, 0.0f}},
 		  m_dir_light2 {{0.5f, 1.0f, 0.5f, 1.0f}, 1.0f, {0.0f, 0.0f, 1.0f}, {0.0f, -1.0f, 0.0f}},
 		  m_amb_light {{1.0f, 0.0f, 0.0f, 1.0f}, 1.0f, {1.0f, 0.0f, 0.0f}},
-		  m_amb_light2 {{0.0f, 1.0f, 0.0f, 1.0f}, 1.0f, {1.0f, 0.0f, 0.0f}}
-	{ /*
-		 m_global_descriptor_buffer.map_uniform_buffer_data(0,
-															vulkan::buffer_subdata {
-																m_resource_generator.uniform_buffer_subdata()});*/
-
+		  m_amb_light2 {{0.0f, 1.0f, 0.0f, 1.0f}, 0.5f, {0.0f, 0.0f, 0.0f}}
+	{
 		m_global_descriptor_buffer.map_resource_buffer(m_resource_generator.descriptor_buffer());
-		// m_global_descriptor_buffer.map_uniform_buffer_data(0, m_resource_generator.descriptor_buffer().subdata());
 		m_global_descriptor_buffer.map_material(m_material);
-		/*
-		m_global_light_descriptor_buffer.light_resource_buffer().mapped_buffer().map_data(
-			point_light::shader_data {glm::vec4 {1.0f, 1.0f, 1.0f, 1.0f}, glm::vec4 {1.0f, 1.0f, 1.0f, 1.0f}});*/
-		// auto wtf = m_global_descriptor_buffer.register_textures({&m_texture1, &m_texture2});
-		// m_global_descriptor_buffer.unregister_textures({1});
 
 		if (m_create_info.m_using_validation)
 			output::log() << info(m_create_info);
@@ -116,6 +106,8 @@ namespace lh
 		input::key_binding::bind({vkfw::Key::E}, [this]() { m_camera.look_at(glm::vec3 {0.05f, 0.05f, 0.05f}); });
 
 		input::mouse::move_callback(m_camera.first_person_callback());
+
+		input::key_binding::bind({vkfw::Key::P}, [this]() { m_amb_light2.translate_relative({0.0f, 0.1f, 0.0f}); });
 	}
 
 	auto renderer::render() -> void

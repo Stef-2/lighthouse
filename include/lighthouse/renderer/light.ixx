@@ -44,7 +44,6 @@ export namespace lh
 
 		auto color() const -> const colors::color&;
 		auto intensity() const -> const intensity_t&;
-		virtual auto intensity(const intensity_t&) -> void;
 
 		friend class global_light_manager;
 
@@ -70,13 +69,14 @@ export namespace lh
 					   const entity::scale_t = {});
 
 		auto color(const colors::color&) -> void;
-		auto intensity(const intensity_t&) -> void override final;
+		auto intensity(const intensity_t&) -> void;
 		auto effective_radius() const -> const light::intensity_t&;
 		auto intensity_at(const entity::position_t&) const -> light::intensity_t;
 
 	protected:
 		auto on_position_change() -> void override final;
 		auto on_rotation_change() -> void override final;
+		auto calculate_effective_radius() -> void;
 
 		virtual auto update_light_on_stack() -> void = 0;
 
@@ -210,6 +210,11 @@ export namespace lh
 		auto light_resource_buffer() const -> const vulkan::descriptor_resource_buffer&;
 		auto create_information() const -> const create_info&;
 
+		auto point_lights() const -> const std::vector<point_light*>&;
+		auto spot_lights() const -> const std::vector<spot_light*>&;
+		auto directional_lights() const -> const std::vector<directional_light*>&;
+		auto ambient_lights() const -> const std::vector<ambient_light*>&;
+
 	private:
 		create_info m_create_info;
 
@@ -220,57 +225,6 @@ export namespace lh
 
 		vulkan::descriptor_resource_buffer m_light_resource_buffer;
 	};
-	/*
-	template <typename T>
-	auto physical_light::update_light_on_stack() -> void
-	{
-		const auto& create_info = s_global_light_manager->create_information();
-
-		if constexpr (std::is_same_v<T, point_light>)
-		{
-			s_global_light_manager->light_resource_buffer().mapped_buffer().map_data(
-				point_light::shader_data {glm::vec4 {m_position, 1.0f}, m_color},
-				m_light_stack_index * sizeof point_light::shader_data);
-		}
-
-		if constexpr (std::is_same_v<T, spot_light>)
-		{
-			const auto& light = static_cast<spot_light&>(*this);
-
-			s_global_light_manager->light_resource_buffer().mapped_buffer().map_data(
-				spot_light::shader_data {glm::vec4 {m_position, 1.0f},
-							 glm::vec4 {glm::degrees(glm::eulerAngles(m_rotation)), 1.0f},
-							 m_color,
-										 light.spread_angle(),
-										 light.sharpness()},
-				create_info.m_point_lights * sizeof point_light::shader_data +
-					m_light_stack_index * sizeof spot_light::shader_data);
-		}
-
-		if constexpr (std::is_same_v<T, directional_light>)
-		{
-			s_global_light_manager->light_resource_buffer().mapped_buffer().map_data(
-				directional_light::shader_data {glm::vec4 {m_position, 1.0f},
-							 glm::vec4 {glm::degrees(glm::eulerAngles(m_rotation)), 1.0f},
-							 m_color},
-				create_info.m_point_lights * sizeof point_light::shader_data +
-					create_info.m_spot_lights * sizeof spot_light::shader_data +
-					m_light_stack_index * sizeof directional_light::shader_data);
-		}
-
-		if constexpr (std::is_same_v<T, ambient_light>)
-		{
-			const auto& light = static_cast<ambient_light&>(*this);
-
-			s_global_light_manager->light_resource_buffer().mapped_buffer().map_data(
-				ambient_light::shader_data {glm::vec4 {m_position, 1.0f}, m_color, light.decay_factor()},
-				create_info.m_point_lights * sizeof point_light::shader_data +
-					create_info.m_spot_lights * sizeof spot_light::shader_data +
-					create_info.m_directional_lights *
-						sizeof directional_light::shader_data +
-					m_light_stack_index * sizeof ambient_light::shader_data);
-		}
-	}*/
 
 	template <typename T>
 	auto physical_light::remove_light_from_stack() -> void
