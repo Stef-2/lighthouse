@@ -95,44 +95,13 @@ namespace lh
 
 	point_light::~point_light()
 	{
-		remove_light_from_stack();
-	}
-
-	auto point_light::global_light_buffer_offset() -> global_light_offset_t
-	{
-		return m_light_stack_index * sizeof shader_data;
+		remove_light_from_stack<point_light>();
 	}
 
 	auto point_light::update_light_on_stack() -> void
 	{
 		s_global_light_manager->light_resource_buffer().mapped_buffer().map_data(
-			shader_data {glm::vec4 {m_position, 1.0f}, m_color}, global_light_buffer_offset());
-	}
-
-	auto point_light::remove_light_from_stack() -> void
-	{
-		const auto subsequent_elements = std::ranges::subrange {s_global_light_manager->m_point_lights.begin() +
-																	m_light_stack_index,
-																s_global_light_manager->m_point_lights.end()};
-
-		for (auto& element : subsequent_elements)
-			element->m_light_stack_index--;
-		rlos<point_light>();
-		auto this_light_data =
-			static_cast<shader_data*>(
-				s_global_light_manager->light_resource_buffer().mapped_buffer().mapped_data_pointer()) +
-			global_light_buffer_offset();
-
-		auto last_light_data =
-			static_cast<shader_data*>(
-				s_global_light_manager->light_resource_buffer().mapped_buffer().mapped_data_pointer()) +
-			s_global_light_manager->m_point_lights.size() * sizeof shader_data;
-
-		s_global_light_manager->m_point_lights.erase(s_global_light_manager->m_point_lights.begin() +
-													 m_light_stack_index);
-
-		if (not s_global_light_manager->m_point_lights.empty())
-			;
+			shader_data {glm::vec4 {m_position, 1.0f}, m_color}, m_light_stack_index * sizeof shader_data);
 	}
 
 	// ===========================================================================
@@ -151,7 +120,7 @@ namespace lh
 
 	spot_light::~spot_light()
 	{
-		remove_light_from_stack();
+		remove_light_from_stack<spot_light>();
 	}
 
 	auto spot_light::spread_angle() const -> const parameter_precision_t&
@@ -176,12 +145,6 @@ namespace lh
 		update_light_on_stack();
 	}
 
-	auto spot_light::global_light_buffer_offset() -> global_light_offset_t
-	{
-		return s_global_light_manager->create_information().m_point_lights * sizeof point_light::shader_data +
-			   m_light_stack_index * sizeof shader_data;
-	}
-
 	auto spot_light::update_light_on_stack() -> void
 	{
 		s_global_light_manager->light_resource_buffer().mapped_buffer().map_data(
@@ -190,20 +153,8 @@ namespace lh
 						 m_color,
 						 m_spread_angle,
 						 m_sharpness},
-			global_light_buffer_offset());
-	}
-
-	auto spot_light::remove_light_from_stack() -> void
-	{
-		const auto subsequent_elements = std::ranges::subrange {s_global_light_manager->m_spot_lights.begin() +
-																	m_light_stack_index,
-																s_global_light_manager->m_spot_lights.end()};
-
-		for (auto& element : subsequent_elements)
-			element->m_light_stack_index--;
-
-		s_global_light_manager->m_spot_lights.erase(s_global_light_manager->m_spot_lights.begin() +
-													m_light_stack_index);
+			s_global_light_manager->create_information().m_point_lights * sizeof point_light::shader_data +
+				m_light_stack_index * sizeof shader_data);
 	}
 
 	// ===========================================================================
@@ -221,14 +172,7 @@ namespace lh
 
 	directional_light::~directional_light()
 	{
-		remove_light_from_stack();
-	}
-
-	auto directional_light::global_light_buffer_offset() -> global_light_offset_t
-	{
-		return s_global_light_manager->create_information().m_point_lights * sizeof point_light::shader_data +
-			   s_global_light_manager->create_information().m_spot_lights * sizeof spot_light::shader_data +
-			   m_light_stack_index * sizeof shader_data;
+		remove_light_from_stack<directional_light>();
 	}
 
 	auto directional_light::update_light_on_stack() -> void
@@ -237,20 +181,9 @@ namespace lh
 			shader_data {glm::vec4 {m_position, 1.0f},
 						 glm::vec4 {glm::degrees(glm::eulerAngles(m_rotation)), 1.0f},
 						 m_color},
-			global_light_buffer_offset());
-	}
-
-	auto directional_light::remove_light_from_stack() -> void
-	{
-		const auto subsequent_elements = std::ranges::subrange {s_global_light_manager->m_directional_lights.begin() +
-																	m_light_stack_index,
-																s_global_light_manager->m_directional_lights.end()};
-
-		for (auto& element : subsequent_elements)
-			element->m_light_stack_index--;
-
-		s_global_light_manager->m_directional_lights.erase(s_global_light_manager->m_directional_lights.begin() +
-														   m_light_stack_index);
+			s_global_light_manager->create_information().m_point_lights * sizeof point_light::shader_data +
+				s_global_light_manager->create_information().m_spot_lights * sizeof spot_light::shader_data +
+				m_light_stack_index * sizeof shader_data);
 	}
 
 	// ===========================================================================
@@ -267,7 +200,7 @@ namespace lh
 
 	ambient_light::~ambient_light()
 	{
-		remove_light_from_stack();
+		remove_light_from_stack<ambient_light>();
 	}
 
 	auto ambient_light::decay_factor() const -> const parameter_precision_t&
@@ -281,32 +214,15 @@ namespace lh
 		update_light_on_stack();
 	}
 
-	auto ambient_light::global_light_buffer_offset() -> global_light_offset_t
-	{
-		return s_global_light_manager->create_information().m_point_lights * sizeof point_light::shader_data +
-			   s_global_light_manager->create_information().m_spot_lights * sizeof spot_light::shader_data +
-			   s_global_light_manager->create_information().m_directional_lights *
-				   sizeof directional_light::shader_data +
-			   m_light_stack_index * sizeof shader_data;
-	}
-
 	auto ambient_light::update_light_on_stack() -> void
 	{
 		s_global_light_manager->light_resource_buffer().mapped_buffer().map_data(
-			shader_data {glm::vec4 {m_position, 1.0f}, m_color, m_decay_factor}, global_light_buffer_offset());
-	}
-
-	auto ambient_light::remove_light_from_stack() -> void
-	{
-		const auto subsequent_elements = std::ranges::subrange {s_global_light_manager->m_ambient_lights.begin() +
-																	m_light_stack_index,
-																s_global_light_manager->m_ambient_lights.end()};
-
-		for (auto& element : subsequent_elements)
-			element->m_light_stack_index--;
-
-		s_global_light_manager->m_ambient_lights.erase(s_global_light_manager->m_ambient_lights.begin() +
-													   m_light_stack_index);
+			shader_data {glm::vec4 {m_position, 1.0f}, m_color, m_decay_factor},
+			s_global_light_manager->create_information().m_point_lights * sizeof point_light::shader_data +
+				s_global_light_manager->create_information().m_spot_lights * sizeof spot_light::shader_data +
+				s_global_light_manager->create_information().m_directional_lights *
+					sizeof directional_light::shader_data +
+				m_light_stack_index * sizeof shader_data);
 	}
 
 	// ===========================================================================

@@ -39,7 +39,6 @@ export namespace lh
 		static inline constexpr auto num_light_types = 4;
 		static inline constexpr auto reserved_light_descriptor_set_number = 3;
 
-		light(const colors::color&, const intensity_t&);
 		light(const light&) = delete;
 		light& operator=(const light&) = delete;
 
@@ -50,7 +49,7 @@ export namespace lh
 		friend class global_light_manager;
 
 	protected:
-		virtual auto global_light_buffer_offset() -> global_light_offset_t = 0;
+		light(const colors::color&, const intensity_t&);
 
 		colors::color m_color;
 		light_stack_size_t m_light_stack_index;
@@ -78,11 +77,11 @@ export namespace lh
 	protected:
 		auto on_position_change() -> void override final;
 		auto on_rotation_change() -> void override final;
+
 		virtual auto update_light_on_stack() -> void = 0;
-		virtual auto remove_light_from_stack() -> void = 0;
 
 		template<typename T>
-		auto rlos() -> void;
+		auto remove_light_from_stack() -> void;
 
 		light::intensity_t m_effective_radius;
 	};
@@ -101,10 +100,7 @@ export namespace lh
 		~point_light();
 
 	private:
-		auto global_light_buffer_offset() -> global_light_offset_t override final;
-
 		auto update_light_on_stack() -> void override final;
-		auto remove_light_from_stack() -> void override final;
 	};
 
 	// specialized physical light, radiates light in a cone
@@ -134,10 +130,8 @@ export namespace lh
 		auto sharpness(const parameter_precision_t&) -> void;
 
 	private:
-		auto global_light_buffer_offset() -> global_light_offset_t override final;
-
 		auto update_light_on_stack() -> void override final;
-		auto remove_light_from_stack() -> void override final;
+
 
 		parameter_precision_t m_spread_angle;
 		parameter_precision_t m_sharpness;
@@ -161,10 +155,7 @@ export namespace lh
 		~directional_light();
 
 	private:
-		auto global_light_buffer_offset() -> global_light_offset_t override final;
-
 		auto update_light_on_stack() -> void override final;
-		auto remove_light_from_stack() -> void override final;
 	};
 
 	// specialized non physical light, applies linearly decaying lighting in affected radius
@@ -186,10 +177,7 @@ export namespace lh
 		auto decay_factor(const parameter_precision_t&) -> void;
 
 	private:
-		auto global_light_buffer_offset() -> global_light_offset_t override final;
-
 		auto update_light_on_stack() -> void override final;
-		auto remove_light_from_stack() -> void override final;
 
 		parameter_precision_t m_decay_factor;
 	};
@@ -232,13 +220,60 @@ export namespace lh
 
 		vulkan::descriptor_resource_buffer m_light_resource_buffer;
 	};
+	/*
+	template <typename T>
+	auto physical_light::update_light_on_stack() -> void
+	{
+		const auto& create_info = s_global_light_manager->create_information();
+
+		if constexpr (std::is_same_v<T, point_light>)
+		{
+			s_global_light_manager->light_resource_buffer().mapped_buffer().map_data(
+				point_light::shader_data {glm::vec4 {m_position, 1.0f}, m_color},
+				m_light_stack_index * sizeof point_light::shader_data);
+		}
+
+		if constexpr (std::is_same_v<T, spot_light>)
+		{
+			const auto& light = static_cast<spot_light&>(*this);
+
+			s_global_light_manager->light_resource_buffer().mapped_buffer().map_data(
+				spot_light::shader_data {glm::vec4 {m_position, 1.0f},
+							 glm::vec4 {glm::degrees(glm::eulerAngles(m_rotation)), 1.0f},
+							 m_color,
+										 light.spread_angle(),
+										 light.sharpness()},
+				create_info.m_point_lights * sizeof point_light::shader_data +
+					m_light_stack_index * sizeof spot_light::shader_data);
+		}
+
+		if constexpr (std::is_same_v<T, directional_light>)
+		{
+			s_global_light_manager->light_resource_buffer().mapped_buffer().map_data(
+				directional_light::shader_data {glm::vec4 {m_position, 1.0f},
+							 glm::vec4 {glm::degrees(glm::eulerAngles(m_rotation)), 1.0f},
+							 m_color},
+				create_info.m_point_lights * sizeof point_light::shader_data +
+					create_info.m_spot_lights * sizeof spot_light::shader_data +
+					m_light_stack_index * sizeof directional_light::shader_data);
+		}
+
+		if constexpr (std::is_same_v<T, ambient_light>)
+		{
+			const auto& light = static_cast<ambient_light&>(*this);
+
+			s_global_light_manager->light_resource_buffer().mapped_buffer().map_data(
+				ambient_light::shader_data {glm::vec4 {m_position, 1.0f}, m_color, light.decay_factor()},
+				create_info.m_point_lights * sizeof point_light::shader_data +
+					create_info.m_spot_lights * sizeof spot_light::shader_data +
+					create_info.m_directional_lights *
+						sizeof directional_light::shader_data +
+					m_light_stack_index * sizeof ambient_light::shader_data);
+		}
+	}*/
 
 	template <typename T>
-	concept lights = std::is_same_v<T, point_light> or std::is_same_v<T, spot_light> or
-					 std::is_same_v<T, directional_light> or std::is_same_v<T, ambient_light>;
-
-	template <typename T>
-	auto physical_light::rlos() -> void
+	auto physical_light::remove_light_from_stack() -> void
 	{
 		auto subsequent_elements = std::ranges::subrange<std::vector<T*>::iterator> {};
 
@@ -247,7 +282,7 @@ export namespace lh
 			s_global_light_manager->m_point_lights.erase(s_global_light_manager->m_point_lights.begin() +
 														   m_light_stack_index);
 			subsequent_elements = std::ranges::subrange {s_global_light_manager->m_point_lights.begin() +
-															 m_light_stack_index + 1,
+															 m_light_stack_index,
 														 s_global_light_manager->m_point_lights.end()};
 		}
 
@@ -256,23 +291,25 @@ export namespace lh
 			s_global_light_manager->m_spot_lights.erase(s_global_light_manager->m_spot_lights.begin() +
 															m_light_stack_index);
 			subsequent_elements = std::ranges::subrange {s_global_light_manager->m_spot_lights.begin() +
-																		m_light_stack_index + 1,
+																		m_light_stack_index,
 																	s_global_light_manager->m_spot_lights.end()};
 		}
+
 		if constexpr (std::is_same_v<T, directional_light>)
 		{
 			s_global_light_manager->m_directional_lights.erase(s_global_light_manager->m_directional_lights.begin() +
 														   m_light_stack_index);
 			subsequent_elements = std::ranges::subrange {s_global_light_manager->m_directional_lights.begin() +
-																		m_light_stack_index + 1,
+																		m_light_stack_index,
 																	s_global_light_manager->m_directional_lights.end()};
 		}
+
 		if constexpr (std::is_same_v<T, ambient_light>)
 		{
 			s_global_light_manager->m_ambient_lights.erase(s_global_light_manager->m_ambient_lights.begin() +
 														   m_light_stack_index);
 			subsequent_elements = std::ranges::subrange {s_global_light_manager->m_ambient_lights.begin() +
-															 m_light_stack_index + 1,
+															 m_light_stack_index,
 														 s_global_light_manager->m_ambient_lights.end()};
 		}
 
