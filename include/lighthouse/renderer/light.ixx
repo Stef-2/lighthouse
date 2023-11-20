@@ -81,6 +81,9 @@ export namespace lh
 		virtual auto update_light_on_stack() -> void = 0;
 		virtual auto remove_light_from_stack() -> void = 0;
 
+		template<typename T>
+		auto rlos() -> void;
+
 		light::intensity_t m_effective_radius;
 	};
 
@@ -229,6 +232,53 @@ export namespace lh
 
 		vulkan::descriptor_resource_buffer m_light_resource_buffer;
 	};
+
+	template <typename T>
+	concept lights = std::is_same_v<T, point_light> or std::is_same_v<T, spot_light> or
+					 std::is_same_v<T, directional_light> or std::is_same_v<T, ambient_light>;
+
+	template <typename T>
+	auto physical_light::rlos() -> void
+	{
+		auto subsequent_elements = std::ranges::subrange<std::vector<T*>::iterator> {};
+
+		if constexpr (std::is_same_v<T, point_light>)
+		{
+			s_global_light_manager->m_point_lights.erase(s_global_light_manager->m_point_lights.begin() +
+														   m_light_stack_index);
+			subsequent_elements = std::ranges::subrange {s_global_light_manager->m_point_lights.begin() +
+															 m_light_stack_index + 1,
+														 s_global_light_manager->m_point_lights.end()};
+		}
+
+		if constexpr (std::is_same_v<T, spot_light>)
+		{
+			s_global_light_manager->m_spot_lights.erase(s_global_light_manager->m_spot_lights.begin() +
+															m_light_stack_index);
+			subsequent_elements = std::ranges::subrange {s_global_light_manager->m_spot_lights.begin() +
+																		m_light_stack_index + 1,
+																	s_global_light_manager->m_spot_lights.end()};
+		}
+		if constexpr (std::is_same_v<T, directional_light>)
+		{
+			s_global_light_manager->m_directional_lights.erase(s_global_light_manager->m_directional_lights.begin() +
+														   m_light_stack_index);
+			subsequent_elements = std::ranges::subrange {s_global_light_manager->m_directional_lights.begin() +
+																		m_light_stack_index + 1,
+																	s_global_light_manager->m_directional_lights.end()};
+		}
+		if constexpr (std::is_same_v<T, ambient_light>)
+		{
+			s_global_light_manager->m_ambient_lights.erase(s_global_light_manager->m_ambient_lights.begin() +
+														   m_light_stack_index);
+			subsequent_elements = std::ranges::subrange {s_global_light_manager->m_ambient_lights.begin() +
+															 m_light_stack_index + 1,
+														 s_global_light_manager->m_ambient_lights.end()};
+		}
+
+		for (auto& element : subsequent_elements)
+			element->m_light_stack_index--;
+	}
 }
 
 module :private;

@@ -117,7 +117,7 @@ namespace lh
 
 		for (auto& element : subsequent_elements)
 			element->m_light_stack_index--;
-
+		rlos<point_light>();
 		auto this_light_data =
 			static_cast<shader_data*>(
 				s_global_light_manager->light_resource_buffer().mapped_buffer().mapped_data_pointer()) +
@@ -132,6 +132,7 @@ namespace lh
 													 m_light_stack_index);
 
 		if (not s_global_light_manager->m_point_lights.empty())
+			;
 	}
 
 	// ===========================================================================
@@ -262,7 +263,6 @@ namespace lh
 	{
 		s_global_light_manager->m_ambient_lights.push_back(this);
 		m_light_stack_index = s_global_light_manager->m_ambient_lights.size() - 1;
-		ulos<ambient_light>();
 	}
 
 	ambient_light::~ambient_light()
