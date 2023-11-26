@@ -119,7 +119,7 @@ target_sources(
 	${include}/lighthouse/renderer/vulkan/dynamic_rendering_state.ixx
 	${include}/lighthouse/renderer/color.ixx
 	${include}/lighthouse/renderer/light.ixx
-)
+ "include/lighthouse/renderer/skybox.ixx")
 
 target_sources(
 	${PROJECT_NAME} PUBLIC

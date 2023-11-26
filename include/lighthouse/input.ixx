@@ -107,12 +107,14 @@ namespace lh
 		class mouse
 		{
 		public:
+			using parameter_precision_t = double;
+
 			struct move_info
 			{
 				struct screen_position
 				{
-					double x;
-					double y;
+					parameter_precision_t x;
+					parameter_precision_t y;
 				};
 
 				screen_position m_current;
@@ -126,12 +128,31 @@ namespace lh
 
 		private:
 			static window* s_window;
-			static double s_previous_x;
-			static double s_previous_y;
+			static parameter_precision_t s_previous_x;
+			static parameter_precision_t s_previous_y;
+		};
+
+		// data obtained by reading image files
+		struct image_data
+		{
+			image_data() = default;
+			~image_data();
+
+			image_data(const image_data&) = delete;
+			image_data& operator=(const image_data&) = delete;
+			image_data(image_data&&) noexcept = default;
+			image_data& operator=(image_data&&) noexcept = default;
+
+			std::byte* m_data;
+			std::uint32_t m_width;
+			std::uint32_t m_height;
+			std::uint8_t m_num_color_channels;
+			std::uint32_t m_data_size;
 		};
 
 		auto read_text_file(const std::filesystem::path&) -> string::string_t;
 		auto read_binary_file(const std::filesystem::path&) -> std::vector<std::byte>;
+		auto read_image_file(const std::filesystem::path&) -> const image_data;
 
 		export template <file_type type = file_type::text>
 		auto read_file(const std::filesystem::path& file_path)
@@ -141,14 +162,16 @@ namespace lh
 
 			if constexpr (type == file_type::binary)
 				return read_binary_file(file_path);
+
+			if constexpr (type == file_type::image)
+				return read_image_file(file_path);
 		}
 
 		export auto initialize(const window&) -> void;
 
 		auto assert_path_validity(const std::filesystem::path&, const file_type&) -> bool;
 
-
-		export inline const auto m_valid_file_extensions = std::map<file_type, const std::vector<const char*>> {
-			{file_type::text, {"txt"}}};
+		inline const auto m_valid_file_extensions = std::map<file_type, const std::vector<const char*>> {
+			{file_type::text, {".txt", ".vert", ".frag"}}, {file_type::image, {".png"}}};
 	};
 }

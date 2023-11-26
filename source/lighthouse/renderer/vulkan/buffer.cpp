@@ -23,7 +23,9 @@ namespace lh
 
 			m_allocation = allocation;
 			m_object = {*logical_device, buffer};
-			m_address = logical_device->getBufferAddress(*m_object);
+			m_address = create_info.m_usage & vk::BufferUsageFlagBits::eShaderDeviceAddress
+							? logical_device->getBufferAddress(*m_object)
+							: 0;
 		}
 
 		auto buffer::allocation() const -> const vma::Allocation&

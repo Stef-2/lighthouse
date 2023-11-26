@@ -7,6 +7,7 @@ export namespace lh
 	enum class file_type
 	{
 		text,
-		binary
+		binary,
+		image
 	};
 }

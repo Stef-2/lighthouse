@@ -148,11 +148,7 @@ namespace lh
 		m_resource_generator.descriptor_buffer().map_uniform_data(1, mi);
 		m_resource_generator.descriptor_buffer().map_storage_data(0, mi);
 
-		// m_global_light_descriptor_buffer.light_resource_buffer().mapped_buffer().map_data(_pl);
-		// m_global_light_descriptor_buffer.light_resource_buffer().map_storage_data(0, _pl);
-
 		m_global_descriptor_buffer.bind(command_buffer, m_global_descriptor.pipeline_layout());
-		//  ==================
 
 		m_resource_generator.bind(command_buffer);
 

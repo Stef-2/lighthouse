@@ -1,3 +1,8 @@
+module;
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb/stb_image.h"
+
 #if INTELLISENSE
 #include "vkfw/vkfw.hpp"
 
@@ -158,21 +163,55 @@ namespace lh
 		return buffer;
 	}
 
+	input::image_data::~image_data()
+	{
+		stbi_image_free(m_data);
+	}
+
+	auto input::read_image_file(const std::filesystem::path& file_path) -> const image_data
+	{
+		if (not assert_path_validity(file_path, file_type::image))
+			return {};
+
+		constexpr auto rgba_texel_size = std::uint8_t {4};
+
+		auto image_data = lh::input::image_data {};
+
+		const auto data = stbi_load(file_path.string().c_str(),
+									reinterpret_cast<std::int32_t*>(&image_data.m_width),
+									reinterpret_cast<std::int32_t*>(&image_data.m_height),
+									reinterpret_cast<std::int32_t*>(&image_data.m_num_color_channels),
+									STBI_rgb_alpha);
+
+		if (not data)
+		{
+			output::error() << "failed to load texture: " + file_path.string();
+			return {};
+		}
+
+		image_data.m_data = static_cast<std::byte*>(static_cast<void*>(data));
+		image_data.m_data_size = image_data.m_width * image_data.m_height * rgba_texel_size;
+
+		return image_data;
+	}
+
 	auto input::assert_path_validity(const std::filesystem::path& file_path, const file_type& file_type) -> bool
 	{
 		const auto valid_path = not file_path.empty();
-		const auto valid_extension = std::ranges::any_of(m_valid_file_extensions.at(file_type),
-														 [&file_path](const auto& x) {
-															 return x == file_path.extension();
-														 });
+		auto valid_extension = false;
+
+		for (const auto& wtf : m_valid_file_extensions.at(file_type))
+			if (std::strcmp(wtf, file_path.extension().string().c_str()) == 0)
+			{
+				valid_extension = true;
+				break;
+			}
 
 		if (valid_path and valid_extension)
-		{
-			output::error() << "invalid file path provided: " + file_path.string();
-			return false;
-		}
+			return true;
 
-		return true;
+		output::error() << "invalid file path provided: " + file_path.string();
+		return false;
 	}
 
 	input::key_binding::key_input::key_input(std::variant<vkfw::Key, vkfw::MouseButton> key,

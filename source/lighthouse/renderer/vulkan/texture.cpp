@@ -8,11 +8,9 @@ module;
 
 #include "vulkan/vma/vk_mem_alloc.hpp"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb/stb_image.h"
-
 module texture;
 
+import input;
 import output;
 
 namespace lh
@@ -30,6 +28,8 @@ namespace lh
 						 const create_info& create_info)
 			: m_image {nullptr},
 			  m_sampler {logical_device, create_info.m_sampler_create_info},
+			  m_extent {},
+			  m_num_color_channels {},
 			  m_descriptor_image_info {},
 			  m_descriptor {}
 		{
@@ -38,51 +38,26 @@ namespace lh
 			const auto& command_buffer = command_control.first_command_buffer();
 			command_buffer.begin(command_control.usage_flags());
 
-			auto width = std::int32_t {};
-			auto height = std::int32_t {};
-			auto num_color_channels = std::int32_t {};
-
-			constexpr auto rgba_texel_size = std::uint8_t {4};
-
-			const auto image_data =
-				stbi_load(path.string().c_str(), &width, &height, &num_color_channels, STBI_rgb_alpha);
-
-			if (not image_data)
-			{
-				output::error() << "failed to load texture: " + path.string();
-				return;
-			}
-
-			const auto image_data_size = static_cast<std::uint32_t>(width) * static_cast<std::uint32_t>(height) *
-										 rgba_texel_size;
+			const auto image_data = input::read_file<file_type::image>(path);
+			m_extent = vk::Extent3D {image_data.m_width, image_data.m_height, 1};
 
 			const auto staging_buffer = mapped_buffer {logical_device,
 													   memory_allocator,
-													   image_data_size,
+													   image_data.m_data_size,
 													   mapped_buffer::create_info {
-														   .m_usage = vk::BufferUsageFlagBits::eTransferSrc |
-																	  vk::BufferUsageFlagBits::eShaderDeviceAddress}};
+														   .m_usage = vk::BufferUsageFlagBits::eTransferSrc}};
 
-			staging_buffer.map_data(*image_data, 0, image_data_size);
-			stbi_image_free(image_data);
+			staging_buffer.map_data(*image_data.m_data, 0, image_data.m_data_size);
 
 			auto image_create_info = create_info.m_image_create_info;
 			image_create_info.m_image_create_info.usage |= vk::ImageUsageFlagBits::eTransferDst;
-			image_create_info.m_image_create_info.extent = vk::Extent3D {static_cast<std::uint32_t>(width),
-																		 static_cast<std::uint32_t>(height),
-																		 1};
+			image_create_info.m_image_create_info.extent = m_extent;
 			m_image = vulkan::image {logical_device, memory_allocator, image_create_info};
 
 			m_image.transition_layout(command_buffer);
 
-			const auto buffer_image_copy = vk::BufferImageCopy2 {0,
-																 0,
-																 0,
-																 default_image_subresource_layers(),
-																 {},
-																 vk::Extent3D {static_cast<std::uint32_t>(width),
-																			   static_cast<std::uint32_t>(height),
-																			   1}};
+			const auto buffer_image_copy =
+				vk::BufferImageCopy2 {0, 0, 0, default_image_subresource_layers(), {}, m_extent};
 
 			command_buffer.copyBufferToImage2(vk::CopyBufferToImageInfo2 {
 				**staging_buffer, **m_image, vk::ImageLayout::eTransferDstOptimal, buffer_image_copy});
@@ -98,26 +73,15 @@ namespace lh
 
 			command_buffer.end();
 
-			const auto pipeline_stage_barrier = vk::PipelineStageFlags {vk::PipelineStageFlagBits::eTransfer};
-
 			const auto submit_info = vk::SubmitInfo {{}, {}, {*command_buffer}, {}};
 			queue.submit(submit_info, *command_control.fence());
 
-			logical_device->waitForFences(*command_control.fence(), true, 1'000'000'000);
+			std::ignore = logical_device->waitForFences(*command_control.fence(), true, 1'000'000'000);
 			logical_device->resetFences(*command_control.fence());
 
 			command_control.reset();
 
-			m_descriptor_image_info = vk::DescriptorImageInfo {
-				**m_sampler, *m_image.view(), m_image.create_information().m_image_create_info.initialLayout};
-
-			m_descriptor.resize(physical_device.properties()
-									.m_descriptor_buffer_properties.m_properties.combinedImageSamplerDescriptorSize);
-
-			logical_device->getDescriptorEXT({vk::DescriptorType::eCombinedImageSampler, {&m_descriptor_image_info}},
-											 physical_device_properties.m_descriptor_buffer_properties.m_properties
-												 .combinedImageSamplerDescriptorSize,
-											 m_descriptor.data());
+			generate_descriptor_data(physical_device, logical_device);
 		}
 
 		auto texture::image() const -> const vulkan::image&
@@ -138,6 +102,22 @@ namespace lh
 		auto texture::descriptor() const -> const std::vector<std::byte>&
 		{
 			return m_descriptor;
+		}
+
+		auto texture::generate_descriptor_data(const lh::vulkan::physical_device& physical_device,
+											   const lh::vulkan::logical_device& logical_device) -> void
+		{
+			m_descriptor_image_info = vk::DescriptorImageInfo {
+				**m_sampler, *m_image.view(), m_image.create_information().m_image_create_info.initialLayout};
+
+			m_descriptor.resize(physical_device.properties()
+									.m_descriptor_buffer_properties.m_properties.combinedImageSamplerDescriptorSize);
+
+			logical_device->getDescriptorEXT(
+				{vk::DescriptorType::eCombinedImageSampler, {&m_descriptor_image_info}},
+				physical_device.properties()
+					.m_descriptor_buffer_properties.m_properties.combinedImageSamplerDescriptorSize,
+				m_descriptor.data());
 		}
 	}
 }
