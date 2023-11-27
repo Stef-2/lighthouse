@@ -68,9 +68,19 @@ namespace lh
 					 buffer::create_info {.m_usage = create_info.m_usage,
 										  .m_memory_properties = create_info.m_memory_properties,
 										  .m_allocation_create_info = create_info.m_allocation_create_info}),
+			  m_allocator {&allocator},
 			  m_mapped_data_pointer {m_allocation_info.pMappedData}
 
 		{}
+
+		mapped_buffer::~mapped_buffer()
+		{
+			if (m_allocation_info.pMappedData)
+			{
+				m_mapped_data_pointer = nullptr;
+				(*m_allocator)->unmapMemory(m_allocation);
+			}
+		}
 
 		auto mapped_buffer::mapped_data_pointer() const -> void*
 		{

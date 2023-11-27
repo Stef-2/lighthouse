@@ -33,11 +33,6 @@ namespace lh
 			  m_descriptor_image_info {},
 			  m_descriptor {}
 		{
-			const auto& physical_device_properties = physical_device.properties();
-
-			const auto& command_buffer = command_control.first_command_buffer();
-			command_buffer.begin(command_control.usage_flags());
-
 			const auto image_data = input::read_file<file_type::image>(path);
 			m_extent = vk::Extent3D {image_data.m_width, image_data.m_height, 1};
 
@@ -54,6 +49,8 @@ namespace lh
 			image_create_info.m_image_create_info.extent = m_extent;
 			m_image = vulkan::image {logical_device, memory_allocator, image_create_info};
 
+			const auto& command_buffer = command_control.first_command_buffer();
+			command_buffer.begin(command_control.usage_flags());
 			m_image.transition_layout(command_buffer);
 
 			const auto buffer_image_copy =

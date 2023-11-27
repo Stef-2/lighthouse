@@ -9,6 +9,7 @@ export module image;
 import raii_wrapper;
 import logical_device;
 import memory_allocator;
+import buffer;
 
 export namespace lh
 {
@@ -66,10 +67,10 @@ export namespace lh
 				  const vulkan::memory_allocator&,
 				  const create_info& = {});
 
-			auto create_information() const -> const image::create_info&;
-			auto view() const -> const vk::raii::ImageView&;
 			auto transition_layout(const vk::raii::CommandBuffer&, const layout_transition_data& = {}) -> void;
 
+			auto view() const -> const vk::raii::ImageView&;
+			auto create_information() const -> const image::create_info&;
 			auto allocation_info() const -> const vma::AllocationInfo&;
 			auto allocation_info() -> vma::AllocationInfo&;
 			auto allocation() const -> const vma::Allocation&;

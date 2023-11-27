@@ -74,7 +74,10 @@ export namespace lh
 						  const memory_allocator&,
 						  const vk::DeviceSize&,
 						  const mapped_buffer::create_info& = {});
-			
+			~mapped_buffer();
+			mapped_buffer(mapped_buffer&&) = default;
+			mapped_buffer& operator=(mapped_buffer&&) = default;
+
 			auto mapped_data_pointer() const -> void*;
 
 			template <typename T>
@@ -87,6 +90,7 @@ export namespace lh
 			}
 
 		private:
+			const memory_allocator* m_allocator;
 			void* m_mapped_data_pointer;
 		};
 

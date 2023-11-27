@@ -7,10 +7,11 @@ module;
 
 export module skybox;
 
-import mesh;
-import shader_object;
 import logical_device;
 import memory_allocator;
+import mesh;
+import shader_object;
+import texture;
 
 #if not INTELLISENSE
 import std.core;
@@ -37,5 +38,6 @@ export namespace lh
 	private:
 		mesh m_mesh;
 		vulkan::shader_object m_shader_object;
+		vulkan::texture m_texture;
 	};
 }
