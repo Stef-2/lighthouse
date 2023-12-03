@@ -32,16 +32,6 @@ namespace lh
 			m_create_info.m_image_view_create_info.setImage(*m_object);
 			m_view = {*logical_device, m_create_info.m_image_view_create_info};
 		}
-		/*
-		auto image::default_subresource_range() -> const vk::ImageSubresourceRange&
-		{
-			return s_default_subresource_range;
-		}
-
-		auto image::default_subresource_layers() -> const vk::ImageSubresourceLayers&
-		{
-			return s_default_subresource_layers;
-		}*/
 
 		auto image::create_information() const -> const image::create_info&
 		{

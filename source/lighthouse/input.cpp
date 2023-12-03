@@ -163,9 +163,42 @@ namespace lh
 		return buffer;
 	}
 
+	input::image_data::image_data() : m_data {}, m_width {}, m_height {}, m_num_color_channels {}, m_data_size {} {}
+
 	input::image_data::~image_data()
 	{
 		stbi_image_free(m_data);
+	}
+
+	input::image_data::image_data(image_data&& other) noexcept
+		: m_data {other.m_data},
+		  m_width {other.m_width},
+		  m_height {other.m_height},
+		  m_num_color_channels {other.m_num_color_channels},
+		  m_data_size {other.m_data_size}
+	{
+		other.m_data = {};
+		other.m_width = {};
+		other.m_height = {};
+		other.m_num_color_channels = {};
+		other.m_data_size = {};
+	}
+
+	input::image_data& input::image_data::operator=(image_data&& other) noexcept
+	{
+		m_data = other.m_data;
+		m_width = other.m_width;
+		m_height = other.m_height;
+		m_num_color_channels = other.m_num_color_channels;
+		m_data_size = other.m_data_size;
+
+		other.m_data = {};
+		other.m_width = {};
+		other.m_height = {};
+		other.m_num_color_channels = {};
+		other.m_data_size = {};
+
+		return *this;
 	}
 
 	auto input::read_image_file(const std::filesystem::path& file_path) -> const image_data
@@ -173,6 +206,7 @@ namespace lh
 		if (not assert_path_validity(file_path, file_type::image))
 			return {};
 
+		constexpr auto texel_format = STBI_rgb_alpha;
 		constexpr auto rgba_texel_size = std::uint8_t {4};
 
 		auto image_data = lh::input::image_data {};
@@ -181,7 +215,7 @@ namespace lh
 									reinterpret_cast<std::int32_t*>(&image_data.m_width),
 									reinterpret_cast<std::int32_t*>(&image_data.m_height),
 									reinterpret_cast<std::int32_t*>(&image_data.m_num_color_channels),
-									STBI_rgb_alpha);
+									texel_format);
 
 		if (not data)
 		{

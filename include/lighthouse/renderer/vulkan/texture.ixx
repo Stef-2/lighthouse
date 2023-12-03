@@ -54,6 +54,13 @@ export namespace lh
 			auto descriptor() const -> const std::vector<std::byte>&;
 
 		private:
+			auto generate_image_data(const logical_device&,
+									 const memory_allocator&,
+									 const command_control&,
+									 const vk::raii::Queue&,
+									 const image::create_info&,
+									 const std::vector<std::filesystem::path>&) -> void;
+
 			auto generate_descriptor_data(const lh::vulkan::physical_device&,
 										  const lh::vulkan::logical_device&) -> void;
 			vulkan::image m_image;

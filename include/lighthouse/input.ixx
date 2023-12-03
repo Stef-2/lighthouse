@@ -135,13 +135,13 @@ namespace lh
 		// data obtained by reading image files
 		struct image_data
 		{
-			image_data() = default;
+			image_data();
 			~image_data();
 
 			image_data(const image_data&) = delete;
 			image_data& operator=(const image_data&) = delete;
-			image_data(image_data&&) noexcept = default;
-			image_data& operator=(image_data&&) noexcept = default;
+			image_data(image_data&&) noexcept;
+			image_data& operator=(image_data&&) noexcept;
 
 			std::byte* m_data;
 			std::uint32_t m_width;
