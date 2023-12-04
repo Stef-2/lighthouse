@@ -10,14 +10,12 @@ import raii_wrapper;
 import logical_device;
 import memory_allocator;
 import buffer;
+import image_view;
 
 export namespace lh
 {
 	namespace vulkan
 	{
-		constexpr auto default_image_subresource_range() -> const vk::ImageSubresourceRange;
-		constexpr auto default_image_subresource_layers() -> const vk::ImageSubresourceLayers;
-
 		class image : public raii_wrapper<vk::raii::Image>
 		{
 		public:
@@ -25,7 +23,7 @@ export namespace lh
 
 			struct create_info
 			{
-				vk::Format m_format = vk::Format::eR8G8B8A8Srgb;
+				static inline constexpr auto m_format = vk::Format::eR8G8B8A8Srgb;
 
 				vk::ImageCreateInfo m_image_create_info = {{},
 														   vk::ImageType::e2D,
@@ -37,9 +35,9 @@ export namespace lh
 														   vk::ImageTiling::eOptimal,
 														   vk::ImageUsageFlagBits::eSampled,
 														   vk::SharingMode::eExclusive};
-
+				/*
 				vk::ImageViewCreateInfo m_image_view_create_info = {
-					{}, {}, vk::ImageViewType::e2D, m_format, {}, default_image_subresource_range()};
+					{}, {}, vk::ImageViewType::e2D, m_format, {}, default_image_subresource_range()};*/
 
 				vk::MemoryPropertyFlagBits m_memory_properties = vk::MemoryPropertyFlagBits::eDeviceLocal;
 
@@ -48,6 +46,23 @@ export namespace lh
 																	  m_memory_properties,
 																	  m_memory_properties};
 			};
+
+			static inline constexpr auto cubemap_create_info = create_info {{vk::ImageCreateFlagBits::eCubeCompatible,
+																	   vk::ImageType::e2D,
+																	   image::create_info::m_format,
+																	   vk::Extent3D {},
+																	   1,
+																	   1,
+																	   vk::SampleCountFlagBits::e1,
+																	   vk::ImageTiling::eOptimal,
+																	   vk::ImageUsageFlagBits::eSampled,
+																	   vk::SharingMode::eExclusive},/*
+																	  {{},
+																	   {},
+																	   vk::ImageViewType::eCube,
+																	   image::create_info::m_format,
+																	   {},
+																	   {vk::ImageAspectFlagBits::eColor, 0, 1, 0, 6}}*/};
 			
 			struct layout_transition_data
 			{
@@ -69,7 +84,7 @@ export namespace lh
 
 			auto transition_layout(const vk::raii::CommandBuffer&, const layout_transition_data& = {}) -> void;
 
-			auto view() const -> const vk::raii::ImageView&;
+			//auto view() const -> const vk::raii::ImageView&;
 			auto create_information() const -> const image::create_info&;
 			auto allocation_info() const -> const vma::AllocationInfo&;
 			auto allocation_info() -> vma::AllocationInfo&;
@@ -77,7 +92,7 @@ export namespace lh
 
 		private:
 			create_info m_create_info;
-			vk::raii::ImageView m_view;
+			//vk::raii::ImageView m_view;
 
 			vma::AllocationInfo m_allocation_info;
 			vma::Allocation m_allocation;

@@ -31,8 +31,6 @@ export namespace lh
 		class texture
 		{
 		public:
-			using texture_array_paths_t = std::vector<std::filesystem::path>;
-
 			struct create_info
 			{
 				image::create_info m_image_create_info = {};
@@ -45,7 +43,7 @@ export namespace lh
 					const memory_allocator&,
 					const command_control&,
 					const vk::raii::Queue&,
-					const std::filesystem::path&,
+					const std::vector<std::filesystem::path>&,
 					const create_info& = {});
 
 			auto image() const -> const vulkan::image&;
@@ -53,7 +51,7 @@ export namespace lh
 			auto descriptor_image_info() const -> const vk::DescriptorImageInfo&;
 			auto descriptor() const -> const std::vector<std::byte>&;
 
-		private:
+		protected:
 			auto generate_image_data(const logical_device&,
 									 const memory_allocator&,
 									 const command_control&,
@@ -65,7 +63,7 @@ export namespace lh
 										  const lh::vulkan::logical_device&) -> void;
 			vulkan::image m_image;
 			vulkan::sampler m_sampler;
-
+			
 			vk::Extent3D m_extent;
 			std::uint8_t m_num_color_channels;
 

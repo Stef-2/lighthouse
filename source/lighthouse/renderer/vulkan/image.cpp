@@ -4,22 +4,12 @@ namespace lh
 {
 	namespace vulkan
 	{
-		constexpr auto default_image_subresource_range() -> const vk::ImageSubresourceRange
-		{
-			return {vk::ImageAspectFlagBits::eColor, 0, vk::RemainingMipLevels, 0, vk::RemainingArrayLayers};
-		}
-
-		constexpr auto default_image_subresource_layers() -> const vk::ImageSubresourceLayers
-		{
-			return {vk::ImageAspectFlagBits::eColor, 0, 0, 1};
-		}
-
-		image::image(std::nullptr_t) : m_create_info {}, m_view {nullptr}, m_allocation_info {}, m_allocation {} {}
+		image::image(std::nullptr_t) : m_create_info {}, /*m_view {nullptr},*/ m_allocation_info {}, m_allocation {} {}
 
 		image::image(const vulkan::logical_device& logical_device,
 					 const vulkan::memory_allocator& memory_allocator,
 					 const create_info& create_info)
-			: m_create_info {create_info}, m_view {nullptr}, m_allocation_info {}, m_allocation {}
+			: m_create_info {create_info}, /*m_view {nullptr},*/ m_allocation_info {}, m_allocation {}
 		{
 			auto allocation_info = vma::AllocationInfo {};
 
@@ -28,20 +18,20 @@ namespace lh
 																	 allocation_info);
 
 			m_object = {*logical_device, image};
-
+			vk::ImageViewCreateInfo
 			m_create_info.m_image_view_create_info.setImage(*m_object);
-			m_view = {*logical_device, m_create_info.m_image_view_create_info};
+			//m_view = {*logical_device, m_create_info.m_image_view_create_info};
 		}
 
 		auto image::create_information() const -> const image::create_info&
 		{
 			return m_create_info;
 		}
-
+		/*
 		auto image::view() const -> const vk::raii::ImageView&
 		{
 			return m_view;
-		}
+		}*/
 
 		auto image::transition_layout(const vk::raii::CommandBuffer& command_buffer,
 									  const layout_transition_data& transition_data) -> void

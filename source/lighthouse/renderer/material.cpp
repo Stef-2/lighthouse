@@ -17,7 +17,12 @@ namespace lh
 
 		for (const auto& path : texture_paths)
 		{
-			m_textures.emplace_back(physical_device, logical_device, memory_allocator, command_control, queue, path);
+			m_textures.emplace_back(physical_device,
+									logical_device,
+									memory_allocator,
+									command_control,
+									queue,
+									std::vector<std::filesystem::path> {path});
 		}
 	}
 

@@ -24,9 +24,9 @@ namespace lh
 			  m_present_mode {create_info.m_present_mode},
 			  m_format {create_info.m_format}
 		{
-			const auto& vk_physical_device = *physical_device;
-			const auto formats = vk_physical_device.getSurfaceFormats2KHR(*m_object);
-			const auto present_modes = vk_physical_device.getSurfacePresentModesKHR(*m_object);
+
+			const auto formats = physical_device->getSurfaceFormats2KHR(*m_object);
+			const auto present_modes = physical_device->getSurfacePresentModesKHR(*m_object);
 
 			// attempt to acquire the prefered surface format, if unavailable, take the first one that is
 			if (!std::ranges::contains(formats, create_info.m_format))
