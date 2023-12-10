@@ -53,6 +53,8 @@ export namespace lh
 			auto image() const -> const vulkan::image&;
 			auto view() const -> const vulkan::image_view&;
 			auto sampler() const -> const vulkan::sampler&;
+			auto extent() const -> const vk::Extent3D&;
+
 			auto descriptor_image_info() const -> const vk::DescriptorImageInfo&;
 			auto descriptor() const -> const std::vector<std::byte>&;
 
@@ -70,7 +72,6 @@ export namespace lh
 			vulkan::image_view m_image_view;
 			vulkan::sampler m_sampler;
 			
-			vk::Extent3D m_extent;
 			std::uint8_t m_num_color_channels;
 
 			vk::DescriptorImageInfo m_descriptor_image_info;

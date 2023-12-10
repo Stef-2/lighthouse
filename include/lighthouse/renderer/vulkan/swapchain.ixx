@@ -58,7 +58,7 @@ export namespace lh
 				color_attachment_create_info m_color_attachment_create_info = {};
 				depth_stencil_attachment_create_info m_depth_stencil_attachment_create_info = {};
 
-				image_timeout_t m_next_image_timeout = 100000000;
+				image_timeout_t m_next_image_timeout = 1'000'000'00;
 			};
 
 			swapchain(const physical_device&,
@@ -71,6 +71,7 @@ export namespace lh
 			auto surface() const -> const surface&;
 			auto views() const -> const std::vector<vk::raii::ImageView>&;
 			auto depth_stencil_buffer() const -> const image&;
+			auto depth_stencil_view() const -> const vk::raii::ImageView&;
 			auto next_image_info(const vk::raii::CommandBuffer&, const vk::raii::Semaphore&)
 				-> const std::tuple<vk::Result, image_index_t, vk::RenderingInfo>;
 
@@ -81,7 +82,9 @@ export namespace lh
 			const vulkan::surface& m_surface;
 
 			std::vector<vk::raii::ImageView> m_views;
+
 			image m_depth_stencil_buffer;
+			vk::raii::ImageView m_depth_stencil_view;
 
 			image_index_t m_current_image_index;
 			image_timeout_t m_next_image_timeout;

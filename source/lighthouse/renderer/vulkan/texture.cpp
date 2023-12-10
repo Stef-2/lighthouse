@@ -6,8 +6,6 @@ module;
 #include <cstdint>
 #endif
 
-#include "vulkan/vma/vk_mem_alloc.hpp"
-
 module texture;
 
 import input;
@@ -29,7 +27,6 @@ namespace lh
 			: m_image {nullptr},
 			  m_image_view {nullptr},
 			  m_sampler {logical_device, create_info.m_sampler_create_info},
-			  m_extent {},
 			  m_num_color_channels {},
 			  m_descriptor_image_info {},
 			  m_descriptor {}
@@ -53,6 +50,11 @@ namespace lh
 		auto texture::sampler() const -> const vulkan::sampler&
 		{
 			return m_sampler;
+		}
+
+		auto texture::extent() const -> const vk::Extent3D&
+		{
+			return m_image.create_information().m_image_create_info.extent;
 		}
 
 		auto texture::descriptor_image_info() const -> const vk::DescriptorImageInfo&
@@ -84,7 +86,7 @@ namespace lh
 				buffer_size += image_data.back().m_data_size;
 			}
 
-			m_extent = vk::Extent3D {image_data[0].m_width, image_data[0].m_height, 1};
+			auto extent = vk::Extent3D {image_data[0].m_width, image_data[0].m_height, 1};
 
 			const auto staging_buffer = mapped_buffer {logical_device,
 													   memory_allocator,
@@ -98,16 +100,16 @@ namespace lh
 				buffer_offset += image.m_data_size;
 
 				// check if image dimensions differ
-				if (m_extent.width != image.m_width or m_extent.height != image.m_height)
+				if (extent.width != image.m_width or extent.height != image.m_height)
 				{
 					output::warning() << "image array dimensions differ";
-					m_extent = vk::Extent3D {image.m_width, image.m_height, 1};
+					extent = vk::Extent3D {image.m_width, image.m_height, 1};
 				}
 			}
 
 			auto image_create_info = create_info;
 			image_create_info.m_image_create_info.usage |= vk::ImageUsageFlagBits::eTransferDst;
-			image_create_info.m_image_create_info.extent = m_extent;
+			image_create_info.m_image_create_info.extent = extent;
 			m_image = vulkan::image {logical_device, memory_allocator, image_create_info};
 
 			const auto& command_buffer = command_control.first_command_buffer();
@@ -115,7 +117,7 @@ namespace lh
 			m_image.transition_layout(command_buffer);
 
 			const auto buffer_image_copy =
-				vk::BufferImageCopy2 {0, 0, 0, image_view::default_image_subresource_layers(), {}, m_extent};
+				vk::BufferImageCopy2 {0, 0, 0, image_view::default_image_subresource_layers(), {}, extent};
 
 			command_buffer.copyBufferToImage2(vk::CopyBufferToImageInfo2 {
 				**staging_buffer, **m_image, vk::ImageLayout::eTransferDstOptimal, buffer_image_copy});

@@ -20,26 +20,27 @@ namespace lh
 			  m_views {},
 			  m_depth_stencil_buffer {logical_device,
 									  memory_allocator,
-									  {{{},
-										vk::ImageType::e2D,
-										vk::Format::eD24UnormS8Uint,
-										vk::Extent3D {surface.extent(), 1},
-										1,
-										1,
-										vk::SampleCountFlagBits::e1,
-										vk::ImageTiling::eOptimal,
-										vk::ImageUsageFlagBits::eDepthStencilAttachment,
-										vk::SharingMode::eExclusive},
-									   {{},
-										{},
-										vk::ImageViewType::e2D,
-										vk::Format::eD24UnormS8Uint,
-										{},
-										{vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil,
-										 0,
-										 vk::RemainingMipLevels,
-										 0,
-										 vk::RemainingArrayLayers}}}},
+									  image::create_info {{{},
+														   vk::ImageType::e2D,
+														   vk::Format::eD24UnormS8Uint,
+														   vk::Extent3D {surface.extent(), 1},
+														   1,
+														   1,
+														   vk::SampleCountFlagBits::e1,
+														   vk::ImageTiling::eOptimal,
+														   vk::ImageUsageFlagBits::eDepthStencilAttachment,
+														   vk::SharingMode::eExclusive}}},
+			  m_depth_stencil_view {logical_device,
+									{{},
+									 **m_depth_stencil_buffer,
+									 vk::ImageViewType::e2D,
+									 vk::Format::eD24UnormS8Uint,
+									 {},
+									 {vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil,
+									  0,
+									  vk::RemainingMipLevels,
+									  0,
+									  vk::RemainingArrayLayers}}},
 
 			  m_current_image_index {},
 			  m_next_image_timeout {create_info.m_next_image_timeout},
@@ -51,7 +52,7 @@ namespace lh
 								  create_info.m_color_attachment_create_info.m_load_operation,
 								  create_info.m_color_attachment_create_info.m_store_operation,
 								  create_info.m_color_attachment_create_info.m_clear_color},
-			  m_depth_stencil_attachment {*m_depth_stencil_buffer.view(),
+			  m_depth_stencil_attachment {*m_depth_stencil_view,
 										  create_info.m_depth_stencil_attachment_create_info.m_layout,
 										  {},
 										  {},
@@ -114,6 +115,11 @@ namespace lh
 		auto swapchain::depth_stencil_buffer() const -> const image&
 		{
 			return m_depth_stencil_buffer;
+		}
+
+		auto swapchain::depth_stencil_view() const -> const vk::raii::ImageView&
+		{
+			return m_depth_stencil_view;
 		}
 
 		auto swapchain::next_image_info(const vk::raii::CommandBuffer& command_buffer,
