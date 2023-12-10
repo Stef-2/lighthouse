@@ -16,6 +16,7 @@ import memory_allocator;
 import command_control;
 import buffer;
 import image;
+import image_view;
 import sampler;
 
 #if not INTELLISENSE
@@ -31,9 +32,12 @@ export namespace lh
 		class texture
 		{
 		public:
+			using image_paths_t = std::vector<std::filesystem::path>;
+
 			struct create_info
 			{
 				image::create_info m_image_create_info = {};
+				image_view::create_info m_image_view_create_info = {};
 				sampler::create_info m_sampler_create_info = {};
 			};
 
@@ -43,10 +47,11 @@ export namespace lh
 					const memory_allocator&,
 					const command_control&,
 					const vk::raii::Queue&,
-					const std::vector<std::filesystem::path>&,
+					const image_paths_t&,
 					const create_info& = {});
 
 			auto image() const -> const vulkan::image&;
+			auto view() const -> const vulkan::image_view&;
 			auto sampler() const -> const vulkan::sampler&;
 			auto descriptor_image_info() const -> const vk::DescriptorImageInfo&;
 			auto descriptor() const -> const std::vector<std::byte>&;
@@ -62,6 +67,7 @@ export namespace lh
 			auto generate_descriptor_data(const lh::vulkan::physical_device&,
 										  const lh::vulkan::logical_device&) -> void;
 			vulkan::image m_image;
+			vulkan::image_view m_image_view;
 			vulkan::sampler m_sampler;
 			
 			vk::Extent3D m_extent;

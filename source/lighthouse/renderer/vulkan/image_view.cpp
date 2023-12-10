@@ -15,5 +15,7 @@ namespace lh
 		{
 			return {vk::ImageAspectFlagBits::eColor, 0, 0, 1};
 		}
+
+		image_view::image_view() : raii_wrapper {nullptr} {}
 	}
 }

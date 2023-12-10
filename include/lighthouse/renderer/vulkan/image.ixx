@@ -10,7 +10,6 @@ import raii_wrapper;
 import logical_device;
 import memory_allocator;
 import buffer;
-import image_view;
 
 export namespace lh
 {
@@ -74,7 +73,8 @@ export namespace lh
 				vk::ImageLayout m_new_layout = vk::ImageLayout::eTransferDstOptimal;
 				std::uint32_t m_source_queue_family = vk::QueueFamilyIgnored;
 				std::uint32_t m_destination_queue_family = vk::QueueFamilyIgnored;
-				vk::ImageSubresourceRange m_subresource_range = default_image_subresource_range();
+				vk::ImageSubresourceRange m_subresource_range = {
+					vk::ImageAspectFlagBits::eColor, 0, vk::RemainingMipLevels, 0, vk::RemainingArrayLayers};
 			};
 
 			image(nullptr_t);

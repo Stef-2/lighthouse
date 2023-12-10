@@ -14,7 +14,7 @@ export namespace lh
 {
 	namespace vulkan
 	{
-		class image_view : raii_wrapper<vk::raii::ImageView>
+		class image_view : public raii_wrapper<vk::raii::ImageView>
 		{
 		public:
 			using raii_wrapper::raii_wrapper;
@@ -27,6 +27,7 @@ export namespace lh
 			static constexpr auto default_image_subresource_range() -> const vk::ImageSubresourceRange;
 			static constexpr auto default_image_subresource_layers() -> const vk::ImageSubresourceLayers;
 
+			image_view();
 			image_view(const logical_device&, const image&, const create_info& = {});
 
 		private:

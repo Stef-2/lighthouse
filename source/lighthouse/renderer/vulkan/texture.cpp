@@ -17,16 +17,17 @@ namespace lh
 {
 	namespace vulkan
 	{
-		texture::texture() : m_image {nullptr}, m_sampler {nullptr}, m_descriptor {} {}
+		texture::texture() : m_image {nullptr}, m_image_view {nullptr}, m_sampler {nullptr}, m_descriptor {} {}
 
 		texture::texture(const physical_device& physical_device,
 						 const logical_device& logical_device,
 						 const memory_allocator& memory_allocator,
 						 const command_control& command_control,
 						 const vk::raii::Queue& queue,
-						 const std::vector<std::filesystem::path>& paths,
+						 const image_paths_t& paths,
 						 const create_info& create_info)
 			: m_image {nullptr},
+			  m_image_view {nullptr},
 			  m_sampler {logical_device, create_info.m_sampler_create_info},
 			  m_extent {},
 			  m_num_color_channels {},
@@ -35,13 +36,18 @@ namespace lh
 		{
 			generate_image_data(
 				logical_device, memory_allocator, command_control, queue, create_info.m_image_create_info, paths);
-
+			m_image_view = {logical_device, m_image};
 			generate_descriptor_data(physical_device, logical_device);
 		}
 
 		auto texture::image() const -> const vulkan::image&
 		{
 			return m_image;
+		}
+
+		auto texture::view() const -> const vulkan::image_view&
+		{
+			return m_image_view;
 		}
 
 		auto texture::sampler() const -> const vulkan::sampler&
@@ -109,7 +115,7 @@ namespace lh
 			m_image.transition_layout(command_buffer);
 
 			const auto buffer_image_copy =
-				vk::BufferImageCopy2 {0, 0, 0, default_image_subresource_layers(), {}, m_extent};
+				vk::BufferImageCopy2 {0, 0, 0, image_view::default_image_subresource_layers(), {}, m_extent};
 
 			command_buffer.copyBufferToImage2(vk::CopyBufferToImageInfo2 {
 				**staging_buffer, **m_image, vk::ImageLayout::eTransferDstOptimal, buffer_image_copy});
@@ -138,7 +144,7 @@ namespace lh
 											   const lh::vulkan::logical_device& logical_device) -> void
 		{
 			m_descriptor_image_info = vk::DescriptorImageInfo {
-				**m_sampler, *m_image.view(), m_image.create_information().m_image_create_info.initialLayout};
+				**m_sampler, **m_image_view, m_image.create_information().m_image_create_info.initialLayout};
 
 			m_descriptor.resize(physical_device.properties()
 									.m_descriptor_buffer_properties.m_properties.combinedImageSamplerDescriptorSize);
