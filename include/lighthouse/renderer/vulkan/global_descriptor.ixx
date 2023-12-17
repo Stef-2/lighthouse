@@ -30,7 +30,6 @@ export namespace lh
 				descriptor_type_size_t m_num_uniform_buffers = 15;
 				descriptor_type_size_t m_num_storage_descriptors = 8;
 				descriptor_type_size_t m_num_combined_image_samplers = 1024;
-				descriptor_type_size_t m_num_light_storage_bindings = 4;
 			};
 
 			global_descriptor(const physical_device&, const logical_device&, const create_info& = {});
@@ -39,7 +38,6 @@ export namespace lh
 			auto uniform_buffer_set() const -> const vk::raii::DescriptorSetLayout&;
 			auto storage_descriptor_set() const -> const vk::raii::DescriptorSetLayout&;
 			auto combined_image_sampler_set() const -> const vk::raii::DescriptorSetLayout&;
-			auto light_storage_set() const -> const vk::raii::DescriptorSetLayout&;
 
 			auto descriptor_set_layouts() const -> const std::vector<vk::DescriptorSetLayout>;
 
@@ -54,9 +52,6 @@ export namespace lh
 
 			descriptor_type_size_t m_num_combined_image_samplers;
 			vk::raii::DescriptorSetLayout m_combined_image_sampler_set;
-
-			descriptor_type_size_t m_num_light_storage_bindings;
-			vk::raii::DescriptorSetLayout m_light_storage_descriptor_set;
 
 			vk::raii::PipelineLayout m_pipeline_layout;
 		};

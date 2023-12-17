@@ -15,7 +15,6 @@ import global_descriptor;
 import buffer;
 import material;
 import descriptor_resource_buffer;
-import light;
 
 #if not INTELLISENSE
 import std.core;
@@ -42,7 +41,6 @@ export namespace lh
 							  const logical_device&,
 							  const memory_allocator&,
 							  const global_descriptor&,
-								const global_light_manager&,
 							  const create_info& = {});
 
 			auto map_material(const material&) -> void;
@@ -51,23 +49,18 @@ export namespace lh
 			auto bind(const vk::raii::CommandBuffer&, const vk::raii::PipelineLayout&) const -> void;
 
 		private:
-			auto map_lights() -> void;
-
 			const physical_device& m_physical_device;
 			const logical_device& m_logical_device;
-			const global_light_manager& m_global_light_descriptor_buffer;
 
 			vk::PipelineBindPoint m_bind_point;
 			
 			std::vector<vk::DescriptorBufferBindingInfoEXT> m_uniform_descriptor_buffer_binding_info;
 			std::vector<vk::DescriptorBufferBindingInfoEXT> m_storage_descriptor_buffer_binding_info;
 			std::vector<vk::DescriptorBufferBindingInfoEXT> m_combined_image_sampler_descriptor_buffer_binding_info;
-			std::vector<vk::DescriptorBufferBindingInfoEXT> m_light_storage_descriptor_buffer_binding_info;
 
 			mapped_buffer m_uniform_descriptor_buffer;
 			mapped_buffer m_storage_descriptor_buffer;
 			mapped_buffer m_combined_image_sampler_descriptor_buffer;
-			mapped_buffer m_light_storage_descriptor_buffer;
 		};
 	}
 }

@@ -21,8 +21,6 @@ namespace lh
 			  m_storage_descriptor_set {nullptr},
 			  m_num_combined_image_samplers {create_info.m_num_combined_image_samplers},
 			  m_combined_image_sampler_set {nullptr},
-			  m_num_light_storage_bindings {create_info.m_num_light_storage_bindings},
-			  m_light_storage_descriptor_set {nullptr},
 			  m_pipeline_layout {nullptr}
 		{
 			const auto& physical_device_properties = physical_device.properties();
@@ -79,28 +77,11 @@ namespace lh
 											   vk::DescriptorSetLayoutCreateInfo {descriptor_set_layout_usage,
 																				  combined_image_sampler_binding,
 																				  &descriptor_indexing_bindings}};
-			// light storage
-			bindings = std::vector<vk::DescriptorSetLayoutBinding> {};
-			bindings.reserve(create_info.m_num_light_storage_bindings);
-			descriptor_indexing_flags = {};
-			descriptor_indexing_flags.reserve(create_info.m_num_light_storage_bindings);
-			descriptor_indexing_bindings = vk::DescriptorSetLayoutBindingFlagsCreateInfo {};
-
-			for (auto i = descriptor_type_size_t {}; i < create_info.m_num_light_storage_bindings; i++)
-			{
-				bindings.emplace_back(i, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eAll);
-				descriptor_indexing_flags.emplace_back(vk::DescriptorBindingFlagBits::ePartiallyBound);
-			}
-
-			descriptor_indexing_bindings = {descriptor_indexing_flags};
-			m_light_storage_descriptor_set = {vk::raii::DescriptorSetLayout {
-				*logical_device, {descriptor_set_layout_usage, bindings /*, &descriptor_indexing_bindings*/}}};
 
 			// pipeline layout
-			auto descriptor_sets = std::array<vk::DescriptorSetLayout, 4> {*m_uniform_buffer_set,
+			auto descriptor_sets = std::array<vk::DescriptorSetLayout, 3> {*m_uniform_buffer_set,
 																		   *m_storage_descriptor_set,
-																		   *m_combined_image_sampler_set,
-																		   *m_light_storage_descriptor_set};
+																		   *m_combined_image_sampler_set};
 			m_pipeline_layout = {*logical_device, {{}, descriptor_sets}};
 		}
 
@@ -119,17 +100,9 @@ namespace lh
 			return m_combined_image_sampler_set;
 		}
 
-		auto global_descriptor::light_storage_set() const -> const vk::raii::DescriptorSetLayout&
-		{
-			return m_light_storage_descriptor_set;
-		}
-
 		auto global_descriptor::descriptor_set_layouts() const -> const std::vector<vk::DescriptorSetLayout>
 		{
-			return {*m_uniform_buffer_set,
-					*m_storage_descriptor_set,
-					*m_combined_image_sampler_set,
-					*m_light_storage_descriptor_set};
+			return {*m_uniform_buffer_set, *m_storage_descriptor_set, *m_combined_image_sampler_set};
 		}
 
 		auto global_descriptor::pipeline_layout() const -> const vk::raii::PipelineLayout&

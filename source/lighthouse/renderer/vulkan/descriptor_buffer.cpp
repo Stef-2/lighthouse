@@ -17,16 +17,13 @@ namespace lh
 											 const logical_device& logical_device,
 											 const memory_allocator& memory_allocator,
 											 const global_descriptor& global_descriptor,
-											 const global_light_manager& global_light_manager,
 											 const create_info& create_info)
 			: m_physical_device {physical_device},
 			  m_logical_device {logical_device},
-			  m_global_light_descriptor_buffer {global_light_manager},
 			  m_bind_point {create_info.m_bind_point},
 			  m_uniform_descriptor_buffer_binding_info {},
 			  m_storage_descriptor_buffer_binding_info {},
 			  m_combined_image_sampler_descriptor_buffer_binding_info {},
-			  m_light_storage_descriptor_buffer_binding_info {},
 			  m_uniform_descriptor_buffer {
 				  logical_device,
 				  memory_allocator,
@@ -49,18 +46,8 @@ namespace lh
 				  global_descriptor.combined_image_sampler_set().getSizeEXT(),
 				  mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
 														 vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT,
-											  .m_memory_properties =
-												  create_info.m_descriptor_buffer_memory_properties}},
-			  m_light_storage_descriptor_buffer {
-				  logical_device,
-				  memory_allocator,
-				  global_descriptor.light_storage_set().getSizeEXT(),
-				  mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
-														 vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT,
 											  .m_memory_properties = create_info.m_descriptor_buffer_memory_properties}}
-		{
-			map_lights();
-		}
+		{}
 
 		auto descriptor_buffer::map_material(const material& material) -> void
 		{
@@ -80,9 +67,9 @@ namespace lh
 					vk::BufferUsageFlagBits::eShaderDeviceAddress |
 						vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT);
 
-				auto memcpy_destination =
-					static_cast<std::byte*>(m_combined_image_sampler_descriptor_buffer.mapped_data_pointer()) +
-					i * descriptor_offset;
+				auto memcpy_destination = static_cast<std::byte*>(
+											  m_combined_image_sampler_descriptor_buffer.mapped_data_pointer()) +
+										  i * descriptor_offset;
 				std::memcpy(memcpy_destination, texture.descriptor().data(), texture.descriptor().size());
 
 				i++;
@@ -109,8 +96,7 @@ namespace lh
 
 				if (descriptor_type == vk::DescriptorType::eUniformBuffer)
 				{
-					memcpy_destination = static_cast<std::byte*>(
-											 m_uniform_descriptor_buffer.mapped_data_pointer()) +
+					memcpy_destination = static_cast<std::byte*>(m_uniform_descriptor_buffer.mapped_data_pointer()) +
 										 num_uniform_descriptors * descriptor_size;
 
 					m_uniform_descriptor_buffer_binding_info.emplace_back(
@@ -121,8 +107,7 @@ namespace lh
 					num_uniform_descriptors++;
 				} else
 				{
-					memcpy_destination = static_cast<std::byte*>(
-											 m_storage_descriptor_buffer.mapped_data_pointer()) +
+					memcpy_destination = static_cast<std::byte*>(m_storage_descriptor_buffer.mapped_data_pointer()) +
 										 num_storage_descriptors * descriptor_size;
 
 					m_storage_descriptor_buffer_binding_info.emplace_back(
@@ -137,51 +122,6 @@ namespace lh
 			}
 		}
 
-		auto descriptor_buffer::map_lights() -> void
-		{
-			const auto& descriptor_buffer_properties = m_physical_device.properties().m_descriptor_buffer_properties;
-			const auto& global_light_create_info = m_global_light_descriptor_buffer.create_information();
-
-			for (auto i = light::light_stack_size_t {};
-				 const auto& [descriptor_type, light_descriptor] :
-				 m_global_light_descriptor_buffer.light_resource_buffer().descriptors())
-			{
-				auto memcpy_destination = static_cast<std::byte*>(
-											  m_light_storage_descriptor_buffer.mapped_data_pointer()) +
-										  i * descriptor_buffer_properties.m_storage_buffer_offset;
-
-				std::memcpy(memcpy_destination, light_descriptor.data(), light_descriptor.size());
-
-				i++;
-			}
-
-			const auto aligned_binding_offset = vulkan::utility::aligned_size(
-				static_cast<vk::DeviceSize>(descriptor_buffer_properties.m_storage_buffer_size),
-				descriptor_buffer_properties.m_properties.descriptorBufferOffsetAlignment);
-
-			m_light_storage_descriptor_buffer_binding_info.emplace_back(
-				m_light_storage_descriptor_buffer.address(),
-				vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT);
-
-			m_light_storage_descriptor_buffer_binding_info.emplace_back(
-				m_light_storage_descriptor_buffer.address() +
-					global_light_create_info.m_point_lights * aligned_binding_offset,
-				vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT);
-
-			m_light_storage_descriptor_buffer_binding_info.emplace_back(
-				m_light_storage_descriptor_buffer.address() +
-					global_light_create_info.m_point_lights * aligned_binding_offset +
-					global_light_create_info.m_spot_lights * aligned_binding_offset,
-				vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT);
-
-			m_light_storage_descriptor_buffer_binding_info.emplace_back(
-				m_light_storage_descriptor_buffer.address() +
-					global_light_create_info.m_point_lights * aligned_binding_offset +
-					global_light_create_info.m_spot_lights * aligned_binding_offset +
-					global_light_create_info.m_directional_lights * aligned_binding_offset,
-				vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT);
-		}
-
 		auto descriptor_buffer::bind(const vk::raii::CommandBuffer& command_buffer,
 									 const vk::raii::PipelineLayout& pipeline_layout) const -> void
 		{
@@ -190,8 +130,6 @@ namespace lh
 													  m_storage_descriptor_buffer_binding_info);
 			combined_descriptor_bindings.insert_range(combined_descriptor_bindings.end(),
 													  m_combined_image_sampler_descriptor_buffer_binding_info);
-			combined_descriptor_bindings.insert_range(combined_descriptor_bindings.end(),
-													  m_light_storage_descriptor_buffer_binding_info);
 
 			command_buffer.bindDescriptorBuffersEXT(combined_descriptor_bindings);
 
@@ -206,10 +144,9 @@ namespace lh
 
 			std::vector<std::uint32_t> indices {uniform_descriptor_index,
 												storage_descriptor_index,
-												combined_image_sampler_descriptor_index,
-												light_storage_descriptor_index};
+												combined_image_sampler_descriptor_index};
 
-			command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point, *pipeline_layout, 0, indices, {0, 0, 0, 0});
+			command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point, *pipeline_layout, 0, indices, {0, 0, 0});
 		}
 	}
 }

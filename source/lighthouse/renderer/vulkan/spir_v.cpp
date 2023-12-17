@@ -12,6 +12,7 @@ module;
 
 module spir_v;
 
+import input;
 import output;
 
 namespace
@@ -253,12 +254,26 @@ namespace lh
 			return m_code;
 		}
 
+		spir_v::operator const spir_v_bytecode_t&() const
+		{
+			return m_code;
+		}
+
 		auto spir_v::glsl_to_spirv::translate_shader(const glsl_code_t& shader_code) -> spir_v_bytecode_t
 
 		{
 			const auto compiler = shaderc::Compiler {};
 			auto compile_options = shaderc::CompileOptions {};
 			compile_options.SetOptimizationLevel(shaderc_optimization_level_performance);
+
+			struct includer : public shaderc::CompileOptions::IncluderInterface
+			{
+				auto GetInclude(const char* requested_source,
+								shaderc_include_type type,
+								const char* requesting_source,
+								size_t include_depth) -> shaderc_include_result* override
+				{}
+			};
 
 			const auto result = compiler.CompileGlslToSpv(shader_code.c_str(),
 														  shaderc_glsl_infer_from_source,

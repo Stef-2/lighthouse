@@ -52,11 +52,7 @@ namespace lh
 			  .m_scissor = vk::Rect2D(vk::Offset2D(0, 0), m_surface.extent())}},
 		  m_global_descriptor {m_physical_device, m_logical_device},
 		  m_global_light_descriptor_buffer {m_physical_device, m_logical_device, m_memory_allocator},
-		  m_global_descriptor_buffer {m_physical_device,
-									  m_logical_device,
-									  m_memory_allocator,
-									  m_global_descriptor,
-									  m_global_light_descriptor_buffer},
+		  m_global_descriptor_buffer {m_physical_device, m_logical_device, m_memory_allocator, m_global_descriptor},
 		  m_resource_generator {m_physical_device,
 								m_logical_device,
 								m_memory_allocator,
@@ -148,7 +144,7 @@ namespace lh
 		m_resource_generator.descriptor_buffer().map_uniform_data(1, mi);
 		m_resource_generator.descriptor_buffer().map_storage_data(0, mi);
 		m_resource_generator.descriptor_buffer().map_storage_data(
-			1, m_global_light_descriptor_buffer.light_resource_buffer().mapped_buffer().address());
+			1, m_global_light_descriptor_buffer.light_device_addresses());
 
 		m_global_descriptor_buffer.bind(command_buffer, m_global_descriptor.pipeline_layout());
 

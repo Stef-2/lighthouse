@@ -40,6 +40,7 @@ export namespace lh
 			auto entrypoint() const -> const string::string_t&;
 
 			operator const spir_v_bytecode_t&();
+			operator const spir_v_bytecode_t&() const;
 
 		private:
 			auto reflect_shader_entrypoint_and_stage() const -> const std::pair<string::string_t, vk::ShaderStageFlagBits>;
