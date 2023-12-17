@@ -117,7 +117,7 @@ namespace lh
 			m_image.transition_layout(command_buffer);
 
 			const auto buffer_image_copy =
-				vk::BufferImageCopy2 {0, 0, 0, image_view::default_image_subresource_layers(), {}, extent};
+				vk::BufferImageCopy2 {0, 0, 0, image_view::default_image_subresource_layers, {}, extent};
 
 			command_buffer.copyBufferToImage2(vk::CopyBufferToImageInfo2 {
 				**staging_buffer, **m_image, vk::ImageLayout::eTransferDstOptimal, buffer_image_copy});

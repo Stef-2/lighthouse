@@ -241,7 +241,8 @@ namespace lh
 		  m_spot_lights {},
 		  m_directional_lights {},
 		  m_ambient_lights {},
-		  m_light_resource_buffer {}
+		  m_light_resource_buffer {},
+		  m_light_device_addresses {}
 	{
 		const auto& descriptor_buffer_properties = physical_device.properties().m_descriptor_buffer_properties;
 
@@ -291,6 +292,13 @@ namespace lh
 								   {{.m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
 												vk::BufferUsageFlagBits::eStorageBuffer},
 									buffer_subdata}};
+		const auto& buffer_address = m_light_resource_buffer.mapped_buffer().address();
+
+		m_light_device_addresses = {buffer_address,
+									buffer_address + point_light_buffer_size,
+									buffer_address + point_light_buffer_size + spot_light_buffer_size,
+									buffer_address + point_light_buffer_size + spot_light_buffer_size +
+										directional_light_buffer_size};
 	}
 
 	auto global_light_manager::light_resource_buffer() const -> const vulkan::descriptor_resource_buffer&
@@ -321,5 +329,9 @@ namespace lh
 	auto global_light_manager::ambient_lights() const -> const std::vector<ambient_light*>&
 	{
 		return m_ambient_lights;
+	}
+	auto global_light_manager::light_device_addresses() const -> const std::array<vk::DeviceAddress, 4>&
+	{
+		return m_light_device_addresses;
 	}
 }

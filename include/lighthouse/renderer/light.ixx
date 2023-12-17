@@ -215,6 +215,8 @@ export namespace lh
 		auto directional_lights() const -> const std::vector<directional_light*>&;
 		auto ambient_lights() const -> const std::vector<ambient_light*>&;
 
+		auto light_device_addresses() const -> const std::array<vk::DeviceAddress, 4>&;
+
 	private:
 		create_info m_create_info;
 
@@ -224,6 +226,7 @@ export namespace lh
 		std::vector<ambient_light*> m_ambient_lights;
 
 		vulkan::descriptor_resource_buffer m_light_resource_buffer;
+		std::array<vk::DeviceAddress, 4> m_light_device_addresses;
 	};
 
 	template <typename T>
