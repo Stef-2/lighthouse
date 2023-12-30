@@ -2,6 +2,8 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan_raii.hpp"
+
+#include <vector>
 #endif
 
 export module logical_device;
@@ -21,7 +23,6 @@ export namespace lh
 		public:
 			struct create_info
 			{
-				decltype(*vk::DeviceQueueCreateInfo::pQueuePriorities) m_queue_priority {1.0f};
 				std::vector<vk::DeviceQueueCreateInfo> m_queues {};
 
 				vk_string_t m_extensions {};
@@ -32,6 +33,7 @@ export namespace lh
 			auto info() const -> lh::string::string_t override;
 
 		private:
+			std::vector<vk::raii::Queue> m_queues;
 		};
 	}
 }

@@ -12,7 +12,7 @@ namespace lh
 	{
 
 		command_control::command_control(const logical_device& logical_device,
-										 const queue_families::queue& queue,
+										 const queue_families::family& queue,
 										 const create_info& create_info)
 			: m_buffers {nullptr},
 			  m_fence {*logical_device, vk::FenceCreateInfo {vk::FenceCreateFlagBits {}}},

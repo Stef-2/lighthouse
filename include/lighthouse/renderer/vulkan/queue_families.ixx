@@ -23,7 +23,7 @@ export namespace lh
 		class queue_families
 		{
 		public:
-			struct queue
+			struct family
 			{
 				using index_t = std::uint32_t;
 				using priority_t = float;
@@ -34,24 +34,24 @@ export namespace lh
 
 			struct create_info
 			{
-				queue m_graphics = {};
-				queue m_present = {};
-				queue m_compute = {};
-				queue m_transfer = {};
+				family::priority_t m_graphics = {};
+				family::priority_t m_present = {};
+				family::priority_t m_compute = {};
+				family::priority_t m_transfer = {};
 			};
 
 			queue_families(const physical_device&, const surface&, const create_info& = {});
 
-			auto graphics() const -> const queue&;
-			auto present() const -> const queue&;
-			auto compute() const -> const queue&;
-			auto transfer() const -> const queue&;
+			auto graphics() const -> const family&;
+			auto present() const -> const family&;
+			auto compute() const -> const family&;
+			auto transfer() const -> const family&;
 
 		private:
-			queue m_graphics;
-			queue m_present;
-			queue m_compute;
-			queue m_transfer;
+			family m_graphics;
+			family m_present;
+			family m_compute;
+			family m_transfer;
 		};
 	}
 }

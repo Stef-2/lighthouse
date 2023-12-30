@@ -27,7 +27,7 @@ export namespace lh
 				decltype(vk::CommandBufferAllocateInfo::commandBufferCount) m_num_buffers = {1};
 			};
 
-			command_control(const logical_device&, const queue_families::queue&, const create_info& = {});
+			command_control(const logical_device&, const queue_families::family&, const create_info& = {});
 
 			auto command_buffers() const -> const vk::raii::CommandBuffers&;
 			auto first_command_buffer() const -> const vk::raii::CommandBuffer&;
