@@ -24,6 +24,8 @@ export namespace lh
 		public:
 			using raii_wrapper::raii_wrapper;
 
+			using used_memory_percentage_t = float;
+
 			struct create_info
 			{
 				vk::BufferUsageFlags m_usage = {};
@@ -42,6 +44,9 @@ export namespace lh
 
 			auto address() const -> const vk::DeviceAddress&;
 			auto size() const -> const vk::DeviceSize&;
+			auto used_memory() const -> const vk::DeviceSize&;
+			auto remaining_memory() const -> const vk::DeviceSize&;
+			auto used_memory_percentage() const -> const used_memory_percentage_t;
 			auto create_information() const -> const create_info&;
 
 		protected:
@@ -49,7 +54,7 @@ export namespace lh
 			vma::Allocation m_allocation;
 
 			vk::DeviceAddress m_address;
-			vk::DeviceSize m_size;
+			vk::DeviceSize m_used_memory;
 
 			create_info m_create_info;
 		};
@@ -79,6 +84,8 @@ export namespace lh
 			mapped_buffer& operator=(mapped_buffer&&) = default;
 
 			auto mapped_data_pointer() const -> void*;
+			auto map() -> void;
+			auto unmap() -> void;
 
 			template <typename T>
 			requires (not std::is_pointer_v<T>)

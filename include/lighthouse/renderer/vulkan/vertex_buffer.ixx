@@ -28,7 +28,9 @@ export namespace lh
 		{
 		public:
 			struct create_info
-			{};
+			{
+				buffer_subdata m_preallocated_buffer;
+			};
 
 			vertex_buffer(const logical_device&,
 						  const memory_allocator&,

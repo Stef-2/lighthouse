@@ -13,7 +13,7 @@ namespace lh
 					   const memory_allocator& allocator,
 					   const vk::DeviceSize& size,
 					   const create_info& create_info)
-			: m_allocation_info {}, m_allocation {}, m_address {}, m_size {size}, m_create_info {create_info}
+			: m_allocation_info {}, m_allocation {}, m_address {}, m_used_memory {}, m_create_info {create_info}
 		{
 			const auto buffer_info = vk::BufferCreateInfo({}, size, m_create_info.m_usage);
 
@@ -50,7 +50,22 @@ namespace lh
 
 		auto buffer::size() const -> const vk::DeviceSize&
 		{
-			return m_size;
+			return m_allocation_info.size;
+		}
+
+		auto buffer::used_memory() const -> const vk::DeviceSize&
+		{
+			return m_used_memory;
+		}
+
+		auto buffer::remaining_memory() const -> const vk::DeviceSize&
+		{
+			return m_allocation_info.size - m_used_memory;
+		}
+
+		auto buffer::used_memory_percentage() const -> const used_memory_percentage_t
+		{
+			return static_cast<used_memory_percentage_t>(m_used_memory) / m_allocation_info.size * 100.0f;
 		}
 
 		auto buffer::create_information() const -> const create_info&
@@ -85,6 +100,17 @@ namespace lh
 		auto mapped_buffer::mapped_data_pointer() const -> void*
 		{
 			return m_mapped_data_pointer;
+		}
+
+		auto mapped_buffer::map() -> void
+		{
+			m_mapped_data_pointer = (*m_allocator)->mapMemory(m_allocation);
+		}
+
+		auto mapped_buffer::unmap() -> void
+		{
+			m_mapped_data_pointer = nullptr;
+			(*m_allocator)->unmapMemory(m_allocation);
 		}
 
 		auto buffer_subdata::operator[](std::size_t index) const -> const buffer_subdata::subdata&

@@ -16,6 +16,8 @@ namespace lh
 			const auto vertex_buffer_size = sizeof(vertex) * vertices.size();
 			const auto index_buffer_size = sizeof(vertex_index_t) * indices.size();
 
+
+
 			m_vertex_and_index_buffer = {logical_device,
 										 memory_allocator,
 										 vertex_buffer_size + index_buffer_size,
