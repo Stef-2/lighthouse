@@ -19,10 +19,10 @@ namespace lh
 		const auto& vertex_buffer = m_vertex_buffer.vertices();
 		const auto& index_buffer = m_vertex_buffer.indices();
 
-		vertex_buffer.m_buffer->map_data(*m_vertices.data(), 0, sizeof(vulkan::vertex) * m_vertices.size());
+		vertex_buffer.m_buffer->map_data(*m_vertices.data(), 0, sizeof vulkan::vertex * m_vertices.size());
 		vertex_buffer.m_buffer->map_data(*m_indices.data(),
 										 index_buffer.m_subdata[0].m_offset,
-										 sizeof(vulkan::vertex_index_t) * m_indices.size());
+										 sizeof vulkan::vertex_index_t * m_indices.size());
 	}
 
 	auto mesh::node() const -> const lh::node&

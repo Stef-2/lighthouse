@@ -14,11 +14,14 @@ import lighthouse_utility;
 import raii_wrapper;
 import logical_device;
 import memory_allocator;
+import command_control;
 
 export namespace lh
 {
 	namespace vulkan
 	{
+		class mapped_buffer;
+
 		class buffer : public raii_wrapper<vk::raii::Buffer>
 		{
 		public:
@@ -48,8 +51,36 @@ export namespace lh
 			auto remaining_memory() const -> const vk::DeviceSize&;
 			auto used_memory_percentage() const -> const used_memory_percentage_t;
 			auto create_information() const -> const create_info&;
+			
+			template <typename T>
+			requires(not std::is_pointer_v<T>)
+			auto upload_data(const command_control& command_control,
+							 const vk::raii::Queue& queue,
+							 const T& data,
+							 const std::size_t& offset = 0,
+							 const std::size_t& size = sizeof(T))
+			{
+				const auto staging_buffer = mapped_buffer {*m_logical_device, *m_allocator, size};
+				staging_buffer.map_data(data);
+
+				const auto& command_buffer = command_control.first_command_buffer();
+				command_buffer.begin(command_control.usage_flags());
+				command_buffer.copyBuffer(*staging_buffer, *m_object, {0, offset, size});
+
+				command_buffer.end();
+
+				const auto submit_info = vk::SubmitInfo {{}, {}, {*command_buffer}, {}};
+				queue.submit(submit_info, *command_control.fence());
+
+				std::ignore = (*m_logical_device)->waitForFences(*command_control.fence(), true, 1'000'000'000);
+				(*m_logical_device)->resetFences(*command_control.fence());
+
+				command_control.reset();
+			}
 
 		protected:
+			const logical_device* m_logical_device;
+			const memory_allocator* m_allocator;
 			vma::AllocationInfo m_allocation_info;
 			vma::Allocation m_allocation;
 
@@ -91,13 +122,12 @@ export namespace lh
 			requires (not std::is_pointer_v<T>)
 			auto map_data(const T& data, const std::size_t& offset = 0, const std::size_t& size = sizeof(T)) const
 			{
-				const auto destination = static_cast<std::byte*>(m_allocation_info.pMappedData) + offset;
+				const auto destination = static_cast<std::byte*>(m_mapped_data_pointer) + offset;
 
 				std::memcpy(destination, &data, size);
 			}
 
 		private:
-			const memory_allocator* m_allocator;
 			void* m_mapped_data_pointer;
 		};
 
