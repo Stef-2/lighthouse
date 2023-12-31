@@ -68,7 +68,8 @@ export namespace lh
 		implementation_inspector m_implementation_inspector;
 		vulkan::command_control e1m4;
 		vulkan::command_control m_transfer_control;
-		vulkan::queue m_queue;
+		vulkan::queue m_graphics_queue;
+		vulkan::queue m_transfer_queue;
 		vulkan::swapchain m_swapchain;
 		vulkan::dynamic_rendering_state m_dynamic_rendering_state;
 

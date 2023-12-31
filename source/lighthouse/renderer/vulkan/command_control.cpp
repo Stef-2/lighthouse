@@ -14,24 +14,17 @@ namespace lh
 		command_control::command_control(const logical_device& logical_device,
 										 const queue_families::family& queue,
 										 const create_info& create_info)
-			: m_buffers {nullptr},
-			  m_fence {*logical_device, vk::FenceCreateInfo {vk::FenceCreateFlagBits {}}},
+			: raii_wrapper {{*logical_device, {create_info.m_pool_flags, queue.m_index}}},
+			  m_buffers {*logical_device, {*m_object, create_info.m_buffer_level, create_info.m_num_buffers}},
 			  m_usage_flags {create_info.m_usage_flags}
-		{
-			m_object = {*logical_device, {create_info.m_pool_flags, queue.m_index}};
-
-			auto command_buffers_info = vk::CommandBufferAllocateInfo {*m_object,
-																	   create_info.m_buffer_level,
-																	   create_info.m_num_buffers};
-			m_buffers = {*logical_device, command_buffers_info};
-		}
+		{}
 
 		auto command_control::command_buffers() const -> const vk::raii::CommandBuffers&
 		{
 			return m_buffers;
 		}
 
-		auto command_control::first_command_buffer() const -> const vk::raii::CommandBuffer&
+		auto command_control::front() const -> const vk::raii::CommandBuffer&
 		{
 			return m_buffers.front();
 		}
@@ -44,11 +37,6 @@ namespace lh
 		auto command_control::reset() const -> void
 		{
 			m_object.reset(vk::CommandPoolResetFlagBits::eReleaseResources);
-		}
-
-		auto command_control::fence() const -> const vk::raii::Fence&
-		{
-			return m_fence;
 		}
 	}
 }

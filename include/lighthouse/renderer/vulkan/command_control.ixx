@@ -14,7 +14,6 @@ export namespace lh
 {
 	namespace vulkan
 	{
-		// e1m4
 		class command_control : public raii_wrapper<vk::raii::CommandPool>
 		{
 		public:
@@ -30,14 +29,12 @@ export namespace lh
 			command_control(const logical_device&, const queue_families::family&, const create_info& = {});
 
 			auto command_buffers() const -> const vk::raii::CommandBuffers&;
-			auto first_command_buffer() const -> const vk::raii::CommandBuffer&;
+			auto front() const -> const vk::raii::CommandBuffer&;
 			auto usage_flags() const -> const vk::CommandBufferUsageFlags&;
 			auto reset() const -> void;
-			auto fence() const -> const vk::raii::Fence&;
 
 		private:
 			vk::raii::CommandBuffers m_buffers;
-			vk::raii::Fence m_fence;
 			vk::CommandBufferUsageFlags m_usage_flags;
 		};
 	}

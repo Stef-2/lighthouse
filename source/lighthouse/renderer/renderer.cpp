@@ -40,7 +40,8 @@ namespace lh
 		  m_implementation_inspector(m_instance, m_physical_device, m_logical_device, m_memory_allocator),
 		  e1m4 {m_logical_device, m_queue_families.graphics()},
 		  m_transfer_control {m_logical_device, m_queue_families.transfer()},
-		  m_queue {m_logical_device, m_queue_families},
+		  m_graphics_queue {m_logical_device, {{{}, m_queue_families.graphics().m_index, 0}}},
+		  m_transfer_queue {m_logical_device, {{{}, m_queue_families.transfer().m_index, 0}}},
 		  m_swapchain {m_physical_device, m_logical_device, m_surface, m_queue_families, m_memory_allocator},
 		  m_dynamic_rendering_state {vulkan::dynamic_rendering_state::create_info {
 			  .m_viewport = vk::Viewport(0.0f,
