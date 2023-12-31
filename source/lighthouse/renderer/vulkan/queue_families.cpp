@@ -15,7 +15,10 @@ namespace lh
 			: m_graphics {std::numeric_limits<family::index_t>::max(), create_info.m_graphics},
 			  m_present {std::numeric_limits<family::index_t>::max(), create_info.m_present},
 			  m_compute {std::numeric_limits<family::index_t>::max(), create_info.m_compute},
-			  m_transfer {std::numeric_limits<family::index_t>::max(), create_info.m_transfer}
+			  m_transfer {std::numeric_limits<family::index_t>::max(), create_info.m_transfer},
+			  m_combined_graphics_and_present_family {},
+			  m_dedicated_compute_family {},
+			  m_dedicated_transfer_family {}
 		{
 			const auto queue_family_properties = physical_device->getQueueFamilyProperties2();
 			auto counter = queue_families::family::index_t {};
@@ -38,6 +41,13 @@ namespace lh
 					m_present.m_index = i;
 					break;
 				}
+
+			if (m_graphics.m_index == m_present.m_index)
+				m_combined_graphics_and_present_family = true;
+			if (m_graphics.m_index != m_compute.m_index)
+				m_dedicated_compute_family = true;
+			if (m_graphics.m_index != m_transfer.m_index)
+				m_dedicated_transfer_family = true;
 		}
 
 		auto queue_families::graphics() const -> const family&
@@ -58,6 +68,21 @@ namespace lh
 		auto queue_families::transfer() const -> const family&
 		{
 			return m_transfer;
+		}
+
+		auto queue_families::supports_combined_graphics_and_present_family() const -> const bool&
+		{
+			return m_combined_graphics_and_present_family;
+		}
+
+		auto queue_families::supports_dedicated_compute_family() const -> const bool&
+		{
+			return m_dedicated_compute_family;
+		}
+
+		auto queue_families::supports_dedicated_transfer_family() const -> const bool&
+		{
+			return m_dedicated_transfer_family;
 		}
 	}
 }

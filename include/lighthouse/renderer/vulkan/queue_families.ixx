@@ -47,11 +47,19 @@ export namespace lh
 			auto compute() const -> const family&;
 			auto transfer() const -> const family&;
 
+			auto supports_combined_graphics_and_present_family() const -> const bool&;
+			auto supports_dedicated_compute_family() const -> const bool&;
+			auto supports_dedicated_transfer_family() const -> const bool&;
+
 		private:
 			family m_graphics;
 			family m_present;
 			family m_compute;
 			family m_transfer;
+
+			bool m_combined_graphics_and_present_family;
+			bool m_dedicated_compute_family;
+			bool m_dedicated_transfer_family;
 		};
 	}
 }

@@ -9,26 +9,21 @@ namespace lh
 	namespace vulkan
 	{
 
-		queue::queue(const logical_device& logical_device,
-					 const queue_families& queue_families,
-					 const create_info& create_info)
-			: m_graphics {*logical_device, queue_families.graphics().m_index, 0},
-			  m_present {*logical_device, queue_families.present().m_index, 0},
-			  m_transfer {*logical_device, queue_families.transfer().m_index, 0}
+		queue::queue(const logical_device& logical_device, const create_info& create_info)
+			: raii_wrapper {{*logical_device, create_info.m_create_info}},
+			  m_fence {*logical_device, {}},
+			  m_semaphores {}
 		{}
 
-		auto queue::graphics() const -> const vk::raii::Queue&
+		auto queue::fence() const -> const vk::raii::Fence&
 		{
-			return m_graphics;
+			return m_fence;
 		}
 
-		auto queue::present() const -> const vk::raii::Queue&
+		auto queue::semaphores() -> std::vector<vk::raii::Semaphore>&
 		{
-			return m_present;
+			return m_semaphores;
 		}
-		auto queue::transfer() const -> const vk::raii::Queue&
-		{
-			return m_transfer;
-		}
+
 	}
 }

@@ -8,12 +8,54 @@ module logical_device;
 
 import output;
 
+namespace
+{
+	auto generate_device_queue_infos(const lh::vulkan::queue_families& queue_families)
+	{
+		auto queues = std::vector<vk::DeviceQueueCreateInfo> {
+			{{}, queue_families.graphics().m_index, 1, &queue_families.graphics().m_priority}};
+
+		auto queue_indices = std::array<std::uint8_t, 3> {0, 0, 0};
+
+		if (not queue_families.supports_combined_graphics_and_present_family())
+		{
+			queues.emplace_back(vk::DeviceQueueCreateFlags {},
+								queue_families.present().m_index,
+								1,
+								&queue_families.present().m_priority);
+			queue_indices[0] = 0;
+		}
+
+		if (queue_families.supports_dedicated_compute_family())
+		{
+			queues.emplace_back(vk::DeviceQueueCreateFlags {},
+								queue_families.compute().m_index,
+								1,
+								&queue_families.compute().m_priority);
+			queue_indices[1] = 1;
+		}
+
+		if (queue_families.supports_dedicated_transfer_family())
+		{
+			queues.emplace_back(vk::DeviceQueueCreateFlags {},
+								queue_families.transfer().m_index,
+								1,
+								&queue_families.transfer().m_priority);
+			queue_indices[2] = 2;
+		}
+
+		return {queues, queue_indices};
+	}
+}
+
 namespace lh
 {
 	namespace vulkan
 	{
-
-		logical_device::logical_device(const physical_device& physical_device, const create_info& create_info)
+		logical_device::logical_device(const physical_device& physical_device,
+									   const queue_families& queue_families,
+									   const create_info& create_info)
+			: m_queues {}, m_present_queue_index {}, m_compute_queue_index {}, m_transfer_queue_index {}
 		{
 			const auto& suported_extensions = physical_device.extensions().supported_extensions();
 			const auto& suported_features = physical_device.features().m_features;
@@ -21,6 +63,9 @@ namespace lh
 
 			if (not physical_device.extensions().assert_required_extensions())
 				output::error() << "this system does not support the required vulkan components";
+
+			const auto [requested_device_queues, queue_indices] = generate_device_queue_infos(queue_families);
+			m_present_queue_index = queue_indices[0];
 
 			auto dynamic_rendering = vk::PhysicalDeviceDynamicRenderingFeatures {true};
 			auto buffer_addressing =
@@ -45,7 +90,7 @@ namespace lh
 			auto maintenantce_5 = vk::PhysicalDeviceMaintenance5FeaturesKHR {true, &host_image_copy};
 
 			auto device_info = vk::DeviceCreateInfo {
-				{}, create_info.m_queues, {}, create_info.m_extensions, &null_features, &maintenantce_5};
+				{}, requested_device_queues, {}, create_info.m_extensions, &null_features, &maintenantce_5};
 
 			m_object = {*physical_device, device_info};
 		}

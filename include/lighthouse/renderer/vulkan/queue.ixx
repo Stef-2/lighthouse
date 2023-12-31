@@ -2,12 +2,13 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan_raii.hpp"
-#endif
 
-#include <compare>
+#include <vector>
+#endif
 
 export module queue;
 
+import raii_wrapper;
 import logical_device;
 import queue_families;
 
@@ -19,23 +20,23 @@ export namespace lh
 {
 	namespace vulkan
 	{
-		class queue
+		class queue : public raii_wrapper<vk::raii::Queue>
 		{
 
 		public:
 			struct create_info
-			{};
+			{
+				vk::DeviceQueueInfo2 m_create_info {};
+			};
+			
+			queue(const logical_device&, const create_info& = {});
 
-			queue(const logical_device&, const queue_families&, const create_info& = {});
-
-			auto graphics() const -> const vk::raii::Queue&;
-			auto present() const -> const vk::raii::Queue&;
-			auto transfer() const -> const vk::raii::Queue&;
+			auto fence() const -> const vk::raii::Fence&;
+			auto semaphores() -> std::vector<vk::raii::Semaphore>&;
 
 		private:
-			vk::raii::Queue m_graphics;
-			vk::raii::Queue m_present;
-			vk::raii::Queue m_transfer;
+			vk::raii::Fence m_fence;
+			std::vector<vk::raii::Semaphore> m_semaphores;
 		};
 	}
 }

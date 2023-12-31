@@ -12,6 +12,8 @@ import lighthouse_string;
 import vulkan_string;
 import raii_wrapper;
 import physical_device;
+import queue_families;
+import queue;
 
 export namespace lh
 {
@@ -23,17 +25,23 @@ export namespace lh
 		public:
 			struct create_info
 			{
-				std::vector<vk::DeviceQueueCreateInfo> m_queues {};
-
 				vk_string_t m_extensions {};
 			};
 
-			logical_device(const physical_device&, const create_info&);
+			logical_device(const physical_device&, const queue_families&, const create_info& = {});
+
+			auto graphics_queue() const -> const queue&;
+			auto present_queue() const -> const queue&;
+			auto compute_queue() const -> const queue&;
+			auto transfer_queue() const -> const queue&;
 
 			auto info() const -> lh::string::string_t override;
 
 		private:
-			std::vector<vk::raii::Queue> m_queues;
+			std::vector<queue> m_queues;
+			std::uint8_t m_present_queue_index;
+			std::uint8_t m_compute_queue_index;
+			std::uint8_t m_transfer_queue_index;
 		};
 	}
 }
