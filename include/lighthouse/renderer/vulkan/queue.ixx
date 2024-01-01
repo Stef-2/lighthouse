@@ -22,8 +22,9 @@ export namespace lh
 	{
 		class queue : public raii_wrapper<vk::raii::Queue>
 		{
-
 		public:
+			static inline constexpr auto fence_timeout = 1'000'000'000;
+
 			struct create_info
 			{
 				vk::DeviceQueueInfo2 m_create_info {};
@@ -31,12 +32,18 @@ export namespace lh
 			
 			queue(const logical_device&, const create_info& = {});
 
+			auto add_wait_semaphore(const vk::PipelineStageFlags&) -> void;
+			auto add_signal_semaphore() -> void;
+			auto submit_and_wait(const vk::raii::CommandBuffer&) -> void;
+
 			auto fence() const -> const vk::raii::Fence&;
-			auto semaphores() -> std::vector<vk::raii::Semaphore>&;
 
 		private:
 			vk::raii::Fence m_fence;
-			std::vector<vk::raii::Semaphore> m_semaphores;
+			std::vector<vk::raii::Semaphore> m_wait_semaphores;
+			std::vector<vk::PipelineStageFlags> m_wait_destination_stage_mask;
+
+			std::vector<vk::raii::Semaphore> m_signal_semaphores;
 		};
 	}
 }

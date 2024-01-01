@@ -36,6 +36,8 @@ export namespace lh
 		private:
 			vk::raii::CommandBuffers m_buffers;
 			vk::CommandBufferUsageFlags m_usage_flags;
+
+			bool m_has_pending_commands;
 		};
 	}
 }
