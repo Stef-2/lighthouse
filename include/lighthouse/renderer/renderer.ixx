@@ -66,8 +66,8 @@ export namespace lh
 		vulkan::logical_device m_logical_device;
 		vulkan::memory_allocator m_memory_allocator;
 		implementation_inspector m_implementation_inspector;
-		vulkan::command_control m_graphics_control;
-		vulkan::command_control m_transfer_control;
+		//vulkan::command_control m_graphics_control;
+		//vulkan::command_control m_transfer_control;
 		vulkan::queue m_graphics_queue;
 		vulkan::queue m_transfer_queue;
 		vulkan::swapchain m_swapchain;

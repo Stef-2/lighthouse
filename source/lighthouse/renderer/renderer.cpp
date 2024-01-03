@@ -26,22 +26,14 @@ namespace lh
 		  m_surface {window, m_instance, m_physical_device},
 		  m_queue_families {m_physical_device, m_surface},
 		  m_logical_device {m_physical_device,
-							vulkan::logical_device::create_info {
-								.m_queues = {vk::DeviceQueueCreateInfo {{},
-																		m_queue_families.graphics().m_index,
-																		1,
-																		&m_queue_families.graphics().m_priority},
-											 vk::DeviceQueueCreateInfo {{},
-																		m_queue_families.transfer().m_index,
-																		1,
-																		&m_queue_families.transfer().m_priority}},
-								.m_extensions = m_physical_device.extensions().required_extensions()}},
+							m_queue_families,
+							{m_physical_device.extensions().required_extensions()}},
 		  m_memory_allocator {m_instance, m_physical_device, m_logical_device},
 		  m_implementation_inspector(m_instance, m_physical_device, m_logical_device, m_memory_allocator),
-		  e1m4 {m_logical_device, m_queue_families.graphics()},
-		  m_transfer_control {m_logical_device, m_queue_families.transfer()},
-		  m_graphics_queue {m_logical_device, {{{}, m_queue_families.graphics().m_index, 0}}},
-		  m_transfer_queue {m_logical_device, {{{}, m_queue_families.transfer().m_index, 0}}},
+		  // e1m4 {m_logical_device, m_queue_families.graphics()},
+		  // m_transfer_control {m_logical_device, m_queue_families.transfer()},
+		  m_graphics_queue {m_logical_device, {m_queue_families.graphics()}},
+		  m_transfer_queue {m_logical_device, {m_queue_families.transfer()}},
 		  m_swapchain {m_physical_device, m_logical_device, m_surface, m_queue_families, m_memory_allocator},
 		  m_dynamic_rendering_state {vulkan::dynamic_rendering_state::create_info {
 			  .m_viewport = vk::Viewport(0.0f,
@@ -65,8 +57,8 @@ namespace lh
 		  m_material {m_physical_device,
 					  m_logical_device,
 					  m_memory_allocator,
-					  m_transfer_control,
-					  m_queue.transfer(),
+					  // m_transfer_control,
+					  m_transfer_queue,
 					  {file_system::data_path() /= "textures/grooved_bricks/basecolor.png",
 					   file_system::data_path() /= "textures/grooved_bricks/normal.png",
 					   file_system::data_path() /= "textures/grooved_bricks/ambientocclusion.png"}},
@@ -111,11 +103,14 @@ namespace lh
 	{
 		vk::raii::Semaphore semaphore(m_logical_device, vk::SemaphoreCreateInfo());
 
-		e1m4.reset();
-		const auto& command_buffer = e1m4.first_command_buffer();
-		command_buffer.begin({e1m4.usage_flags()});
+		m_graphics_queue.command_control().reset();
+		m_graphics_queue.add_wait_semaphore(vk::PipelineStageFlagBits::eBottomOfPipe);
+		const auto& command_buffer = m_graphics_queue.command_control().front();
+		command_buffer.begin({m_graphics_queue.command_control().usage_flags()});
 
-		auto [result, image_index, render_info] = m_swapchain.next_image_info(command_buffer, semaphore);
+		auto [result,
+			  image_index,
+			  render_info] = m_swapchain.next_image_info(command_buffer, m_graphics_queue.wait_semaphores().back());
 
 		command_buffer.beginRendering(render_info);
 
@@ -161,13 +156,13 @@ namespace lh
 
 		vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eBottomOfPipe);
 		vk::SubmitInfo submitInfo(*semaphore, waitDestinationStageMask, *command_buffer);
-		m_queue.graphics().submit(submitInfo, *drawFence);
+		m_graphics_queue->submit(submitInfo, *drawFence);
 
 		while (vk::Result::eTimeout == m_logical_device->waitForFences({*drawFence}, true, 1000000))
 			;
 
 		vk::PresentInfoKHR presentInfoKHR(nullptr, **m_swapchain, image_index);
-		std::ignore = m_queue.present().presentKHR(presentInfoKHR);
+		std::ignore = m_graphics_queue->presentKHR(presentInfoKHR);
 
 		// m_logical_device->waitIdle();
 	}

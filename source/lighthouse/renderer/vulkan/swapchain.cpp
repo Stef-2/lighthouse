@@ -144,5 +144,9 @@ namespace lh
 									   &m_depth_stencil_attachment,
 									   &m_depth_stencil_attachment}};
 		}
+		auto swapchain::current_image_index() const -> const image_index_t&
+		{
+			return m_current_image_index;
+		}
 	}
 }

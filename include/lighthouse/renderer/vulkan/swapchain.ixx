@@ -74,6 +74,7 @@ export namespace lh
 			auto depth_stencil_view() const -> const vk::raii::ImageView&;
 			auto next_image_info(const vk::raii::CommandBuffer&, const vk::raii::Semaphore&)
 				-> const std::tuple<vk::Result, image_index_t, vk::RenderingInfo>;
+			auto current_image_index() const -> const image_index_t&;
 
 			template <layout_state state>
 			auto transition_layout(const vk::raii::CommandBuffer& command_buffer) const -> void;

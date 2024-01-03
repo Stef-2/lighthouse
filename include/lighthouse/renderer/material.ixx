@@ -18,7 +18,6 @@ import vulkan;
 import physical_device;
 import logical_device;
 import memory_allocator;
-import command_control;
 import queue;
 import texture;
 
@@ -35,8 +34,7 @@ export namespace lh
 		material(const vulkan::physical_device&,
 				 const vulkan::logical_device&,
 				 const vulkan::memory_allocator&,
-				 const vulkan::command_control&,
-				 const vk::raii::Queue&,
+				 vulkan::queue&,
 				 const std::vector<std::filesystem::path>&,
 				 const create_info& = {});
 

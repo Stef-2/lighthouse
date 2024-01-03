@@ -51,7 +51,7 @@ export namespace lh
 			auto remaining_memory() const -> const vk::DeviceSize&;
 			auto used_memory_percentage() const -> const used_memory_percentage_t;
 			auto create_information() const -> const create_info&;
-			
+			/*
 			template <typename T>
 			requires(not std::is_pointer_v<T>)
 			auto upload_data(const command_control& command_control,
@@ -63,7 +63,7 @@ export namespace lh
 				const auto staging_buffer = mapped_buffer {*m_logical_device, *m_allocator, size};
 				staging_buffer.map_data(data);
 
-				const auto& command_buffer = command_control.first_command_buffer();
+				const auto& command_buffer = command_control.front();
 				command_buffer.begin(command_control.usage_flags());
 				command_buffer.copyBuffer(*staging_buffer, *m_object, {0, offset, size});
 
@@ -76,7 +76,7 @@ export namespace lh
 				(*m_logical_device)->resetFences(*command_control.fence());
 
 				command_control.reset();
-			}
+			}*/
 
 		protected:
 			const logical_device* m_logical_device;
@@ -123,7 +123,7 @@ export namespace lh
 			auto map_data(const T& data, const std::size_t& offset = 0, const std::size_t& size = sizeof(T)) const
 			{
 				const auto destination = static_cast<std::byte*>(m_mapped_data_pointer) + offset;
-
+				
 				std::memcpy(destination, &data, size);
 			}
 

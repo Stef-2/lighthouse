@@ -13,7 +13,7 @@ export module texture;
 import physical_device;
 import logical_device;
 import memory_allocator;
-import command_control;
+import queue;
 import buffer;
 import image;
 import image_view;
@@ -45,8 +45,7 @@ export namespace lh
 			texture(const physical_device&,
 					const logical_device&,
 					const memory_allocator&,
-					const command_control&,
-					const vk::raii::Queue&,
+					 queue&,
 					const image_paths_t&,
 					const create_info& = {});
 
@@ -61,8 +60,7 @@ export namespace lh
 		protected:
 			auto generate_image_data(const logical_device&,
 									 const memory_allocator&,
-									 const command_control&,
-									 const vk::raii::Queue&,
+									  queue&,
 									 const image::create_info&,
 									 const std::vector<std::filesystem::path>&) -> void;
 

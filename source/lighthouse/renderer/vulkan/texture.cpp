@@ -20,8 +20,7 @@ namespace lh
 		texture::texture(const physical_device& physical_device,
 						 const logical_device& logical_device,
 						 const memory_allocator& memory_allocator,
-						 const command_control& command_control,
-						 const vk::raii::Queue& queue,
+						 queue& queue,
 						 const image_paths_t& paths,
 						 const create_info& create_info)
 			: m_image {nullptr},
@@ -31,8 +30,7 @@ namespace lh
 			  m_descriptor_image_info {},
 			  m_descriptor {}
 		{
-			generate_image_data(
-				logical_device, memory_allocator, command_control, queue, create_info.m_image_create_info, paths);
+			generate_image_data(logical_device, memory_allocator, queue, create_info.m_image_create_info, paths);
 			m_image_view = {logical_device, m_image};
 			generate_descriptor_data(physical_device, logical_device);
 		}
@@ -69,8 +67,7 @@ namespace lh
 
 		auto texture::generate_image_data(const logical_device& logical_device,
 										  const memory_allocator& memory_allocator,
-										  const command_control& command_control,
-										  const vk::raii::Queue& queue,
+										  queue& queue,
 										  const image::create_info& create_info,
 										  const std::vector<std::filesystem::path>& paths) -> void
 
@@ -112,8 +109,8 @@ namespace lh
 			image_create_info.m_image_create_info.extent = extent;
 			m_image = vulkan::image {logical_device, memory_allocator, image_create_info};
 
-			const auto& command_buffer = command_control.first_command_buffer();
-			command_buffer.begin(command_control.usage_flags());
+			const auto& command_buffer = queue.command_control().front();
+			command_buffer.begin(queue.command_control().usage_flags());
 			m_image.transition_layout(command_buffer);
 
 			const auto buffer_image_copy =
@@ -134,12 +131,12 @@ namespace lh
 			command_buffer.end();
 
 			const auto submit_info = vk::SubmitInfo {{}, {}, {*command_buffer}, {}};
-			queue.submit(submit_info, *command_control.fence());
-
+			queue.submit_and_wait();
+			/*
 			std::ignore = logical_device->waitForFences(*command_control.fence(), true, 1'000'000'000);
-			logical_device->resetFences(*command_control.fence());
+			logical_device->resetFences(*command_control.fence());*/
 
-			command_control.reset();
+			queue.command_control().reset();
 		}
 
 		auto texture::generate_descriptor_data(const lh::vulkan::physical_device& physical_device,
