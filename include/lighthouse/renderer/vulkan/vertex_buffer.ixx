@@ -39,6 +39,11 @@ export namespace lh
 						  const std::vector<vertex_index_t>&,
 						  const create_info& = {});
 
+			vertex_buffer(const vertex_buffer&) = delete;
+			vertex_buffer& operator=(const vertex_buffer&) = delete;
+			vertex_buffer(vertex_buffer&&) noexcept;
+			vertex_buffer& operator=(vertex_buffer&&) noexcept;
+
 			auto vertices() const -> const buffer_subdata;
 			auto indices() const -> const buffer_subdata;
 			auto bind(const vk::raii::CommandBuffer&) const -> void;

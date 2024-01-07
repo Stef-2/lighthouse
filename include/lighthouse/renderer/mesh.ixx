@@ -39,6 +39,7 @@ export namespace lh
 		mesh(const mesh&) = delete;
 		mesh& operator=(const mesh&) = delete;
 		mesh(mesh&&) noexcept;
+		mesh(const mesh&&) noexcept;
 		mesh& operator=(mesh&&) noexcept;
 
 		auto node() const -> const node&;

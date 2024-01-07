@@ -43,6 +43,7 @@ export namespace lh
 					 const create_info& = {});
 
 		auto meshes() const -> const std::vector<mesh>&;
+		auto meh() -> mesh&;
 
 	private:
 		Assimp::Importer m_importer;
