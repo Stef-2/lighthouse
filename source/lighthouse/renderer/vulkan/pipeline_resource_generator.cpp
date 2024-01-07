@@ -46,12 +46,13 @@ namespace lh
 {
 	namespace vulkan
 	{
-		pipeline_resource_generator::pipeline_resource_generator(const physical_device& physical_device,
-																 const logical_device& logical_device,
-																 const memory_allocator& memory_allocator,
-																 const pipeline_glsl_code& shader_paths,
-																 const global_descriptor& global_descriptor,
-																 const create_info& create_info)
+		pipeline_resource_generator::pipeline_resource_generator(
+			const physical_device& physical_device,
+			const logical_device& logical_device,
+			const memory_allocator& memory_allocator,
+			const shader_pipeline::pipeline_glsl_code_t& shader_paths,
+			const global_descriptor& global_descriptor,
+			const create_info& create_info)
 			: m_vertex_input_description {}, m_shader_pipeline {}, m_resource_descriptor_buffer {}
 		{
 			auto pipeline_shader_inputs = std::vector<std::pair<vk::ShaderStageFlagBits, shader_input>> {};

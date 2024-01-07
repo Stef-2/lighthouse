@@ -31,10 +31,7 @@ export namespace lh
 				vk::ShaderCodeTypeEXT m_code_type = vk::ShaderCodeTypeEXT::eSpirv;
 			};
 
-			shader_object(
-				const logical_device&,
-				const spir_v&,
-				const std::vector<vk::DescriptorSetLayout>&, const create_info& = {});
+			shader_object(const logical_device&,const spir_v&, const std::vector<vk::DescriptorSetLayout>&, const create_info& = {});
 
 			auto cache_binary_data(const std::filesystem::path&) const -> void;
 			auto stage() const -> const vk::ShaderStageFlagBits&;
@@ -50,6 +47,7 @@ export namespace lh
 		{
 		public:
 			using raii_wrapper::raii_wrapper;
+			using pipeline_glsl_code_t = std::vector<std::filesystem::path>;
 			using individual_stage_data_t = std::pair<const spir_v&, const std::vector<vk::DescriptorSetLayout>>;
 
 			shader_pipeline(const logical_device&,

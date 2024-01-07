@@ -35,7 +35,7 @@ namespace lh
 		  m_bounding_box {std::move(other.m_bounding_box)}
 
 	{}
-
+	/*
 	mesh::mesh(const mesh&& other) noexcept
 		: m_node {std::move(other.m_node)},
 		  m_vertices {std::move(other.m_vertices)},
@@ -43,7 +43,7 @@ namespace lh
 		  m_vertex_buffer {std::move(other.m_vertex_buffer)},
 		  m_bounding_box {std::move(other.m_bounding_box)}
 
-	{}
+	{}*/
 
 	mesh& mesh::operator=(mesh&& other) noexcept
 	{

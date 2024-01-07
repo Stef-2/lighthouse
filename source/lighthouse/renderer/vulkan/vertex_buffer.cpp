@@ -31,6 +31,19 @@ namespace lh
 																						index_buffer_size}}};
 		}
 
+		vertex_buffer::vertex_buffer(vertex_buffer&& other) noexcept
+			: m_vertex_and_index_buffer {std::exchange(other.m_vertex_and_index_buffer, {})},
+			  m_vertex_and_index_suballocations {std::exchange(other.m_vertex_and_index_suballocations, {})}
+		{}
+
+		vertex_buffer& vertex_buffer::operator=(vertex_buffer&& other) noexcept
+		{
+			m_vertex_and_index_buffer = std::exchange(other.m_vertex_and_index_buffer, {});
+			m_vertex_and_index_suballocations = std::exchange(other.m_vertex_and_index_suballocations, {});
+
+			return *this;
+		}
+
 		auto vertex_buffer::vertices() const -> const buffer_subdata
 		{
 			return {m_vertex_and_index_suballocations.m_buffer, {m_vertex_and_index_suballocations.m_subdata[0]}};

@@ -14,7 +14,7 @@ import lighthouse_utility;
 import raii_wrapper;
 import logical_device;
 import memory_allocator;
-import command_control;
+import queue;
 
 export namespace lh
 {
@@ -51,11 +51,10 @@ export namespace lh
 			auto remaining_memory() const -> const vk::DeviceSize;
 			auto used_memory_percentage() const -> const used_memory_percentage_t;
 			auto create_information() const -> const create_info&;
-			/*
+			
 			template <typename T>
 			requires(not std::is_pointer_v<T>)
-			auto upload_data(const command_control& command_control,
-							 const vk::raii::Queue& queue,
+			auto upload_data(queue& queue,
 							 const T& data,
 							 const std::size_t& offset = 0,
 							 const std::size_t& size = sizeof(T))
@@ -63,20 +62,14 @@ export namespace lh
 				const auto staging_buffer = mapped_buffer {*m_logical_device, *m_allocator, size};
 				staging_buffer.map_data(data);
 
-				const auto& command_buffer = command_control.front();
-				command_buffer.begin(command_control.usage_flags());
+				const auto& command_buffer = queue.command_control().front();
+				command_buffer.begin(queue.command_control().usage_flags());
 				command_buffer.copyBuffer(*staging_buffer, *m_object, {0, offset, size});
 
 				command_buffer.end();
 
-				const auto submit_info = vk::SubmitInfo {{}, {}, {*command_buffer}, {}};
-				queue.submit(submit_info, *command_control.fence());
-
-				std::ignore = (*m_logical_device)->waitForFences(*command_control.fence(), true, 1'000'000'000);
-				(*m_logical_device)->resetFences(*command_control.fence());
-
-				command_control.reset();
-			}*/
+				queue.submit_and_wait();
+			}
 
 		protected:
 			const logical_device* m_logical_device;
@@ -131,6 +124,8 @@ export namespace lh
 			void* m_mapped_data_pointer;
 		};
 
+		//template <typename T = mapped_buffer>
+		//requires std::is_same_v<T, buffer> or std::is_same_v<T, mapped_buffer>
 		struct buffer_subdata
 		{
 			struct subdata
@@ -139,7 +134,7 @@ export namespace lh
 				vk::DeviceSize m_size;
 			};
 
-			auto operator[](std::size_t) const -> const subdata&;
+			auto operator[](std::size_t index) const -> const subdata&;
 
 			lh::non_owning_ptr<mapped_buffer> m_buffer;
 			std::vector<subdata> m_subdata;

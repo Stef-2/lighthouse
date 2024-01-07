@@ -1,5 +1,7 @@
 module image;
 
+import buffer;
+
 namespace lh
 {
 	namespace vulkan

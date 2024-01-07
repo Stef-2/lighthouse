@@ -35,15 +35,13 @@ export namespace lh
 		class pipeline_resource_generator
 		{
 		public:
-			using pipeline_glsl_code = std::vector<std::filesystem::path>;
-
 			struct create_info
 			{};
 
 			pipeline_resource_generator(const physical_device&,
 										const logical_device&,
 										const memory_allocator&,
-										const pipeline_glsl_code&,
+										const shader_pipeline::pipeline_glsl_code_t&,
 										const global_descriptor&,
 										const create_info& = {});
 
