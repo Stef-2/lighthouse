@@ -62,7 +62,7 @@ namespace lh
 					  {file_system::data_path() /= "textures/grooved_bricks/basecolor.png",
 					   file_system::data_path() /= "textures/grooved_bricks/normal.png",
 					   file_system::data_path() /= "textures/grooved_bricks/ambientocclusion.png"}},
-		  m_point_light {{1.0f, 0.0f, 0.0f, 1.0f}, 1.0f, {1.0f, 0.0f, 0.0f}},
+		  m_point_light {{1.0f, 0.0f, 0.0f, 1.0f}, 1.0f, {0.0f, 0.0f, 0.0f}},
 		  m_point_light2 {{0.0f, 1.0f, 0.0f, 1.0f}, 1.0f, {0.0f, 1.0f, 0.0f}},
 		  m_spot_light {{0.5f, 0.5f, 0.0f, 1.0f}, 1.0f, {0.0f, 0.0f, 1.0f}},
 		  m_spot_light2 {{0.0f, 0.5f, 0.5f, 1.0f}, 1.0f, {0.0f, 0.0f, 1.0f}},
@@ -129,9 +129,9 @@ namespace lh
 			glm::vec4 position;
 			glm::vec4 color;
 		};
-
 		auto test_camera = m_camera.projection() * m_camera.view() * glm::mat4x4 {1.0f};
 		auto wtf = time::now();
+		m_point_light.translate_absolute({0.0f, glm::sin(wtf), 0.0f});
 
 		test t {test_camera, {wtf, 0, 0, 0}};
 		pl _pl {{1.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}};
@@ -151,7 +151,7 @@ namespace lh
 
 		m_swapchain.transition_layout<vulkan::swapchain::layout_state::presentation>(command_buffer);
 		command_buffer.end();
-
+		/*
 		vk::raii::Fence drawFence(m_logical_device, vk::FenceCreateInfo());
 
 		vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eBottomOfPipe);
@@ -159,10 +159,12 @@ namespace lh
 		m_graphics_queue->submit(submitInfo, *drawFence);
 
 		while (vk::Result::eTimeout == m_logical_device->waitForFences({*drawFence}, true, 1000000))
-			;
-
+			;*/
+		m_graphics_queue.submit_and_wait();
+		/*
 		vk::PresentInfoKHR presentInfoKHR(nullptr, **m_swapchain, image_index);
-		std::ignore = m_graphics_queue->presentKHR(presentInfoKHR);
+		std::ignore = m_graphics_queue->presentKHR(presentInfoKHR);*/
+		m_graphics_queue.present(m_swapchain);
 
 		// m_logical_device->waitIdle();
 	}

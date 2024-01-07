@@ -28,12 +28,18 @@ export namespace lh
 		struct create_info
 		{};
 
+		mesh();
 		mesh(const vulkan::logical_device&,
 			 const vulkan::memory_allocator&,
 			 const std::vector<vulkan::vertex>&,
 			 const std::vector<vulkan::vertex_index_t>&,
 			 const bounding_box&,
 			 non_owning_ptr<node> = nullptr);
+
+		mesh(const mesh&) = delete;
+		mesh& operator=(const mesh&) = delete;
+		mesh(mesh&&) noexcept;
+		mesh& operator=(mesh&&) noexcept;
 
 		auto node() const -> const node&;
 		auto vertices() const -> const std::vector<vulkan::vertex>&;

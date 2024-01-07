@@ -4,6 +4,8 @@ module mesh;
 
 namespace lh
 {
+	mesh::mesh() : m_node {}, m_vertices {}, m_indices {}, m_vertex_buffer {}, m_bounding_box {} {}
+
 	mesh::mesh(const vulkan::logical_device& logical_device,
 			   const vulkan::memory_allocator& memory_allocator,
 			   const std::vector<vulkan::vertex>& vertices,
@@ -23,6 +25,26 @@ namespace lh
 		vertex_buffer.m_buffer->map_data(*m_indices.data(),
 										 index_buffer.m_subdata[0].m_offset,
 										 sizeof vulkan::vertex_index_t * m_indices.size());
+	}
+
+	mesh::mesh(mesh&& other) noexcept
+		: m_node {std::move(other.m_node)},
+		  m_vertices {std::move(other.m_vertices)},
+		  m_indices {std::move(other.m_indices)},
+		  m_vertex_buffer {std::move(other.m_vertex_buffer)},
+		  m_bounding_box {std::move(other.m_bounding_box)}
+
+	{}
+
+	mesh& mesh::operator=(mesh&& other) noexcept
+	{
+		m_node = std::move(other.m_node);
+		m_vertices = std::move(other.m_vertices);
+		m_indices = std::move(other.m_indices);
+		m_vertex_buffer = std::move(other.m_vertex_buffer);
+		m_bounding_box = std::move(other.m_bounding_box);
+
+		return *this;
 	}
 
 	auto mesh::node() const -> const lh::node&

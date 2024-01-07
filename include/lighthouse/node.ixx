@@ -32,6 +32,10 @@ export namespace lh
 		node(node& parent = s_root_node,
 			 const transformation_t& = transformation_t {1.0f},
 			 destruction_strategy = destruction_strategy::collapse);
+		node(const node&) = delete;
+		node& operator=(const node&) = delete;
+		node(node&&) noexcept;
+		node& operator=(node&&) noexcept;
 		~node();
 
 		static auto root_node() -> node&;

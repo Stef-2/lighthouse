@@ -48,7 +48,7 @@ export namespace lh
 			auto address() const -> const vk::DeviceAddress&;
 			auto size() const -> const vk::DeviceSize&;
 			auto used_memory() const -> const vk::DeviceSize&;
-			auto remaining_memory() const -> const vk::DeviceSize&;
+			auto remaining_memory() const -> const vk::DeviceSize;
 			auto used_memory_percentage() const -> const used_memory_percentage_t;
 			auto create_information() const -> const create_info&;
 			/*

@@ -6,6 +6,7 @@ namespace lh
 {
 	namespace vulkan
 	{
+		vertex_buffer::vertex_buffer() : m_vertex_and_index_buffer {nullptr}, m_vertex_and_index_suballocations {} {}
 		vertex_buffer::vertex_buffer(const logical_device& logical_device,
 									 const memory_allocator& memory_allocator,
 									 const std::vector<vertex>& vertices,
@@ -15,8 +16,6 @@ namespace lh
 		{
 			const auto vertex_buffer_size = sizeof(vertex) * vertices.size();
 			const auto index_buffer_size = sizeof(vertex_index_t) * indices.size();
-
-
 
 			m_vertex_and_index_buffer = {logical_device,
 										 memory_allocator,

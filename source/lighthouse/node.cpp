@@ -18,6 +18,24 @@ namespace lh
 		m_parent->add_child(*this);
 	}
 
+	node::node(node&& other) noexcept
+		: m_parent {std::exchange(other.m_parent, nullptr)},
+		  m_children {std::exchange(other.m_children, {})},
+
+		  m_transformation {std::move(other.m_transformation)},
+		  m_destruction_mode {std::exchange(other.m_destruction_mode, destruction_strategy::collapse)}
+	{}
+
+	node& node::operator=(node&& other) noexcept
+	{
+		m_parent = std::exchange(other.m_parent, nullptr);
+		m_children = std::exchange(other.m_children, {});
+		m_transformation = std::move(other.m_transformation);
+		m_destruction_mode = std::exchange(other.m_destruction_mode, destruction_strategy::collapse);
+
+		return *this;
+	}
+
 	node::~node()
 	{
 		if (m_destruction_mode == destruction_strategy::collapse)
@@ -52,7 +70,7 @@ namespace lh
 	auto node::add_child(node& child) -> void
 	{
 		m_children.push_back(&child);
-		child.parent() = *this;
+		child.parent() = std::move(*this);
 	}
 
 	auto node::remove_child(node& child) -> void

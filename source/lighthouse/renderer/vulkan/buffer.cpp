@@ -64,7 +64,7 @@ namespace lh
 			return m_used_memory;
 		}
 
-		auto buffer::remaining_memory() const -> const vk::DeviceSize&
+		auto buffer::remaining_memory() const -> const vk::DeviceSize
 		{
 			return m_allocation_info.size - m_used_memory;
 		}
