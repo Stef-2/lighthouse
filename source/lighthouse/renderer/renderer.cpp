@@ -85,17 +85,16 @@ namespace lh
 					{file_system::data_path() /= "shaders/skybox.vert",
 					 file_system::data_path() /= "shaders/skybox.frag"},
 					{
-						file_system::data_path() /= "textures/skybox/1.png",
-						file_system::data_path() /= "textures/skybox/2.png",
-						file_system::data_path() /= "textures/skybox/3.png",
-						file_system::data_path() /= "textures/skybox/4.png",
-						file_system::data_path() /= "textures/skybox/5.png",
-						file_system::data_path() /= "textures/skybox/6.png",
+						file_system::data_path() /= "textures/skybox/+x.png",
+						file_system::data_path() /= "textures/skybox/-x.png",
+						file_system::data_path() /= "textures/skybox/+y.png",
+						file_system::data_path() /= "textures/skybox/-y.png",
+						file_system::data_path() /= "textures/skybox/+z.png",
+						file_system::data_path() /= "textures/skybox/-z.png",
 					},
 					m_transfer_queue}
 	{
 		m_global_descriptor_buffer.map_resource_buffer(m_resource_generator.descriptor_buffer());
-		m_global_descriptor_buffer.map_material(m_material);
 
 		if (m_create_info.m_using_validation)
 			output::log() << info(m_create_info);
@@ -124,12 +123,13 @@ namespace lh
 
 	auto renderer::render() -> void
 	{
-		vk::raii::Semaphore semaphore(m_logical_device, vk::SemaphoreCreateInfo());
+		const auto& mesh_to_render = m_default_meshes.cube();
 
 		m_graphics_queue.command_control().reset();
 		m_graphics_queue.add_wait_semaphore(vk::PipelineStageFlagBits::eBottomOfPipe);
 		const auto& command_buffer = m_graphics_queue.command_control().front();
 		command_buffer.begin({m_graphics_queue.command_control().usage_flags()});
+		m_global_descriptor_buffer.bind(command_buffer, m_global_descriptor.pipeline_layout());
 
 		auto [result,
 			  image_index,
@@ -137,53 +137,54 @@ namespace lh
 
 		command_buffer.beginRendering(render_info);
 
+		m_dynamic_rendering_state.state().m_front_face = vk::FrontFace::eCounterClockwise;
 		m_dynamic_rendering_state.bind(command_buffer);
-		m_scene_loader.meshes()[0].vertex_buffer().bind(command_buffer);
+		// m_scene_loader.meshes()[0].vertex_buffer().bind(command_buffer);
+		mesh_to_render.vertex_buffer().bind(command_buffer);
 
 		glm::ivec4 mi = {0, 1, 2, 3};
 		struct test
 		{
-			glm::mat4x4 x;
+			glm::mat4x4 model;
+			glm::mat4x4 view;
+			glm::mat4x4 projection;
 			glm::vec4 t;
 		};
 
-		auto test_camera = m_camera.projection() * m_camera.view() * glm::mat4x4 {1.0f};
 		auto wtf = time::now();
 		m_point_light.translate_absolute({0.0f, glm::sin(wtf), 0.0f});
 
-		test t {test_camera, {wtf, 0, 0, 0}};
+		auto skybox_view_test = m_camera.view();
+		skybox_view_test[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
+		test t {glm::mat4x4 {1.0f}, m_camera.view(), m_camera.projection(), {wtf, 0, 0, 0}};
+		/*
+		m_global_descriptor_buffer.map_material(m_material);
 		m_resource_generator.descriptor_buffer().map_uniform_data(0, t);
 		m_resource_generator.descriptor_buffer().map_uniform_data(1, mi);
 		m_resource_generator.descriptor_buffer().map_storage_data(0, mi);
 		m_resource_generator.descriptor_buffer().map_storage_data(
 			1, m_global_light_descriptor_buffer.light_device_addresses());
 
-		m_global_descriptor_buffer.bind(command_buffer, m_global_descriptor.pipeline_layout());
+		m_resource_generator.bind(command_buffer);*/
 
-		m_resource_generator.bind(command_buffer);
+		// draw skybox
 
-		command_buffer.drawIndexed(m_scene_loader.meshes()[0].indices().size(), 1, 0, 0, 0);
+		m_global_descriptor_buffer.map_resource_buffer(m_skybox.pipeline().descriptor_buffer());
+		m_global_descriptor_buffer.map_texture(m_skybox.texture());
+		m_skybox.mesh().vertex_buffer().bind(command_buffer);
+		m_skybox.pipeline().descriptor_buffer().map_uniform_data(0, t);
+		m_skybox.pipeline().bind(command_buffer);
+
+		command_buffer.drawIndexed(mesh_to_render.indices().size(), 1, 0, 0, 0);
 		command_buffer.endRendering();
 
 		m_swapchain.transition_layout<vulkan::swapchain::layout_state::presentation>(command_buffer);
 		command_buffer.end();
-		/*
-		vk::raii::Fence drawFence(m_logical_device, vk::FenceCreateInfo());
 
-		vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eBottomOfPipe);
-		vk::SubmitInfo submitInfo(*semaphore, waitDestinationStageMask, *command_buffer);
-		m_graphics_queue->submit(submitInfo, *drawFence);
-
-		while (vk::Result::eTimeout == m_logical_device->waitForFences({*drawFence}, true, 1000000))
-			;*/
 		m_graphics_queue.submit_and_wait();
-		/*
-		vk::PresentInfoKHR presentInfoKHR(nullptr, **m_swapchain, image_index);
-		std::ignore = m_graphics_queue->presentKHR(presentInfoKHR);*/
-		m_graphics_queue.present(m_swapchain);
 
-		// m_logical_device->waitIdle();
+		m_graphics_queue.present(m_swapchain);
 	}
 
 	renderer::implementation_inspector::implementation_inspector(const vulkan::instance& instance,

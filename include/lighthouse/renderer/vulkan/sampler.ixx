@@ -20,7 +20,7 @@ export namespace lh
 
 			struct create_info
 			{
-				vk::SamplerCreateInfo m_sampler_create_info = {{},
+				vk::SamplerCreateInfo m_create_info = {{},
 																		vk::Filter::eNearest,
 																		vk::Filter::eNearest,
 																		vk::SamplerMipmapMode::eNearest,

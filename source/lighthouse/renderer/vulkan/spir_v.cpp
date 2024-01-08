@@ -160,7 +160,6 @@ namespace lh
 		{
 			auto compiler = std::make_unique<spirv_cross::CompilerGLSL>(m_code);
 			auto resources = compiler->get_shader_resources();
-
 			if constexpr (remove_inactive_inputs)
 			{
 				auto interface_variables = compiler->get_active_interface_variables();
@@ -170,7 +169,9 @@ namespace lh
 			}
 
 			auto shader_inputs = std::vector<shader_input> {};
-			shader_inputs.reserve(resources.stage_inputs.size() + resources.uniform_buffers.size());
+			shader_inputs.reserve(resources.stage_inputs.size() + resources.uniform_buffers.size() +
+								  resources.storage_buffers.size() + resources.sampled_images.size() +
+								  resources.push_constant_buffers.size());
 
 			for (const auto& resource : resources.stage_inputs)
 				shader_inputs.emplace_back(
@@ -265,6 +266,8 @@ namespace lh
 			const auto compiler = shaderc::Compiler {};
 			auto compile_options = shaderc::CompileOptions {};
 			compile_options.SetOptimizationLevel(shaderc_optimization_level_performance);
+
+			compile_options.SetPreserveBindings(not remove_inactive_inputs);
 
 			struct includer : public shaderc::CompileOptions::IncluderInterface
 			{
