@@ -10,29 +10,53 @@ module texture;
 
 import input;
 import output;
+import vulkan_utility;
 
 namespace lh
 {
 	namespace vulkan
-	{
-		texture::texture() : m_image {nullptr}, m_image_view {nullptr}, m_sampler {nullptr}, m_descriptor {} {}
+	{ /*
+		 texture::texture()
+			 : m_image {nullptr}, m_image_view {nullptr}, m_sampler {nullptr}, m_descriptor {}, m_descriptor_index {}
+		{}*/
 
 		texture::texture(const physical_device& physical_device,
 						 const logical_device& logical_device,
 						 const memory_allocator& memory_allocator,
 						 queue& queue,
 						 const image_paths_t& paths,
+						 descriptor_buffer& descriptor_buffer,
 						 const create_info& create_info)
-			: m_image {nullptr},
+			: m_descriptor_buffer {descriptor_buffer},
+			  m_image {nullptr},
 			  m_image_view {nullptr},
 			  m_sampler {logical_device, create_info.m_sampler_create_info},
 			  m_num_color_channels {},
 			  m_descriptor_image_info {},
-			  m_descriptor {}
+			  m_descriptor {},
+			  m_descriptor_index {}
 		{
 			generate_image_data(logical_device, memory_allocator, queue, create_info.m_image_create_info, paths);
 			m_image_view = {logical_device, m_image, create_info.m_image_view_create_info};
 			generate_descriptor_data(physical_device, logical_device);
+
+			const auto& descriptor_buffer_properties = physical_device.properties().m_descriptor_buffer_properties;
+			const auto descriptor_offset = descriptor_buffer_properties.m_combined_image_sampler_offset;
+			const auto aligned_offset =
+				utility::aligned_size(static_cast<vk::DeviceSize>(descriptor_offset),
+									  descriptor_buffer_properties.m_properties.descriptorBufferOffsetAlignment);
+
+			m_descriptor_buffer.m_combined_image_sampler_descriptor_buffer_binding_info.emplace_back(
+				m_descriptor_buffer.m_combined_image_sampler_descriptor_buffer.address() +
+					m_descriptor_buffer.m_combined_image_sampler_descriptor_buffer_binding_info.size() * aligned_offset,
+				vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT);
+
+			std::memcpy(static_cast<std::byte*>(
+							m_descriptor_buffer.m_combined_image_sampler_descriptor_buffer.mapped_data_pointer()),
+						m_descriptor.data(),
+						m_descriptor.size());
+
+			m_descriptor_index = m_descriptor_buffer.m_combined_image_sampler_descriptor_buffer_binding_info.size() - 1;
 		}
 
 		auto texture::image() const -> const vulkan::image&
@@ -63,6 +87,11 @@ namespace lh
 		auto texture::descriptor() const -> const std::vector<std::byte>&
 		{
 			return m_descriptor;
+		}
+
+		auto texture::descriptor_index() const -> const descriptor_index_t&
+		{
+			return m_descriptor_index;
 		}
 
 		auto texture::generate_image_data(const logical_device& logical_device,

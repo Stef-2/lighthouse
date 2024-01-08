@@ -15,6 +15,7 @@ import logical_device;
 import memory_allocator;
 import queue;
 import buffer;
+import descriptor_buffer;
 import image;
 import image_view;
 import sampler;
@@ -33,6 +34,7 @@ export namespace lh
 		{
 		public:
 			using image_paths_t = std::vector<std::filesystem::path>;
+			using descriptor_index_t = std::uint32_t;
 
 			struct create_info
 			{
@@ -41,12 +43,13 @@ export namespace lh
 				sampler::create_info m_sampler_create_info = {};
 			};
 
-			texture();
+			//texture();
 			texture(const physical_device&,
 					const logical_device&,
 					const memory_allocator&,
-					 queue&,
+					queue&,
 					const image_paths_t&,
+					descriptor_buffer&,
 					const create_info& = {});
 
 			auto image() const -> const vulkan::image&;
@@ -56,8 +59,9 @@ export namespace lh
 
 			auto descriptor_image_info() const -> const vk::DescriptorImageInfo&;
 			auto descriptor() const -> const std::vector<std::byte>&;
+			auto descriptor_index() const -> const descriptor_index_t&;
 
-		protected:
+		private:
 			auto generate_image_data(const logical_device&,
 									 const memory_allocator&,
 									  queue&,
@@ -66,6 +70,8 @@ export namespace lh
 
 			auto generate_descriptor_data(const lh::vulkan::physical_device&,
 										  const lh::vulkan::logical_device&) -> void;
+
+			descriptor_buffer& m_descriptor_buffer;
 			vulkan::image m_image;
 			vulkan::image_view m_image_view;
 			vulkan::sampler m_sampler;
@@ -74,6 +80,7 @@ export namespace lh
 
 			vk::DescriptorImageInfo m_descriptor_image_info;
 			std::vector<std::byte> m_descriptor;
+			descriptor_index_t m_descriptor_index;
 		};
 	}
 }

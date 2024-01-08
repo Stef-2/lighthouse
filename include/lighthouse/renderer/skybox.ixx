@@ -11,7 +11,9 @@ import physical_device;
 import logical_device;
 import memory_allocator;
 import global_descriptor;
+import descriptor_buffer;
 import pipeline_resource_generator;
+import dynamic_rendering_state;
 import default_meshes;
 import shader_object;
 import texture;
@@ -37,6 +39,7 @@ export namespace lh
 			   const vulkan::logical_device&,
 			   const vulkan::memory_allocator&,
 			   const vulkan::global_descriptor&,
+			   vulkan::descriptor_buffer&,
 			   const default_meshes&,
 			   const vulkan::shader_pipeline::pipeline_glsl_code_t&,
 			   const skybox_texture_paths_t&,
@@ -46,6 +49,8 @@ export namespace lh
 		auto mesh() const -> const lh::mesh&;
 		auto pipeline() const -> const vulkan::pipeline_resource_generator&;
 		auto texture() const -> const vulkan::texture&;
+
+		auto record_drawing(const vk::raii::CommandBuffer&, vulkan::dynamic_rendering_state&) const -> void;
 
 	private:
 		const lh::mesh& m_mesh;

@@ -13,8 +13,8 @@ import logical_device;
 import memory_allocator;
 import global_descriptor;
 import buffer;
-import texture;
-import material;
+//import texture;
+//import material;
 import descriptor_resource_buffer;
 
 #if not INTELLISENSE
@@ -31,6 +31,8 @@ export namespace lh
 		public:
 			using binding_slot_t = std::uint16_t;
 
+			friend class texture;
+
 			struct create_info
 			{
 				vk::PipelineBindPoint m_bind_point = vk::PipelineBindPoint::eGraphics;
@@ -44,8 +46,8 @@ export namespace lh
 							  const global_descriptor&,
 							  const create_info& = {});
 
-			auto map_texture(const texture&) -> void;
-			auto map_material(const material&) -> void;
+			//auto map_texture(const texture&) -> void;
+			//auto map_material(const material&) -> void;
 			auto map_resource_buffer(const descriptor_resource_buffer&) -> void;
 
 			auto bind(const vk::raii::CommandBuffer&, const vk::raii::PipelineLayout&) const -> void;

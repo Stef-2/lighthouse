@@ -10,6 +10,7 @@ module pipeline_resource_generator;
 
 import input;
 import light;
+import vertex_format;
 
 namespace
 {
@@ -268,7 +269,7 @@ namespace lh
 												   offset);
 					offset += vertex_input.m_size;
 				}
-			vertex_bindings = {0, vertex_description_size, vk::VertexInputRate::eVertex, 1};
+			vertex_bindings = {0, /*vertex_description_size*/ sizeof vertex, vk::VertexInputRate::eVertex, 1};
 
 			return {vertex_bindings, vertex_attributes};
 		}

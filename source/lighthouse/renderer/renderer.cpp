@@ -30,8 +30,6 @@ namespace lh
 							{m_physical_device.extensions().required_extensions()}},
 		  m_memory_allocator {m_instance, m_physical_device, m_logical_device},
 		  m_implementation_inspector(m_instance, m_physical_device, m_logical_device, m_memory_allocator),
-		  // e1m4 {m_logical_device, m_queue_families.graphics()},
-		  // m_transfer_control {m_logical_device, m_queue_families.transfer()},
 		  m_graphics_queue {m_logical_device, {m_queue_families.graphics()}},
 		  m_transfer_queue {m_logical_device, {m_queue_families.transfer()}},
 		  m_swapchain {m_physical_device, m_logical_device, m_surface, m_queue_families, m_memory_allocator},
@@ -64,11 +62,11 @@ namespace lh
 		  m_material {m_physical_device,
 					  m_logical_device,
 					  m_memory_allocator,
-					  // m_transfer_control,
 					  m_transfer_queue,
 					  {file_system::data_path() /= "textures/grooved_bricks/basecolor.png",
 					   file_system::data_path() /= "textures/grooved_bricks/normal.png",
-					   file_system::data_path() /= "textures/grooved_bricks/ambientocclusion.png"}},
+					   file_system::data_path() /= "textures/grooved_bricks/ambientocclusion.png"},
+					  m_global_descriptor_buffer},
 		  m_point_light {{1.0f, 0.0f, 0.0f, 1.0f}, 1.0f, {0.0f, 0.0f, 0.0f}},
 		  m_point_light2 {{0.0f, 1.0f, 0.0f, 1.0f}, 1.0f, {0.0f, 1.0f, 0.0f}},
 		  m_spot_light {{0.5f, 0.5f, 0.0f, 1.0f}, 1.0f, {0.0f, 0.0f, 1.0f}},
@@ -81,6 +79,7 @@ namespace lh
 					m_logical_device,
 					m_memory_allocator,
 					m_global_descriptor,
+					m_global_descriptor_buffer,
 					m_default_meshes,
 					{file_system::data_path() /= "shaders/skybox.vert",
 					 file_system::data_path() /= "shaders/skybox.frag"},
@@ -148,7 +147,7 @@ namespace lh
 			glm::mat4x4 model;
 			glm::mat4x4 view;
 			glm::mat4x4 projection;
-			glm::vec4 t;
+			std::uint32_t t;
 		};
 
 		auto wtf = time::now();
@@ -157,7 +156,7 @@ namespace lh
 		auto skybox_view_test = m_camera.view();
 		skybox_view_test[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
-		test t {glm::mat4x4 {1.0f}, m_camera.view(), m_camera.projection(), {wtf, 0, 0, 0}};
+		test t {glm::mat4x4 {1.0f}, skybox_view_test, m_camera.projection(), 1};
 		/*
 		m_global_descriptor_buffer.map_material(m_material);
 		m_resource_generator.descriptor_buffer().map_uniform_data(0, t);
@@ -171,7 +170,7 @@ namespace lh
 		// draw skybox
 
 		m_global_descriptor_buffer.map_resource_buffer(m_skybox.pipeline().descriptor_buffer());
-		m_global_descriptor_buffer.map_texture(m_skybox.texture());
+		// m_global_descriptor_buffer.map_texture(m_skybox.texture());
 		m_skybox.mesh().vertex_buffer().bind(command_buffer);
 		m_skybox.pipeline().descriptor_buffer().map_uniform_data(0, t);
 		m_skybox.pipeline().bind(command_buffer);

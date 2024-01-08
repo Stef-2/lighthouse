@@ -48,7 +48,7 @@ namespace lh
 														 vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT,
 											  .m_memory_properties = create_info.m_descriptor_buffer_memory_properties}}
 		{}
-
+		/*
 		auto descriptor_buffer::map_texture(const texture& texture) -> void
 		{
 			m_combined_image_sampler_descriptor_buffer_binding_info.clear();
@@ -59,8 +59,8 @@ namespace lh
 			std::memcpy(static_cast<std::byte*>(m_combined_image_sampler_descriptor_buffer.mapped_data_pointer()),
 						texture.descriptor().data(),
 						texture.descriptor().size());
-		}
-
+		}*/
+		/*
 		auto descriptor_buffer::map_material(const material& material) -> void
 		{
 			const auto& descriptor_buffer_properties = m_physical_device.properties().m_descriptor_buffer_properties;
@@ -86,7 +86,7 @@ namespace lh
 
 				i++;
 			}
-		}
+		}*/
 
 		auto descriptor_buffer::map_resource_buffer(const descriptor_resource_buffer& resource_buffer) -> void
 		{

@@ -19,6 +19,7 @@ import physical_device;
 import logical_device;
 import memory_allocator;
 import queue;
+import descriptor_buffer;
 import texture;
 
 export namespace lh
@@ -36,6 +37,7 @@ export namespace lh
 				 const vulkan::memory_allocator&,
 				 vulkan::queue&,
 				 const std::vector<std::filesystem::path>&,
+				 vulkan::descriptor_buffer&,
 				 const create_info& = {});
 
 		auto textures() const -> const std::vector<vulkan::texture>&;
