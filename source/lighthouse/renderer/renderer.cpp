@@ -76,7 +76,23 @@ namespace lh
 		  m_dir_light {{1.0f, 0.5f, 0.5f, 1.0f}, 1.0f, {0.0f, 0.0f, 1.0f}, {0.0f, -1.0f, 0.0f}},
 		  m_dir_light2 {{0.5f, 1.0f, 0.5f, 1.0f}, 1.0f, {0.0f, 0.0f, 1.0f}, {0.0f, -1.0f, 0.0f}},
 		  m_amb_light {{1.0f, 0.0f, 0.0f, 1.0f}, 1.0f, {1.0f, 0.0f, 0.0f}},
-		  m_amb_light2 {{0.0f, 1.0f, 0.0f, 1.0f}, 0.5f, {0.0f, 0.0f, 0.0f}}
+		  m_amb_light2 {{0.0f, 1.0f, 0.0f, 1.0f}, 0.5f, {0.0f, 0.0f, 0.0f}},
+		  m_skybox {m_physical_device,
+					m_logical_device,
+					m_memory_allocator,
+					m_global_descriptor,
+					m_default_meshes,
+					{file_system::data_path() /= "shaders/skybox.vert",
+					 file_system::data_path() /= "shaders/skybox.frag"},
+					{
+						file_system::data_path() /= "textures/skybox/1.png",
+						file_system::data_path() /= "textures/skybox/2.png",
+						file_system::data_path() /= "textures/skybox/3.png",
+						file_system::data_path() /= "textures/skybox/4.png",
+						file_system::data_path() /= "textures/skybox/5.png",
+						file_system::data_path() /= "textures/skybox/6.png",
+					},
+					m_transfer_queue}
 	{
 		m_global_descriptor_buffer.map_resource_buffer(m_resource_generator.descriptor_buffer());
 		m_global_descriptor_buffer.map_material(m_material);
@@ -131,17 +147,11 @@ namespace lh
 			glm::vec4 t;
 		};
 
-		struct pl
-		{
-			glm::vec4 position;
-			glm::vec4 color;
-		};
 		auto test_camera = m_camera.projection() * m_camera.view() * glm::mat4x4 {1.0f};
 		auto wtf = time::now();
 		m_point_light.translate_absolute({0.0f, glm::sin(wtf), 0.0f});
 
 		test t {test_camera, {wtf, 0, 0, 0}};
-		pl _pl {{1.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}};
 
 		m_resource_generator.descriptor_buffer().map_uniform_data(0, t);
 		m_resource_generator.descriptor_buffer().map_uniform_data(1, mi);

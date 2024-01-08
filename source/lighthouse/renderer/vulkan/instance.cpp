@@ -57,6 +57,11 @@ namespace lh
 				m_validation->second = {m_object};
 		}
 
+		auto instance::context() const -> const vk::raii::Context&
+		{
+			return m_context;
+		}
+
 		auto instance::info() const -> string::string_t
 		{
 			return {};

@@ -22,6 +22,7 @@ import pipeline_resource_generator;
 import camera;
 import light;
 import default_meshes;
+import skybox;
 
 #if not INTELLISENSE
 import std.core;
@@ -89,5 +90,6 @@ export namespace lh
 		directional_light m_dir_light2;
 		ambient_light m_amb_light;
 		ambient_light m_amb_light2;
+		skybox m_skybox;
 	};
 }

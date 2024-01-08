@@ -31,7 +31,7 @@ namespace lh
 			  m_descriptor {}
 		{
 			generate_image_data(logical_device, memory_allocator, queue, create_info.m_image_create_info, paths);
-			m_image_view = {logical_device, m_image};
+			m_image_view = {logical_device, m_image, create_info.m_image_view_create_info};
 			generate_descriptor_data(physical_device, logical_device);
 		}
 

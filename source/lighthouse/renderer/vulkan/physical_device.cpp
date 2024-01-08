@@ -20,25 +20,6 @@ namespace lh
 			m_performance_score = performance_score(m_object);
 
 			// physical device properties
-			auto host_image_properties = vk::PhysicalDeviceHostImageCopyPropertiesEXT {};
-			auto physical_device_properties = vk::PhysicalDeviceProperties2 {};
-			physical_device_properties.pNext = &host_image_properties;
-
-			m_object.getDispatcher()->vkGetPhysicalDeviceProperties2(*m_object,
-																	 &static_cast<VkPhysicalDeviceProperties2&>(
-																		 physical_device_properties));
-
-			auto host_image_source_layouts = std::vector<vk::ImageLayout>(host_image_properties.copySrcLayoutCount);
-			auto host_image_destination_layouts = std::vector<vk::ImageLayout>(
-				host_image_properties.copyDstLayoutCount);
-
-			host_image_properties = vk::PhysicalDeviceHostImageCopyPropertiesEXT {host_image_source_layouts,
-																				  host_image_destination_layouts};
-
-			m_object.getDispatcher()->vkGetPhysicalDeviceProperties2(*m_object,
-																	 &static_cast<VkPhysicalDeviceProperties2&>(
-																		 physical_device_properties));
-
 			const auto properties = m_object.getProperties2<vk::PhysicalDeviceProperties2,
 															vk::PhysicalDeviceShaderObjectPropertiesEXT,
 															vk::PhysicalDeviceDescriptorIndexingProperties,
@@ -50,13 +31,7 @@ namespace lh
 							properties.get<vk::PhysicalDeviceShaderObjectPropertiesEXT>(),
 							properties.get<vk::PhysicalDeviceDescriptorIndexingProperties>(),
 							properties.get<vk::PhysicalDeviceMaintenance5PropertiesKHR>(),
-							{properties.get<vk::PhysicalDeviceDescriptorBufferPropertiesEXT>()},
-							{host_image_properties, host_image_source_layouts, host_image_destination_layouts}};
-
-			m_properties.m_host_image_copy_properties.m_properties.pCopySrcLayouts =
-				m_properties.m_host_image_copy_properties.m_source_layouts.data();
-			m_properties.m_host_image_copy_properties.m_properties.pCopyDstLayouts =
-				m_properties.m_host_image_copy_properties.m_destination_layouts.data();
+							{properties.get<vk::PhysicalDeviceDescriptorBufferPropertiesEXT>()}};
 
 			// physical device features
 			const auto features = m_object.getFeatures2<vk::PhysicalDeviceFeatures2,
@@ -65,8 +40,7 @@ namespace lh
 														vk::PhysicalDeviceVertexInputDynamicStateFeaturesEXT,
 														vk::PhysicalDeviceDescriptorIndexingFeatures,
 														vk::PhysicalDeviceDescriptorBufferFeaturesEXT,
-														vk::PhysicalDeviceMaintenance5FeaturesKHR,
-														vk::PhysicalDeviceHostImageCopyFeaturesEXT>();
+														vk::PhysicalDeviceMaintenance5FeaturesKHR>();
 
 			m_features = {features.get<vk::PhysicalDeviceFeatures2>(),
 						  features.get<vk::PhysicalDeviceDynamicRenderingFeatures>(),
@@ -74,8 +48,7 @@ namespace lh
 						  features.get<vk::PhysicalDeviceVertexInputDynamicStateFeaturesEXT>(),
 						  features.get<vk::PhysicalDeviceDescriptorIndexingFeatures>(),
 						  features.get<vk::PhysicalDeviceDescriptorBufferFeaturesEXT>(),
-						  features.get<vk::PhysicalDeviceMaintenance5FeaturesKHR>(),
-						  features.get<vk::PhysicalDeviceHostImageCopyFeaturesEXT>()};
+						  features.get<vk::PhysicalDeviceMaintenance5FeaturesKHR>()};
 		}
 
 		auto lh::vulkan::physical_device::extensions() const -> physical_extensions

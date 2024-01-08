@@ -49,12 +49,24 @@ namespace lh
 											  .m_memory_properties = create_info.m_descriptor_buffer_memory_properties}}
 		{}
 
+		auto descriptor_buffer::map_texture(const texture& texture) -> void
+		{
+			m_combined_image_sampler_descriptor_buffer_binding_info.clear();
+			m_combined_image_sampler_descriptor_buffer_binding_info.emplace_back(
+				m_combined_image_sampler_descriptor_buffer.address(),
+				vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT);
+
+			std::memcpy(static_cast<std::byte*>(m_combined_image_sampler_descriptor_buffer.mapped_data_pointer()),
+						texture.descriptor().data(),
+						texture.descriptor().size());
+		}
+
 		auto descriptor_buffer::map_material(const material& material) -> void
 		{
 			const auto& descriptor_buffer_properties = m_physical_device.properties().m_descriptor_buffer_properties;
 			const auto descriptor_offset = descriptor_buffer_properties.m_combined_image_sampler_offset;
 
-			m_combined_image_sampler_descriptor_buffer_binding_info = {};
+			m_combined_image_sampler_descriptor_buffer_binding_info.clear();
 			m_combined_image_sampler_descriptor_buffer_binding_info.reserve(material.textures().size());
 
 			for (auto i = std::uint32_t {}; const auto& texture : material.textures())

@@ -68,6 +68,7 @@ export namespace lh
 				}
 				return true;
 			}
+
 			auto info() const -> lh::string::string_t
 			{
 				const auto supported_extensions = vulkan_extension_module::supported_extensions();

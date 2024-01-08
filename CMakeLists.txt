@@ -173,7 +173,7 @@ target_sources(
 	${source}/lighthouse/renderer/color.cpp
 	${source}/lighthouse/renderer/light.cpp
 	${source}/lighthouse/renderer/vulkan/image_view.cpp
- "source/lighthouse/renderer/default_meshes.cpp")
+ "source/lighthouse/renderer/default_meshes.cpp" "source/lighthouse/renderer/skybox.cpp")
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_RELEASE}")
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")

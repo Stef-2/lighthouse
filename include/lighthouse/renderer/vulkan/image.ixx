@@ -47,7 +47,7 @@ export namespace lh
 																	   image::create_info::m_format,
 																	   vk::Extent3D {},
 																	   1,
-																	   1,
+																	   6,
 																	   vk::SampleCountFlagBits::e1,
 																	   vk::ImageTiling::eOptimal,
 																	   vk::ImageUsageFlagBits::eSampled,

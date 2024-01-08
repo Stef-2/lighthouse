@@ -4,6 +4,9 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan_raii.hpp"
+
+#include <utility>
+#include <optional>
 #endif
 
 export module instance;
@@ -15,6 +18,7 @@ import extension;
 import debug_messanger;
 
 #if not INTELLISENSE
+import std.core;
 import vulkan;
 #endif
 
@@ -37,11 +41,14 @@ export namespace lh
 																	   "VK_LAYER_NV_optimus",
 																	   "VK_LAYER_KHRONOS_synchronization2",
 																	   "VK_LAYER_LUNARG_monitor"}};
+				#if not INTELLISENSE
 				debug_messanger::create_info m_debug_messanger = {};
+				#endif
 			};
 
 			instance(const lh::window&, const create_info&);
 
+			auto context() const -> const vk::raii::Context&;
 			auto info() const -> lh::string::string_t override;
 			auto validation_layers() const -> std::optional<vulkan::validation_layers>;
 			auto extensions() const -> logical_extensions;

@@ -13,6 +13,7 @@ import logical_device;
 import memory_allocator;
 import global_descriptor;
 import buffer;
+import texture;
 import material;
 import descriptor_resource_buffer;
 
@@ -43,6 +44,7 @@ export namespace lh
 							  const global_descriptor&,
 							  const create_info& = {});
 
+			auto map_texture(const texture&) -> void;
 			auto map_material(const material&) -> void;
 			auto map_resource_buffer(const descriptor_resource_buffer&) -> void;
 
