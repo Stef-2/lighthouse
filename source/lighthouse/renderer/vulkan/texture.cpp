@@ -39,24 +39,17 @@ namespace lh
 			generate_image_data(logical_device, memory_allocator, queue, create_info.m_image_create_info, paths);
 			m_image_view = {logical_device, m_image, create_info.m_image_view_create_info};
 			generate_descriptor_data(physical_device, logical_device);
+			push_descriptor_data_onto_stack(physical_device);
+		}
 
-			const auto& descriptor_buffer_properties = physical_device.properties().m_descriptor_buffer_properties;
-			const auto descriptor_offset = descriptor_buffer_properties.m_combined_image_sampler_offset;
-			const auto aligned_offset =
-				utility::aligned_size(static_cast<vk::DeviceSize>(descriptor_offset),
-									  descriptor_buffer_properties.m_properties.descriptorBufferOffsetAlignment);
-
-			m_descriptor_buffer.m_combined_image_sampler_descriptor_buffer_binding_info.emplace_back(
-				m_descriptor_buffer.m_combined_image_sampler_descriptor_buffer.address() +
-					m_descriptor_buffer.m_combined_image_sampler_descriptor_buffer_binding_info.size() * aligned_offset,
-				vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT);
-
-			std::memcpy(static_cast<std::byte*>(
-							m_descriptor_buffer.m_combined_image_sampler_descriptor_buffer.mapped_data_pointer()),
-						m_descriptor.data(),
-						m_descriptor.size());
-
-			m_descriptor_index = m_descriptor_buffer.m_combined_image_sampler_descriptor_buffer_binding_info.size() - 1;
+		texture::~texture()
+		{
+			// if our index is not the last one in the descriptor buffer stack, mark our index as vacant for reuse
+			if (m_descriptor_index !=
+				m_descriptor_buffer.m_combined_image_sampler_descriptor_buffer_binding_info.size() - 1)
+			{
+				m_descriptor_buffer.m_vacant_combined_image_sampler_slots.push_back(m_descriptor_index);
+			}
 		}
 
 		auto texture::image() const -> const vulkan::image&
@@ -182,6 +175,48 @@ namespace lh
 				physical_device.properties()
 					.m_descriptor_buffer_properties.m_properties.combinedImageSamplerDescriptorSize,
 				m_descriptor.data());
+		}
+
+		auto texture::push_descriptor_data_onto_stack(const lh::vulkan::physical_device& physical_device) -> void
+		{
+			const auto& descriptor_buffer_properties = physical_device.properties().m_descriptor_buffer_properties;
+			const auto& descriptor_offset = descriptor_buffer_properties.m_combined_image_sampler_offset;
+			const auto aligned_offset =
+				utility::aligned_size(static_cast<vk::DeviceSize>(descriptor_offset),
+									  descriptor_buffer_properties.m_properties.descriptorBufferOffsetAlignment);
+
+			const auto combined_image_sampler_stack_empty =
+				m_descriptor_buffer.m_vacant_combined_image_sampler_slots.empty();
+
+			auto descriptor_index_to_fill =
+				combined_image_sampler_stack_empty
+					? m_descriptor_buffer.m_combined_image_sampler_descriptor_buffer_binding_info.size()
+					: m_descriptor_buffer.m_combined_image_sampler_descriptor_buffer_binding_info.size() - 1;
+
+			// if the combined image sampler stack has vacant slots, fill one of them
+			if (not m_descriptor_buffer.m_vacant_combined_image_sampler_slots.empty())
+			{
+				descriptor_index_to_fill = m_descriptor_buffer.m_vacant_combined_image_sampler_slots.back();
+				m_descriptor_buffer.m_vacant_combined_image_sampler_slots.pop_back();
+			}
+
+			// push our descriptor data onto the combined image sampler descriptor buffer stack
+			m_descriptor_buffer.m_combined_image_sampler_descriptor_buffer_binding_info.emplace(
+				m_descriptor_buffer.m_combined_image_sampler_descriptor_buffer_binding_info.begin() +
+					descriptor_index_to_fill,
+				m_descriptor_buffer.m_combined_image_sampler_descriptor_buffer.address() +
+					descriptor_index_to_fill * aligned_offset,
+				vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT);
+
+			const auto memcpy_destination =
+				static_cast<std::byte*>(
+					m_descriptor_buffer.m_combined_image_sampler_descriptor_buffer.mapped_data_pointer()) +
+				descriptor_offset * descriptor_index_to_fill;
+
+			std::memcpy(memcpy_destination, m_descriptor.data(), m_descriptor.size());
+
+			// assign ourselves an index into this stack
+			m_descriptor_index = descriptor_index_to_fill;
 		}
 	}
 }

@@ -51,10 +51,10 @@ export namespace lh
 					descriptor_buffer&,
 					const create_info& = {});
 			texture(const texture&) = delete;
-			texture operator=(const texture&) = delete;
+			texture& operator=(const texture&) = delete;
 			texture(texture&&) noexcept = default;
-			texture operator=(texture&&) noexcept = default;
-			//~texture();
+			texture& operator=(texture&&) noexcept = default;
+			~texture();
 
 			auto image() const -> const vulkan::image&;
 			auto view() const -> const vulkan::image_view&;
@@ -74,6 +74,8 @@ export namespace lh
 
 			auto generate_descriptor_data(const lh::vulkan::physical_device&,
 										  const lh::vulkan::logical_device&) -> void;
+
+			auto push_descriptor_data_onto_stack(const lh::vulkan::physical_device&) -> void;
 
 			descriptor_buffer& m_descriptor_buffer;
 			vulkan::image m_image;
