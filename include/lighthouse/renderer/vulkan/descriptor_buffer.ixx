@@ -13,8 +13,6 @@ import logical_device;
 import memory_allocator;
 import global_descriptor;
 import buffer;
-//import texture;
-//import material;
 import descriptor_resource_buffer;
 
 #if not INTELLISENSE
@@ -29,8 +27,6 @@ export namespace lh
 		class descriptor_buffer
 		{
 		public:
-			using binding_slot_t = std::uint16_t;
-
 			friend class texture;
 
 			struct create_info
@@ -61,6 +57,7 @@ export namespace lh
 			std::vector<vk::DescriptorBufferBindingInfoEXT> m_uniform_descriptor_buffer_binding_info;
 			std::vector<vk::DescriptorBufferBindingInfoEXT> m_storage_descriptor_buffer_binding_info;
 			std::vector<vk::DescriptorBufferBindingInfoEXT> m_combined_image_sampler_descriptor_buffer_binding_info;
+			std::vector<global_descriptor::descriptor_type_size_t> m_vacant_combined_image_sampler_slots;
 
 			mapped_buffer m_uniform_descriptor_buffer;
 			mapped_buffer m_storage_descriptor_buffer;

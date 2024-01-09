@@ -43,7 +43,6 @@ export namespace lh
 				sampler::create_info m_sampler_create_info = {};
 			};
 
-			//texture();
 			texture(const physical_device&,
 					const logical_device&,
 					const memory_allocator&,
@@ -51,6 +50,11 @@ export namespace lh
 					const image_paths_t&,
 					descriptor_buffer&,
 					const create_info& = {});
+			texture(const texture&) = delete;
+			texture operator=(const texture&) = delete;
+			texture(texture&&) noexcept = default;
+			texture operator=(texture&&) noexcept = default;
+			//~texture();
 
 			auto image() const -> const vulkan::image&;
 			auto view() const -> const vulkan::image_view&;

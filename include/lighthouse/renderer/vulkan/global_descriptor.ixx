@@ -43,6 +43,8 @@ export namespace lh
 
 			auto pipeline_layout() const -> const vk::raii::PipelineLayout&;
 
+			auto create_information() const -> const create_info&;
+
 		private:
 			descriptor_type_size_t m_num_uniform_buffers;
 			vk::raii::DescriptorSetLayout m_uniform_buffer_set;
@@ -54,6 +56,8 @@ export namespace lh
 			vk::raii::DescriptorSetLayout m_combined_image_sampler_set;
 
 			vk::raii::PipelineLayout m_pipeline_layout;
+
+			create_info m_create_info;
 		};
 	}
 }

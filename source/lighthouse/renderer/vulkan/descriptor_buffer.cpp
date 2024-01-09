@@ -24,6 +24,7 @@ namespace lh
 			  m_uniform_descriptor_buffer_binding_info {},
 			  m_storage_descriptor_buffer_binding_info {},
 			  m_combined_image_sampler_descriptor_buffer_binding_info {},
+			  m_vacant_combined_image_sampler_slots {},
 			  m_uniform_descriptor_buffer {
 				  logical_device,
 				  memory_allocator,
@@ -47,7 +48,14 @@ namespace lh
 				  mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
 														 vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT,
 											  .m_memory_properties = create_info.m_descriptor_buffer_memory_properties}}
-		{}
+		{
+			m_uniform_descriptor_buffer_binding_info.reserve(
+				global_descriptor.create_information().m_num_uniform_buffers);
+			m_storage_descriptor_buffer_binding_info.reserve(
+				global_descriptor.create_information().m_num_storage_descriptors);
+			m_combined_image_sampler_descriptor_buffer_binding_info.reserve(
+				global_descriptor.create_information().m_num_combined_image_samplers);
+		}
 		/*
 		auto descriptor_buffer::map_texture(const texture& texture) -> void
 		{

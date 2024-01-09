@@ -21,7 +21,8 @@ namespace lh
 			  m_storage_descriptor_set {nullptr},
 			  m_num_combined_image_samplers {create_info.m_num_combined_image_samplers},
 			  m_combined_image_sampler_set {nullptr},
-			  m_pipeline_layout {nullptr}
+			  m_pipeline_layout {nullptr},
+			  m_create_info {create_info}
 		{
 			const auto& physical_device_properties = physical_device.properties();
 
@@ -108,6 +109,11 @@ namespace lh
 		auto global_descriptor::pipeline_layout() const -> const vk::raii::PipelineLayout&
 		{
 			return m_pipeline_layout;
+		}
+
+		auto global_descriptor::create_information() const -> const create_info&
+		{
+			return m_create_info;
 		}
 	}
 }
