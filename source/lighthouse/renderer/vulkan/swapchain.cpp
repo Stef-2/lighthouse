@@ -61,8 +61,11 @@ namespace lh
 										  create_info.m_depth_stencil_attachment_create_info.m_store_operation,
 										  create_info.m_depth_stencil_attachment_create_info.m_clear_value}
 		{
-
-			auto queue_family_indices = {queue_families.graphics().m_index, queue_families.present().m_index};
+			// check if a single queue family supports both graphics and present operations
+			auto queue_family_indices = std::vector<queue_families::family::index_t> {
+				queue_families.graphics().m_index};
+			if (not queue_families.supports_combined_graphics_and_present_family())
+				queue_family_indices.push_back(queue_families.present().m_index);
 
 			// clamp the prefered image count between the minimum and maximum supported by implementation
 			const auto image_count = std::clamp(create_info.m_image_count,

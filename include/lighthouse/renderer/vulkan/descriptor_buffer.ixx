@@ -42,8 +42,6 @@ export namespace lh
 							  const global_descriptor&,
 							  const create_info& = {});
 
-			//auto map_texture(const texture&) -> void;
-			//auto map_material(const material&) -> void;
 			auto map_resource_buffer(const descriptor_resource_buffer&) -> void;
 
 			auto bind(const vk::raii::CommandBuffer&, const vk::raii::PipelineLayout&) const -> void;

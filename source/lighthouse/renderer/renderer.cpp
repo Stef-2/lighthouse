@@ -128,7 +128,6 @@ namespace lh
 		m_graphics_queue.add_wait_semaphore(vk::PipelineStageFlagBits::eBottomOfPipe);
 		const auto& command_buffer = m_graphics_queue.command_control().front();
 		command_buffer.begin({m_graphics_queue.command_control().usage_flags()});
-		m_global_descriptor_buffer.bind(command_buffer, m_global_descriptor.pipeline_layout());
 
 		auto [result,
 			  image_index,
@@ -136,9 +135,8 @@ namespace lh
 
 		command_buffer.beginRendering(render_info);
 
-		m_dynamic_rendering_state.state().m_front_face = vk::FrontFace::eCounterClockwise;
+		// m_dynamic_rendering_state.state().m_front_face = vk::FrontFace::eCounterClockwise;
 		m_dynamic_rendering_state.bind(command_buffer);
-		// m_scene_loader.meshes()[0].vertex_buffer().bind(command_buffer);
 		mesh_to_render.vertex_buffer().bind(command_buffer);
 
 		glm::ivec4 mi = {0, 1, 2, 3};
@@ -147,37 +145,42 @@ namespace lh
 			glm::mat4x4 model;
 			glm::mat4x4 view;
 			glm::mat4x4 projection;
-			std::uint32_t t;
+			glm::vec4 time;
 		};
 
-		auto wtf = time::now();
-		m_point_light.translate_absolute({0.0f, glm::sin(wtf), 0.0f});
+		auto time = time::now();
+		m_point_light.translate_absolute({0.0f, glm::sin(time), 0.0f});
 
 		auto skybox_view_test = m_camera.view();
 		skybox_view_test[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
-		test t {glm::mat4x4 {1.0f}, skybox_view_test, m_camera.projection(), 1};
-		/*
-		m_global_descriptor_buffer.map_material(m_material);
-		m_resource_generator.descriptor_buffer().map_uniform_data(0, t);
+		test t {glm::mat4x4 {1.0f}, skybox_view_test, m_camera.projection(), {time, time, time, time}};
+
+		// draw box
+		m_global_descriptor_buffer.map_resource_buffer(m_resource_generator.descriptor_buffer());
+		m_resource_generator.descriptor_buffer().map_uniform_data(
+			0, test {glm::mat4x4 {1.0f}, m_camera.view(), m_camera.projection(), {time, time, time, time}});
 		m_resource_generator.descriptor_buffer().map_uniform_data(1, mi);
 		m_resource_generator.descriptor_buffer().map_storage_data(0, mi);
 		m_resource_generator.descriptor_buffer().map_storage_data(
 			1, m_global_light_descriptor_buffer.light_device_addresses());
-
-		m_resource_generator.bind(command_buffer);*/
-
-		// draw skybox
-
-		m_global_descriptor_buffer.map_resource_buffer(m_skybox.pipeline().descriptor_buffer());
-		// m_global_descriptor_buffer.map_texture(m_skybox.texture());
-		m_skybox.mesh().vertex_buffer().bind(command_buffer);
-		m_skybox.pipeline().descriptor_buffer().map_uniform_data(0, t);
-		m_skybox.pipeline().bind(command_buffer);
+		m_resource_generator.bind(command_buffer);
+		m_global_descriptor_buffer.bind(command_buffer, m_global_descriptor.pipeline_layout());
 
 		command_buffer.drawIndexed(mesh_to_render.indices().size(), 1, 0, 0, 0);
 		command_buffer.endRendering();
+		/*
+		// draw skybox
+		m_global_descriptor_buffer.map_resource_buffer(m_skybox.pipeline().descriptor_buffer());
+		m_skybox.mesh().vertex_buffer().bind(command_buffer);
+		m_skybox.pipeline().descriptor_buffer().map_uniform_data(0, t);
+		m_skybox.pipeline().bind(command_buffer);
+		m_global_descriptor_buffer.bind(command_buffer, m_global_descriptor.pipeline_layout());
 
+		command_buffer.drawIndexed(mesh_to_render.indices().size(), 1, 0, 0, 0);
+		command_buffer.endRendering();
+		*/
+		// present
 		m_swapchain.transition_layout<vulkan::swapchain::layout_state::presentation>(command_buffer);
 		command_buffer.end();
 

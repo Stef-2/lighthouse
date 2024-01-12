@@ -94,6 +94,8 @@ export namespace lh
 			vk::RenderingAttachmentInfo m_depth_stencil_attachment;
 		};
 
+		// ==========================================================================
+
 		template <swapchain::layout_state state>
 		auto swapchain::transition_layout(const vk::raii::CommandBuffer& command_buffer) const -> void
 		{
@@ -147,6 +149,5 @@ export namespace lh
 			const auto dependency_info = vk::DependencyInfo {{}, {}, {}, barriers};
 			command_buffer.pipelineBarrier2(dependency_info);
 		}
-
 	}
 }

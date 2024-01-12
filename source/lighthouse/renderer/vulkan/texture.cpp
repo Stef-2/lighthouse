@@ -44,12 +44,8 @@ namespace lh
 
 		texture::~texture()
 		{
-			// if our index is not the last one in the descriptor buffer stack, mark our index as vacant for reuse
-			if (m_descriptor_index !=
-				m_descriptor_buffer.m_combined_image_sampler_descriptor_buffer_binding_info.size() - 1)
-			{
-				m_descriptor_buffer.m_vacant_combined_image_sampler_slots.push_back(m_descriptor_index);
-			}
+			// mark our index into descriptor buffer as vacant for reuse
+			m_descriptor_buffer.m_vacant_combined_image_sampler_slots.push_back(m_descriptor_index);
 		}
 
 		auto texture::image() const -> const vulkan::image&
