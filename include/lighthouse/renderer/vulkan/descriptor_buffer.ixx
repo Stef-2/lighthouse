@@ -44,11 +44,12 @@ export namespace lh
 
 			auto map_resource_buffer(const descriptor_resource_buffer&) -> void;
 
-			auto bind(const vk::raii::CommandBuffer&, const vk::raii::PipelineLayout&) const -> void;
+			auto bind(const vk::raii::CommandBuffer&) const -> void;
 
 		private:
 			const physical_device& m_physical_device;
 			const logical_device& m_logical_device;
+			const global_descriptor& m_global_descriptor;
 
 			vk::PipelineBindPoint m_bind_point;
 			

@@ -20,6 +20,7 @@ namespace lh
 											 const create_info& create_info)
 			: m_physical_device {physical_device},
 			  m_logical_device {logical_device},
+			  m_global_descriptor {global_descriptor},
 			  m_bind_point {create_info.m_bind_point},
 			  m_uniform_descriptor_buffer_binding_info {},
 			  m_storage_descriptor_buffer_binding_info {},
@@ -28,7 +29,7 @@ namespace lh
 			  m_uniform_descriptor_buffer {
 				  logical_device,
 				  memory_allocator,
-				  global_descriptor.uniform_buffer_set().getSizeEXT(),
+				  /*global_descriptor.uniform_buffer_set().getSizeEXT()*/ 256 * 256,
 				  mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
 														 vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT,
 											  .m_memory_properties =
@@ -36,7 +37,7 @@ namespace lh
 			  m_storage_descriptor_buffer {
 				  logical_device,
 				  memory_allocator,
-				  global_descriptor.storage_descriptor_set().getSizeEXT(),
+				  /*global_descriptor.storage_descriptor_set().getSizeEXT()*/ 256 * 256,
 				  mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
 														 vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT,
 											  .m_memory_properties =
@@ -44,7 +45,7 @@ namespace lh
 			  m_combined_image_sampler_descriptor_buffer {
 				  logical_device,
 				  memory_allocator,
-				  global_descriptor.combined_image_sampler_set().getSizeEXT(),
+				  /*global_descriptor.combined_image_sampler_set().getSizeEXT()*/ 256 * 256,
 				  mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
 														 vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT,
 											  .m_memory_properties = create_info.m_descriptor_buffer_memory_properties}}
@@ -56,45 +57,6 @@ namespace lh
 			m_combined_image_sampler_descriptor_buffer_binding_info.reserve(
 				global_descriptor.create_information().m_num_combined_image_samplers);
 		}
-		/*
-		auto descriptor_buffer::map_texture(const texture& texture) -> void
-		{
-			m_combined_image_sampler_descriptor_buffer_binding_info.clear();
-			m_combined_image_sampler_descriptor_buffer_binding_info.emplace_back(
-				m_combined_image_sampler_descriptor_buffer.address(),
-				vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT);
-
-			std::memcpy(static_cast<std::byte*>(m_combined_image_sampler_descriptor_buffer.mapped_data_pointer()),
-						texture.descriptor().data(),
-						texture.descriptor().size());
-		}*/
-		/*
-		auto descriptor_buffer::map_material(const material& material) -> void
-		{
-			const auto& descriptor_buffer_properties = m_physical_device.properties().m_descriptor_buffer_properties;
-			const auto descriptor_offset = descriptor_buffer_properties.m_combined_image_sampler_offset;
-
-			m_combined_image_sampler_descriptor_buffer_binding_info.clear();
-			m_combined_image_sampler_descriptor_buffer_binding_info.reserve(material.textures().size());
-
-			for (auto i = std::uint32_t {}; const auto& texture : material.textures())
-			{
-				m_combined_image_sampler_descriptor_buffer_binding_info.emplace_back(
-					m_combined_image_sampler_descriptor_buffer.address() +
-						i * utility::aligned_size(
-								static_cast<vk::DeviceSize>(descriptor_offset),
-								descriptor_buffer_properties.m_properties.descriptorBufferOffsetAlignment),
-					vk::BufferUsageFlagBits::eShaderDeviceAddress |
-						vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT);
-
-				auto memcpy_destination = static_cast<std::byte*>(
-											  m_combined_image_sampler_descriptor_buffer.mapped_data_pointer()) +
-										  i * descriptor_offset;
-				std::memcpy(memcpy_destination, texture.descriptor().data(), texture.descriptor().size());
-
-				i++;
-			}
-		}*/
 
 		auto descriptor_buffer::map_resource_buffer(const descriptor_resource_buffer& resource_buffer) -> void
 		{
@@ -142,8 +104,7 @@ namespace lh
 			}
 		}
 
-		auto descriptor_buffer::bind(const vk::raii::CommandBuffer& command_buffer,
-									 const vk::raii::PipelineLayout& pipeline_layout) const -> void
+		auto descriptor_buffer::bind(const vk::raii::CommandBuffer& command_buffer) const -> void
 		{
 			auto combined_descriptor_bindings = m_uniform_descriptor_buffer_binding_info;
 			combined_descriptor_bindings.insert_range(combined_descriptor_bindings.end(),
@@ -166,7 +127,8 @@ namespace lh
 												storage_descriptor_index,
 												combined_image_sampler_descriptor_index};
 
-			command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point, *pipeline_layout, 0, indices, {0, 0, 0});
+			command_buffer.setDescriptorBufferOffsetsEXT(
+				m_bind_point, *m_global_descriptor.pipeline_layout(), 0, indices, {0, 0, 0});
 		}
 	}
 }
