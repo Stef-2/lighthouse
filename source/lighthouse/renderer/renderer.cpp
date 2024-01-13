@@ -135,7 +135,8 @@ namespace lh
 
 		command_buffer.beginRendering(render_info);
 
-		// m_dynamic_rendering_state.state().m_front_face = vk::FrontFace::eCounterClockwise;
+		m_dynamic_rendering_state.state().m_cull_mode = vk::CullModeFlagBits::eNone;
+		m_dynamic_rendering_state.state().m_depth_testing = false;
 		m_dynamic_rendering_state.bind(command_buffer);
 		mesh_to_render.vertex_buffer().bind(command_buffer);
 
@@ -168,18 +169,18 @@ namespace lh
 		m_global_descriptor_buffer.bind(command_buffer, m_global_descriptor.pipeline_layout());
 
 		command_buffer.drawIndexed(mesh_to_render.indices().size(), 1, 0, 0, 0);
-		command_buffer.endRendering();
-		/*
+
 		// draw skybox
 		m_global_descriptor_buffer.map_resource_buffer(m_skybox.pipeline().descriptor_buffer());
-		m_skybox.mesh().vertex_buffer().bind(command_buffer);
+		// m_skybox.mesh().vertex_buffer().bind(command_buffer);
 		m_skybox.pipeline().descriptor_buffer().map_uniform_data(0, t);
 		m_skybox.pipeline().bind(command_buffer);
 		m_global_descriptor_buffer.bind(command_buffer, m_global_descriptor.pipeline_layout());
 
 		command_buffer.drawIndexed(mesh_to_render.indices().size(), 1, 0, 0, 0);
+
 		command_buffer.endRendering();
-		*/
+
 		// present
 		m_swapchain.transition_layout<vulkan::swapchain::layout_state::presentation>(command_buffer);
 		command_buffer.end();

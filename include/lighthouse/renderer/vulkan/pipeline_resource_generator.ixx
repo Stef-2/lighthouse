@@ -50,7 +50,6 @@ export namespace lh
 			auto descriptor_buffer() const -> const vulkan::descriptor_resource_buffer&;
 			auto bind(const vk::raii::CommandBuffer&) const -> void;
 
-
 		private:
 			auto translate_shader_input_format(const shader_input&) const -> const vk::Format;
 			auto generate_vertex_input_description(const std::vector<shader_input>&)
