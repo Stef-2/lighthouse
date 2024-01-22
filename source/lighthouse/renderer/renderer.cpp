@@ -145,6 +145,14 @@ namespace lh
 			glm::mat4x4 projection;
 			glm::vec4 time;
 		};
+		struct test2
+		{
+			glm::mat4x4 model;
+			glm::mat4x4 view;
+			glm::mat4x4 wtf;
+			glm::mat4x4 projection;
+			glm::vec4 time;
+		};
 
 		auto time = time::now();
 		m_point_light.translate_absolute({0.0f, glm::sin(time), 0.0f});
@@ -152,7 +160,8 @@ namespace lh
 		auto skybox_view_test = m_camera.view();
 		skybox_view_test[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
-		test t {glm::mat4x4 {1.0f}, skybox_view_test, m_camera.projection(), {time, time, time, time}};
+		test2 t {
+			glm::mat4x4 {1.0f}, m_camera.view(), skybox_view_test, m_camera.projection(), {time, time, time, time}};
 
 		// draw skybox
 		m_default_meshes.cube().vertex_buffer().bind(command_buffer);
@@ -162,16 +171,20 @@ namespace lh
 		m_global_descriptor_buffer.bind(command_buffer);
 		m_skybox.pipeline().bind(command_buffer);
 		command_buffer.drawIndexed(m_default_meshes.cube().indices().size(), 1, 0, 0, 0);
+		/*
+		// full pipeline barrier
+		const auto barrier = vk::MemoryBarrier2 {{vk::PipelineStageFlagBits2::eAllCommands},
+												 {vk::AccessFlagBits2::eMemoryRead | vk::AccessFlagBits2::eMemoryWrite},
+												 {vk::PipelineStageFlagBits2::eAllCommands},
+												 {vk::AccessFlagBits2::eMemoryRead |
+												  vk::AccessFlagBits2::eMemoryWrite}};
+		const auto dependacy_info = vk::DependencyInfo {{}, barrier};
+		command_buffer.pipelineBarrier2(dependacy_info);*/
 
 		// draw sphere
 		m_default_meshes.sphere().vertex_buffer().bind(command_buffer);
 		m_global_descriptor_buffer.map_resource_buffer(m_resource_generator.descriptor_buffer());
-		m_resource_generator.descriptor_buffer().map_uniform_data(0,
-																  test {glm::translate(glm::mat4x4 {1.0f},
-																					   glm::vec3 {0.0f, 1.0f, 0.0f}),
-																		m_camera.view(),
-																		m_camera.projection(),
-																		{time, time, time, time}});
+		m_resource_generator.descriptor_buffer().map_uniform_data(0, t);
 		m_resource_generator.descriptor_buffer().map_uniform_data(1, mi);
 		m_resource_generator.descriptor_buffer().map_storage_data(0, mi);
 		m_resource_generator.descriptor_buffer().map_storage_data(
