@@ -163,14 +163,6 @@ namespace lh
 		test2 t {
 			glm::mat4x4 {1.0f}, m_camera.view(), skybox_view_test, m_camera.projection(), {time, time, time, time}};
 
-		// draw skybox
-		m_default_meshes.cube().vertex_buffer().bind(command_buffer);
-		m_global_descriptor_buffer.map_resource_buffer(m_skybox.pipeline().descriptor_buffer());
-		// m_skybox.mesh().vertex_buffer().bind(command_buffer);
-		m_skybox.pipeline().descriptor_buffer().map_uniform_data(0, t);
-		m_global_descriptor_buffer.bind(command_buffer);
-		m_skybox.pipeline().bind(command_buffer);
-		command_buffer.drawIndexed(m_default_meshes.cube().indices().size(), 1, 0, 0, 0);
 		/*
 		// full pipeline barrier
 		const auto barrier = vk::MemoryBarrier2 {{vk::PipelineStageFlagBits2::eAllCommands},
@@ -192,6 +184,15 @@ namespace lh
 		m_global_descriptor_buffer.bind(command_buffer);
 		m_resource_generator.bind(command_buffer);
 		command_buffer.drawIndexed(m_default_meshes.sphere().indices().size(), 1, 0, 0, 0);
+
+		// draw skybox
+		m_default_meshes.cube().vertex_buffer().bind(command_buffer);
+		// m_global_descriptor_buffer.map_resource_buffer(m_skybox.pipeline().descriptor_buffer());
+		//  m_skybox.mesh().vertex_buffer().bind(command_buffer);
+		// m_skybox.pipeline().descriptor_buffer().map_uniform_data(0, t);
+		// m_global_descriptor_buffer.bind(command_buffer);
+		m_skybox.pipeline().bind(command_buffer);
+		command_buffer.drawIndexed(m_default_meshes.cube().indices().size(), 1, 0, 0, 0);
 
 		command_buffer.endRendering();
 

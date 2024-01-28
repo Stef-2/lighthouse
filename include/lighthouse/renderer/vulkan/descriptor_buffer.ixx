@@ -45,6 +45,7 @@ export namespace lh
 			auto map_resource_buffer(const descriptor_resource_buffer&) -> void;
 
 			auto bind(const vk::raii::CommandBuffer&) const -> void;
+			auto flush_resource_descriptors() -> void;
 
 		private:
 			const physical_device& m_physical_device;
@@ -56,6 +57,9 @@ export namespace lh
 			std::vector<vk::DescriptorBufferBindingInfoEXT> m_uniform_descriptor_buffer_binding_info;
 			std::vector<vk::DescriptorBufferBindingInfoEXT> m_storage_descriptor_buffer_binding_info;
 			std::vector<vk::DescriptorBufferBindingInfoEXT> m_combined_image_sampler_descriptor_buffer_binding_info;
+
+			std::vector<global_descriptor::descriptor_type_size_t> m_uniform_descriptor_offsets;
+			std::vector<global_descriptor::descriptor_type_size_t> m_storage_descriptor_offsets;
 			std::vector<global_descriptor::descriptor_type_size_t> m_vacant_combined_image_sampler_slots;
 
 			mapped_buffer m_uniform_descriptor_buffer;

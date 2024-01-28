@@ -25,6 +25,8 @@ namespace lh
 			  m_uniform_descriptor_buffer_binding_info {},
 			  m_storage_descriptor_buffer_binding_info {},
 			  m_combined_image_sampler_descriptor_buffer_binding_info {},
+			  m_uniform_descriptor_offsets {},
+			  m_storage_descriptor_offsets {},
 			  m_vacant_combined_image_sampler_slots {},
 			  m_uniform_descriptor_buffer {
 				  logical_device,
@@ -62,11 +64,12 @@ namespace lh
 		{
 			const auto& descriptor_buffer_properties = m_physical_device.properties().m_descriptor_buffer_properties;
 
-			m_uniform_descriptor_buffer_binding_info = {};
-			m_storage_descriptor_buffer_binding_info = {};
+			flush_resource_descriptors();
 
-			for (auto num_uniform_descriptors = std::uint16_t {}, num_storage_descriptors = std::uint16_t {};
-				 const auto& [descriptor_type, descriptor_data] : resource_buffer.descriptors())
+			auto num_uniform_descriptors = global_descriptor::descriptor_type_size_t {};
+			auto num_storage_descriptors = global_descriptor::descriptor_type_size_t {};
+
+			for (const auto& [descriptor_type, descriptor_data] : resource_buffer.descriptors())
 			{
 				const auto descriptor_size = descriptor_data.size();
 
@@ -102,6 +105,9 @@ namespace lh
 
 				std::memcpy(memcpy_destination, descriptor_data.data(), descriptor_data.size());
 			}
+
+			m_uniform_descriptor_offsets.emplace_back(num_uniform_descriptors);
+			m_storage_descriptor_offsets.emplace_back(num_storage_descriptors);
 		}
 
 		auto descriptor_buffer::bind(const vk::raii::CommandBuffer& command_buffer) const -> void
@@ -129,6 +135,15 @@ namespace lh
 
 			command_buffer.setDescriptorBufferOffsetsEXT(
 				m_bind_point, *m_global_descriptor.pipeline_layout(), 0, indices, {0, 0, 0});
+		}
+
+		auto descriptor_buffer::flush_resource_descriptors() -> void
+		{
+			m_uniform_descriptor_buffer_binding_info.clear();
+			m_storage_descriptor_buffer_binding_info.clear();
+
+			m_uniform_descriptor_offsets.clear();
+			m_storage_descriptor_offsets.clear();
 		}
 	}
 }
