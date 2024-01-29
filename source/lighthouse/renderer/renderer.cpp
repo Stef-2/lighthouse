@@ -179,6 +179,7 @@ namespace lh
 
 		// draw sphere
 		m_default_meshes.sphere().vertex_buffer().bind(command_buffer);
+		m_global_descriptor_buffer.flush_resource_descriptors();
 		m_global_descriptor_buffer.register_resource_buffer(m_resource_generator.descriptor_buffer());
 		m_resource_generator.descriptor_buffer().map_uniform_data(0, t);
 		m_resource_generator.descriptor_buffer().map_uniform_data(1, mi);
@@ -186,6 +187,8 @@ namespace lh
 		m_resource_generator.descriptor_buffer().map_storage_data(
 			1, m_global_light_descriptor_buffer.light_device_addresses());
 		m_global_descriptor_buffer.bind(command_buffer);
+		m_global_descriptor_buffer.map_resource_buffer_offsets(command_buffer,
+															   m_resource_generator.descriptor_buffer());
 		m_resource_generator.bind(command_buffer);
 		command_buffer.drawIndexed(m_default_meshes.sphere().indices().size(), 1, 0, 0, 0);
 

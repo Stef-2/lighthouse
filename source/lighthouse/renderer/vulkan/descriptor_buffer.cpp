@@ -68,7 +68,6 @@ namespace lh
 			m_resource_buffer_offsets.emplace_back(resource_buffer,
 												   m_accumulated_uniform_descriptor_offset,
 												   m_accumulated_storage_descriptor_offset);
-			flush_resource_descriptors();
 
 			// register uniform buffers
 			for (auto i = global_descriptor::descriptor_type_size_t {};
@@ -157,7 +156,7 @@ namespace lh
 													  m_combined_image_sampler_descriptor_buffer_binding_info);
 
 			command_buffer.bindDescriptorBuffersEXT(combined_descriptor_bindings);
-
+			/*
 			constexpr auto uniform_descriptor_index = std::uint32_t {};
 			const auto storage_descriptor_index = static_cast<std::uint32_t>(
 				m_uniform_descriptor_buffer_binding_info.size());
@@ -172,7 +171,7 @@ namespace lh
 												combined_image_sampler_descriptor_index};
 
 			command_buffer.setDescriptorBufferOffsetsEXT(
-				m_bind_point, *m_global_descriptor.pipeline_layout(), 0, indices, {0, 0, 0});
+				m_bind_point, *m_global_descriptor.pipeline_layout(), 0, indices, {0, 0, 0});*/
 		}
 
 		auto descriptor_buffer::flush_resource_descriptors() -> void
