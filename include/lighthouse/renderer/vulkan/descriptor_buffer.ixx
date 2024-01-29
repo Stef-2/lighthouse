@@ -48,6 +48,15 @@ export namespace lh
 			auto flush_resource_descriptors() -> void;
 
 		private:
+			using descriptor_offsets_t = vk::DeviceSize;
+
+			struct resource_buffer_offsets
+			{
+				const descriptor_resource_buffer& m_descriptor_resource_buffer;
+				descriptor_offsets_t m_uniform_descriptor_offset;
+				descriptor_offsets_t m_storage_descriptor_offset;
+			};
+
 			const physical_device& m_physical_device;
 			const logical_device& m_logical_device;
 			const global_descriptor& m_global_descriptor;
@@ -58,9 +67,11 @@ export namespace lh
 			std::vector<vk::DescriptorBufferBindingInfoEXT> m_storage_descriptor_buffer_binding_info;
 			std::vector<vk::DescriptorBufferBindingInfoEXT> m_combined_image_sampler_descriptor_buffer_binding_info;
 
-			std::vector<global_descriptor::descriptor_type_size_t> m_uniform_descriptor_offsets;
-			std::vector<global_descriptor::descriptor_type_size_t> m_storage_descriptor_offsets;
+			descriptor_offsets_t m_accumulated_uniform_descriptor_offset;
+			descriptor_offsets_t m_accumulated_storage_descriptor_offset;
 			std::vector<global_descriptor::descriptor_type_size_t> m_vacant_combined_image_sampler_slots;
+
+			std::vector<resource_buffer_offsets> m_resource_buffer_offsets;
 
 			mapped_buffer m_uniform_descriptor_buffer;
 			mapped_buffer m_storage_descriptor_buffer;

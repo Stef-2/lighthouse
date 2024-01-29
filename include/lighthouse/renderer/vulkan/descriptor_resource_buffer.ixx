@@ -29,7 +29,7 @@ export namespace lh
 		{
 		public:
 			using binding_slot_t = std::uint16_t;
-			using descriptor_data_t = std::pair<vk::DescriptorType, std::vector<std::byte>>;
+			using descriptor_data_t = std::vector<std::byte>;
 
 			struct create_info
 			{
@@ -69,13 +69,15 @@ export namespace lh
 			}
 
 			auto mapped_buffer() const -> const vulkan::mapped_buffer&;
-			auto descriptors() const -> const std::vector<descriptor_data_t>&;
+			auto uniform_descriptors() const -> const std::vector<descriptor_data_t>&;
+			auto storage_descriptors() const -> const std::vector<descriptor_data_t>&;
 
 		private:
 			vulkan::mapped_buffer m_data_buffer;
 			buffer_subdata m_uniform_buffer_subdata;
 			buffer_subdata m_storage_buffer_subdata;
-			std::vector<descriptor_data_t> m_descriptors;
+			std::vector<descriptor_data_t> m_uniform_descriptors;
+			std::vector<descriptor_data_t> m_storage_descriptors;
 		};
 	}
 }

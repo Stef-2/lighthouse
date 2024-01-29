@@ -12,8 +12,8 @@ import vulkan_utility;
 
 namespace lh
 {
-	auto descriptor_offset_and_size(const lh::vulkan::physical_device& physical_device,
-									const vk::DescriptorType& descriptor)
+	static auto descriptor_offset_and_size(const lh::vulkan::physical_device& physical_device,
+										   const vk::DescriptorType& descriptor)
 	{
 		const auto& descriptor_type_properties = physical_device.properties().m_descriptor_buffer_properties;
 
@@ -32,7 +32,11 @@ namespace lh
 	namespace vulkan
 	{
 		descriptor_resource_buffer::descriptor_resource_buffer()
-			: m_data_buffer {}, m_uniform_buffer_subdata {}, m_storage_buffer_subdata {}, m_descriptors {}
+			: m_data_buffer {},
+			  m_uniform_buffer_subdata {},
+			  m_storage_buffer_subdata {},
+			  m_uniform_descriptors {},
+			  m_storage_descriptors {}
 		{}
 
 		descriptor_resource_buffer::descriptor_resource_buffer(const physical_device& physical_device,
@@ -43,14 +47,13 @@ namespace lh
 			: m_data_buffer {logical_device, memory_allocator, buffer_size, create_info.m_buffer_create_info},
 			  m_uniform_buffer_subdata {&m_data_buffer},
 			  m_storage_buffer_subdata {&m_data_buffer},
-			  m_descriptors {}
+			  m_uniform_descriptors {},
+			  m_storage_descriptors {}
 		{
-			const auto descriptor_buffer_properties =
+			const auto& descriptor_buffer_properties =
 				physical_device.properties().m_descriptor_buffer_properties.m_properties;
-			m_descriptors.reserve(create_info.m_subdata.size());
 
-			for (auto combined_offset = vk::DeviceSize {};
-				 const auto& [descriptor_type, subdata] : create_info.m_subdata)
+			for (void* descriptor_pointer = nullptr; const auto& [descriptor_type, subdata] : create_info.m_subdata)
 			{
 				const auto [binding_offset, binding_size] = descriptor_offset_and_size(physical_device,
 																					   descriptor_type);
@@ -60,41 +63,43 @@ namespace lh
 												 : descriptor_buffer_properties.storageBufferDescriptorSize;
 
 				if (descriptor_type == vk::DescriptorType::eUniformBuffer)
+				{
 					m_uniform_buffer_subdata.m_subdata.push_back(subdata);
-				else
+					m_uniform_descriptors.emplace_back();
+					m_uniform_descriptors.back().resize(descriptor_size);
+					descriptor_pointer = m_uniform_descriptors.back().data();
+				} else
+				{
 					m_storage_buffer_subdata.m_subdata.push_back(subdata);
-
+					m_storage_descriptors.emplace_back();
+					m_storage_descriptors.back().resize(descriptor_size);
+					descriptor_pointer = m_storage_descriptors.back().data();
+				}
+				/*
 				m_descriptors.emplace_back();
-				m_descriptors.back().first = descriptor_type;
-				m_descriptors.back().second.resize(descriptor_size);
+				m_descriptors.back().second.resize(descriptor_size);*/
 
 				const auto data_address_info = vk::DescriptorAddressInfoEXT {
 					m_uniform_buffer_subdata.m_buffer->address() + subdata.m_offset, subdata.m_size};
 
 				logical_device->getDescriptorEXT({descriptor_type, {&data_address_info}},
 												 descriptor_size,
-												 m_descriptors.back().second.data());
-
-				combined_offset += binding_offset;
+												 descriptor_pointer);
 			}
 		}
 
 		descriptor_resource_buffer& descriptor_resource_buffer::operator=(descriptor_resource_buffer&& other) noexcept
 		{
-			m_data_buffer = std::move(other.m_data_buffer);
+			m_data_buffer = std::exchange(other.m_data_buffer, {});
 
-			m_uniform_buffer_subdata = std::move(other.m_uniform_buffer_subdata);
-			m_storage_buffer_subdata = std::move(other.m_storage_buffer_subdata);
+			m_uniform_buffer_subdata = std::exchange(other.m_uniform_buffer_subdata, {});
+			m_storage_buffer_subdata = std::exchange(other.m_storage_buffer_subdata, {});
 
 			m_uniform_buffer_subdata.m_buffer = &m_data_buffer;
 			m_storage_buffer_subdata.m_buffer = &m_data_buffer;
 
-			m_descriptors = std::move(other.m_descriptors);
-
-			other.m_data_buffer = {};
-			other.m_uniform_buffer_subdata = {};
-			other.m_storage_buffer_subdata = {};
-			other.m_descriptors = {};
+			m_uniform_descriptors = std::exchange(other.m_uniform_descriptors, {});
+			m_storage_descriptors = std::exchange(other.m_storage_descriptors, {});
 
 			return *this;
 		}
@@ -104,9 +109,14 @@ namespace lh
 			return m_data_buffer;
 		}
 
-		auto descriptor_resource_buffer::descriptors() const -> const std::vector<descriptor_data_t>&
+		auto descriptor_resource_buffer::uniform_descriptors() const -> const std::vector<descriptor_data_t>&
 		{
-			return m_descriptors;
+			return m_uniform_descriptors;
+		}
+
+		auto descriptor_resource_buffer::storage_descriptors() const -> const std::vector<descriptor_data_t>&
+		{
+			return m_storage_descriptors;
 		}
 	}
 }
