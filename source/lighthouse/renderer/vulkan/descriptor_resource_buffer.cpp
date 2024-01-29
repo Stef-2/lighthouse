@@ -104,6 +104,12 @@ namespace lh
 			return *this;
 		}
 
+		auto descriptor_resource_buffer::operator==(const descriptor_resource_buffer& other) const -> bool
+		{
+			return m_uniform_descriptors == other.m_uniform_descriptors and
+				   m_storage_descriptors == other.m_storage_descriptors;
+		}
+
 		auto descriptor_resource_buffer::mapped_buffer() const -> const vulkan::mapped_buffer&
 		{
 			return m_data_buffer;

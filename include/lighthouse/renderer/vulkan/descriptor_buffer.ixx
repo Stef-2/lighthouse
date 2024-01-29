@@ -42,7 +42,8 @@ export namespace lh
 							  const global_descriptor&,
 							  const create_info& = {});
 
-			auto map_resource_buffer(const descriptor_resource_buffer&) -> void;
+			auto register_resource_buffer(const descriptor_resource_buffer&) -> void;
+			auto map_resource_buffer_offsets(const vk::raii::CommandBuffer&, const descriptor_resource_buffer&) -> void;
 
 			auto bind(const vk::raii::CommandBuffer&) const -> void;
 			auto flush_resource_descriptors() -> void;

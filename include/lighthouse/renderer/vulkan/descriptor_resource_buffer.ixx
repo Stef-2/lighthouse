@@ -49,6 +49,7 @@ export namespace lh
 			descriptor_resource_buffer(const descriptor_resource_buffer&) = delete;
 			auto operator=(const descriptor_resource_buffer&) = delete;
 			descriptor_resource_buffer& operator=(descriptor_resource_buffer&&) noexcept;
+			auto operator==(const descriptor_resource_buffer&) const -> bool;
 
 			template <typename T>
 			requires(not std::is_pointer_v<T>)
