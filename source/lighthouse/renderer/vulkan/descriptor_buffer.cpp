@@ -144,7 +144,15 @@ namespace lh
 					m_bind_point, *m_global_descriptor.pipeline_layout(), 0, new_indices, {0, 0, 0});
 				return;
 			}*/
-
+			/*
+			if (resource_indices.m_uniform_descriptor_offset == 2)
+			{
+				auto new_indices = indices;
+				new_indices[0] += 2;
+				command_buffer.setDescriptorBufferOffsetsEXT(
+					m_bind_point, *m_global_descriptor.pipeline_layout(), 0, new_indices, {0, 0, 0});
+				return;
+			}*/
 			command_buffer.setDescriptorBufferOffsetsEXT(
 				m_bind_point, *m_global_descriptor.pipeline_layout(), 0, indices, {0, 0, 0});
 		}

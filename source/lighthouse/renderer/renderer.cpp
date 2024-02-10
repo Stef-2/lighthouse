@@ -179,7 +179,7 @@ namespace lh
 
 		m_global_descriptor_buffer.flush_resource_descriptors();
 		m_global_descriptor_buffer.register_resource_buffer(m_resource_generator.descriptor_buffer());
-		// m_global_descriptor_buffer.register_resource_buffer(m_skybox.pipeline().descriptor_buffer());
+		m_global_descriptor_buffer.register_resource_buffer(m_skybox.pipeline().descriptor_buffer());
 		//  draw sphere
 		m_default_meshes.sphere().vertex_buffer().bind(command_buffer);
 		m_resource_generator.descriptor_buffer().map_uniform_data(0, t);
@@ -192,7 +192,7 @@ namespace lh
 															   m_resource_generator.descriptor_buffer());
 		m_resource_generator.bind(command_buffer);
 		command_buffer.drawIndexed(m_default_meshes.sphere().indices().size(), 1, 0, 0, 0);
-		/*
+
 		// draw skybox
 		m_default_meshes.cube().vertex_buffer().bind(command_buffer);
 		//  m_skybox.mesh().vertex_buffer().bind(command_buffer);
@@ -201,7 +201,7 @@ namespace lh
 		//  m_global_descriptor_buffer.bind(command_buffer);
 		m_skybox.pipeline().bind(command_buffer);
 		command_buffer.drawIndexed(m_default_meshes.cube().indices().size(), 1, 0, 0, 0);
-		*/
+
 		command_buffer.endRendering();
 
 		// present
