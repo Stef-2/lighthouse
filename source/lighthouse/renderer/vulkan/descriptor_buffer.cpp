@@ -134,9 +134,18 @@ namespace lh
 				m_uniform_descriptor_buffer_binding_info.size() + m_storage_descriptor_buffer_binding_info.size() +
 				m_combined_image_sampler_descriptor_buffer_binding_info.size());
 
-			std::vector<std::uint32_t> indices {uniform_descriptor_index,
-												storage_descriptor_index,
-												combined_image_sampler_descriptor_index};
+			std::array<std::uint32_t, 3> indices {uniform_descriptor_index,
+												  storage_descriptor_index,
+												  combined_image_sampler_descriptor_index};
+
+			if (wtf->m_uniform_descriptor_offset == 512)
+			{
+				auto new_indices = indices;
+				new_indices[0] += 2;
+				command_buffer.setDescriptorBufferOffsetsEXT(
+					m_bind_point, *m_global_descriptor.pipeline_layout(), 0, new_indices, {0, 0, 0});
+				return;
+			}
 
 			command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point,
 														 *m_global_descriptor.pipeline_layout(),
