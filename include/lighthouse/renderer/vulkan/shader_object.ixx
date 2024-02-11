@@ -31,7 +31,7 @@ export namespace lh
 				vk::ShaderCodeTypeEXT m_code_type = vk::ShaderCodeTypeEXT::eSpirv;
 			};
 
-			shader_object(const logical_device&,const spir_v&, const std::vector<vk::DescriptorSetLayout>&, const create_info& = {});
+			shader_object(const logical_device&, const spir_v&, const std::vector<vk::DescriptorSetLayout>&, const create_info& = {});
 
 			auto cache_binary_data(const std::filesystem::path&) const -> void;
 			auto stage() const -> const vk::ShaderStageFlagBits&;

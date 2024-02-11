@@ -46,6 +46,7 @@ export namespace lh
 										const create_info& = {});
 
 			auto vertex_input_description() const -> const vulkan::vertex_input_description&;
+			auto has_vertex_input() const -> const bool;
 			auto shader_pipeline() const -> const vulkan::shader_pipeline&;
 			auto descriptor_buffer() const -> const vulkan::descriptor_resource_buffer&;
 			auto bind(const vk::raii::CommandBuffer&) const -> void;

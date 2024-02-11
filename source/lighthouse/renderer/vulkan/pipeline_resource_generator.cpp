@@ -121,6 +121,11 @@ namespace lh
 			return m_vertex_input_description;
 		}
 
+		auto pipeline_resource_generator::has_vertex_input() const -> const bool
+		{
+			return m_vertex_input_description.m_attributes.empty();
+		}
+
 		auto pipeline_resource_generator::shader_pipeline() const -> const vulkan::shader_pipeline&
 		{
 			return m_shader_pipeline;

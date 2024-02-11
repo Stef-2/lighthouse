@@ -23,6 +23,7 @@ import logical_device;
 import memory_allocator;
 import buffer;
 import descriptor_resource_buffer;
+import texture;
 
 export namespace lh
 {
