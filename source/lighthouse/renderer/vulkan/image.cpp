@@ -6,20 +6,26 @@ namespace lh
 {
 	namespace vulkan
 	{
-		image::image(std::nullptr_t) : m_create_info {}, m_allocation_info {}, m_allocation {} {}
+		image::image(std::nullptr_t) : m_create_info {}, m_allocator {}, m_allocation_info {}, m_allocation {} {}
 
 		image::image(const vulkan::logical_device& logical_device,
 					 const vulkan::memory_allocator& memory_allocator,
 					 const create_info& create_info)
-			: m_create_info {create_info}, m_allocation_info {}, m_allocation {}
+			: m_create_info {create_info}, m_allocator {&memory_allocator}, m_allocation_info {}, m_allocation {}
 		{
 			auto allocation_info = vma::AllocationInfo {};
 
-			auto [image, allocation] = memory_allocator->createImage(m_create_info.m_image_create_info,
-																	 m_create_info.m_allocation_create_info,
-																	 allocation_info);
+			auto [image, allocation] = (*m_allocator)
+										   ->createImage(m_create_info.m_image_create_info,
+														 m_create_info.m_allocation_create_info,
+														 allocation_info);
 
 			m_object = {*logical_device, image};
+		}
+
+		image::~image()
+		{
+			(*m_allocator)->freeMemory(m_allocation);
 		}
 
 		auto image::create_information() const -> const image::create_info&

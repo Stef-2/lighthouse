@@ -23,15 +23,20 @@ namespace lh
 		{
 			const auto buffer_info = vk::BufferCreateInfo({}, size, m_create_info.m_usage);
 
-			auto [buffer, allocation] = allocator->createBuffer(buffer_info,
-																m_create_info.m_allocation_create_info,
-																&m_allocation_info);
+			auto [buffer, allocation] =
+				(*m_allocator)->createBuffer(buffer_info, m_create_info.m_allocation_create_info, &m_allocation_info);
 
 			m_allocation = allocation;
 			m_object = {*logical_device, buffer};
 			m_address = create_info.m_usage & vk::BufferUsageFlagBits::eShaderDeviceAddress
 							? logical_device->getBufferAddress(*m_object)
 							: 0;
+		}
+
+		buffer::~buffer()
+		{
+			if (*m_object and m_allocation)
+				(*m_allocator)->freeMemory(m_allocation);
 		}
 
 		auto buffer::allocation() const -> const vma::Allocation&

@@ -40,6 +40,9 @@ export namespace lh
 			};
 
 			buffer(const logical_device&, const memory_allocator&, const vk::DeviceSize&, const create_info& = {});
+			buffer(buffer&&) noexcept = default;
+			buffer& operator=(buffer&&) noexcept = default;
+			~buffer();
 
 			auto allocation_info() const -> const vma::AllocationInfo&;
 			auto allocation_info() -> vma::AllocationInfo&;

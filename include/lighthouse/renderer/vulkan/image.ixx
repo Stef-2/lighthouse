@@ -71,6 +71,9 @@ export namespace lh
 			image(const vulkan::logical_device&,
 				  const vulkan::memory_allocator&,
 				  const create_info& = {});
+			image(image&&) noexcept = default;
+			image& operator=(image&&) noexcept = default;
+			~image();
 
 			auto transition_layout(const vk::raii::CommandBuffer&, const layout_transition_data& = {}) -> void;
 
@@ -82,6 +85,7 @@ export namespace lh
 		private:
 			create_info m_create_info;
 
+			const memory_allocator* m_allocator;
 			vma::AllocationInfo m_allocation_info;
 			vma::Allocation m_allocation;
 		};
