@@ -41,6 +41,13 @@ namespace lh
 										 0.0f,
 										 1.0f),
 			  .m_scissor = vk::Rect2D(vk::Offset2D(0, 0), m_surface.extent())}},
+		  m_imgui {window,
+				   m_instance,
+				   m_physical_device,
+				   m_logical_device,
+				   m_queue_families.graphics(),
+				   m_graphics_queue,
+				   m_swapchain},
 		  m_global_descriptor {m_physical_device, m_logical_device},
 		  m_global_light_descriptor_buffer {m_physical_device, m_logical_device, m_memory_allocator},
 		  m_global_descriptor_buffer {m_physical_device, m_logical_device, m_memory_allocator, m_global_descriptor},
@@ -201,6 +208,9 @@ namespace lh
 		//  m_global_descriptor_buffer.bind(command_buffer);
 		m_skybox.pipeline().bind(command_buffer);
 		command_buffer.drawIndexed(m_default_meshes.cube().indices().size(), 1, 0, 0, 0);
+
+		m_imgui.new_frame();
+		m_imgui.render(command_buffer);
 
 		command_buffer.endRendering();
 

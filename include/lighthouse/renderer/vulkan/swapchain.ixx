@@ -69,11 +69,13 @@ export namespace lh
 					  const create_info& = {});
 
 			auto surface() const -> const surface&;
+			auto create_information() const -> const create_info&;
 			auto views() const -> const std::vector<vk::raii::ImageView>&;
 			auto depth_stencil_buffer() const -> const image&;
 			auto depth_stencil_view() const -> const vk::raii::ImageView&;
 			auto next_image_info(const vk::raii::CommandBuffer&, const vk::raii::Semaphore&)
 				-> const std::tuple<vk::Result, image_index_t, vk::RenderingInfo>;
+			auto image_count() const -> const image_index_t&;
 			auto current_image_index() const -> const image_index_t&;
 
 			template <layout_state state>
@@ -82,11 +84,13 @@ export namespace lh
 		private:
 			const vulkan::surface& m_surface;
 
+			create_info m_create_info;
 			std::vector<vk::raii::ImageView> m_views;
 
 			image m_depth_stencil_buffer;
 			vk::raii::ImageView m_depth_stencil_view;
 
+			image_index_t m_image_count;
 			image_index_t m_current_image_index;
 			image_timeout_t m_next_image_timeout;
 

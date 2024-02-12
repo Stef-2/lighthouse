@@ -58,6 +58,24 @@ target_include_directories(
 	${include}
 )
 
+# imgui
+add_library(imgui)
+target_sources(imgui PUBLIC
+	${source}/imgui/imgui.cpp
+	${source}/imgui/imgui_demo.cpp
+	${source}/imgui/imgui_draw.cpp
+	${source}/imgui/imgui_tables.cpp
+	${source}/imgui/imgui_widgets.cpp
+	${source}/imgui/backends/imgui_impl_glfw.cpp
+	${source}/imgui/backends/imgui_impl_vulkan.cpp
+)
+target_include_directories(imgui PUBLIC
+	${include}
+	${include}/imgui
+	${include}/glfw
+	${include}/vulkan
+)
+
 target_sources(
 	${PROJECT_NAME} PUBLIC FILE_SET CXX_MODULES FILES
 
@@ -121,7 +139,7 @@ target_sources(
 	${include}/lighthouse/renderer/skybox.ixx
 	${include}/lighthouse/renderer/vulkan/image_view.ixx
 	${include}/lighthouse/renderer/default_meshes.ixx
-)
+ "include/lighthouse/imgui.ixx")
 
 target_sources(
 	${PROJECT_NAME} PUBLIC
@@ -173,7 +191,7 @@ target_sources(
 	${source}/lighthouse/renderer/color.cpp
 	${source}/lighthouse/renderer/light.cpp
 	${source}/lighthouse/renderer/vulkan/image_view.cpp
- "source/lighthouse/renderer/default_meshes.cpp" "source/lighthouse/renderer/skybox.cpp")
+ "source/lighthouse/renderer/default_meshes.cpp" "source/lighthouse/renderer/skybox.cpp" "source/lighthouse/imgui.cpp")
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_RELEASE}")
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
@@ -255,6 +273,7 @@ target_include_directories(
 	${include}/vulkan
 	${include}/vulkan/vma
 	${include}/vulkan/glslang
+	${include}/imgui
 	$ENV{IFCPATH}/Release
 )
 
@@ -291,6 +310,7 @@ target_link_libraries(
 	#std_module
 	#std_compat_module
 	vulkan_module
+	imgui
 )
 
 message(cmake_version: ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION})

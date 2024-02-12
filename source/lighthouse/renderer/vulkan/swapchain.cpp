@@ -17,6 +17,7 @@ namespace lh
 							 const vulkan::memory_allocator& memory_allocator,
 							 const create_info& create_info)
 			: m_surface {surface},
+			  m_create_info {create_info},
 			  m_views {},
 			  m_depth_stencil_buffer {logical_device,
 									  memory_allocator,
@@ -68,13 +69,13 @@ namespace lh
 				queue_family_indices.push_back(queue_families.present().m_index);
 
 			// clamp the prefered image count between the minimum and maximum supported by implementation
-			const auto image_count = std::clamp(create_info.m_image_count,
+			m_create_info.m_image_count = std::clamp(create_info.m_image_count,
 												surface.capabilities().surfaceCapabilities.minImageCount,
 												surface.capabilities().surfaceCapabilities.maxImageCount);
 
 			auto swapchain_info = vk::SwapchainCreateInfoKHR {{},
 															  **surface,
-															  image_count,
+															  m_create_info.m_image_count,
 															  surface.format().surfaceFormat.format,
 															  surface.format().surfaceFormat.colorSpace,
 															  surface.extent(),
@@ -87,6 +88,7 @@ namespace lh
 															  surface.present_mode()};
 
 			m_object = {*logical_device, swapchain_info};
+			m_image_count = m_object.getImages().size();
 
 			m_views.reserve(m_object.getImages().size());
 
@@ -108,6 +110,11 @@ namespace lh
 		auto swapchain::surface() const -> const vulkan::surface&
 		{
 			return m_surface;
+		}
+
+		auto swapchain::create_information() const -> const create_info&
+		{
+			return m_create_info;
 		}
 
 		auto swapchain::views() const -> const std::vector<vk::raii::ImageView>&
@@ -147,6 +154,12 @@ namespace lh
 									   &m_depth_stencil_attachment,
 									   &m_depth_stencil_attachment}};
 		}
+
+		auto swapchain::image_count() const -> const image_index_t&
+		{
+			return m_image_count;
+		}
+
 		auto swapchain::current_image_index() const -> const image_index_t&
 		{
 			return m_current_image_index;
