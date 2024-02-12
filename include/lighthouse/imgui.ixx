@@ -41,6 +41,9 @@ export namespace lh
 			  const vulkan::swapchain&,
 			  const create_info& = {});
 
+		imgui(const imgui&) = delete;
+		imgui& operator=(const imgui&) = delete;
+
 		~imgui();
 
 		auto new_frame() const -> void;

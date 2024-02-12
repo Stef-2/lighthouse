@@ -54,9 +54,19 @@ namespace lh
 		counter_t m_guid;
 	};
 
-	// utiltiy input namespace, handling key_binding, mouse and file reading
+	// utility input namespace, handling key_binding, mouse and file reading
 	export namespace input
 	{
+		enum class input_mode
+		{
+			game,
+			user_interface
+		};
+
+		export auto input_mode() -> const decltype(lh::input::input_mode::game)&;
+		export auto input_mode(const decltype(lh::input::input_mode::game)&) -> void;
+		decltype(lh::input::input_mode::game) s_input_mode;
+
 		class key_binding
 		{
 		public:

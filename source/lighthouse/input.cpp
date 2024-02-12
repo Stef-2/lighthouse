@@ -121,6 +121,8 @@ namespace lh
 		window.vkfw_window().setCursorPos(window.resolution().width / 2, window.resolution().height / 2);
 		s_previous_x = window.resolution().width / 2;
 		s_previous_y = window.resolution().height / 2;
+
+		s_input_mode = input_mode::user_interface;
 	}
 
 	auto input::mouse::move_callback(const on_move_action_t& action) -> void
@@ -131,6 +133,16 @@ namespace lh
 			s_previous_x = x;
 			s_previous_y = y;
 		};
+	}
+
+	auto input::input_mode() -> const decltype(lh::input::input_mode::game)&
+	{
+		return s_input_mode;
+	}
+
+	auto input::input_mode(const decltype(lh::input::input_mode::game)& input_mode) -> void
+	{
+		s_input_mode = input_mode;
 	}
 
 	auto input::read_text_file(const std::filesystem::path& file_path) -> string::string_t

@@ -2,6 +2,7 @@ module;
 
 #include "glm/mat4x4.hpp"
 #include "glm/ext.hpp"
+#include "imgui/imgui.h"
 
 #if INTELLISENSE
 #include "vulkan/vulkan_raii.hpp"
@@ -183,6 +184,14 @@ namespace lh
 												  vk::AccessFlagBits2::eMemoryWrite}};
 		const auto dependacy_info = vk::DependencyInfo {{}, barrier};
 		command_buffer.pipelineBarrier2(dependacy_info);*/
+
+		// test ui vs camera controls
+		const auto imgui_io = ImGui::GetIO();
+		if (imgui_io.WantCaptureMouse)
+			input::mouse::move_callback([](auto wtf) {});
+		else
+			input::mouse::move_callback(m_camera.first_person_callback());
+		// done testing
 
 		m_global_descriptor_buffer.flush_resource_descriptors();
 		m_global_descriptor_buffer.register_resource_buffer(m_resource_generator.descriptor_buffer());

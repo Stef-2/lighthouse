@@ -95,7 +95,6 @@ export namespace lh
 		}
 		
 	private:
-
 		static inline const auto s_up_direction = glm::vec3 {0.0f, 1.0f, 0.0f};
 
 		create_info<T> m_camera_info;
