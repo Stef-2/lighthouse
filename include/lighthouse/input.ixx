@@ -160,9 +160,16 @@ namespace lh
 			std::uint32_t m_data_size;
 		};
 
+		// data obtained by reading font files
+		struct font_data
+		{
+
+		};
+
 		auto read_text_file(const std::filesystem::path&) -> string::string_t;
 		auto read_binary_file(const std::filesystem::path&) -> std::vector<std::byte>;
 		auto read_image_file(const std::filesystem::path&) -> const image_data;
+		auto read_font_file(const std::filesystem::path&) -> const font_data;
 
 		export template <file_type type = file_type::text>
 		auto read_file(const std::filesystem::path& file_path)
@@ -175,6 +182,9 @@ namespace lh
 
 			if constexpr (type == file_type::image)
 				return read_image_file(file_path);
+
+			if constexpr (type == file_type::font)
+				return read_font_file(file_path);
 		}
 
 		export auto initialize(const window&) -> void;
@@ -182,6 +192,6 @@ namespace lh
 		auto assert_path_validity(const std::filesystem::path&, const file_type&) -> bool;
 
 		inline const auto m_valid_file_extensions = std::map<file_type, const std::vector<const char*>> {
-			{file_type::text, {".txt", ".vert", ".frag"}}, {file_type::image, {".png"}}};
+			{file_type::text, {".txt", ".vert", ".frag"}}, {file_type::image, {".png"}}, {file_type::font, {".ttf"}}};
 	};
 }

@@ -23,7 +23,7 @@ import camera;
 import light;
 import default_meshes;
 import skybox;
-import imgui;
+import dear_imgui;
 
 #if not INTELLISENSE
 import std.core;
@@ -73,7 +73,7 @@ export namespace lh
 		vulkan::queue m_transfer_queue;
 		vulkan::swapchain m_swapchain;
 		vulkan::dynamic_rendering_state m_dynamic_rendering_state;
-		imgui m_imgui;
+		dear_imgui m_imgui;
 
 		vulkan::global_descriptor m_global_descriptor;
 		global_light_manager m_global_light_descriptor_buffer;

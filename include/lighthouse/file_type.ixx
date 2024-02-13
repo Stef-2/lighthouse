@@ -8,6 +8,7 @@ export namespace lh
 	{
 		text,
 		binary,
-		image
+		image,
+		font
 	};
 }

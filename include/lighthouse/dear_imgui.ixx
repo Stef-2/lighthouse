@@ -5,10 +5,16 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan_raii.hpp"
+
+#include <vector>
+#include <map>
+#include <filesystem>
+#include <string>
 #endif
 
-export module imgui;
+export module dear_imgui;
 
+import lighthouse_string;
 import window;
 import instance;
 import physical_device;
@@ -19,20 +25,29 @@ import swapchain;
 
 #if not INTELLISENSE
 import std.core;
+import std.filesystem;
 import vulkan;
 #endif
 
 export namespace lh
 {
-	class imgui
+	class dear_imgui
 	{
 	public:
+		struct font_info
+		{
+			std::filesystem::path m_font_path;
+			ImFontConfig m_config = {};
+			float m_size;
+		};
+
 		struct create_info
 		{
+			std::vector<font_info> m_fonts_info = {};
 			vk::SampleCountFlagBits m_sample_count = vk::SampleCountFlagBits::e1;
 		};
 
-		imgui(const window&,
+		dear_imgui(const window&,
 			  const vulkan::instance&,
 			  const vulkan::physical_device&,
 			  const vulkan::logical_device&,
@@ -41,18 +56,24 @@ export namespace lh
 			  const vulkan::swapchain&,
 			  const create_info& = {});
 
-		imgui(const imgui&) = delete;
-		imgui& operator=(const imgui&) = delete;
+		dear_imgui(const dear_imgui&) = delete;
+		dear_imgui& operator=(const dear_imgui&) = delete;
+		dear_imgui(dear_imgui&&) noexcept = default;
+		dear_imgui& operator=(dear_imgui&&) noexcept = default;
 
-		~imgui();
+		~dear_imgui();
 
 		auto new_frame() const -> void;
 		auto render(const vk::raii::CommandBuffer&) -> void;
 
+		auto push_font(const string::string_t&) const -> void;
+		auto pop_font() const -> void;
+		auto register_font(const font_info&) -> void;
+		auto registered_fonts() const -> std::vector<string::string_t>;
+
 	private:
 		vk::raii::DescriptorPool m_descriptor_pool;
-		//vk::raii::Pipeline m_pipeline;
-		//ImGui_ImplVulkanH_Window m_window;
 		ImGuiContext* m_context;
+		std::map<string::string_t, ImFont*> m_font_map;
 	};
 }

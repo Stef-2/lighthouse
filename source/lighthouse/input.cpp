@@ -3,6 +3,9 @@ module;
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb/stb_image.h"
 
+#define STB_TRUETYPE_IMPLEMENTATION
+#include "stb/stb_truetype.h"
+
 #if INTELLISENSE
 #include "vkfw/vkfw.hpp"
 
@@ -239,6 +242,19 @@ namespace lh
 		image_data.m_data_size = image_data.m_width * image_data.m_height * rgba_texel_size;
 
 		return image_data;
+	}
+
+	auto input::read_font_file(const std::filesystem::path& file_path) -> const font_data
+	{
+		if (not assert_path_validity(file_path, file_type::font))
+			return {};
+
+		const auto font_binary_data = read_binary_file(file_path);
+
+		auto font_info = stbtt_fontinfo {};
+		stbtt_InitFont(&font_info, reinterpret_cast<const unsigned char*>(font_binary_data.data()), 0);
+
+
 	}
 
 	auto input::assert_path_validity(const std::filesystem::path& file_path, const file_type& file_type) -> bool
