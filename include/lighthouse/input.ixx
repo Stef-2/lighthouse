@@ -169,7 +169,6 @@ namespace lh
 		auto read_text_file(const std::filesystem::path&) -> string::string_t;
 		auto read_binary_file(const std::filesystem::path&) -> std::vector<std::byte>;
 		auto read_image_file(const std::filesystem::path&) -> const image_data;
-		auto read_font_file(const std::filesystem::path&) -> const font_data;
 
 		export template <file_type type = file_type::text>
 		auto read_file(const std::filesystem::path& file_path)
@@ -182,9 +181,6 @@ namespace lh
 
 			if constexpr (type == file_type::image)
 				return read_image_file(file_path);
-
-			if constexpr (type == file_type::font)
-				return read_font_file(file_path);
 		}
 
 		export auto initialize(const window&) -> void;

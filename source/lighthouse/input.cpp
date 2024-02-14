@@ -244,19 +244,6 @@ namespace lh
 		return image_data;
 	}
 
-	auto input::read_font_file(const std::filesystem::path& file_path) -> const font_data
-	{
-		if (not assert_path_validity(file_path, file_type::font))
-			return {};
-
-		const auto font_binary_data = read_binary_file(file_path);
-
-		auto font_info = stbtt_fontinfo {};
-		stbtt_InitFont(&font_info, reinterpret_cast<const unsigned char*>(font_binary_data.data()), 0);
-
-
-	}
-
 	auto input::assert_path_validity(const std::filesystem::path& file_path, const file_type& file_type) -> bool
 	{
 		const auto valid_path = not file_path.empty();

@@ -22,6 +22,7 @@ import logical_device;
 import queue_families;
 import queue;
 import swapchain;
+import texture;
 
 #if not INTELLISENSE
 import std.core;
@@ -43,8 +44,11 @@ export namespace lh
 
 		struct create_info
 		{
+			using texture_count_t = std::uint32_t;
+
 			std::vector<font_info> m_fonts_info = {};
-			vk::SampleCountFlagBits m_sample_count = vk::SampleCountFlagBits::e1;
+			vk::SampleCountFlagBits m_rasterization_sample_count = vk::SampleCountFlagBits::e1;
+			texture_count_t m_max_texture_count;
 		};
 
 		dear_imgui(const window&,
@@ -69,11 +73,18 @@ export namespace lh
 		auto push_font(const string::string_t&) const -> void;
 		auto pop_font() const -> void;
 		auto register_font(const font_info&) -> void;
-		auto registered_fonts() const -> std::vector<string::string_t>;
+		auto registered_fonts() const -> const std::vector<string::string_t>;
+
+		auto register_texture(const vulkan::texture&) -> void;
+		auto unregister_texture(const vulkan::texture&) -> void;
+		auto registered_textures() const -> const std::vector<const vulkan::texture*>;
 
 	private:
+		create_info m_create_info;
+
 		vk::raii::DescriptorPool m_descriptor_pool;
 		ImGuiContext* m_context;
 		std::map<string::string_t, ImFont*> m_font_map;
+		std::map<const vulkan::texture*, vk::DescriptorSet> m_texture_map;
 	};
 }
