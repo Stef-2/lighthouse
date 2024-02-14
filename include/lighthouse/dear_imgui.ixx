@@ -27,7 +27,7 @@ import texture;
 #if not INTELLISENSE
 import std.core;
 import std.filesystem;
-import vulkan;
+import vulkan_hpp;
 #endif
 
 export namespace lh

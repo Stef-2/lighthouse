@@ -1,9 +1,11 @@
 module;
-
+/*
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
-
+*/
 export module vertex_format;
+
+import glm;
 
 export namespace lh
 {

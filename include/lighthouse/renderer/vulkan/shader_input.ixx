@@ -12,7 +12,7 @@ export module shader_input;
 import lighthouse_string;
 
 #if not INTELLISENSE
-import vulkan;
+import vulkan_hpp;
 import std.core;
 #endif
 

@@ -9,7 +9,7 @@ module;
 export module vertex_input_description;
 
 #if not INTELLISENSE
-import vulkan;
+import vulkan_hpp;
 import std.core;
 #endif
 

@@ -44,17 +44,26 @@ target_compile_options(std_compat_module PUBLIC
 	/std:c++latest /EHsc /GL /Ox /Oi /W3 /MP /Zf /MD /Qpar /Qpar-report:1 /arch:AVX2 /nologo#/translateInclude
 	/DNOMINMAX /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS
 )]]
+#glm module
+add_library(glm_module)
+target_sources(glm_module PUBLIC FILE_SET CXX_MODULES FILES
+	${include}/glm/glm.cppm
+)
+target_compile_options(glm_module PUBLIC
+	${compile_options}
+)
+target_include_directories(glm_module PUBLIC
+	${include}
+)
 # vulkan module
 add_library(vulkan_module)
 target_sources(vulkan_module PUBLIC FILE_SET CXX_MODULES FILES
-	${module}/vulkan/vulkan.cppm
+	${include}/vulkan/vulkan.cppm
 )
 target_compile_options(vulkan_module PUBLIC
 	${compile_options}
 )
-target_include_directories(
-	vulkan_module PUBLIC
-
+target_include_directories(vulkan_module PUBLIC
 	${include}
 )
 
@@ -309,6 +318,7 @@ target_link_libraries(
 
 	#std_module
 	#std_compat_module
+	glm_module
 	vulkan_module
 	imgui
 )

@@ -10,7 +10,7 @@ export module window;
 #if INTELLISENSE
 #include "vulkan/vulkan.hpp"
 #else
-import vulkan;
+import vulkan_hpp;
 import std.core;
 #endif
 import lighthouse_string;

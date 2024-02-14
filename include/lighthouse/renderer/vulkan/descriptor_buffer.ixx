@@ -18,7 +18,7 @@ import descriptor_resource_buffer;
 
 #if not INTELLISENSE
 import std.core;
-import vulkan;
+import vulkan_hpp;
 #endif
 
 export namespace lh
