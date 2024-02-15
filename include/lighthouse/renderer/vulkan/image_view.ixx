@@ -25,14 +25,6 @@ export namespace lh
 					{}, {}, vk::ImageViewType::e2D, image::create_info::m_format, {}, default_image_subresource_range};
 			};
 
-			static constexpr auto cubemap_create_info = create_info {
-				.m_create_info = {{},
-				 {},
-				 vk::ImageViewType::eCube,
-				 image::create_info::m_format,
-				 {},
-				 {vk::ImageAspectFlagBits::eColor, 0, vk::RemainingMipLevels, 0, 6}}};
-
 			static constexpr auto default_image_subresource_range = vk::ImageSubresourceRange {
 				vk::ImageAspectFlagBits::eColor, 0, vk::RemainingMipLevels, 0, vk::RemainingArrayLayers};
 			static constexpr auto default_image_subresource_layers = vk::ImageSubresourceLayers {

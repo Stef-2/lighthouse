@@ -46,19 +46,19 @@ export namespace lh
 		{
 			using texture_count_t = std::uint32_t;
 
-			std::vector<font_info> m_fonts_info = {};
+			std::vector<font_info> m_fonts_infos = {};
 			vk::SampleCountFlagBits m_rasterization_sample_count = vk::SampleCountFlagBits::e1;
 			texture_count_t m_max_texture_count = 32;
 		};
 
 		dear_imgui(const window&,
-			  const vulkan::instance&,
-			  const vulkan::physical_device&,
-			  const vulkan::logical_device&,
-			  const vulkan::queue_families::family&,
-			  const vulkan::queue&,
-			  const vulkan::swapchain&,
-			  const create_info& = {});
+				   const vulkan::instance&,
+				   const vulkan::physical_device&,
+				   const vulkan::logical_device&,
+				   const vulkan::queue_families::family&,
+				   const vulkan::queue&,
+				   const vulkan::swapchain&,
+				   const create_info& = {});
 
 		dear_imgui(const dear_imgui&) = delete;
 		dear_imgui& operator=(const dear_imgui&) = delete;

@@ -186,7 +186,7 @@ namespace lh
 		command_buffer.pipelineBarrier2(dependacy_info);*/
 
 		// test ui vs camera controls
-		const auto imgui_io = ImGui::GetIO();
+		const auto& imgui_io = ImGui::GetIO();
 		if (imgui_io.WantCaptureMouse)
 			input::mouse::move_callback([](auto wtf) {});
 		else

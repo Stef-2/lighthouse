@@ -47,7 +47,7 @@ namespace lh
 		ImGui_ImplVulkan_Init(&vulkan_init_info, {});
 
 		// generate fonts if their paths were provided
-		for (const auto& imgui_io = ImGui::GetIO(); const auto& font_info : create_info.m_fonts_info)
+		for (const auto& imgui_io = ImGui::GetIO(); const auto& font_info : create_info.m_font_infos)
 		{
 			const auto font_name = font_info.m_font_path.stem().string();
 			m_font_map.emplace(font_name,

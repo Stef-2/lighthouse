@@ -76,7 +76,7 @@ export namespace lh
 		dear_imgui m_imgui;
 
 		vulkan::global_descriptor m_global_descriptor;
-		global_light_manager m_global_manager;
+		global_light_manager m_global_light_manager;
 		vulkan::descriptor_buffer m_global_descriptor_buffer;
 		default_meshes m_default_meshes;
 
