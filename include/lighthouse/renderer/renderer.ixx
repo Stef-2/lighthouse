@@ -76,11 +76,11 @@ export namespace lh
 		dear_imgui m_imgui;
 
 		vulkan::global_descriptor m_global_descriptor;
-		global_light_manager m_global_light_descriptor_buffer;
+		global_light_manager m_global_manager;
 		vulkan::descriptor_buffer m_global_descriptor_buffer;
 		default_meshes m_default_meshes;
 
-		vulkan::pipeline m_resource_generator;
+		vulkan::pipeline m_test_pipeline;
 		scene_loader m_scene_loader;
 		lh::camera<camera_type::perspective> m_camera;
 		material m_material;

@@ -61,7 +61,8 @@ namespace lh
 				global_descriptor.create_information().m_num_combined_image_samplers);
 		}
 
-		auto descriptor_buffer::register_resource_buffer(const descriptor_resource_buffer& resource_buffer) -> void
+		auto descriptor_buffer::register_resource_buffer(const descriptor_resource_buffer& resource_buffer) const
+			-> void
 		{
 			const auto& descriptor_buffer_properties = m_physical_device.properties().m_descriptor_buffer_properties;
 
@@ -120,7 +121,8 @@ namespace lh
 		}
 
 		auto descriptor_buffer::map_resource_buffer_offsets(const vk::raii::CommandBuffer& command_buffer,
-															const descriptor_resource_buffer& resource_buffer) -> void
+															const descriptor_resource_buffer& resource_buffer) const
+			-> void
 		{
 			const auto& resource_indices = m_resource_buffer_indices.at(&resource_buffer);
 

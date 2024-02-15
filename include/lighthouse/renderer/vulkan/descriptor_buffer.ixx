@@ -29,6 +29,7 @@ export namespace lh
 		{
 		public:
 			friend class texture;
+			friend class pipeline;
 
 			struct create_info
 			{
@@ -43,13 +44,14 @@ export namespace lh
 							  const global_descriptor&,
 							  const create_info& = {});
 
-			auto register_resource_buffer(const descriptor_resource_buffer&) -> void;
-			auto map_resource_buffer_offsets(const vk::raii::CommandBuffer&, const descriptor_resource_buffer&) -> void;
 
 			auto bind(const vk::raii::CommandBuffer&) const -> void;
 			auto flush_resource_descriptors() -> void;
 
 		private:
+			auto register_resource_buffer(const descriptor_resource_buffer&) const -> void;
+			auto map_resource_buffer_offsets(const vk::raii::CommandBuffer&, const descriptor_resource_buffer&) const -> void;
+
 			using descriptor_indices_t = std::uint32_t;
 
 			struct resource_buffer_offsets
@@ -64,15 +66,15 @@ export namespace lh
 
 			vk::PipelineBindPoint m_bind_point;
 			
-			std::vector<vk::DescriptorBufferBindingInfoEXT> m_uniform_descriptor_buffer_binding_info;
-			std::vector<vk::DescriptorBufferBindingInfoEXT> m_storage_descriptor_buffer_binding_info;
-			std::vector<vk::DescriptorBufferBindingInfoEXT> m_combined_image_sampler_descriptor_buffer_binding_info;
+			mutable std::vector<vk::DescriptorBufferBindingInfoEXT> m_uniform_descriptor_buffer_binding_info;
+			mutable std::vector<vk::DescriptorBufferBindingInfoEXT> m_storage_descriptor_buffer_binding_info;
+			mutable std::vector<vk::DescriptorBufferBindingInfoEXT> m_combined_image_sampler_descriptor_buffer_binding_info;
 
-			descriptor_indices_t m_accumulated_uniform_descriptor_index;
-			descriptor_indices_t m_accumulated_storage_descriptor_index;
-			std::vector<global_descriptor::descriptor_type_size_t> m_vacant_combined_image_sampler_slots;
+			mutable descriptor_indices_t m_accumulated_uniform_descriptor_index;
+			mutable descriptor_indices_t m_accumulated_storage_descriptor_index;
+			mutable std::vector<global_descriptor::descriptor_type_size_t> m_vacant_combined_image_sampler_slots;
 
-			std::map<const descriptor_resource_buffer*, resource_buffer_offsets> m_resource_buffer_indices;
+			mutable std::map<const descriptor_resource_buffer*, resource_buffer_offsets> m_resource_buffer_indices;
 
 			mapped_buffer m_uniform_descriptor_buffer;
 			mapped_buffer m_storage_descriptor_buffer;

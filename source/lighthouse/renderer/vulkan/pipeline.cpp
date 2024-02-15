@@ -45,14 +45,17 @@ namespace lh
 {
 	namespace vulkan
 	{
-		pipeline::pipeline(
-			const physical_device& physical_device,
-			const logical_device& logical_device,
-			const memory_allocator& memory_allocator,
-			const shader_pipeline::pipeline_glsl_code_t& shader_paths,
-			const global_descriptor& global_descriptor,
-			const create_info& create_info)
-			: m_vertex_input_description {}, m_shader_pipeline {}, m_resource_descriptor_buffer {}
+		pipeline::pipeline(const physical_device& physical_device,
+						   const logical_device& logical_device,
+						   const memory_allocator& memory_allocator,
+						   const shader_pipeline::pipeline_glsl_code_t& shader_paths,
+						   const global_descriptor& global_descriptor,
+						   const descriptor_buffer& descriptor_buffer,
+						   const create_info& create_info)
+			: m_descriptor_buffer {descriptor_buffer},
+			  m_vertex_input_description {},
+			  m_shader_pipeline {},
+			  m_resource_descriptor_buffer {}
 		{
 			auto pipeline_shader_inputs = std::vector<std::pair<vk::ShaderStageFlagBits, shader_input>> {};
 			auto spir_v = std::vector<vulkan::spir_v> {};
@@ -117,6 +120,8 @@ namespace lh
 											memory_allocator,
 											buffer_offset,
 											{{.m_usage = resoruce_descriptor_buffer_usage}, resource_buffer_subdata}};
+
+			m_descriptor_buffer.register_resource_buffer(m_resource_descriptor_buffer);
 		}
 
 		auto pipeline::vertex_input_description() const -> const vulkan::vertex_input_description&
@@ -134,21 +139,22 @@ namespace lh
 			return m_shader_pipeline;
 		}
 
-		auto pipeline::descriptor_buffer() const -> const vulkan::descriptor_resource_buffer&
+		auto pipeline::resource_buffer() const -> const vulkan::descriptor_resource_buffer&
 		{
 			return m_resource_descriptor_buffer;
 		}
 
 		auto pipeline::bind(const vk::raii::CommandBuffer& command_buffer) const -> void
 		{
+			m_descriptor_buffer.map_resource_buffer_offsets(command_buffer, m_resource_descriptor_buffer);
+
 			command_buffer.setVertexInputEXT(m_vertex_input_description.m_bindings,
 											 m_vertex_input_description.m_attributes);
 
 			m_shader_pipeline.bind(command_buffer);
 		}
 
-		auto pipeline::translate_shader_input_format(const shader_input& shader_input) const
-			-> const vk::Format
+		auto pipeline::translate_shader_input_format(const shader_input& shader_input) const -> const vk::Format
 		{
 			auto format = vk::Format {};
 
@@ -257,8 +263,8 @@ namespace lh
 
 			return format;
 		}
-		auto pipeline::generate_vertex_input_description(
-			const std::vector<shader_input>& shader_inputs) -> const vulkan::vertex_input_description
+		auto pipeline::generate_vertex_input_description(const std::vector<shader_input>& shader_inputs)
+			-> const vulkan::vertex_input_description
 		{
 			auto vertex_bindings = vk::VertexInputBindingDescription2EXT {};
 			auto vertex_attributes = std::vector<vk::VertexInputAttributeDescription2EXT> {};

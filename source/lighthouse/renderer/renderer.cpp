@@ -49,7 +49,7 @@ namespace lh
 				   m_graphics_queue,
 				   m_swapchain},
 		  m_global_descriptor {m_physical_device, m_logical_device},
-		  m_global_light_descriptor_buffer {m_physical_device, m_logical_device, m_memory_allocator},
+		  m_global_light_manager {m_physical_device, m_logical_device, m_memory_allocator},
 		  m_global_descriptor_buffer {m_physical_device, m_logical_device, m_memory_allocator, m_global_descriptor},
 		  m_default_meshes {m_logical_device,
 							m_memory_allocator,
@@ -58,12 +58,13 @@ namespace lh
 							 file_system::data_path() /= "models/sphere.obj",
 							 file_system::data_path() /= "models/cylinder.obj",
 							 file_system::data_path() /= "models/cone.obj"}},
-		  m_resource_generator {m_physical_device,
-								m_logical_device,
-								m_memory_allocator,
-								{file_system::data_path() /= "shaders/basic.vert",
-								 file_system::data_path() /= "shaders/basic.frag"},
-								m_global_descriptor},
+		  m_test_pipeline {m_physical_device,
+						   m_logical_device,
+						   m_memory_allocator,
+						   {file_system::data_path() /= "shaders/basic.vert",
+							file_system::data_path() /= "shaders/basic.frag"},
+						   m_global_descriptor,
+						   m_global_descriptor_buffer},
 		  m_scene_loader {m_logical_device, m_memory_allocator, file_system::data_path() /= "models/cube.obj"},
 		  m_camera {std::make_shared<lh::node>(), camera<camera_type::perspective>::create_info {}},
 		  m_material {m_physical_device,
@@ -100,7 +101,7 @@ namespace lh
 					},
 					m_transfer_queue}
 	{
-		// m_global_descriptor_buffer.map_resource_buffer(m_resource_generator.descriptor_buffer());
+		// m_global_descriptor_buffer.map_resource_buffer(m_test_pipeline.resource_buffer());
 
 		if (m_create_info.m_using_validation)
 			output::log() << info(m_create_info);
@@ -192,29 +193,28 @@ namespace lh
 			input::mouse::move_callback(m_camera.first_person_callback());
 		// done testing
 
-		m_global_descriptor_buffer.flush_resource_descriptors();
-		m_global_descriptor_buffer.register_resource_buffer(m_resource_generator.descriptor_buffer());
-		m_global_descriptor_buffer.register_resource_buffer(m_skybox.pipeline().descriptor_buffer());
-		//  draw sphere
+		// m_global_descriptor_buffer.flush_resource_descriptors();
+		//  m_global_descriptor_buffer.register_resource_buffer(m_test_pipeline.resource_buffer());
+		//  m_global_descriptor_buffer.register_resource_buffer(m_skybox.pipeline().resource_buffer());
+		//    draw sphere
 		m_default_meshes.sphere().vertex_buffer().bind(command_buffer);
-		m_resource_generator.descriptor_buffer().map_uniform_data(0, t);
-		m_resource_generator.descriptor_buffer().map_uniform_data(1, mi);
-		m_resource_generator.descriptor_buffer().map_storage_data(0, mi);
-		m_resource_generator.descriptor_buffer().map_storage_data(
-			1, m_global_light_descriptor_buffer.light_device_addresses());
+		m_test_pipeline.bind(command_buffer);
+		m_test_pipeline.resource_buffer().map_uniform_data(0, t);
+		m_test_pipeline.resource_buffer().map_uniform_data(1, mi);
+		m_test_pipeline.resource_buffer().map_storage_data(0, mi);
+		m_test_pipeline.resource_buffer().map_storage_data(1, m_global_light_manager.light_device_addresses());
 		m_global_descriptor_buffer.bind(command_buffer);
-		m_global_descriptor_buffer.map_resource_buffer_offsets(command_buffer,
-															   m_resource_generator.descriptor_buffer());
-		m_resource_generator.bind(command_buffer);
+		// m_global_descriptor_buffer.map_resource_buffer_offsets(command_buffer, m_test_pipeline.resource_buffer());
 		command_buffer.drawIndexed(m_default_meshes.sphere().indices().size(), 1, 0, 0, 0);
 
 		// draw skybox
 		m_default_meshes.cube().vertex_buffer().bind(command_buffer);
-		//  m_skybox.mesh().vertex_buffer().bind(command_buffer);
-		m_skybox.pipeline().descriptor_buffer().map_uniform_data(0, t);
-		m_global_descriptor_buffer.map_resource_buffer_offsets(command_buffer, m_skybox.pipeline().descriptor_buffer());
-		//  m_global_descriptor_buffer.bind(command_buffer);
 		m_skybox.pipeline().bind(command_buffer);
+		//  m_skybox.mesh().vertex_buffer().bind(command_buffer);
+		m_skybox.pipeline().resource_buffer().map_uniform_data(0, t);
+		// m_global_descriptor_buffer.map_resource_buffer_offsets(command_buffer,
+		// m_skybox.pipeline().resource_buffer());
+		//   m_global_descriptor_buffer.bind(command_buffer);
 		command_buffer.drawIndexed(m_default_meshes.cube().indices().size(), 1, 0, 0, 0);
 
 		m_imgui.new_frame();

@@ -39,7 +39,7 @@ export namespace lh
 			   const vulkan::logical_device&,
 			   const vulkan::memory_allocator&,
 			   const vulkan::global_descriptor&,
-			   vulkan::descriptor_buffer&,
+			   const vulkan::descriptor_buffer&,
 			   const default_meshes&,
 			   const vulkan::shader_pipeline::pipeline_glsl_code_t&,
 			   const skybox_texture_paths_t&,

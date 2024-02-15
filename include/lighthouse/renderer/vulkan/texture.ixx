@@ -48,7 +48,7 @@ export namespace lh
 					const memory_allocator&,
 					queue&,
 					const image_paths_t&,
-					descriptor_buffer&,
+					const descriptor_buffer&,
 					const create_info& = {});
 			texture(const texture&) = delete;
 			texture& operator=(const texture&) = delete;
@@ -77,7 +77,7 @@ export namespace lh
 
 			auto push_descriptor_data_onto_stack(const lh::vulkan::physical_device&) -> void;
 
-			descriptor_buffer& m_descriptor_buffer;
+			const descriptor_buffer& m_descriptor_buffer;
 			vulkan::image m_image;
 			vulkan::image_view m_image_view;
 			vulkan::sampler m_sampler;

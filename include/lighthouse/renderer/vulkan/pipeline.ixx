@@ -39,16 +39,17 @@ export namespace lh
 			{};
 
 			pipeline(const physical_device&,
-										const logical_device&,
-										const memory_allocator&,
-										const shader_pipeline::pipeline_glsl_code_t&,
-										const global_descriptor&,
-										const create_info& = {});
+					 const logical_device&,
+					 const memory_allocator&,
+					 const shader_pipeline::pipeline_glsl_code_t&,
+					 const global_descriptor&,
+					 const descriptor_buffer&,
+					 const create_info& = {});
 
 			auto vertex_input_description() const -> const vulkan::vertex_input_description&;
 			auto has_vertex_input() const -> const bool;
 			auto shader_pipeline() const -> const vulkan::shader_pipeline&;
-			auto descriptor_buffer() const -> const vulkan::descriptor_resource_buffer&;
+			auto resource_buffer() const -> const vulkan::descriptor_resource_buffer&;
 			auto bind(const vk::raii::CommandBuffer&) const -> void;
 
 		private:
@@ -56,6 +57,7 @@ export namespace lh
 			auto generate_vertex_input_description(const std::vector<shader_input>&)
 				-> const vulkan::vertex_input_description;
 
+			const descriptor_buffer& m_descriptor_buffer;
 			vulkan::vertex_input_description m_vertex_input_description;
 			vulkan::shader_pipeline m_shader_pipeline;
 			descriptor_resource_buffer m_resource_descriptor_buffer;

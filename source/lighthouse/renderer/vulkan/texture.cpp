@@ -15,17 +15,13 @@ import vulkan_utility;
 namespace lh
 {
 	namespace vulkan
-	{ /*
-		 texture::texture()
-			 : m_image {nullptr}, m_image_view {nullptr}, m_sampler {nullptr}, m_descriptor {}, m_descriptor_index {}
-		{}*/
-
+	{
 		texture::texture(const physical_device& physical_device,
 						 const logical_device& logical_device,
 						 const memory_allocator& memory_allocator,
 						 queue& queue,
 						 const image_paths_t& paths,
-						 descriptor_buffer& descriptor_buffer,
+						 const descriptor_buffer& descriptor_buffer,
 						 const create_info& create_info)
 			: m_descriptor_buffer {descriptor_buffer},
 			  m_image {nullptr},
