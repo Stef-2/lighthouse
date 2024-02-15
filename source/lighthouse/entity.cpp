@@ -1,7 +1,5 @@
 module;
 
-#include "glm/gtx/matrix_decompose.hpp"
-
 module entity;
 
 namespace lh

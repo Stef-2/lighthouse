@@ -1,12 +1,19 @@
 module;
 
 #include "assimp/scene.h"
+
+#if INTELLISENSE
 #include "glm/vec3.hpp"
 #include "glm/vec2.hpp"
 #include "glm/gtc/random.hpp"
+#endif
 
 module scene_loader;
 import output;
+
+#if not INTELLISENSE
+import glm;
+#endif
 
 namespace
 {

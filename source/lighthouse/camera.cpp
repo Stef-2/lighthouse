@@ -1,8 +1,5 @@
 module;
 
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtc/quaternion.hpp"
-
 module camera;
 
 namespace lh
@@ -20,8 +17,8 @@ namespace lh
 			  const auto delta_x = static_cast<float>(move_info.m_current.x - move_info.m_previous.x);
 			  const auto delta_y = static_cast<float>(move_info.m_current.y - move_info.m_previous.y);
 
-			  const auto quat_delta_x = (glm::angleAxis(glm::radians(delta_y), glm::vec3(1.0f, 0.0f, 0.0f)));
-			  const auto quat_delta_y = (glm::angleAxis(glm::radians(delta_x), glm::vec3(0.0f, 1.0f, 0.0f)));
+			  const auto quat_delta_x = (glm::ext::angleAxis(glm::radians(delta_y), glm::vec3(1.0f, 0.0f, 0.0f)));
+			  const auto quat_delta_y = (glm::ext::angleAxis(glm::radians(delta_x), glm::vec3(0.0f, 1.0f, 0.0f)));
 
 			  rotate_absolute(glm::quat {1.0f, 0.0f, 0.0f, 0.0f} * quat_delta_x * m_rotation * quat_delta_y);
 		  }}

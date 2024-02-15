@@ -1,15 +1,16 @@
 module;
 
+#if INTELLISENSE
 #include "glm/vec3.hpp"
 #include "glm/gtx/quaternion.hpp"
 
-#if INTELLISENSE
 #include <memory>
 #endif
 
 export module entity;
 
 #if not INTELLISENSE
+import glm;
 import std.core;
 #endif
 

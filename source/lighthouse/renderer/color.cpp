@@ -1,11 +1,6 @@
 module;
-/*
-#include "glm/glm.hpp"
-#include "glm/gtx/color_space.hpp"
-*/
-module color;
 
-import glm;
+module color;
 
 namespace lh
 {
@@ -80,9 +75,9 @@ namespace lh
 			const auto self = glm::vec3 {*this};
 
 			if (color_mode == color_mode::hsl)
-				*this = {glm::gtx::rgbColor(self), color_mode};
+				*this = {glm::rgbColor(self), color_mode};
 			else
-				*this = {glm::gtx::hsvColor(self), color_mode};
+				*this = {glm::hsvColor(self), color_mode};
 		}
 
 		color::operator glm::vec3() const
@@ -117,11 +112,11 @@ namespace lh
 			// luminosity is computed only for rgb color mode
 			if (std::to_underlying(component) == std::to_underlying(color_component::luminosity))
 				if (m_color_mode == color_mode::rgb)
-					return glm::gtx::luminosity(static_cast<glm::vec3>(*this));
+					return glm::luminosity(static_cast<glm::vec3>(*this));
 				else
 				{
 					auto converted = glm::rgbColor(static_cast<glm::vec3>(*this));
-					return glm::gtx::luminosity(static_cast<glm::vec3>(converted));
+					return glm::luminosity(static_cast<glm::vec3>(converted));
 				}
 
 			// requesting color components this color doesn't have already encoded requres conversion

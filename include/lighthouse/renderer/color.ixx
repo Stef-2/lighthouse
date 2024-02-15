@@ -11,8 +11,9 @@ module;
 export module color;
 
 #if not INTELLISENSE
-import std.core;
 import glm;
+
+import std.core;
 #endif
 
 export namespace lh

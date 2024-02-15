@@ -1,8 +1,14 @@
 module;
 
+#if INTELLISENSE
 #include "glm/vec3.hpp"
+#endif
 
 export module bounding_volume;
+
+#if not INTELLISENSE
+import glm;
+#endif
 
 export namespace lh
 {

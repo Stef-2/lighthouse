@@ -1,18 +1,18 @@
 module;
 
 #if INTELLISENSE
+#include "glm/glm.hpp"
+#include "glm/gtc/quaternion.hpp"
 #include "vulkan/vulkan.hpp"
 
 #include <cstdint>
 #include <vector>
 #endif
 
-#include "glm/glm.hpp"
-#include "glm/gtc/quaternion.hpp"
-
 export module light;
 
 #if not INTELLISENSE
+import glm;
 import std.core;
 #endif
 

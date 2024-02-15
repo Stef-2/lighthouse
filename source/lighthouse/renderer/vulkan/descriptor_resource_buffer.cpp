@@ -2,11 +2,14 @@ module;
 
 #if INTELLISENSE
 #include "vulkan_raii.hpp"
+#include "glm/vec4.hpp"
 #endif
 
-#include "glm/vec4.hpp"
-
 module descriptor_resource_buffer;
+
+#if not INTELLISENSE
+import glm;
+#endif
 
 import vulkan_utility;
 

@@ -3,16 +3,16 @@ module;
 #if INTELLISENSE
 #include "glm/glm.hpp"
 #include "glm/ext.hpp"
+#include "glm/mat4x4.hpp"
+#include "glm/gtx/quaternion.hpp"
 
 #include <functional>
 #include <memory>
 #endif
 
-#include "glm/mat4x4.hpp"
-#include "glm/gtx/quaternion.hpp"
-
 export module camera;
 
+import glm;
 import entity;
 import input;
 

@@ -1,7 +1,5 @@
 module;
 
-#include "glm/mat4x4.hpp"
-#include "glm/ext.hpp"
 #include "imgui/imgui.h"
 
 #if INTELLISENSE
@@ -13,6 +11,7 @@ module renderer;
 import output;
 import file_system;
 import time;
+import glm;
 
 // #pragma optimize("", off)
 namespace lh
