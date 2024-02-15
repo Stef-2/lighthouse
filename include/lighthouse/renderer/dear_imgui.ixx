@@ -23,6 +23,7 @@ import queue_families;
 import queue;
 import swapchain;
 import texture;
+import color;
 
 #if not INTELLISENSE
 import std.core;
@@ -79,6 +80,8 @@ export namespace lh
 		auto unregister_texture(const vulkan::texture&) -> void;
 		auto registered_textures() const -> const std::vector<const vulkan::texture*>;
 
+		auto push_color(ImGuiCol, const colors::color&) const -> void;
+		auto pop_color() const -> void;
 	private:
 		create_info m_create_info;
 

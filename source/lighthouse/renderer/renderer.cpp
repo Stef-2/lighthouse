@@ -217,8 +217,8 @@ namespace lh
 		//   m_global_descriptor_buffer.bind(command_buffer);
 		command_buffer.drawIndexed(m_default_meshes.cube().indices().size(), 1, 0, 0, 0);
 
-		m_user_interface.dear_imgui().new_frame();
-		m_user_interface.dear_imgui().render(command_buffer);
+		m_user_interface.new_frame();
+		m_user_interface.render(command_buffer);
 
 		command_buffer.endRendering();
 

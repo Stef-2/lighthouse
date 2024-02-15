@@ -37,7 +37,18 @@ export namespace lh
 					   const vulkan::swapchain&,
 					   const create_info& = {});
 
+		user_interface(const user_interface&) = delete;
+		user_interface operator=(const user_interface&) = delete;
+
 		auto dear_imgui() -> lh::dear_imgui&;
+		auto dear_imgui() const -> const lh::dear_imgui&;
+		auto operator*() -> lh::dear_imgui&;
+		auto operator*() const -> const lh::dear_imgui&;
+		auto operator->() -> lh::dear_imgui&;
+		auto operator->() const -> const lh::dear_imgui&;
+
+		auto new_frame() const -> void;
+		auto render(const vk::raii::CommandBuffer&) -> void;
 
 	private:
 		lh::dear_imgui m_dear_imgui;

@@ -26,4 +26,39 @@ namespace lh
 	{
 		return m_dear_imgui;
 	}
+
+	auto user_interface::dear_imgui() const -> const lh::dear_imgui&
+	{
+		return m_dear_imgui;
+	}
+
+	auto user_interface::operator*() -> lh::dear_imgui&
+	{
+		return m_dear_imgui;
+	}
+
+	auto user_interface::operator*() const -> const lh::dear_imgui&
+	{
+		return m_dear_imgui;
+	}
+
+	auto user_interface::operator->() -> lh::dear_imgui&
+	{
+		return m_dear_imgui;
+	}
+
+	auto user_interface::operator->() const -> const lh::dear_imgui&
+	{
+		return m_dear_imgui;
+	}
+
+	auto user_interface::new_frame() const -> void
+	{
+		m_dear_imgui.new_frame();
+	}
+
+	auto user_interface::render(const vk::raii::CommandBuffer& command_buffer) -> void
+	{
+		m_dear_imgui.render(command_buffer);
+	}
 }

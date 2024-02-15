@@ -138,4 +138,14 @@ namespace lh
 
 		return registered_textures;
 	}
+
+	auto dear_imgui::push_color(ImGuiCol modifier, const colors::color& color) const -> void
+	{
+		ImGui::PushStyleColor(modifier, ImVec4 {color.r, color.g, color.b, color.a});
+	}
+
+	auto dear_imgui::pop_color() const -> void
+	{
+		ImGui::PopStyleColor();
+	}
 }
