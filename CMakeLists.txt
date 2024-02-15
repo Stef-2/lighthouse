@@ -139,7 +139,7 @@ target_sources(
 	${include}/lighthouse/renderer/vulkan/shader_object.ixx					
 	${include}/lighthouse/renderer/vulkan/vertex_buffer.ixx
 	${include}/lighthouse/renderer/scene_loader.ixx							
-	${include}/lighthouse/renderer/vulkan/pipeline_resource_generator.ixx	
+	"include/lighthouse/renderer/vulkan/pipeline.ixx"	
 	${include}/lighthouse/renderer/vulkan/shader_input.ixx					
 	${include}/lighthouse/renderer/mesh.ixx									
 	${include}/lighthouse/renderer/bounding_volume.ixx	
@@ -189,7 +189,7 @@ target_sources(
 	${source}/lighthouse/renderer/vulkan/shader_object.cpp
 	${source}/lighthouse/renderer/vulkan/vertex_buffer.cpp
 	${source}/lighthouse/renderer/scene_loader.cpp
-	${source}/lighthouse/renderer/vulkan/pipeline_resource_generator.cpp
+	"source/lighthouse/renderer/vulkan/pipeline.cpp"
 	${source}/lighthouse/renderer/vulkan/shader_input.cpp
 	${source}/lighthouse/renderer/mesh.cpp
 	${source}/lighthouse/renderer/bounding_volume.cpp

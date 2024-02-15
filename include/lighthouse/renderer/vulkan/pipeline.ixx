@@ -8,7 +8,7 @@ module;
 #include <utility>
 #endif
 
-export module pipeline_resource_generator;
+export module pipeline;
 
 import physical_device;
 import logical_device;
@@ -32,13 +32,13 @@ export namespace lh
 {
 	namespace vulkan
 	{
-		class pipeline_resource_generator
+		class pipeline
 		{
 		public:
 			struct create_info
 			{};
 
-			pipeline_resource_generator(const physical_device&,
+			pipeline(const physical_device&,
 										const logical_device&,
 										const memory_allocator&,
 										const shader_pipeline::pipeline_glsl_code_t&,

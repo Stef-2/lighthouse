@@ -41,17 +41,6 @@ export namespace lh
 																	  m_memory_properties,
 																	  m_memory_properties};
 			};
-
-			static inline constexpr auto cubemap_create_info = create_info {.m_image_create_info = {vk::ImageCreateFlagBits::eCubeCompatible,
-																	   vk::ImageType::e2D,
-																	   image::create_info::m_format,
-																	   vk::Extent3D {},
-																	   1,
-																	   6,
-																	   vk::SampleCountFlagBits::e1,
-																	   vk::ImageTiling::eOptimal,
-																	   vk::ImageUsageFlagBits::eSampled,
-																	   vk::SharingMode::eExclusive}};
 			
 			struct layout_transition_data
 			{

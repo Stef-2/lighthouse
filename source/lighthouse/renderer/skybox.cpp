@@ -64,7 +64,7 @@ namespace lh
 		return m_mesh;
 	}
 
-	auto skybox::pipeline() const -> const vulkan::pipeline_resource_generator&
+	auto skybox::pipeline() const -> const vulkan::pipeline&
 	{
 		return m_pipeline_resource_generator;
 	}

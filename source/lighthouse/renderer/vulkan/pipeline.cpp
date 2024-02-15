@@ -6,10 +6,9 @@ module;
 #include <ranges>
 #endif
 
-module pipeline_resource_generator;
+module pipeline;
 
 import input;
-import light;
 import vertex_format;
 
 namespace
@@ -26,8 +25,7 @@ namespace
 				unique_pipeline_inputs.m_uniform_buffer_descriptors.push_back(input);
 
 			if (input.m_type == vk::DescriptorType::eStorageBuffer and
-				not std::ranges::contains(unique_pipeline_inputs.m_storage_buffer_descriptors, input) and
-				input.m_descriptor_set != lh::light::reserved_light_descriptor_set_number)
+				not std::ranges::contains(unique_pipeline_inputs.m_storage_buffer_descriptors, input))
 				unique_pipeline_inputs.m_storage_buffer_descriptors.push_back(input);
 
 			if (input.m_type == vk::DescriptorType::eCombinedImageSampler and
@@ -47,7 +45,7 @@ namespace lh
 {
 	namespace vulkan
 	{
-		pipeline_resource_generator::pipeline_resource_generator(
+		pipeline::pipeline(
 			const physical_device& physical_device,
 			const logical_device& logical_device,
 			const memory_allocator& memory_allocator,
@@ -59,6 +57,7 @@ namespace lh
 			auto pipeline_shader_inputs = std::vector<std::pair<vk::ShaderStageFlagBits, shader_input>> {};
 			auto spir_v = std::vector<vulkan::spir_v> {};
 
+			// generate shader objects and collect shader input data
 			for (const auto& shader_path : shader_paths)
 			{
 				spir_v.emplace_back(lh::input::read_file(shader_path));
@@ -66,6 +65,7 @@ namespace lh
 
 				const auto shader_inputs = compiled_spir_v.reflect_shader_input();
 
+				// if provided shaders contain a vertex stage, generate vertex input descriptions
 				if (compiled_spir_v.stage() == vk::ShaderStageFlagBits::eVertex)
 					m_vertex_input_description = generate_vertex_input_description(shader_inputs);
 
@@ -73,14 +73,17 @@ namespace lh
 					pipeline_shader_inputs.push_back({compiled_spir_v.stage(), shader_input});
 			}
 
+			// filter only unique pipeline inputs
 			const auto unique_pipeline_inputs = generate_unique_pipeline_inputs(pipeline_shader_inputs);
 
+			// generate the pipeline
 			auto pipeline_data = std::vector<shader_pipeline::individual_stage_data_t> {};
 			for (const auto& stage_spir_v : spir_v)
 				pipeline_data.emplace_back(stage_spir_v, global_descriptor.descriptor_set_layouts());
 
 			m_shader_pipeline = {logical_device, pipeline_data};
 
+			// generate uniform and storage buffer data to form a resource buffer
 			auto resource_buffer_subdata =
 				std::vector<descriptor_resource_buffer::create_info::binding_type_and_subdata_t> {};
 
@@ -116,27 +119,27 @@ namespace lh
 											{{.m_usage = resoruce_descriptor_buffer_usage}, resource_buffer_subdata}};
 		}
 
-		auto pipeline_resource_generator::vertex_input_description() const -> const vulkan::vertex_input_description&
+		auto pipeline::vertex_input_description() const -> const vulkan::vertex_input_description&
 		{
 			return m_vertex_input_description;
 		}
 
-		auto pipeline_resource_generator::has_vertex_input() const -> const bool
+		auto pipeline::has_vertex_input() const -> const bool
 		{
 			return m_vertex_input_description.m_attributes.empty();
 		}
 
-		auto pipeline_resource_generator::shader_pipeline() const -> const vulkan::shader_pipeline&
+		auto pipeline::shader_pipeline() const -> const vulkan::shader_pipeline&
 		{
 			return m_shader_pipeline;
 		}
 
-		auto pipeline_resource_generator::descriptor_buffer() const -> const vulkan::descriptor_resource_buffer&
+		auto pipeline::descriptor_buffer() const -> const vulkan::descriptor_resource_buffer&
 		{
 			return m_resource_descriptor_buffer;
 		}
 
-		auto pipeline_resource_generator::bind(const vk::raii::CommandBuffer& command_buffer) const -> void
+		auto pipeline::bind(const vk::raii::CommandBuffer& command_buffer) const -> void
 		{
 			command_buffer.setVertexInputEXT(m_vertex_input_description.m_bindings,
 											 m_vertex_input_description.m_attributes);
@@ -144,7 +147,7 @@ namespace lh
 			m_shader_pipeline.bind(command_buffer);
 		}
 
-		auto pipeline_resource_generator::translate_shader_input_format(const shader_input& shader_input) const
+		auto pipeline::translate_shader_input_format(const shader_input& shader_input) const
 			-> const vk::Format
 		{
 			auto format = vk::Format {};
@@ -254,7 +257,7 @@ namespace lh
 
 			return format;
 		}
-		auto pipeline_resource_generator::generate_vertex_input_description(
+		auto pipeline::generate_vertex_input_description(
 			const std::vector<shader_input>& shader_inputs) -> const vulkan::vertex_input_description
 		{
 			auto vertex_bindings = vk::VertexInputBindingDescription2EXT {};
@@ -274,6 +277,7 @@ namespace lh
 												   offset);
 					offset += vertex_input.m_size;
 				}
+
 			vertex_bindings = {0, /*vertex_description_size*/ sizeof vertex, vk::VertexInputRate::eVertex, 1};
 
 			return {vertex_bindings, vertex_attributes};

@@ -18,7 +18,7 @@ import material;
 import swapchain;
 import dynamic_rendering_state;
 import descriptor_buffer;
-import pipeline_resource_generator;
+import pipeline;
 import camera;
 import light;
 import default_meshes;
@@ -80,7 +80,7 @@ export namespace lh
 		vulkan::descriptor_buffer m_global_descriptor_buffer;
 		default_meshes m_default_meshes;
 
-		vulkan::pipeline_resource_generator m_resource_generator;
+		vulkan::pipeline m_resource_generator;
 		scene_loader m_scene_loader;
 		lh::camera<camera_type::perspective> m_camera;
 		material m_material;

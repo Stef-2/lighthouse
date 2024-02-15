@@ -12,7 +12,7 @@ import logical_device;
 import memory_allocator;
 import global_descriptor;
 import descriptor_buffer;
-import pipeline_resource_generator;
+import pipeline;
 import dynamic_rendering_state;
 import default_meshes;
 import shader_object;
@@ -47,14 +47,14 @@ export namespace lh
 			   const create_info& = {});
 
 		auto mesh() const -> const lh::mesh&;
-		auto pipeline() const -> const vulkan::pipeline_resource_generator&;
+		auto pipeline() const -> const vulkan::pipeline&;
 		auto texture() const -> const vulkan::texture&;
 
 		auto record_drawing(const vk::raii::CommandBuffer&, vulkan::dynamic_rendering_state&) const -> void;
 
 	private:
 		const lh::mesh& m_mesh;
-		vulkan::pipeline_resource_generator m_pipeline_resource_generator;
+		vulkan::pipeline m_pipeline_resource_generator;
 		vulkan::texture m_texture;
 	};
 }
