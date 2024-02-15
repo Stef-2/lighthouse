@@ -1,17 +1,18 @@
 module;
 
 #if INTELLISENSE
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+
 #include <utility>
 #include <cstdint>
 #endif
-
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
 
 export module color;
 
 #if not INTELLISENSE
 import std.core;
+import glm;
 #endif
 
 export namespace lh

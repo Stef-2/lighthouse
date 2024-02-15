@@ -2,17 +2,18 @@ module;
 #include "vkfw/vkfw.hpp"
 
 #if INTELLISENSE
+#include "vulkan/vulkan.hpp"
+
 #include <map>
 #endif
 
 export module window;
 
-#if INTELLISENSE
-#include "vulkan/vulkan.hpp"
-#else
-import vulkan_hpp;
+#if not INTELLISENSE
+import vulkan;
 import std.core;
 #endif
+
 import lighthouse_string;
 
 export namespace lh

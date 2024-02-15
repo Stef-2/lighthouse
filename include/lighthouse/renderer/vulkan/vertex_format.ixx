@@ -1,11 +1,15 @@
 module;
-/*
+
+#if INTELLISENSE
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
-*/
+#endif
+
 export module vertex_format;
 
+#if not INTELLISENSE
 import glm;
+#endif
 
 export namespace lh
 {

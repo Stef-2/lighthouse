@@ -51,6 +51,10 @@ target_sources(glm_module PUBLIC FILE_SET CXX_MODULES FILES
 )
 target_compile_options(glm_module PUBLIC
 	${compile_options}
+	/DGLM_FORCE_DEPTH_ZERO_TO_ONE
+	/DGLM_ENABLE_EXPERIMENTAL
+	/DGLM_CONSTEXPR_SIMD
+	/DGLM_FORCE_INTRINSICS
 )
 target_include_directories(glm_module PUBLIC
 	${include}
@@ -58,16 +62,20 @@ target_include_directories(glm_module PUBLIC
 # vulkan module
 add_library(vulkan_module)
 target_sources(vulkan_module PUBLIC FILE_SET CXX_MODULES FILES
-	${include}/vulkan/vulkan.cppm
+	${module}/vulkan/vulkan.cppm
 )
 target_compile_options(vulkan_module PUBLIC
 	${compile_options}
+	/DVULKAN_HPP_FLAGS_MASK_TYPE_AS_PUBLIC
+	/DVULKAN_HPP_NO_NODISCARD_WARNINGS
+	/DVULKAN_HPP_NO_SPACESHIP_OPERATOR
+	/DVULKAN_HPP_NO_TO_STRING
 )
 target_include_directories(vulkan_module PUBLIC
 	${include}
 )
 
-# imgui
+# imgui module
 add_library(imgui)
 target_sources(imgui PUBLIC
 	${source}/imgui/imgui.cpp
@@ -251,20 +259,6 @@ target_compile_definitions(
 	VKFW_NO_LEADING_e_IN_ENUMS
 	VKFW_NO_STRUCT_CONSTRUCTORS
 	VKFW_NO_INCLUDE_VULKAN_HPP
-
-	# vulkan definitions
-	VULKAN_HPP_FLAGS_MASK_TYPE_AS_PUBLIC
-	VULKAN_HPP_NO_NODISCARD_WARNINGS
-	VULKAN_HPP_NO_SPACESHIP_OPERATOR
-	VULKAN_HPP_NO_TO_STRING
-	#VULKAN_HPP_NO_SMART_HANDLE
-	#VULKAN_HPP_NO_SETTERS
-
-	# glm definitions
-	GLM_FORCE_DEPTH_ZERO_TO_ONE
-	GLM_ENABLE_EXPERIMENTAL
-	GLM_CONSTEXPR_SIMD
-	GLM_FORCE_INTRINSICS
 
 	# project definitions
 	DYNAMIC_LINK_DIRECTORY="${dynamic}"

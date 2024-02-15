@@ -19,7 +19,7 @@ import output;
 
 #if not INTELLISENSE
 import std.core;
-import vulkan_hpp;
+import vulkan;
 #endif
 
 export namespace lh

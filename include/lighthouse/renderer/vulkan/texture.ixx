@@ -21,7 +21,7 @@ import image_view;
 import sampler;
 
 #if not INTELLISENSE
-import vulkan_hpp;
+import vulkan;
 import std.core;
 import std.filesystem;
 #endif

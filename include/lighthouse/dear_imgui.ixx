@@ -27,7 +27,7 @@ import texture;
 #if not INTELLISENSE
 import std.core;
 import std.filesystem;
-import vulkan_hpp;
+import vulkan;
 #endif
 
 export namespace lh
@@ -48,7 +48,7 @@ export namespace lh
 
 			std::vector<font_info> m_fonts_info = {};
 			vk::SampleCountFlagBits m_rasterization_sample_count = vk::SampleCountFlagBits::e1;
-			texture_count_t m_max_texture_count;
+			texture_count_t m_max_texture_count = 32;
 		};
 
 		dear_imgui(const window&,

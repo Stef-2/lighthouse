@@ -14,7 +14,7 @@ import shader_input;
 import vertex_input_description;
 
 #if not INTELLISENSE
-import vulkan_hpp;
+import vulkan;
 import std.core;
 #endif
 

@@ -12,7 +12,7 @@ export module material;
 #if not INTELLISENSE
 import std.core;
 import std.filesystem;
-import vulkan_hpp;
+import vulkan;
 #endif
 
 import physical_device;

@@ -14,7 +14,7 @@ import raii_wrapper;
 import output;
 
 #if not INTELLISENSE
-import vulkan_hpp;
+import vulkan;
 #endif
 
 export namespace lh
