@@ -68,7 +68,7 @@ export namespace lh
 		private:
 			auto generate_image_data(const logical_device&,
 									 const memory_allocator&,
-									  queue&,
+									 queue&,
 									 const image::create_info&,
 									 const std::vector<std::filesystem::path>&) -> void;
 

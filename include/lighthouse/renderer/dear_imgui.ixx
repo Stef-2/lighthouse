@@ -46,7 +46,7 @@ export namespace lh
 		{
 			using texture_count_t = std::uint32_t;
 
-			std::vector<font_info> m_fonts_infos = {};
+			std::vector<font_info> m_font_infos = {};
 			vk::SampleCountFlagBits m_rasterization_sample_count = vk::SampleCountFlagBits::e1;
 			texture_count_t m_max_texture_count = 32;
 		};

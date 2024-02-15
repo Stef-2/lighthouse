@@ -156,7 +156,7 @@ target_sources(
 	${include}/lighthouse/renderer/skybox.ixx
 	${include}/lighthouse/renderer/vulkan/image_view.ixx
 	${include}/lighthouse/renderer/default_meshes.ixx
- "include/lighthouse/dear_imgui.ixx")
+ "include/lighthouse/renderer/dear_imgui.ixx" "include/lighthouse/renderer/user_interface.ixx")
 
 target_sources(
 	${PROJECT_NAME} PUBLIC
@@ -208,7 +208,7 @@ target_sources(
 	${source}/lighthouse/renderer/color.cpp
 	${source}/lighthouse/renderer/light.cpp
 	${source}/lighthouse/renderer/vulkan/image_view.cpp
- "source/lighthouse/renderer/default_meshes.cpp" "source/lighthouse/renderer/skybox.cpp" "source/lighthouse/dear_imgui.cpp")
+ "source/lighthouse/renderer/default_meshes.cpp" "source/lighthouse/renderer/skybox.cpp" "source/lighthouse/renderer/dear_imgui.cpp" "source/lighthouse/renderer/user_interface.cpp")
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_RELEASE}")
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
