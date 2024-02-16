@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.27.2)
+﻿cmake_minimum_required(VERSION 3.28)
 
 include(CMakePrintHelpers)
 
@@ -9,9 +9,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 
 # module support
-set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP 1)
+#set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP 1)
 #set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API "2182bf5c-ef0d-489a-91da-49dbc3090d2a")
-set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API "aa1f7df0-828a-4fcd-9afc-2dc80491aca7")
+#set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API "aa1f7df0-828a-4fcd-9afc-2dc80491aca7")
 #add_compile_options(/ifcSearchDir "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.37.32822/ifc/x64/Release")
 #add_compile_options(/stdIfcDir "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.37.32822/ifc/x64/Release")
 #add_compile_options(/reference lighthose_string=C:/Users/Stefan/source/repos/lighthouse/build/MSVC-x64-RelWithDebInfo/CMakeFiles/lighthouse.dir/lighthouse_string.ifc)
@@ -139,7 +139,7 @@ target_sources(
 	${include}/lighthouse/renderer/vulkan/shader_object.ixx					
 	${include}/lighthouse/renderer/vulkan/vertex_buffer.ixx
 	${include}/lighthouse/renderer/scene_loader.ixx							
-	"include/lighthouse/renderer/vulkan/pipeline.ixx"	
+	${include}/lighthouse/renderer/vulkan/pipeline.ixx
 	${include}/lighthouse/renderer/vulkan/shader_input.ixx					
 	${include}/lighthouse/renderer/mesh.ixx									
 	${include}/lighthouse/renderer/bounding_volume.ixx	
@@ -156,7 +156,9 @@ target_sources(
 	${include}/lighthouse/renderer/skybox.ixx
 	${include}/lighthouse/renderer/vulkan/image_view.ixx
 	${include}/lighthouse/renderer/default_meshes.ixx
- "include/lighthouse/renderer/dear_imgui.ixx" "include/lighthouse/renderer/user_interface.ixx")
+	${include}/lighthouse/renderer/dear_imgui.ixx
+	${include}/lighthouse/renderer/user_interface.ixx
+)
 
 target_sources(
 	${PROJECT_NAME} PUBLIC
@@ -189,7 +191,7 @@ target_sources(
 	${source}/lighthouse/renderer/vulkan/shader_object.cpp
 	${source}/lighthouse/renderer/vulkan/vertex_buffer.cpp
 	${source}/lighthouse/renderer/scene_loader.cpp
-	"source/lighthouse/renderer/vulkan/pipeline.cpp"
+	${source}/lighthouse/renderer/vulkan/pipeline.cpp
 	${source}/lighthouse/renderer/vulkan/shader_input.cpp
 	${source}/lighthouse/renderer/mesh.cpp
 	${source}/lighthouse/renderer/bounding_volume.cpp
@@ -208,7 +210,11 @@ target_sources(
 	${source}/lighthouse/renderer/color.cpp
 	${source}/lighthouse/renderer/light.cpp
 	${source}/lighthouse/renderer/vulkan/image_view.cpp
- "source/lighthouse/renderer/default_meshes.cpp" "source/lighthouse/renderer/skybox.cpp" "source/lighthouse/renderer/dear_imgui.cpp" "source/lighthouse/renderer/user_interface.cpp")
+	${source}/lighthouse/renderer/default_meshes.cpp
+	${source}/lighthouse/renderer/skybox.cpp
+	${source}/lighthouse/renderer/dear_imgui.cpp
+	${source}/lighthouse/renderer/user_interface.cpp
+)
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_RELEASE}")
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")

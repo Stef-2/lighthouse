@@ -93,6 +93,7 @@ export namespace lh
 			image_index_t m_image_count;
 			image_index_t m_current_image_index;
 			image_timeout_t m_next_image_timeout;
+			vk::raii::Semaphore m_image_acquired_semaphore;
 
 			vk::RenderingAttachmentInfo m_color_attachment;
 			vk::RenderingAttachmentInfo m_depth_stencil_attachment;

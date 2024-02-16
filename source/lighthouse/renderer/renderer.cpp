@@ -135,9 +135,10 @@ namespace lh
 	auto renderer::render() -> void
 	{
 		m_graphics_queue.command_control().reset();
-		m_graphics_queue.add_wait_semaphore(vk::PipelineStageFlagBits::eBottomOfPipe);
+		
 		const auto& command_buffer = m_graphics_queue.command_control().front();
 		command_buffer.begin({m_graphics_queue.command_control().usage_flags()});
+
 
 		auto [result,
 			  image_index,
@@ -216,9 +217,9 @@ namespace lh
 		// m_skybox.pipeline().resource_buffer());
 		//   m_global_descriptor_buffer.bind(command_buffer);
 		command_buffer.drawIndexed(m_default_meshes.cube().indices().size(), 1, 0, 0, 0);
-
+		/*/
 		m_user_interface.new_frame();
-		m_user_interface.render(command_buffer);
+		m_user_interface.render(command_buffer);*/
 
 		command_buffer.endRendering();
 
@@ -228,6 +229,7 @@ namespace lh
 
 		m_graphics_queue.submit_and_wait();
 
+		m_graphics_queue.add_wait_semaphore(vk::PipelineStageFlagBits::eBottomOfPipe);
 		m_graphics_queue.present(m_swapchain);
 	}
 

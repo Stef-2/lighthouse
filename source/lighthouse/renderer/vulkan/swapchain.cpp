@@ -45,6 +45,7 @@ namespace lh
 
 			  m_current_image_index {},
 			  m_next_image_timeout {create_info.m_next_image_timeout},
+			  m_image_acquired_semaphore {*logical_device, {}},
 			  m_color_attachment {{},
 								  create_info.m_color_attachment_create_info.m_layout,
 								  {},
@@ -70,8 +71,8 @@ namespace lh
 
 			// clamp the prefered image count between the minimum and maximum supported by implementation
 			m_create_info.m_image_count = std::clamp(create_info.m_image_count,
-												surface.capabilities().surfaceCapabilities.minImageCount,
-												surface.capabilities().surfaceCapabilities.maxImageCount);
+													 surface.capabilities().surfaceCapabilities.minImageCount,
+													 surface.capabilities().surfaceCapabilities.maxImageCount);
 
 			auto swapchain_info = vk::SwapchainCreateInfoKHR {{},
 															  **surface,

@@ -47,7 +47,8 @@ namespace lh
 
 		auto queue::present(const swapchain& swapchain) const -> void
 		{
-			std::ignore = m_object.presentKHR({nullptr, **swapchain, swapchain.current_image_index()});
+			std::ignore = m_object.presentKHR(
+				{*m_wait_semaphores.back(), **swapchain, swapchain.current_image_index()});
 		}
 
 		auto queue::command_control() const -> const vulkan::command_control&

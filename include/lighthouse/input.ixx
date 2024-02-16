@@ -93,6 +93,8 @@ namespace lh
 			static auto execute_pressed_keys() -> void;
 
 			static auto key_bindings() -> std::unordered_multimap<const key_input, const action, const key_input>&;
+			static auto is_bound(const key_input&) -> const bool;
+			static auto bound_keys() -> const std::vector<key_input>;
 
 			// binds action(s) to a key
 			static auto bind(const key_input&, const action&) -> void;
@@ -158,12 +160,6 @@ namespace lh
 			std::uint32_t m_height;
 			std::uint8_t m_num_color_channels;
 			std::uint32_t m_data_size;
-		};
-
-		// data obtained by reading font files
-		struct font_data
-		{
-
 		};
 
 		auto read_text_file(const std::filesystem::path&) -> string::string_t;

@@ -46,6 +46,21 @@ namespace lh
 		return s_key_bindings;
 	}
 
+	auto input::key_binding::is_bound(const key_input& key_input) -> const bool
+	{
+		return s_key_bindings.contains(key_input);
+	}
+
+	auto input::key_binding::bound_keys() -> const std::vector<key_input>
+	{
+		auto bound_keys = decltype(key_binding::bound_keys()) {};
+
+		for (const auto& [key, action] : s_key_bindings)
+			bound_keys.emplace_back(key);
+
+		return bound_keys;
+	}
+
 	auto input::key_binding::bind(const key_input& key, const action& action) -> void
 	{
 		s_key_bindings.insert({key, action});

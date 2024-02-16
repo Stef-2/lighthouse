@@ -61,4 +61,9 @@ namespace lh
 	{
 		m_dear_imgui.render(command_buffer);
 	}
+
+	auto user_interface::register_key_event(const input::key_binding::key_input& key_input, const action& action) -> void
+	{
+
+	}
 }

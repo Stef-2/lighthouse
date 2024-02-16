@@ -11,6 +11,7 @@ module;
 
 export module user_interface;
 
+import input;
 import dear_imgui;
 
 #if not INTELLISENSE
@@ -50,7 +51,11 @@ export namespace lh
 		auto new_frame() const -> void;
 		auto render(const vk::raii::CommandBuffer&) -> void;
 
+		auto register_key_event(const input::key_binding::key_input&, const action&) -> void;
+
 	private:
 		lh::dear_imgui m_dear_imgui;
+
+		std::vector<action> m_actions;
 	};
 }
