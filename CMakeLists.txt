@@ -26,8 +26,8 @@ cmake_path(SET dynamic ${CMAKE_CURRENT_SOURCE_DIR}/library)
 
 add_executable(${PROJECT_NAME})
 
-set(compile_options /std:c++latest /EHsc /O2 /W3 /MP /Zf /MD /Qpar /Qpar-report:1 /arch:AVX2 /nologo /experimental:module
-	/DNOMINMAX /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS)
+set(compile_options /std:c++latest /EHsc /O2 /W3 /MP /Zf /MD /Qpar /Qpar-report:1 /arch:AVX2 /nologo /experimental:module /DNOMINMAX /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS)
+
 # std module
 add_library(std_module)
 target_sources(std_module PUBLIC FILE_SET CXX_MODULES FILES
@@ -225,12 +225,11 @@ if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
   target_compile_options(
 	  ${PROJECT_NAME} PUBLIC
 	  # MSVC compiler settings
-	  ${compile_options} #/ZI#/translateInclude
+	  ${compile_options}
 	  # MSVC disable common annoying warnings
 	  /wd4005 /wd4068 /wd4244 /wd4267 /wd4800
 	  # Windows.h configuration
 	  #/DNOMINMAX /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS
-	  #/FIC:/Users/Stefan/source/repos/lighthouse/out/build/MSVC-x64-release/CMakeFiles/lighthouse.dir/RelWithDebInfo/cmake_pch.hxx
 	)
 	
 	target_link_options(
@@ -240,19 +239,6 @@ if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
 		# no console
 		#/SUBSYSTEM:windows /ENTRY:mainCRTStartup
 	)
-endif()
-
-if(${CMAKE_CXX_COMPILER_ID} MATCHES GNU)
-
-	target_compile_options(
-	  ${PROJECT_NAME} PUBLIC
-	  #GCC standard compiler settings
-	  -C -std=c++23 -fpermissive
-	)
-	include_directories(
-		${PROJECT_NAME} SYSTEM ${INCLUDE}
-	)
-	
 endif()
 
 # preprocessor definitions
@@ -325,3 +311,4 @@ target_link_libraries(
 
 message(cmake_version: ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION})
 message(cmake build type: ${CMAKE_BUILD_TYPE})
+message(ifc_path: $ENV{IFCPATH})

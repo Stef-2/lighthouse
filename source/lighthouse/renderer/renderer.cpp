@@ -134,15 +134,13 @@ namespace lh
 
 	auto renderer::render() -> void
 	{
+		m_graphics_queue.wait();
 		m_graphics_queue.command_control().reset();
-		
+
 		const auto& command_buffer = m_graphics_queue.command_control().front();
 		command_buffer.begin({m_graphics_queue.command_control().usage_flags()});
 
-
-		auto [result,
-			  image_index,
-			  render_info] = m_swapchain.next_image_info(command_buffer, m_graphics_queue.wait_semaphores().back());
+		auto [result, image_index, render_info] = m_swapchain.next_image_info(command_buffer);
 
 		command_buffer.beginRendering(render_info);
 

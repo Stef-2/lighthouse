@@ -17,6 +17,7 @@ namespace lh
 							 const vulkan::memory_allocator& memory_allocator,
 							 const create_info& create_info)
 			: m_surface {surface},
+			  m_logical_device {logical_device},
 			  m_create_info {create_info},
 			  m_views {},
 			  m_depth_stencil_buffer {logical_device,
@@ -45,7 +46,7 @@ namespace lh
 
 			  m_current_image_index {},
 			  m_next_image_timeout {create_info.m_next_image_timeout},
-			  m_image_acquired_semaphore {*logical_device, {}},
+			  m_frame_synchronization_data {},
 			  m_color_attachment {{},
 								  create_info.m_color_attachment_create_info.m_layout,
 								  {},
@@ -88,8 +89,8 @@ namespace lh
 															  create_info.m_alpha,
 															  surface.present_mode()};
 
+			// create the swapchain
 			m_object = {*logical_device, swapchain_info};
-			m_image_count = m_object.getImages().size();
 
 			m_views.reserve(m_object.getImages().size());
 
@@ -101,10 +102,18 @@ namespace lh
 				{},
 				{create_info.m_image_aspect, 0, vk::RemainingMipLevels, 0, vk::RemainingArrayLayers});
 
+			// for each image in the swapchain, create image views and frame synchronization data
 			for (auto& image : m_object.getImages())
 			{
 				image_view_info.image = image;
 				m_views.emplace_back(*logical_device, image_view_info);
+
+				m_frame_synchronization_data.emplace_back(
+					vk::raii::Fence {*logical_device, vk::FenceCreateInfo {vk::FenceCreateFlagBits::eSignaled}},
+					vk::raii::Semaphore {*logical_device, vk::SemaphoreCreateInfo {}},
+					vk::raii::Semaphore {*logical_device, vk::SemaphoreCreateInfo {}});
+
+				m_image_count++;
 			}
 		}
 
@@ -133,11 +142,18 @@ namespace lh
 			return m_depth_stencil_view;
 		}
 
-		auto swapchain::next_image_info(const vk::raii::CommandBuffer& command_buffer,
-										const vk::raii::Semaphore& semaphore)
+		auto swapchain::next_image_info(const vk::raii::CommandBuffer& command_buffer)
 			-> const std::tuple<vk::Result, image_index_t, vk::RenderingInfo>
 		{
-			auto [result, image_index] = m_object.acquireNextImage(m_next_image_timeout, *semaphore);
+			// reset sempahore and fence
+			// m_image_acquired_semaphore = {*m_logical_device, vk::SemaphoreCreateInfo {}};
+			m_logical_device->resetFences(*current_frame_synchronization_data().m_image_acquired_fence);
+
+			// acquire the next image
+			auto [result, image_index] = m_object.acquireNextImage(
+				m_next_image_timeout,
+				*m_frame_synchronization_data[m_current_image_index].m_image_acquired_semaphore,
+				*m_frame_synchronization_data[m_current_image_index].m_image_acquired_fence);
 
 			m_current_image_index = image_index;
 			m_color_attachment.imageView = *m_views[m_current_image_index];
@@ -164,6 +180,11 @@ namespace lh
 		auto swapchain::current_image_index() const -> const image_index_t&
 		{
 			return m_current_image_index;
+		}
+
+		auto swapchain::current_frame_synchronization_data() const -> const frame_synchronization_data&
+		{
+			return m_frame_synchronization_data[m_current_image_index];
 		}
 	}
 }

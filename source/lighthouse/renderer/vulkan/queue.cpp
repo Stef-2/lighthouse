@@ -13,6 +13,7 @@ namespace lh
 			: raii_wrapper {{*logical_device, {{}, create_info.m_queue_family.m_index, 0}}},
 			  m_logical_device {logical_device},
 			  m_command_control {logical_device, create_info.m_queue_family, create_info.m_command_control_create_info},
+			  m_fence_timeout {create_info.m_fence_timeout},
 			  m_fence {*logical_device, vk::FenceCreateInfo {}},
 			  m_wait_semaphores {},
 			  m_wait_destination_stage_masks {},
@@ -35,12 +36,19 @@ namespace lh
 			m_signal_semaphores.emplace_back(m_logical_device, vk::SemaphoreCreateInfo {});
 		}
 
+		auto queue::wait() -> void
+		{
+			std::ignore = m_logical_device->waitForFences(*m_fence, true, m_fence_timeout);
+
+			clear();
+		}
+
 		auto queue::submit_and_wait() -> void
 		{
 			const auto submit_info = vk::SubmitInfo {{}, {}, *m_command_control.front(), {}};
 			m_object.submit(submit_info, *m_fence);
 
-			std::ignore = m_logical_device->waitForFences(*m_fence, true, fence_timeout);
+			std::ignore = m_logical_device->waitForFences(*m_fence, true, m_fence_timeout);
 
 			clear();
 		}
@@ -48,7 +56,9 @@ namespace lh
 		auto queue::present(const swapchain& swapchain) const -> void
 		{
 			std::ignore = m_object.presentKHR(
-				{*m_wait_semaphores.back(), **swapchain, swapchain.current_image_index()});
+				{*swapchain.image_acquired_semaphore(), **swapchain, swapchain.current_image_index()});
+
+			std::ignore = m_logical_device->waitForFences(*swapchain.image_acquired_fence(), true, m_fence_timeout);
 		}
 
 		auto queue::command_control() const -> const vulkan::command_control&

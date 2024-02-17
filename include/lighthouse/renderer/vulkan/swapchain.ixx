@@ -58,7 +58,14 @@ export namespace lh
 				color_attachment_create_info m_color_attachment_create_info = {};
 				depth_stencil_attachment_create_info m_depth_stencil_attachment_create_info = {};
 
-				image_timeout_t m_next_image_timeout = 1'000'000'00;
+				image_timeout_t m_next_image_timeout = std::numeric_limits<image_timeout_t>::max();
+			};
+
+			struct frame_synchronization_data
+			{
+				vk::raii::Fence m_image_acquired_fence;
+				vk::raii::Semaphore m_image_acquired_semaphore;
+				vk::raii::Semaphore m_render_finished_semaphore;
 			};
 
 			swapchain(const physical_device&,
@@ -73,16 +80,18 @@ export namespace lh
 			auto views() const -> const std::vector<vk::raii::ImageView>&;
 			auto depth_stencil_buffer() const -> const image&;
 			auto depth_stencil_view() const -> const vk::raii::ImageView&;
-			auto next_image_info(const vk::raii::CommandBuffer&, const vk::raii::Semaphore&)
+			auto next_image_info(const vk::raii::CommandBuffer&)
 				-> const std::tuple<vk::Result, image_index_t, vk::RenderingInfo>;
 			auto image_count() const -> const image_index_t&;
 			auto current_image_index() const -> const image_index_t&;
+			auto current_frame_synchronization_data() const -> const frame_synchronization_data&;
 
 			template <layout_state state>
 			auto transition_layout(const vk::raii::CommandBuffer& command_buffer) const -> void;
 
 		private:
 			const vulkan::surface& m_surface;
+			const vulkan::logical_device& m_logical_device;
 
 			create_info m_create_info;
 			std::vector<vk::raii::ImageView> m_views;
@@ -93,7 +102,7 @@ export namespace lh
 			image_index_t m_image_count;
 			image_index_t m_current_image_index;
 			image_timeout_t m_next_image_timeout;
-			vk::raii::Semaphore m_image_acquired_semaphore;
+			std::vector<frame_synchronization_data> m_frame_synchronization_data;
 
 			vk::RenderingAttachmentInfo m_color_attachment;
 			vk::RenderingAttachmentInfo m_depth_stencil_attachment;
