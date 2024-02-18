@@ -147,13 +147,11 @@ namespace lh
 		{
 			// reset sempahore and fence
 			// m_image_acquired_semaphore = {*m_logical_device, vk::SemaphoreCreateInfo {}};
-			m_logical_device->resetFences(*current_frame_synchronization_data().m_image_acquired_fence);
+			// m_logical_device->resetFences(*current_frame_synchronization_data().m_render_finished_fence);
 
 			// acquire the next image
 			auto [result, image_index] = m_object.acquireNextImage(
-				m_next_image_timeout,
-				*m_frame_synchronization_data[m_current_image_index].m_image_acquired_semaphore,
-				*m_frame_synchronization_data[m_current_image_index].m_image_acquired_fence);
+				m_next_image_timeout, *current_frame_synchronization_data().m_image_acquired_semaphore);
 
 			m_current_image_index = image_index;
 			m_color_attachment.imageView = *m_views[m_current_image_index];
@@ -184,7 +182,7 @@ namespace lh
 
 		auto swapchain::current_frame_synchronization_data() const -> const frame_synchronization_data&
 		{
-			return m_frame_synchronization_data[m_current_image_index];
+			return m_frame_synchronization_data[0];
 		}
 	}
 }

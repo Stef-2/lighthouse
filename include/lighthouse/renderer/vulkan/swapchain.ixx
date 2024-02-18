@@ -58,12 +58,12 @@ export namespace lh
 				color_attachment_create_info m_color_attachment_create_info = {};
 				depth_stencil_attachment_create_info m_depth_stencil_attachment_create_info = {};
 
-				image_timeout_t m_next_image_timeout = std::numeric_limits<image_timeout_t>::max();
+				image_timeout_t m_next_image_timeout = 100000000/*std::numeric_limits<image_timeout_t>::max()*/;
 			};
 
 			struct frame_synchronization_data
 			{
-				vk::raii::Fence m_image_acquired_fence;
+				vk::raii::Fence m_render_finished_fence;
 				vk::raii::Semaphore m_image_acquired_semaphore;
 				vk::raii::Semaphore m_render_finished_semaphore;
 			};

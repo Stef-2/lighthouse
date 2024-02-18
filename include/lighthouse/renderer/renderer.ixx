@@ -69,9 +69,9 @@ export namespace lh
 		vulkan::logical_device m_logical_device;
 		vulkan::memory_allocator m_memory_allocator;
 		implementation_inspector m_implementation_inspector;
-		vulkan::queue m_graphics_queue;
-		vulkan::queue m_transfer_queue;
 		vulkan::swapchain m_swapchain;
+		vulkan::graphics_queue m_graphics_queue;
+		vulkan::queue m_transfer_queue;
 		vulkan::dynamic_rendering_state m_dynamic_rendering_state;
 		user_interface m_user_interface;
 

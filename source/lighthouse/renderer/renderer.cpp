@@ -30,9 +30,9 @@ namespace lh
 							{m_physical_device.extensions().required_extensions()}},
 		  m_memory_allocator {m_instance, m_physical_device, m_logical_device},
 		  m_implementation_inspector(m_instance, m_physical_device, m_logical_device, m_memory_allocator),
-		  m_graphics_queue {m_logical_device, {m_queue_families.graphics()}},
-		  m_transfer_queue {m_logical_device, {m_queue_families.transfer()}},
 		  m_swapchain {m_physical_device, m_logical_device, m_surface, m_queue_families, m_memory_allocator},
+		  m_graphics_queue {m_logical_device, m_swapchain, {m_queue_families.graphics()}},
+		  m_transfer_queue {m_logical_device, {m_queue_families.transfer()}},
 		  m_dynamic_rendering_state {vulkan::dynamic_rendering_state::create_info {
 			  .m_viewport = vk::Viewport(0.0f,
 										 static_cast<float>(m_surface.extent().height),
@@ -134,7 +134,7 @@ namespace lh
 
 	auto renderer::render() -> void
 	{
-		m_graphics_queue.wait();
+		// m_graphics_queue.wait();
 		m_graphics_queue.command_control().reset();
 
 		const auto& command_buffer = m_graphics_queue.command_control().front();
