@@ -20,7 +20,7 @@ namespace lh
 
 				  return vk::raii::SurfaceKHR {*instance, surface};
 			  })},
-			  m_capabilities {physical_device->getSurfaceCapabilities2KHR(*m_object)},
+			  m_capabilities {},
 			  m_present_mode {create_info.m_present_mode},
 			  m_format {create_info.m_format}
 		{
@@ -41,6 +41,34 @@ namespace lh
 				output::warning() << "this system does not support the prefered vulkan present mode";
 				m_present_mode = vk::PresentModeKHR::eFifo;
 			}
+
+			// query surface capabilities
+			const auto capabilities =
+				physical_device->getSurfaceCapabilities2KHR<vk::SurfaceCapabilities2KHR,
+															vk::SharedPresentSurfaceCapabilitiesKHR,
+															vk::SurfaceCapabilitiesFullScreenExclusiveEXT,
+															vk::SurfacePresentScalingCapabilitiesEXT,
+															vk::SurfaceProtectedCapabilitiesKHR,
+															vk::SurfacePresentModeCompatibilityEXT>(*m_object);
+
+			auto present_mode_compatibility = surface_capabilities::present_mode_compatibility {
+				std::get<vk::SurfacePresentModeCompatibilityEXT>(capabilities), {}};
+			present_mode_compatibility.m_compatible_present_modes.resize(
+				present_mode_compatibility.m_present_mode_compatiblity.presentModeCount);
+
+			const auto full_present_mode_compatibility = vk::SurfacePresentModeCompatibilityEXT {
+				static_cast<std::uint32_t>(present_mode_compatibility.m_compatible_present_modes.size()),
+				present_mode_compatibility.m_compatible_present_modes.data()};
+			physical_device->getSurfaceCapabilities2KHR({*m_object, &full_present_mode_compatibility});
+			present_mode_compatibility.m_present_mode_compatiblity.pPresentModes =
+				present_mode_compatibility.m_compatible_present_modes.data();
+
+			m_capabilities = {std::get<vk::SurfaceCapabilities2KHR>(capabilities),
+							  std::get<vk::SharedPresentSurfaceCapabilitiesKHR>(capabilities),
+							  std::get<vk::SurfaceCapabilitiesFullScreenExclusiveEXT>(capabilities),
+							  std::get<vk::SurfacePresentScalingCapabilitiesEXT>(capabilities),
+							  std::get<vk::SurfaceProtectedCapabilitiesKHR>(capabilities),
+							  present_mode_compatibility};
 		}
 
 		auto surface::extent() const -> const vk::Extent2D&
@@ -53,7 +81,7 @@ namespace lh
 			return m_format;
 		}
 
-		auto surface::capabilities() const -> const vk::SurfaceCapabilities2KHR&
+		auto surface::capabilities() const -> const surface_capabilities&
 		{
 			return m_capabilities;
 		}

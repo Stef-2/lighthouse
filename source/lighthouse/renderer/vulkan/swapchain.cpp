@@ -71,9 +71,10 @@ namespace lh
 				queue_family_indices.push_back(queue_families.present().m_index);
 
 			// clamp the prefered image count between the minimum and maximum supported by implementation
-			m_create_info.m_image_count = std::clamp(create_info.m_image_count,
-													 surface.capabilities().surfaceCapabilities.minImageCount,
-													 surface.capabilities().surfaceCapabilities.maxImageCount);
+			m_create_info.m_image_count =
+				std::clamp(create_info.m_image_count,
+						   surface.capabilities().m_capabilities.surfaceCapabilities.minImageCount,
+						   surface.capabilities().m_capabilities.surfaceCapabilities.maxImageCount);
 
 			auto swapchain_info = vk::SwapchainCreateInfoKHR {{},
 															  **surface,

@@ -43,7 +43,7 @@ export namespace lh
 
 			queue(const logical_device&, const create_info& = {});
 
-			auto add_wait_semaphore(const vk::PipelineStageFlags&, const vk::raii::Semaphore&) -> void;
+			//auto add_wait_semaphore(const vk::PipelineStageFlags&, const vk::raii::Semaphore&) -> void;
 			auto wait_semaphores() const -> const std::vector<vk::raii::Semaphore*>&;
 			auto add_signal_semaphore() -> void;
 			auto wait() -> void;
@@ -76,7 +76,7 @@ export namespace lh
 		public:
 			graphics_queue(const logical_device&, const swapchain&, const create_info& = {});
 
-			auto present(const swapchain&) const -> void;
+			auto present() const -> void;
 
 		private:
 			const swapchain& m_swapchain;

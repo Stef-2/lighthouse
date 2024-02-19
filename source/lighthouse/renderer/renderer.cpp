@@ -227,8 +227,8 @@ namespace lh
 
 		m_graphics_queue.submit_and_wait();
 
-		m_graphics_queue.add_wait_semaphore(vk::PipelineStageFlagBits::eBottomOfPipe);
-		m_graphics_queue.present(m_swapchain);
+		// m_graphics_queue.add_wait_semaphore(vk::PipelineStageFlagBits::eBottomOfPipe);
+		m_graphics_queue.present();
 	}
 
 	renderer::implementation_inspector::implementation_inspector(const vulkan::instance& instance,

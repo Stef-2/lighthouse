@@ -22,14 +22,14 @@ namespace lh
 			  m_wait_destination_stage_masks {},
 			  m_signal_semaphores {}
 		{}
-
+		/*
 		auto queue::add_wait_semaphore(const vk::PipelineStageFlags& wait_destination_stage_mask,
 									   const vk::raii::Semaphore& semaphore) -> void
 		{
-			m_wait_semaphores.emplace_back(semaphore);
+			m_wait_semaphores.emplace_back(&semaphore);
 			m_wait_destination_stage_masks.emplace_back(wait_destination_stage_mask);
 		}
-
+		*/
 		auto queue::wait_semaphores() const -> const std::vector<vk::raii::Semaphore*>&
 		{
 			return m_wait_semaphores;
@@ -56,7 +56,7 @@ namespace lh
 				semaphores.emplace_back(**semaphore);*/
 
 			const auto submit_info =
-				vk::SubmitInfo {nullptr, m_wait_destination_stage_masks, *m_command_control.front(), {}};
+				vk::SubmitInfo {nullptr, nullptr /*m_wait_destination_stage_masks*/, *m_command_control.front(), {}};
 
 			m_object.submit(submit_info, *m_fence);
 			m_queue_state = queue_state::executing;
@@ -104,16 +104,17 @@ namespace lh
 		: queue {logical_device, create_info}, m_swapchain {swapchain}
 	{}
 
-	auto vulkan::graphics_queue::present(const swapchain& swapchain) const -> void
+	auto vulkan::graphics_queue::present() const -> void
 	{
-		std::ignore = m_object.presentKHR({*swapchain.current_frame_synchronization_data().m_render_finished_semaphore,
-										   **swapchain,
-										   swapchain.current_image_index()});
-
+		std::ignore = m_object.presentKHR(
+			{*m_swapchain.current_frame_synchronization_data().m_render_finished_semaphore,
+			 **m_swapchain,
+			 m_swapchain.current_image_index()});
+		/*
 		std::ignore = m_logical_device->waitForFences(
-			*swapchain.current_frame_synchronization_data().m_render_finished_fence, true, m_fence_timeout);
+			*m_swapchain.current_frame_synchronization_data().m_render_finished_fence, true, m_fence_timeout);*/
 
-		m_logical_device->resetFences(*swapchain.current_frame_synchronization_data().m_render_finished_fence);
+		m_logical_device->resetFences(*m_swapchain.current_frame_synchronization_data().m_render_finished_fence);
 		m_logical_device->resetFences(*m_fence);
 	}
 }
