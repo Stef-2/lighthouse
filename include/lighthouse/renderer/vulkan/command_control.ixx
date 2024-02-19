@@ -30,6 +30,7 @@ export namespace lh
 
 			auto command_buffers() const -> const vk::raii::CommandBuffers&;
 			auto front() const -> const vk::raii::CommandBuffer&;
+			auto command_buffer_submit_info(const std::size_t& = 0) const -> const vk::CommandBufferSubmitInfo;
 			auto usage_flags() const -> const vk::CommandBufferUsageFlags&;
 			auto reset() const -> void;
 

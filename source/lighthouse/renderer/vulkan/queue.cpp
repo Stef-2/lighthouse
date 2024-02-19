@@ -19,25 +19,22 @@ namespace lh
 			  m_fence_timeout {create_info.m_fence_timeout},
 			  m_fence {*logical_device, vk::FenceCreateInfo {/*vk::FenceCreateFlagBits::eSignaled*/}},
 			  m_wait_semaphores {},
-			  m_wait_destination_stage_masks {},
 			  m_signal_semaphores {}
 		{}
-		/*
-		auto queue::add_wait_semaphore(const vk::PipelineStageFlags& wait_destination_stage_mask,
-									   const vk::raii::Semaphore& semaphore) -> void
+
+		auto queue::add_wait_semaphore(const semaphore& semaphore) -> void
 		{
-			m_wait_semaphores.emplace_back(&semaphore);
-			m_wait_destination_stage_masks.emplace_back(wait_destination_stage_mask);
+			m_wait_semaphores.emplace_back(semaphore);
 		}
-		*/
-		auto queue::wait_semaphores() const -> const std::vector<vk::raii::Semaphore*>&
+
+		auto queue::wait_semaphores() const -> const std::vector<semaphore>&
 		{
 			return m_wait_semaphores;
 		}
 
-		auto queue::add_signal_semaphore() -> void
+		auto queue::add_signal_semaphore(const semaphore& semaphore) -> void
 		{
-			m_signal_semaphores.emplace_back(m_logical_device, vk::SemaphoreCreateInfo {});
+			m_signal_semaphores.emplace_back(semaphore);
 		}
 
 		auto queue::wait() -> void
@@ -54,11 +51,13 @@ namespace lh
 			semaphores.reserve(m_wait_semaphores.size());
 			for (const auto& semaphore : m_wait_semaphores)
 				semaphores.emplace_back(**semaphore);*/
+			const auto wtf = m_command_control.command_buffer_submit_info();
+			const auto submit_info = vk::SubmitInfo2 {{},
+													  {},
+													  /*m_wait_destination_stage_masks*/ wtf,
+													  {}};
 
-			const auto submit_info =
-				vk::SubmitInfo {nullptr, nullptr /*m_wait_destination_stage_masks*/, *m_command_control.front(), {}};
-
-			m_object.submit(submit_info, *m_fence);
+			m_object.submit2(submit_info, *m_fence);
 			m_queue_state = queue_state::executing;
 
 			std::ignore = m_logical_device->waitForFences(*m_fence, true, m_fence_timeout);
@@ -92,7 +91,6 @@ namespace lh
 		{
 			m_logical_device->resetFences(*m_fence);
 			m_wait_semaphores.clear();
-			m_wait_destination_stage_masks.clear();
 			m_signal_semaphores.clear();
 			m_queue_state = queue_state::initial;
 		}

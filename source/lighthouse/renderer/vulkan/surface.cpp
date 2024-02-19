@@ -2,6 +2,8 @@ module;
 
 #include "vkfw/vkfw.hpp"
 
+#include "Winuser.h"
+
 module surface;
 import output;
 
@@ -24,7 +26,6 @@ namespace lh
 			  m_present_mode {create_info.m_present_mode},
 			  m_format {create_info.m_format}
 		{
-
 			const auto formats = physical_device->getSurfaceFormats2KHR(*m_object);
 			const auto present_modes = physical_device->getSurfacePresentModesKHR(*m_object);
 
@@ -43,13 +44,18 @@ namespace lh
 			}
 
 			// query surface capabilities
+			const auto monitor_handle = MonitorFromPoint({0, 0}, MONITOR_DEFAULTTONEAREST);
+			auto fullscreen_exclusive_info = vk::SurfaceFullScreenExclusiveWin32InfoEXT {monitor_handle};
+			auto surface_present_mode = vk::SurfacePresentModeEXT {m_present_mode, &fullscreen_exclusive_info};
+
 			const auto capabilities =
 				physical_device->getSurfaceCapabilities2KHR<vk::SurfaceCapabilities2KHR,
 															vk::SharedPresentSurfaceCapabilitiesKHR,
 															vk::SurfaceCapabilitiesFullScreenExclusiveEXT,
 															vk::SurfacePresentScalingCapabilitiesEXT,
 															vk::SurfaceProtectedCapabilitiesKHR,
-															vk::SurfacePresentModeCompatibilityEXT>(*m_object);
+															vk::SurfacePresentModeCompatibilityEXT>(
+					{*m_object, &surface_present_mode});
 
 			auto present_mode_compatibility = surface_capabilities::present_mode_compatibility {
 				std::get<vk::SurfacePresentModeCompatibilityEXT>(capabilities), {}};
@@ -58,8 +64,9 @@ namespace lh
 
 			const auto full_present_mode_compatibility = vk::SurfacePresentModeCompatibilityEXT {
 				static_cast<std::uint32_t>(present_mode_compatibility.m_compatible_present_modes.size()),
-				present_mode_compatibility.m_compatible_present_modes.data()};
-			physical_device->getSurfaceCapabilities2KHR({*m_object, &full_present_mode_compatibility});
+				present_mode_compatibility.m_compatible_present_modes.data(),
+				&surface_present_mode};
+			physical_device->getSurfaceCapabilities2KHR({*m_object, &surface_present_mode});
 			present_mode_compatibility.m_present_mode_compatiblity.pPresentModes =
 				present_mode_compatibility.m_compatible_present_modes.data();
 

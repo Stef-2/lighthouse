@@ -29,6 +29,12 @@ namespace lh
 			return m_buffers.front();
 		}
 
+		auto command_control::command_buffer_submit_info(const std::size_t& index) const
+			-> const vk::CommandBufferSubmitInfo
+		{
+			return vk::CommandBufferSubmitInfo {*m_buffers[index]};
+		}
+
 		auto command_control::usage_flags() const -> const vk::CommandBufferUsageFlags&
 		{
 			return m_usage_flags;

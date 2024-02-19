@@ -3,6 +3,7 @@ module;
 #if INTELLISENSE
 #include "vulkan/vulkan_raii.hpp"
 
+#include <cstdint>
 #include <vector>
 #endif
 
@@ -34,6 +35,13 @@ export namespace lh
 				command_control::create_info m_command_control_create_info {};
 			};
 			
+			struct semaphore
+			{
+				vk::Semaphore m_semaphore = {};
+				vk::PipelineStageFlags2 m_pipeline_stage = {};
+				std::uint64_t m_semaphore_value = 0;
+			};
+
 			enum class queue_state
 			{
 				initial,
@@ -43,9 +51,9 @@ export namespace lh
 
 			queue(const logical_device&, const create_info& = {});
 
-			//auto add_wait_semaphore(const vk::PipelineStageFlags&, const vk::raii::Semaphore&) -> void;
-			auto wait_semaphores() const -> const std::vector<vk::raii::Semaphore*>&;
-			auto add_signal_semaphore() -> void;
+			auto add_wait_semaphore(const semaphore&) -> void;
+			auto wait_semaphores() const -> const std::vector<semaphore>&;
+			auto add_signal_semaphore(const semaphore&) -> void;
 			auto wait() -> void;
 			auto submit_and_wait() -> void;
 
@@ -65,10 +73,8 @@ export namespace lh
 			fence_timeout_t m_fence_timeout;
 			vk::raii::Fence m_fence;
 
-			std::vector<vk::raii::Semaphore*> m_wait_semaphores;
-			std::vector<vk::PipelineStageFlags> m_wait_destination_stage_masks;
-
-			std::vector<vk::raii::Semaphore> m_signal_semaphores;
+			std::vector<semaphore> m_wait_semaphores;
+			std::vector<semaphore> m_signal_semaphores;
 		};
 
 		class graphics_queue : public queue
@@ -80,7 +86,7 @@ export namespace lh
 
 		private:
 			const swapchain& m_swapchain;
-			std::vector<vk::Semaphore*> m_present_semaphores;
+			std::vector<vk::Semaphore> m_present_semaphores;
 		};
 	}
 }
