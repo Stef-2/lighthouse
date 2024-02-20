@@ -17,50 +17,36 @@ namespace lh
 			  m_queue_state {queue_state::initial},
 			  m_command_control {logical_device, create_info.m_queue_family, create_info.m_command_control_create_info},
 			  m_fence_timeout {create_info.m_fence_timeout},
-			  m_fence {*logical_device, vk::FenceCreateInfo {/*vk::FenceCreateFlagBits::eSignaled*/}},
-			  m_wait_semaphores {},
-			  m_signal_semaphores {}
+			  m_submit_fence {*logical_device, vk::FenceCreateInfo {/*vk::FenceCreateFlagBits::eSignaled*/}},
+			  m_submit_wait_semaphores {},
+			  m_submit_signal_semaphores {}
 		{}
 
-		auto queue::add_wait_semaphore(const semaphore& semaphore) -> void
+		auto queue::add_submit_wait_semaphore(const semaphore& semaphore) -> void
 		{
-			m_wait_semaphores.emplace_back(semaphore);
+			m_submit_wait_semaphores.emplace_back(semaphore.m_semaphore,
+												  semaphore.m_semaphore_value,
+												  semaphore.m_pipeline_stage);
 		}
 
-		auto queue::wait_semaphores() const -> const std::vector<semaphore>&
+		auto queue::add_submit_signal_semaphore(const semaphore& semaphore) -> void
 		{
-			return m_wait_semaphores;
-		}
-
-		auto queue::add_signal_semaphore(const semaphore& semaphore) -> void
-		{
-			m_signal_semaphores.emplace_back(semaphore);
-		}
-
-		auto queue::wait() -> void
-		{
-			std::ignore = m_logical_device->waitForFences(*m_fence, true, m_fence_timeout);
-
-			clear();
+			m_submit_signal_semaphores.emplace_back(semaphore.m_semaphore,
+													semaphore.m_semaphore_value,
+													semaphore.m_pipeline_stage);
 		}
 
 		auto queue::submit_and_wait() -> void
 		{
-			/*
-			auto semaphores = std::vector<vk::Semaphore> {};
-			semaphores.reserve(m_wait_semaphores.size());
-			for (const auto& semaphore : m_wait_semaphores)
-				semaphores.emplace_back(**semaphore);*/
-			const auto wtf = m_command_control.command_buffer_submit_info();
-			const auto submit_info = vk::SubmitInfo2 {{},
-													  {},
-													  /*m_wait_destination_stage_masks*/ wtf,
-													  {}};
+			const auto command_buffer_submit_info = m_command_control.command_buffer_submit_info();
 
-			m_object.submit2(submit_info, *m_fence);
+			const auto submit_info =
+				vk::SubmitInfo2 {{}, m_submit_wait_semaphores, command_buffer_submit_info, m_submit_signal_semaphores};
+
+			m_object.submit2(submit_info, *m_submit_fence);
 			m_queue_state = queue_state::executing;
 
-			std::ignore = m_logical_device->waitForFences(*m_fence, true, m_fence_timeout);
+			std::ignore = m_logical_device->waitForFences(*m_submit_fence, true, m_fence_timeout);
 
 			clear();
 		}
@@ -77,11 +63,6 @@ namespace lh
 			return m_command_control.front();
 		}
 
-		auto queue::fence() const -> const vk::raii::Fence&
-		{
-			return m_fence;
-		}
-
 		auto queue::queue_state() const -> const decltype(queue_state::initial)&
 		{
 			return m_queue_state;
@@ -89,9 +70,9 @@ namespace lh
 
 		auto queue::clear() -> void
 		{
-			m_logical_device->resetFences(*m_fence);
-			m_wait_semaphores.clear();
-			m_signal_semaphores.clear();
+			m_logical_device->resetFences(*m_submit_fence);
+			m_submit_wait_semaphores.clear();
+			m_submit_signal_semaphores.clear();
 			m_queue_state = queue_state::initial;
 		}
 	}
@@ -99,20 +80,39 @@ namespace lh
 	vulkan::graphics_queue::graphics_queue(const logical_device& logical_device,
 										   const swapchain& swapchain,
 										   const create_info& create_info)
-		: queue {logical_device, create_info}, m_swapchain {swapchain}
+		: queue {logical_device, create_info},
+		  m_swapchain {swapchain},
+		  m_present_fence {*logical_device, vk::FenceCreateInfo {}},
+		  m_present_wait_semaphores {}
 	{}
+
+	auto vulkan::graphics_queue::add_present_wait_semaphore(const vk::Semaphore& semaphore) -> void
+	{
+		m_present_wait_semaphores.emplace_back(semaphore);
+	}
 
 	auto vulkan::graphics_queue::present() const -> void
 	{
-		std::ignore = m_object.presentKHR(
-			{*m_swapchain.current_frame_synchronization_data().m_render_finished_semaphore,
-			 **m_swapchain,
-			 m_swapchain.current_image_index()});
-		/*
-		std::ignore = m_logical_device->waitForFences(
-			*m_swapchain.current_frame_synchronization_data().m_render_finished_fence, true, m_fence_timeout);*/
+		const auto present_fence_info = vk::SwapchainPresentFenceInfoEXT {*m_present_fence};
 
-		m_logical_device->resetFences(*m_swapchain.current_frame_synchronization_data().m_render_finished_fence);
-		m_logical_device->resetFences(*m_fence);
+		std::ignore = m_object.presentKHR(
+			{m_present_wait_semaphores, **m_swapchain, m_swapchain.current_image_index(), {}, &present_fence_info});
+	}
+
+	auto vulkan::graphics_queue::present_and_wait() -> void
+	{
+		present();
+
+		std::ignore = m_logical_device->waitForFences(*m_present_fence, true, m_fence_timeout);
+
+		clear();
+	}
+
+	auto vulkan::graphics_queue::clear() -> void
+	{
+		queue::clear();
+
+		m_logical_device->resetFences(*m_present_fence);
+		m_present_wait_semaphores.clear();
 	}
 }

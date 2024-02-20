@@ -140,7 +140,7 @@ namespace lh
 		const auto& command_buffer = m_graphics_queue.command_control().front();
 		command_buffer.begin({m_graphics_queue.command_control().usage_flags()});
 
-		auto [result, image_index, render_info] = m_swapchain.next_image_info(command_buffer);
+		auto [result, image_index, render_info, sync_data] = m_swapchain.next_image_info(command_buffer);
 
 		command_buffer.beginRendering(render_info);
 
@@ -221,13 +221,19 @@ namespace lh
 
 		command_buffer.endRendering();
 
-		// present
 		m_swapchain.transition_layout<vulkan::swapchain::layout_state::presentation>(command_buffer);
 		command_buffer.end();
 
+		// submit
+		m_graphics_queue.add_submit_wait_semaphore(
+			{sync_data.m_image_acquired_semaphore, 0, vk::PipelineStageFlagBits2::eBottomOfPipe});
+		m_graphics_queue.add_submit_signal_semaphore(
+			{sync_data.m_render_finished_semaphore, 0, vk::PipelineStageFlagBits2::eBottomOfPipe});
 		m_graphics_queue.submit_and_wait();
 
 		// m_graphics_queue.add_wait_semaphore(vk::PipelineStageFlagBits::eBottomOfPipe);
+		// present
+		m_graphics_queue.add_present_wait_semaphore(sync_data.m_render_finished_semaphore);
 		m_graphics_queue.present();
 	}
 

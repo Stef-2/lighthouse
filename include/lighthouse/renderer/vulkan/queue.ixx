@@ -38,8 +38,8 @@ export namespace lh
 			struct semaphore
 			{
 				vk::Semaphore m_semaphore = {};
-				vk::PipelineStageFlags2 m_pipeline_stage = {};
 				std::uint64_t m_semaphore_value = 0;
+				vk::PipelineStageFlags2 m_pipeline_stage = {};
 			};
 
 			enum class queue_state
@@ -51,19 +51,16 @@ export namespace lh
 
 			queue(const logical_device&, const create_info& = {});
 
-			auto add_wait_semaphore(const semaphore&) -> void;
-			auto wait_semaphores() const -> const std::vector<semaphore>&;
-			auto add_signal_semaphore(const semaphore&) -> void;
-			auto wait() -> void;
+			auto add_submit_wait_semaphore(const semaphore&) -> void;
+			auto add_submit_signal_semaphore(const semaphore&) -> void;
 			auto submit_and_wait() -> void;
 
 			auto command_control() const -> const vulkan::command_control&;
 			auto record_commands() -> const vk::raii::CommandBuffer&;
-			auto fence() const -> const vk::raii::Fence&;
 			auto queue_state() const -> const queue::queue_state&;
 
 		protected:
-			auto clear() -> void;
+			virtual auto clear() -> void;
 
 			const logical_device& m_logical_device;
 
@@ -71,10 +68,10 @@ export namespace lh
 			vulkan::command_control m_command_control;
 
 			fence_timeout_t m_fence_timeout;
-			vk::raii::Fence m_fence;
+			vk::raii::Fence m_submit_fence;
 
-			std::vector<semaphore> m_wait_semaphores;
-			std::vector<semaphore> m_signal_semaphores;
+			std::vector<vk::SemaphoreSubmitInfo> m_submit_wait_semaphores;
+			std::vector<vk::SemaphoreSubmitInfo> m_submit_signal_semaphores;
 		};
 
 		class graphics_queue : public queue
@@ -82,11 +79,17 @@ export namespace lh
 		public:
 			graphics_queue(const logical_device&, const swapchain&, const create_info& = {});
 
+			auto add_present_wait_semaphore(const vk::Semaphore&) -> void;
 			auto present() const -> void;
+			auto present_and_wait() -> void;
 
 		private:
+			auto clear() -> void override;
+
 			const swapchain& m_swapchain;
-			std::vector<vk::Semaphore> m_present_semaphores;
+
+			vk::raii::Fence m_present_fence;
+			std::vector<vk::Semaphore> m_present_wait_semaphores;
 		};
 	}
 }
