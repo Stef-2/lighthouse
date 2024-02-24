@@ -146,10 +146,6 @@ namespace lh
 		auto swapchain::next_image_info(const vk::raii::CommandBuffer& command_buffer)
 			-> const std::tuple<vk::Result, image_index_t, vk::RenderingInfo, frame_synchronization_data>
 		{
-			// reset sempahore and fence
-			// m_image_acquired_semaphore = {*m_logical_device, vk::SemaphoreCreateInfo {}};
-			// m_logical_device->resetFences(*current_frame_synchronization_data().m_render_finished_fence);
-
 			const auto sync_data = current_frame_synchronization_data();
 
 			// acquire the next image
@@ -159,7 +155,6 @@ namespace lh
 			m_current_image_index = image_index;
 			m_color_attachment.imageView = *m_views[m_current_image_index];
 
-			// transition_layout_for_rendering(command_buffer);
 			transition_layout<layout_state::rendering>(command_buffer);
 
 			return {result,

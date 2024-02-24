@@ -31,7 +31,7 @@ export namespace lh
 			struct create_info
 			{
 				queue_families::family m_queue_family;
-				fence_timeout_t m_fence_timeout = 100000000/*std::numeric_limits<fence_timeout_t>::max()*/;
+				fence_timeout_t m_fence_timeout = std::numeric_limits<fence_timeout_t>::max();
 				command_control::create_info m_command_control_create_info {};
 			};
 			
@@ -53,6 +53,7 @@ export namespace lh
 
 			auto add_submit_wait_semaphore(const semaphore&) -> void;
 			auto add_submit_signal_semaphore(const semaphore&) -> void;
+			auto submit() -> void;
 			auto submit_and_wait() -> void;
 
 			auto command_control() const -> const vulkan::command_control&;

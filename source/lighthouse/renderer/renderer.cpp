@@ -147,20 +147,13 @@ namespace lh
 		m_dynamic_rendering_state.state().m_cull_mode = vk::CullModeFlagBits::eNone;
 		// m_dynamic_rendering_state.state().m_depth_testing = false;
 		m_dynamic_rendering_state.bind(command_buffer);
+		m_global_descriptor_buffer.bind(command_buffer);
 
 		glm::ivec4 mi = {0, 1, 2, 3};
 		struct test
 		{
 			glm::mat4x4 model;
 			glm::mat4x4 view;
-			glm::mat4x4 projection;
-			glm::vec4 time;
-		};
-		struct test2
-		{
-			glm::mat4x4 model;
-			glm::mat4x4 view;
-			glm::mat4x4 wtf;
 			glm::mat4x4 projection;
 			glm::vec4 time;
 		};
@@ -171,8 +164,9 @@ namespace lh
 		auto skybox_view_test = m_camera.view();
 		skybox_view_test[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
-		test2 t {
-			glm::mat4x4 {1.0f}, m_camera.view(), skybox_view_test, m_camera.projection(), {time, time, time, time}};
+		test scene {glm::mat4x4 {1.0f}, m_camera.view(), m_camera.projection(), {time, time, time, time}};
+		auto sb_scene = scene;
+		sb_scene.view[3] = glm::vec4 {0.0f, 0.0f, 0.0f, 1.0f};
 
 		/*
 		// full pipeline barrier
@@ -192,28 +186,27 @@ namespace lh
 			input::mouse::move_callback(m_camera.first_person_callback());
 		// done testing
 
-		// m_global_descriptor_buffer.flush_resource_descriptors();
-		//  m_global_descriptor_buffer.register_resource_buffer(m_test_pipeline.resource_buffer());
-		//  m_global_descriptor_buffer.register_resource_buffer(m_skybox.pipeline().resource_buffer());
 		//    draw sphere
 		m_default_meshes.sphere().vertex_buffer().bind(command_buffer);
 		m_test_pipeline.bind(command_buffer);
-		m_test_pipeline.resource_buffer().map_uniform_data(0, t);
+		m_test_pipeline.resource_buffer().map_uniform_data(0, scene);
 		m_test_pipeline.resource_buffer().map_uniform_data(1, mi);
 		m_test_pipeline.resource_buffer().map_storage_data(0, mi);
 		m_test_pipeline.resource_buffer().map_storage_data(1, m_global_light_manager.light_device_addresses());
-		m_global_descriptor_buffer.bind(command_buffer);
-		// m_global_descriptor_buffer.map_resource_buffer_offsets(command_buffer, m_test_pipeline.resource_buffer());
 		command_buffer.drawIndexed(m_default_meshes.sphere().indices().size(), 1, 0, 0, 0);
-
+		/*
+		const auto barrier = vk::MemoryBarrier2 {{vk::PipelineStageFlagBits2::eAllCommands},
+												 {vk::AccessFlagBits2::eMemoryRead | vk::AccessFlagBits2::eMemoryWrite},
+												 {vk::PipelineStageFlagBits2::eAllCommands},
+												 {vk::AccessFlagBits2::eMemoryRead |
+												  vk::AccessFlagBits2::eMemoryWrite}};
+		const auto dependacy_info = vk::DependencyInfo {{}, barrier};
+		command_buffer.pipelineBarrier2(dependacy_info);
+		*/
 		// draw skybox
 		m_default_meshes.cube().vertex_buffer().bind(command_buffer);
 		m_skybox.pipeline().bind(command_buffer);
-		//  m_skybox.mesh().vertex_buffer().bind(command_buffer);
-		m_skybox.pipeline().resource_buffer().map_uniform_data(0, t);
-		// m_global_descriptor_buffer.map_resource_buffer_offsets(command_buffer,
-		// m_skybox.pipeline().resource_buffer());
-		//   m_global_descriptor_buffer.bind(command_buffer);
+		m_skybox.pipeline().resource_buffer().map_uniform_data(0, sb_scene);
 		command_buffer.drawIndexed(m_default_meshes.cube().indices().size(), 1, 0, 0, 0);
 		/*/
 		m_user_interface.new_frame();
@@ -231,7 +224,6 @@ namespace lh
 			{sync_data.m_render_finished_semaphore, 0, vk::PipelineStageFlagBits2::eBottomOfPipe});
 		m_graphics_queue.submit_and_wait();
 
-		// m_graphics_queue.add_wait_semaphore(vk::PipelineStageFlagBits::eBottomOfPipe);
 		// present
 		m_graphics_queue.add_present_wait_semaphore(sync_data.m_render_finished_semaphore);
 		m_graphics_queue.present();

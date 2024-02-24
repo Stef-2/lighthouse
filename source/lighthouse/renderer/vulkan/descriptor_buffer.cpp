@@ -138,8 +138,27 @@ namespace lh
 													  resource_indices.m_storage_descriptor_offset,
 												  combined_image_sampler_descriptor_index};
 
+			// std::cout << "db indices: " << indices[0] << " " << indices[1] << " " << indices[2] << " " << '\n';
+
+			if (resource_indices.m_uniform_descriptor_offset == 2)
+			{
+				command_buffer.setDescriptorBufferOffsetsEXT(
+					m_bind_point, *m_global_descriptor.pipeline_layout(), 0, {0, 0, 0}, {512, 0, 0});
+				return;
+			}
+
 			command_buffer.setDescriptorBufferOffsetsEXT(
-				m_bind_point, *m_global_descriptor.pipeline_layout(), 0, indices, {0, 0, 0});
+				m_bind_point, *m_global_descriptor.pipeline_layout(), 0, {0, 0, 0}, {0, 0, 0});
+
+			/*/
+			command_buffer.setDescriptorBufferOffsetsEXT(
+				m_bind_point, *m_global_descriptor.pipeline_layout(), 0, {indices[0]}, {0});
+
+			command_buffer.setDescriptorBufferOffsetsEXT(
+				m_bind_point, *m_global_descriptor.pipeline_layout(), 1, {indices[1]}, {0});
+
+			command_buffer.setDescriptorBufferOffsetsEXT(
+				m_bind_point, *m_global_descriptor.pipeline_layout(), 2, {indices[2]}, {0});*/
 		}
 
 		auto descriptor_buffer::bind(const vk::raii::CommandBuffer& command_buffer) const -> void
@@ -150,7 +169,17 @@ namespace lh
 			combined_descriptor_bindings.insert_range(combined_descriptor_bindings.end(),
 													  m_combined_image_sampler_descriptor_buffer_binding_info);
 
-			command_buffer.bindDescriptorBuffersEXT(combined_descriptor_bindings);
+			const auto test = std::array<vk::DescriptorBufferBindingInfoEXT, 3> {
+				vk::DescriptorBufferBindingInfoEXT {m_uniform_descriptor_buffer.address(),
+													vk::BufferUsageFlagBits::eShaderDeviceAddress |
+														vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT},
+				vk::DescriptorBufferBindingInfoEXT {m_uniform_descriptor_buffer.address(),
+													vk::BufferUsageFlagBits::eShaderDeviceAddress |
+														vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT},
+				vk::DescriptorBufferBindingInfoEXT {m_uniform_descriptor_buffer.address(),
+													vk::BufferUsageFlagBits::eShaderDeviceAddress |
+														vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT}};
+			command_buffer.bindDescriptorBuffersEXT(test);
 		}
 
 		auto descriptor_buffer::flush_resource_descriptors() -> void

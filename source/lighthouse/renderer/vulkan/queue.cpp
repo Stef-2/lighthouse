@@ -36,7 +36,7 @@ namespace lh
 													semaphore.m_pipeline_stage);
 		}
 
-		auto queue::submit_and_wait() -> void
+		auto queue::submit() -> void
 		{
 			const auto command_buffer_submit_info = m_command_control.command_buffer_submit_info();
 
@@ -45,6 +45,11 @@ namespace lh
 
 			m_object.submit2(submit_info, *m_submit_fence);
 			m_queue_state = queue_state::executing;
+		}
+
+		auto queue::submit_and_wait() -> void
+		{
+			submit();
 
 			std::ignore = m_logical_device->waitForFences(*m_submit_fence, true, m_fence_timeout);
 

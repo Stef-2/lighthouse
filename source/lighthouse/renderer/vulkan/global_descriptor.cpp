@@ -30,19 +30,35 @@ namespace lh
 				vk::DescriptorSetLayoutCreateFlagBits::eDescriptorBufferEXT};
 
 			// uniform buffers
-			m_num_uniform_buffers = std::min(std::min(physical_device_properties.m_descriptor_buffer_properties
-														  .m_properties.maxDescriptorBufferBindings,
-													  physical_device_properties.m_descriptor_indexing_properties
-														  .maxPerStageDescriptorUpdateAfterBindUniformBuffers),
-											 create_info.m_num_uniform_buffers);
+			m_num_uniform_buffers = std::min(
+				std::min(physical_device_properties.m_descriptor_indexing_properties
+							 .maxPerStageDescriptorUpdateAfterBindUniformBuffers,
+						 physical_device_properties.m_properties.properties.limits.maxDescriptorSetUniformBuffers),
+				create_info.m_num_uniform_buffers);
 			auto bindings = std::vector<vk::DescriptorSetLayoutBinding> {};
+			auto descriptor_indexing_flags = vk::DescriptorBindingFlags {
+				vk::DescriptorBindingFlagBits::eVariableDescriptorCount}; /*std::vector<vk::DescriptorBindingFlags>
+					{};*/
 			bindings.reserve(m_num_uniform_buffers);
-
+			// descriptor_indexing_flags.reserve(m_num_uniform_buffers);
+			/*
 			for (auto i = descriptor_type_size_t {}; i < m_num_uniform_buffers; i++)
+			{
 				bindings.emplace_back(i, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eAll);
+				descriptor_indexing_flags.emplace_back(vk::DescriptorBindingFlagBits::ePartiallyBound |
+													   vk::DescriptorBindingFlagBits::eVariableDescriptorCount);
+			}*/
+			auto test = vk::DescriptorSetLayoutBinding {0,
+														vk::DescriptorType::eUniformBuffer,
+														m_num_uniform_buffers,
+														vk::ShaderStageFlagBits::eAll};
 
-			m_uniform_buffer_set = {
-				vk::raii::DescriptorSetLayout {*logical_device, {descriptor_set_layout_usage, bindings}}};
+			auto descriptor_indexing_bindings = vk::DescriptorSetLayoutBindingFlagsCreateInfo {
+				descriptor_indexing_flags};
+
+			m_uniform_buffer_set = {vk::raii::DescriptorSetLayout {
+				*logical_device,
+				vk::DescriptorSetLayoutCreateInfo {descriptor_set_layout_usage, test, &descriptor_indexing_bindings}}};
 
 			// storage descriptors
 			m_num_storage_descriptors = std::min(std::min(physical_device_properties.m_descriptor_buffer_properties
@@ -64,11 +80,8 @@ namespace lh
 														 .maxDescriptorSetUpdateAfterBindSampledImages,
 													 create_info.m_num_combined_image_samplers);
 
-			auto descriptor_indexing_flags = std::vector<vk::DescriptorBindingFlags> {
-				vk::DescriptorBindingFlagBits::ePartiallyBound |
-				vk::DescriptorBindingFlagBits::eVariableDescriptorCount};
-			auto descriptor_indexing_bindings = vk::DescriptorSetLayoutBindingFlagsCreateInfo {
-				descriptor_indexing_flags};
+			descriptor_indexing_flags = {vk::DescriptorBindingFlagBits::eVariableDescriptorCount};
+			descriptor_indexing_bindings = vk::DescriptorSetLayoutBindingFlagsCreateInfo {descriptor_indexing_flags};
 
 			const auto combined_image_sampler_binding = vk::DescriptorSetLayoutBinding {
 				0, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eAll};
