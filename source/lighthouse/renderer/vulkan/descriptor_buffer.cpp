@@ -102,7 +102,7 @@ namespace lh
 
 				const auto memcpy_destination = static_cast<std::byte*>(
 													m_uniform_descriptor_buffer.mapped_data_pointer()) +
-												i * descriptor_size;
+												i * (descriptor_size * 2) /*alligned_offset + alligned_offset*/;
 
 				m_uniform_descriptor_buffer_binding_info.emplace_back(
 					m_uniform_descriptor_buffer.address() + alligned_offset * i,
@@ -170,13 +170,12 @@ namespace lh
 														 *m_global_descriptor.pipeline_layout(),
 														 0,
 														 {0, 1, 2},
-														 {resource_indices.m_uniform_descriptor_offset * 256, 0, 0});*/
+														 {0 resource_indices.m_uniform_descriptor_offset * 256,
+														  0,
+														  0});*/
 
-			command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point,
-														 *m_global_descriptor.pipeline_layout(),
-														 0,
-														 {0},
-														 {resource_indices.m_uniform_descriptor_offset * 256});
+			command_buffer.setDescriptorBufferOffsetsEXT(
+				m_bind_point, *m_global_descriptor.pipeline_layout(), 0, {0}, {0});
 
 			command_buffer.setDescriptorBufferOffsetsEXT(
 				m_bind_point, *m_global_descriptor.pipeline_layout(), 1, {1}, {0});

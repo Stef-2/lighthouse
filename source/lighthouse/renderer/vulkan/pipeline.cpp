@@ -141,13 +141,12 @@ namespace lh
 
 		auto pipeline::bind(const vk::raii::CommandBuffer& command_buffer) const -> void
 		{
+			m_descriptor_buffer.map_resource_buffer_offsets(command_buffer, m_resource_descriptor_buffer);
 			m_shader_pipeline.bind(command_buffer);
 
 			if (m_vertex_input_description)
 				command_buffer.setVertexInputEXT(m_vertex_input_description->m_bindings,
 												 m_vertex_input_description->m_attributes);
-
-			m_descriptor_buffer.map_resource_buffer_offsets(command_buffer, m_resource_descriptor_buffer);
 		}
 
 		auto pipeline::translate_shader_input_format(const shader_input& shader_input) const -> const vk::Format

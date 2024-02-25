@@ -186,7 +186,8 @@ namespace lh
 			input::mouse::move_callback(m_camera.first_person_callback());
 		// done testing
 
-		//    draw sphere
+		// draw sphere
+
 		m_default_meshes.sphere().vertex_buffer().bind(command_buffer);
 		m_test_pipeline.bind(command_buffer);
 		m_test_pipeline.resource_buffer().map_uniform_data(0, scene);
@@ -194,6 +195,7 @@ namespace lh
 		m_test_pipeline.resource_buffer().map_storage_data(0, mi);
 		m_test_pipeline.resource_buffer().map_storage_data(1, m_global_light_manager.light_device_addresses());
 		command_buffer.drawIndexed(m_default_meshes.sphere().indices().size(), 1, 0, 0, 0);
+
 		/*
 		const auto barrier = vk::MemoryBarrier2 {{vk::PipelineStageFlagBits2::eAllCommands},
 												 {vk::AccessFlagBits2::eMemoryRead | vk::AccessFlagBits2::eMemoryWrite},
@@ -204,11 +206,11 @@ namespace lh
 		command_buffer.pipelineBarrier2(dependacy_info);
 		*/
 		// draw skybox
-
+		/*
 		m_default_meshes.cube().vertex_buffer().bind(command_buffer);
 		m_skybox.pipeline().bind(command_buffer);
 		m_skybox.pipeline().resource_buffer().map_uniform_data(0, sb_scene);
-		command_buffer.drawIndexed(m_default_meshes.cube().indices().size(), 1, 0, 0, 0);
+		command_buffer.drawIndexed(m_default_meshes.cube().indices().size(), 1, 0, 0, 0);*/
 		/*
 		m_user_interface.new_frame();
 		m_user_interface.render(command_buffer);*/
