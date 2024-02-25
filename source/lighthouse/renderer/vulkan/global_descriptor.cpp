@@ -41,13 +41,14 @@ namespace lh
 					{};*/
 			bindings.reserve(m_num_uniform_buffers);
 			// descriptor_indexing_flags.reserve(m_num_uniform_buffers);
-			/*
+
 			for (auto i = descriptor_type_size_t {}; i < m_num_uniform_buffers; i++)
 			{
 				bindings.emplace_back(i, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eAll);
+				/*
 				descriptor_indexing_flags.emplace_back(vk::DescriptorBindingFlagBits::ePartiallyBound |
-													   vk::DescriptorBindingFlagBits::eVariableDescriptorCount);
-			}*/
+													   vk::DescriptorBindingFlagBits::eVariableDescriptorCount);*/
+			}
 			auto test = vk::DescriptorSetLayoutBinding {0,
 														vk::DescriptorType::eUniformBuffer,
 														m_num_uniform_buffers,
@@ -58,7 +59,8 @@ namespace lh
 
 			m_uniform_buffer_set = {vk::raii::DescriptorSetLayout {
 				*logical_device,
-				vk::DescriptorSetLayoutCreateInfo {descriptor_set_layout_usage, test, &descriptor_indexing_bindings}}};
+				vk::DescriptorSetLayoutCreateInfo {descriptor_set_layout_usage,
+												   bindings /*test, &descriptor_indexing_bindings*/}}};
 
 			// storage descriptors
 			m_num_storage_descriptors = std::min(std::min(physical_device_properties.m_descriptor_buffer_properties

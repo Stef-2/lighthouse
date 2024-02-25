@@ -204,11 +204,12 @@ namespace lh
 		command_buffer.pipelineBarrier2(dependacy_info);
 		*/
 		// draw skybox
+
 		m_default_meshes.cube().vertex_buffer().bind(command_buffer);
 		m_skybox.pipeline().bind(command_buffer);
 		m_skybox.pipeline().resource_buffer().map_uniform_data(0, sb_scene);
 		command_buffer.drawIndexed(m_default_meshes.cube().indices().size(), 1, 0, 0, 0);
-		/*/
+		/*
 		m_user_interface.new_frame();
 		m_user_interface.render(command_buffer);*/
 

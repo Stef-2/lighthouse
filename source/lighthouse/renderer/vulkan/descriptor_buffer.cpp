@@ -50,6 +50,7 @@ namespace lh
 				  memory_allocator,
 				  /*global_descriptor.combined_image_sampler_set().getSizeEXT()*/ 256 * 256,
 				  mapped_buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
+														 vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT |
 														 vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT,
 											  .m_memory_properties = create_info.m_descriptor_buffer_memory_properties}}
 		{
@@ -59,6 +60,25 @@ namespace lh
 				global_descriptor.create_information().m_num_storage_descriptors);
 			m_combined_image_sampler_descriptor_buffer_binding_info.reserve(
 				global_descriptor.create_information().m_num_combined_image_samplers);
+			/*
+			std::cout << "uniform desc buff sz: " << global_descriptor.uniform_buffer_set().getSizeEXT() << '\n';
+			for (auto i = 0; i < global_descriptor.create_information().m_num_uniform_buffers; i++)
+			{
+				std::cout << "offset @: " << i << " = " << global_descriptor.uniform_buffer_set().getBindingOffsetEXT(i)
+						  << '\n';
+			}
+			std::cout << "storage desc buff sz: " << global_descriptor.storage_descriptor_set().getSizeEXT() << '\n';
+			for (auto i = 0; i < global_descriptor.create_information().m_num_storage_descriptors; i++)
+			{
+				std::cout << "offset @: " << i << " = "
+						  << global_descriptor.storage_descriptor_set().getBindingOffsetEXT(i) << '\n';
+			}
+			std::cout << "cis desc buff sz: " << global_descriptor.combined_image_sampler_set().getSizeEXT() << '\n';
+			for (auto i = 0; i < global_descriptor.create_information().m_num_combined_image_samplers; i++)
+			{
+				std::cout << "offset @: " << i << " = "
+						  << global_descriptor.combined_image_sampler_set().getBindingOffsetEXT(i) << '\n';
+			}*/
 		}
 
 		auto descriptor_buffer::register_resource_buffer(const descriptor_resource_buffer& resource_buffer) const
@@ -70,7 +90,6 @@ namespace lh
 				&resource_buffer,
 				resource_buffer_offsets {m_accumulated_uniform_descriptor_index,
 										 m_accumulated_storage_descriptor_index});
-
 			// register uniform buffers
 			for (auto i = global_descriptor::descriptor_type_size_t {};
 				 const auto& descriptor_data : resource_buffer.uniform_descriptors())
@@ -139,26 +158,31 @@ namespace lh
 												  combined_image_sampler_descriptor_index};
 
 			// std::cout << "db indices: " << indices[0] << " " << indices[1] << " " << indices[2] << " " << '\n';
-
+			/*
 			if (resource_indices.m_uniform_descriptor_offset == 2)
 			{
 				command_buffer.setDescriptorBufferOffsetsEXT(
-					m_bind_point, *m_global_descriptor.pipeline_layout(), 0, {0, 0, 0}, {512, 0, 0});
+					m_bind_point, *m_global_descriptor.pipeline_layout(), 0, {0, 1, 2}, {0, 0, 0});
 				return;
-			}
+			}*/
+			/*
+			command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point,
+														 *m_global_descriptor.pipeline_layout(),
+														 0,
+														 {0, 1, 2},
+														 {resource_indices.m_uniform_descriptor_offset * 256, 0, 0});*/
+
+			command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point,
+														 *m_global_descriptor.pipeline_layout(),
+														 0,
+														 {0},
+														 {resource_indices.m_uniform_descriptor_offset * 256});
 
 			command_buffer.setDescriptorBufferOffsetsEXT(
-				m_bind_point, *m_global_descriptor.pipeline_layout(), 0, {0, 0, 0}, {0, 0, 0});
-
-			/*/
-			command_buffer.setDescriptorBufferOffsetsEXT(
-				m_bind_point, *m_global_descriptor.pipeline_layout(), 0, {indices[0]}, {0});
+				m_bind_point, *m_global_descriptor.pipeline_layout(), 1, {1}, {0});
 
 			command_buffer.setDescriptorBufferOffsetsEXT(
-				m_bind_point, *m_global_descriptor.pipeline_layout(), 1, {indices[1]}, {0});
-
-			command_buffer.setDescriptorBufferOffsetsEXT(
-				m_bind_point, *m_global_descriptor.pipeline_layout(), 2, {indices[2]}, {0});*/
+				m_bind_point, *m_global_descriptor.pipeline_layout(), 2, {2}, {0});
 		}
 
 		auto descriptor_buffer::bind(const vk::raii::CommandBuffer& command_buffer) const -> void
@@ -173,11 +197,12 @@ namespace lh
 				vk::DescriptorBufferBindingInfoEXT {m_uniform_descriptor_buffer.address(),
 													vk::BufferUsageFlagBits::eShaderDeviceAddress |
 														vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT},
-				vk::DescriptorBufferBindingInfoEXT {m_uniform_descriptor_buffer.address(),
+				vk::DescriptorBufferBindingInfoEXT {m_storage_descriptor_buffer.address(),
 													vk::BufferUsageFlagBits::eShaderDeviceAddress |
 														vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT},
-				vk::DescriptorBufferBindingInfoEXT {m_uniform_descriptor_buffer.address(),
+				vk::DescriptorBufferBindingInfoEXT {m_combined_image_sampler_descriptor_buffer.address(),
 													vk::BufferUsageFlagBits::eShaderDeviceAddress |
+														vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT |
 														vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT}};
 			command_buffer.bindDescriptorBuffersEXT(test);
 		}
