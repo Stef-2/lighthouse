@@ -21,14 +21,10 @@ namespace lh
 			: m_physical_device {physical_device},
 			  m_logical_device {logical_device},
 			  m_global_descriptor {global_descriptor},
-			  m_bind_point {create_info.m_bind_point},
-			  m_uniform_descriptor_buffer_binding_info {},
-			  m_storage_descriptor_buffer_binding_info {},
-			  m_combined_image_sampler_descriptor_buffer_binding_info {},
 			  m_accumulated_uniform_descriptor_offset {},
 			  m_accumulated_storage_descriptor_offset {},
-			  m_vacant_combined_image_sampler_slots {},
 			  m_resource_buffer_offsets {},
+			  m_vacant_combined_image_sampler_slots {},
 			  m_uniform_descriptor_buffer {
 				  logical_device,
 				  memory_allocator,
@@ -57,12 +53,6 @@ namespace lh
 														 vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT,
 											  .m_memory_properties = create_info.m_descriptor_buffer_memory_properties}}
 		{
-			m_uniform_descriptor_buffer_binding_info.reserve(
-				global_descriptor.create_information().m_num_uniform_buffers);
-			m_storage_descriptor_buffer_binding_info.reserve(
-				global_descriptor.create_information().m_num_storage_descriptors);
-			m_combined_image_sampler_descriptor_buffer_binding_info.reserve(
-				global_descriptor.create_information().m_num_combined_image_samplers);
 			/*
 			std::cout << "uniform desc buff sz: " << global_descriptor.uniform_buffer_set().getSizeEXT() << '\n';
 			for (auto i = 0; i < global_descriptor.create_information().m_num_uniform_buffers; i++)
@@ -120,11 +110,6 @@ namespace lh
 													m_uniform_descriptor_buffer.mapped_data_pointer()) +
 												accumulated_uniform_descriptor_offset + i * uniform_descriptor_size;
 
-				m_uniform_descriptor_buffer_binding_info.emplace_back(
-					m_uniform_descriptor_buffer.address() + aligned_uniform_descriptor_offset * i,
-					vk::BufferUsageFlagBits::eShaderDeviceAddress |
-						vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT);
-
 				std::memcpy(memcpy_destination, descriptor_data.data(), uniform_descriptor_size);
 				m_accumulated_uniform_descriptor_offset += aligned_uniform_descriptor_offset;
 				i++;
@@ -134,11 +119,6 @@ namespace lh
 			for (auto i = global_descriptor::descriptor_type_size_t {};
 				 const auto& descriptor_data : resource_buffer.storage_descriptors())
 			{
-				m_storage_descriptor_buffer_binding_info.emplace_back(
-					m_storage_descriptor_buffer.address() + aligned_storage_descriptor_offset * i,
-					vk::BufferUsageFlagBits::eShaderDeviceAddress |
-						vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT);
-
 				const auto memcpy_destination = static_cast<std::byte*>(
 													m_storage_descriptor_buffer.mapped_data_pointer()) +
 												accumulated_storage_descriptor_offset + i * storage_descriptor_size;
@@ -150,12 +130,12 @@ namespace lh
 		}
 
 		auto descriptor_buffer::map_resource_buffer_offsets(const vk::raii::CommandBuffer& command_buffer,
-															const descriptor_resource_buffer& resource_buffer) const
-			-> void
+															const descriptor_resource_buffer& resource_buffer,
+															const vk::PipelineBindPoint& bind_point) const -> void
 		{
 			const auto& resource_offsets = m_resource_buffer_offsets.at(&resource_buffer);
 
-			command_buffer.setDescriptorBufferOffsetsEXT(m_bind_point,
+			command_buffer.setDescriptorBufferOffsetsEXT(bind_point,
 														 *m_global_descriptor.pipeline_layout(),
 														 0,
 														 {0, 1, 2},
@@ -166,13 +146,7 @@ namespace lh
 
 		auto descriptor_buffer::bind(const vk::raii::CommandBuffer& command_buffer) const -> void
 		{
-			auto combined_descriptor_bindings = m_uniform_descriptor_buffer_binding_info;
-			combined_descriptor_bindings.insert_range(combined_descriptor_bindings.end(),
-													  m_storage_descriptor_buffer_binding_info);
-			combined_descriptor_bindings.insert_range(combined_descriptor_bindings.end(),
-													  m_combined_image_sampler_descriptor_buffer_binding_info);
-
-			const auto test = std::array<vk::DescriptorBufferBindingInfoEXT, 3> {
+			const auto bindings = std::array<vk::DescriptorBufferBindingInfoEXT, 3> {
 				vk::DescriptorBufferBindingInfoEXT {m_uniform_descriptor_buffer.address(),
 													vk::BufferUsageFlagBits::eShaderDeviceAddress |
 														vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT},
@@ -183,13 +157,11 @@ namespace lh
 													vk::BufferUsageFlagBits::eShaderDeviceAddress |
 														vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT |
 														vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT}};
-			command_buffer.bindDescriptorBuffersEXT(test);
+			command_buffer.bindDescriptorBuffersEXT(bindings);
 		}
 
 		auto descriptor_buffer::flush_resource_descriptors() -> void
 		{
-			m_uniform_descriptor_buffer_binding_info.clear();
-			m_storage_descriptor_buffer_binding_info.clear();
 			m_accumulated_uniform_descriptor_offset = {};
 			m_accumulated_storage_descriptor_offset = {};
 

@@ -52,7 +52,8 @@ namespace lh
 						   const global_descriptor& global_descriptor,
 						   const descriptor_buffer& descriptor_buffer,
 						   const create_info& create_info)
-			: m_descriptor_buffer {descriptor_buffer},
+			: m_create_info {create_info},
+			  m_descriptor_buffer {descriptor_buffer},
 			  m_vertex_input_description {},
 			  m_shader_pipeline {},
 			  m_resource_descriptor_buffer {}
@@ -141,7 +142,9 @@ namespace lh
 
 		auto pipeline::bind(const vk::raii::CommandBuffer& command_buffer) const -> void
 		{
-			m_descriptor_buffer.map_resource_buffer_offsets(command_buffer, m_resource_descriptor_buffer);
+			m_descriptor_buffer.map_resource_buffer_offsets(command_buffer,
+															m_resource_descriptor_buffer,
+															m_create_info.m_bind_point);
 			m_shader_pipeline.bind(command_buffer);
 
 			if (m_vertex_input_description)

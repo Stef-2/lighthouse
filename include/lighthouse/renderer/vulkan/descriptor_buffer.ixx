@@ -33,7 +33,6 @@ export namespace lh
 
 			struct create_info
 			{
-				vk::PipelineBindPoint m_bind_point = vk::PipelineBindPoint::eGraphics;
 				vk::MemoryPropertyFlags m_descriptor_buffer_memory_properties = {
 					vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent};
 			};
@@ -49,7 +48,9 @@ export namespace lh
 			auto flush_resource_descriptors() -> void;
 
 		private:
-			auto map_resource_buffer_offsets(const vk::raii::CommandBuffer&, const descriptor_resource_buffer&) const -> void;
+			auto map_resource_buffer_offsets(const vk::raii::CommandBuffer&,
+											 const descriptor_resource_buffer&,
+											 const vk::PipelineBindPoint&) const -> void;
 			auto register_resource_buffer(const descriptor_resource_buffer&) const -> void;
 
 			using descriptor_offsets_t = vk::DeviceSize;
@@ -64,17 +65,13 @@ export namespace lh
 			const logical_device& m_logical_device;
 			const global_descriptor& m_global_descriptor;
 
-			vk::PipelineBindPoint m_bind_point;
-			
-			mutable std::vector<vk::DescriptorBufferBindingInfoEXT> m_uniform_descriptor_buffer_binding_info;
-			mutable std::vector<vk::DescriptorBufferBindingInfoEXT> m_storage_descriptor_buffer_binding_info;
-			mutable std::vector<vk::DescriptorBufferBindingInfoEXT> m_combined_image_sampler_descriptor_buffer_binding_info;
-
+			// resource management
 			mutable descriptor_offsets_t m_accumulated_uniform_descriptor_offset;
 			mutable descriptor_offsets_t m_accumulated_storage_descriptor_offset;
-			mutable std::vector<global_descriptor::descriptor_type_size_t> m_vacant_combined_image_sampler_slots;
-
 			mutable std::map<const descriptor_resource_buffer*, resource_buffer_offsets> m_resource_buffer_offsets;
+			
+			// texture management
+			mutable std::vector<global_descriptor::descriptor_type_size_t> m_vacant_combined_image_sampler_slots;
 
 			mapped_buffer m_uniform_descriptor_buffer;
 			mapped_buffer m_storage_descriptor_buffer;

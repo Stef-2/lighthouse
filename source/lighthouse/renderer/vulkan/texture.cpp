@@ -180,10 +180,7 @@ namespace lh
 			const auto combined_image_sampler_stack_empty =
 				m_descriptor_buffer.m_vacant_combined_image_sampler_slots.empty();
 
-			auto descriptor_index_to_fill =
-				combined_image_sampler_stack_empty
-					? m_descriptor_buffer.m_combined_image_sampler_descriptor_buffer_binding_info.size()
-					: m_descriptor_buffer.m_combined_image_sampler_descriptor_buffer_binding_info.size() - 1;
+			auto descriptor_index_to_fill = descriptor_index_t {0};
 
 			// if the combined image sampler stack has vacant slots, fill one of them
 			if (not combined_image_sampler_stack_empty)
@@ -191,15 +188,6 @@ namespace lh
 				descriptor_index_to_fill = m_descriptor_buffer.m_vacant_combined_image_sampler_slots.back();
 				m_descriptor_buffer.m_vacant_combined_image_sampler_slots.pop_back();
 			}
-
-			// push our descriptor data onto the combined image sampler descriptor buffer stack
-			m_descriptor_buffer.m_combined_image_sampler_descriptor_buffer_binding_info.emplace(
-				m_descriptor_buffer.m_combined_image_sampler_descriptor_buffer_binding_info.begin() +
-					descriptor_index_to_fill,
-				m_descriptor_buffer.m_combined_image_sampler_descriptor_buffer.address() +
-					descriptor_index_to_fill * aligned_offset,
-				vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT |
-					vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT);
 
 			const auto memcpy_destination =
 				static_cast<std::byte*>(

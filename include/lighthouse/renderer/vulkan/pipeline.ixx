@@ -27,6 +27,7 @@ import descriptor_resource_buffer;
 #if not INTELLISENSE
 import std.core;
 import std.filesystem;
+import vulkan;
 #endif
 
 export namespace lh
@@ -37,7 +38,9 @@ export namespace lh
 		{
 		public:
 			struct create_info
-			{};
+			{
+				vk::PipelineBindPoint m_bind_point = vk::PipelineBindPoint::eGraphics;
+			};
 
 			pipeline(const physical_device&,
 					 const logical_device&,
@@ -53,6 +56,7 @@ export namespace lh
 			auto bind(const vk::raii::CommandBuffer&) const -> void;
 
 		private:
+			create_info m_create_info;
 			auto translate_shader_input_format(const shader_input&) const -> const vk::Format;
 			auto generate_vertex_input_description(const std::vector<shader_input>&)
 				-> const vulkan::vertex_input_description;
