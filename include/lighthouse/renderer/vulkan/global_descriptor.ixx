@@ -28,7 +28,7 @@ export namespace lh
 			struct create_info
 			{
 				descriptor_type_size_t m_num_uniform_buffers = 32;
-				descriptor_type_size_t m_num_storage_descriptors = 8;
+				descriptor_type_size_t m_num_storage_buffers = 8;
 				descriptor_type_size_t m_num_combined_image_samplers = 1024;
 			};
 
@@ -36,7 +36,7 @@ export namespace lh
 							  
 
 			auto uniform_buffer_set() const -> const vk::raii::DescriptorSetLayout&;
-			auto storage_descriptor_set() const -> const vk::raii::DescriptorSetLayout&;
+			auto storage_buffer_set() const -> const vk::raii::DescriptorSetLayout&;
 			auto combined_image_sampler_set() const -> const vk::raii::DescriptorSetLayout&;
 
 			auto descriptor_set_layouts() const -> const std::vector<vk::DescriptorSetLayout>;
@@ -49,7 +49,7 @@ export namespace lh
 			create_info m_create_info;
 
 			vk::raii::DescriptorSetLayout m_uniform_buffer_set;
-			vk::raii::DescriptorSetLayout m_storage_descriptor_set;
+			vk::raii::DescriptorSetLayout m_storage_buffer_set;
 			vk::raii::DescriptorSetLayout m_combined_image_sampler_set;
 
 			vk::raii::PipelineLayout m_pipeline_layout;

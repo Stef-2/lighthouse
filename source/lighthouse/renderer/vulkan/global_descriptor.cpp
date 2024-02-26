@@ -17,7 +17,7 @@ namespace lh
 											 const create_info& create_info)
 			: m_create_info {create_info},
 			  m_uniform_buffer_set {nullptr},
-			  m_storage_descriptor_set {nullptr},
+			  m_storage_buffer_set {nullptr},
 			  m_combined_image_sampler_set {nullptr},
 			  m_pipeline_layout {nullptr}
 		{
@@ -42,18 +42,18 @@ namespace lh
 				*logical_device, vk::DescriptorSetLayoutCreateInfo {descriptor_set_layout_usage, bindings}}};
 
 			// storage descriptors
-			m_create_info.m_num_storage_descriptors = std::min(
+			m_create_info.m_num_storage_buffers = std::min(
 				{physical_device_properties.m_descriptor_buffer_properties.m_properties.maxDescriptorBufferBindings,
 				 physical_device_properties.m_descriptor_indexing_properties
 					 .maxPerStageDescriptorUpdateAfterBindStorageBuffers,
-				 m_create_info.m_num_storage_descriptors});
+				 m_create_info.m_num_storage_buffers});
 			bindings = std::vector<vk::DescriptorSetLayoutBinding> {};
-			bindings.reserve(m_create_info.m_num_storage_descriptors);
+			bindings.reserve(m_create_info.m_num_storage_buffers);
 
-			for (auto i = descriptor_type_size_t {}; i < m_create_info.m_num_storage_descriptors; i++)
+			for (auto i = descriptor_type_size_t {}; i < m_create_info.m_num_storage_buffers; i++)
 				bindings.emplace_back(i, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eAll);
 
-			m_storage_descriptor_set = {
+			m_storage_buffer_set = {
 				vk::raii::DescriptorSetLayout {*logical_device, {descriptor_set_layout_usage, bindings}}};
 
 			// combined image samplers
@@ -78,7 +78,7 @@ namespace lh
 
 			// pipeline layout
 			auto descriptor_sets = std::array<vk::DescriptorSetLayout, 3> {*m_uniform_buffer_set,
-																		   *m_storage_descriptor_set,
+																		   *m_storage_buffer_set,
 																		   *m_combined_image_sampler_set};
 			m_pipeline_layout = {*logical_device, {{}, descriptor_sets}};
 		}
@@ -88,9 +88,9 @@ namespace lh
 			return m_uniform_buffer_set;
 		}
 
-		auto global_descriptor::storage_descriptor_set() const -> const vk::raii::DescriptorSetLayout&
+		auto global_descriptor::storage_buffer_set() const -> const vk::raii::DescriptorSetLayout&
 		{
-			return m_storage_descriptor_set;
+			return m_storage_buffer_set;
 		}
 
 		auto global_descriptor::combined_image_sampler_set() const -> const vk::raii::DescriptorSetLayout&
@@ -100,7 +100,7 @@ namespace lh
 
 		auto global_descriptor::descriptor_set_layouts() const -> const std::vector<vk::DescriptorSetLayout>
 		{
-			return {*m_uniform_buffer_set, *m_storage_descriptor_set, *m_combined_image_sampler_set};
+			return {*m_uniform_buffer_set, *m_storage_buffer_set, *m_combined_image_sampler_set};
 		}
 
 		auto global_descriptor::pipeline_layout() const -> const vk::raii::PipelineLayout&

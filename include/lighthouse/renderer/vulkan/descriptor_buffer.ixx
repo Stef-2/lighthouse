@@ -74,9 +74,12 @@ export namespace lh
 			mutable global_descriptor::descriptor_type_size_t m_texture_count;
 			mutable std::vector<global_descriptor::descriptor_type_size_t> m_vacant_combined_image_sampler_slots;
 
-			mapped_buffer m_uniform_descriptor_buffer;
-			mapped_buffer m_storage_descriptor_buffer;
-			mapped_buffer m_combined_image_sampler_descriptor_buffer;
+			// buffer management
+			const vk::DeviceSize m_uniform_buffer_offset;
+			const vk::DeviceSize m_storage_buffer_offset;
+			const vk::DeviceSize m_combined_image_sampler_buffer_offset;
+			mapped_buffer m_descriptor_buffer;
+			const std::array<vk::DescriptorBufferBindingInfoEXT, 3> m_bindings;
 		};
 	}
 }

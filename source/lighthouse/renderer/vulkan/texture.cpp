@@ -190,10 +190,10 @@ namespace lh
 				m_descriptor_buffer.m_vacant_combined_image_sampler_slots.pop_back();
 			}
 
-			const auto memcpy_destination =
-				static_cast<std::byte*>(
-					m_descriptor_buffer.m_combined_image_sampler_descriptor_buffer.mapped_data_pointer()) +
-				descriptor_offset * descriptor_index_to_fill;
+			const auto memcpy_destination = static_cast<std::byte*>(
+												m_descriptor_buffer.m_descriptor_buffer.mapped_data_pointer()) +
+											m_descriptor_buffer.m_combined_image_sampler_buffer_offset +
+											descriptor_offset * descriptor_index_to_fill;
 
 			std::memcpy(memcpy_destination, m_descriptor.data(), m_descriptor.size());
 
