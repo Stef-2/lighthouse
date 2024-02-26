@@ -101,7 +101,8 @@ namespace lh
 					},
 					m_transfer_queue}
 	{
-		// m_global_descriptor_buffer.map_resource_buffer(m_test_pipeline.resource_buffer());
+		m_global_descriptor_buffer.register_resource_buffer(m_test_pipeline.resource_buffer());
+		m_global_descriptor_buffer.register_resource_buffer(m_skybox.pipeline().resource_buffer());
 
 		if (m_create_info.m_using_validation)
 			output::log() << info(m_create_info);
@@ -189,6 +190,7 @@ namespace lh
 		// draw sphere
 
 		m_default_meshes.sphere().vertex_buffer().bind(command_buffer);
+		m_global_descriptor_buffer.map_resource_buffer_offsets(command_buffer, m_test_pipeline.resource_buffer());
 		m_test_pipeline.bind(command_buffer);
 		m_test_pipeline.resource_buffer().map_uniform_data(0, scene);
 		m_test_pipeline.resource_buffer().map_uniform_data(1, mi);
@@ -206,11 +208,12 @@ namespace lh
 		command_buffer.pipelineBarrier2(dependacy_info);
 		*/
 		// draw skybox
-		/*
+
 		m_default_meshes.cube().vertex_buffer().bind(command_buffer);
+		m_global_descriptor_buffer.map_resource_buffer_offsets(command_buffer, m_skybox.pipeline().resource_buffer());
 		m_skybox.pipeline().bind(command_buffer);
 		m_skybox.pipeline().resource_buffer().map_uniform_data(0, sb_scene);
-		command_buffer.drawIndexed(m_default_meshes.cube().indices().size(), 1, 0, 0, 0);*/
+		command_buffer.drawIndexed(m_default_meshes.cube().indices().size(), 1, 0, 0, 0);
 		/*
 		m_user_interface.new_frame();
 		m_user_interface.render(command_buffer);*/

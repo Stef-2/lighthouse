@@ -48,9 +48,9 @@ export namespace lh
 			auto bind(const vk::raii::CommandBuffer&) const -> void;
 			auto flush_resource_descriptors() -> void;
 
-		private:
-			auto register_resource_buffer(const descriptor_resource_buffer&) const -> void;
 			auto map_resource_buffer_offsets(const vk::raii::CommandBuffer&, const descriptor_resource_buffer&) const -> void;
+			auto register_resource_buffer(const descriptor_resource_buffer&) const -> void;
+		private:
 
 			using descriptor_indices_t = std::uint32_t;
 
