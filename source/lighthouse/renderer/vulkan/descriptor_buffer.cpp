@@ -24,6 +24,7 @@ namespace lh
 			  m_accumulated_uniform_descriptor_offset {},
 			  m_accumulated_storage_descriptor_offset {},
 			  m_resource_buffer_offsets {},
+			  m_texture_count {},
 			  m_vacant_combined_image_sampler_slots {},
 			  m_uniform_descriptor_buffer {
 				  logical_device,

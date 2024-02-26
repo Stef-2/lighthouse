@@ -27,7 +27,7 @@ export namespace lh
 
 			struct create_info
 			{
-				descriptor_type_size_t m_num_uniform_buffers = 15;
+				descriptor_type_size_t m_num_uniform_buffers = 32;
 				descriptor_type_size_t m_num_storage_descriptors = 8;
 				descriptor_type_size_t m_num_combined_image_samplers = 1024;
 			};
@@ -46,18 +46,13 @@ export namespace lh
 			auto create_information() const -> const create_info&;
 
 		private:
-			descriptor_type_size_t m_num_uniform_buffers;
+			create_info m_create_info;
+
 			vk::raii::DescriptorSetLayout m_uniform_buffer_set;
-
-			descriptor_type_size_t m_num_storage_descriptors;
 			vk::raii::DescriptorSetLayout m_storage_descriptor_set;
-
-			descriptor_type_size_t m_num_combined_image_samplers;
 			vk::raii::DescriptorSetLayout m_combined_image_sampler_set;
 
 			vk::raii::PipelineLayout m_pipeline_layout;
-
-			create_info m_create_info;
 		};
 	}
 }

@@ -180,9 +180,10 @@ namespace lh
 			const auto combined_image_sampler_stack_empty =
 				m_descriptor_buffer.m_vacant_combined_image_sampler_slots.empty();
 
-			auto descriptor_index_to_fill = descriptor_index_t {0};
+			// initially assume the index of the next texture on the stack
+			auto descriptor_index_to_fill = m_descriptor_buffer.m_texture_count;
 
-			// if the combined image sampler stack has vacant slots, fill one of them
+			// if the combined image sampler stack has vacant slots, fill one of them instead
 			if (not combined_image_sampler_stack_empty)
 			{
 				descriptor_index_to_fill = m_descriptor_buffer.m_vacant_combined_image_sampler_slots.back();
@@ -198,6 +199,8 @@ namespace lh
 
 			// assign ourselves an index into this stack
 			m_descriptor_index = descriptor_index_to_fill;
+
+			m_descriptor_buffer.m_texture_count++;
 		}
 	}
 }

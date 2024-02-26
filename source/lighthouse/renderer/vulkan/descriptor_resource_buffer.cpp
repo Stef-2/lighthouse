@@ -78,9 +78,6 @@ namespace lh
 					m_storage_descriptors.back().resize(descriptor_size);
 					descriptor_pointer = m_storage_descriptors.back().data();
 				}
-				/*
-				m_descriptors.emplace_back();
-				m_descriptors.back().second.resize(descriptor_size);*/
 
 				const auto data_address_info = vk::DescriptorAddressInfoEXT {
 					m_uniform_buffer_subdata.m_buffer->address() + subdata.m_offset, subdata.m_size};

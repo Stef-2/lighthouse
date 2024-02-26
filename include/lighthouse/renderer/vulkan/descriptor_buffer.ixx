@@ -71,6 +71,7 @@ export namespace lh
 			mutable std::map<const descriptor_resource_buffer*, resource_buffer_offsets> m_resource_buffer_offsets;
 			
 			// texture management
+			mutable global_descriptor::descriptor_type_size_t m_texture_count;
 			mutable std::vector<global_descriptor::descriptor_type_size_t> m_vacant_combined_image_sampler_slots;
 
 			mapped_buffer m_uniform_descriptor_buffer;
