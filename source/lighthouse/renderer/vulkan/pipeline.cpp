@@ -121,7 +121,7 @@ namespace lh
 											buffer_offset,
 											{{.m_usage = resoruce_descriptor_buffer_usage}, resource_buffer_subdata}};
 
-			// m_descriptor_buffer.register_resource_buffer(m_resource_descriptor_buffer);
+			m_descriptor_buffer.register_resource_buffer(m_resource_descriptor_buffer);
 		}
 
 		auto pipeline::vertex_input_description() const -> const std::optional<vulkan::vertex_input_description>&
@@ -141,7 +141,7 @@ namespace lh
 
 		auto pipeline::bind(const vk::raii::CommandBuffer& command_buffer) const -> void
 		{
-			// m_descriptor_buffer.map_resource_buffer_offsets(command_buffer, m_resource_descriptor_buffer);
+			m_descriptor_buffer.map_resource_buffer_offsets(command_buffer, m_resource_descriptor_buffer);
 			m_shader_pipeline.bind(command_buffer);
 
 			if (m_vertex_input_description)

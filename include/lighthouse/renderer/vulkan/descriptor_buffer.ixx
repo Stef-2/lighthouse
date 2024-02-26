@@ -48,16 +48,16 @@ export namespace lh
 			auto bind(const vk::raii::CommandBuffer&) const -> void;
 			auto flush_resource_descriptors() -> void;
 
+		private:
 			auto map_resource_buffer_offsets(const vk::raii::CommandBuffer&, const descriptor_resource_buffer&) const -> void;
 			auto register_resource_buffer(const descriptor_resource_buffer&) const -> void;
-		private:
 
-			using descriptor_indices_t = std::uint32_t;
+			using descriptor_offsets_t = vk::DeviceSize;
 
 			struct resource_buffer_offsets
 			{
-				descriptor_indices_t m_uniform_descriptor_offset;
-				descriptor_indices_t m_storage_descriptor_offset;
+				descriptor_offsets_t m_uniform_descriptor_offset;
+				descriptor_offsets_t m_storage_descriptor_offset;
 			};
 
 			const physical_device& m_physical_device;
@@ -70,11 +70,11 @@ export namespace lh
 			mutable std::vector<vk::DescriptorBufferBindingInfoEXT> m_storage_descriptor_buffer_binding_info;
 			mutable std::vector<vk::DescriptorBufferBindingInfoEXT> m_combined_image_sampler_descriptor_buffer_binding_info;
 
-			mutable descriptor_indices_t m_accumulated_uniform_descriptor_index;
-			mutable descriptor_indices_t m_accumulated_storage_descriptor_index;
+			mutable descriptor_offsets_t m_accumulated_uniform_descriptor_offset;
+			mutable descriptor_offsets_t m_accumulated_storage_descriptor_offset;
 			mutable std::vector<global_descriptor::descriptor_type_size_t> m_vacant_combined_image_sampler_slots;
 
-			mutable std::map<const descriptor_resource_buffer*, resource_buffer_offsets> m_resource_buffer_indices;
+			mutable std::map<const descriptor_resource_buffer*, resource_buffer_offsets> m_resource_buffer_offsets;
 
 			mapped_buffer m_uniform_descriptor_buffer;
 			mapped_buffer m_storage_descriptor_buffer;
