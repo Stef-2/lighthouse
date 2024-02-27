@@ -13,7 +13,7 @@ module;
 export module lh_memory;
 
 import system;
-import vulkan;
+import vulkan_hpp;
 import std.core;
 
 export namespace lh

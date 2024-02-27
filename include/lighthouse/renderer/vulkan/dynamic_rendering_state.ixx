@@ -11,7 +11,7 @@ export module dynamic_rendering_state;
 
 #if not INTELLISENSE
 import std.core;
-import vulkan;
+import vulkan_hpp;
 #endif
 
 export namespace lh

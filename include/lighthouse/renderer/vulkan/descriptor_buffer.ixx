@@ -18,7 +18,7 @@ import descriptor_resource_buffer;
 
 #if not INTELLISENSE
 import std.core;
-import vulkan;
+import vulkan_hpp;
 #endif
 
 export namespace lh
@@ -48,10 +48,11 @@ export namespace lh
 			auto flush_resource_descriptors() -> void;
 
 		private:
+			auto register_resource_buffer(const descriptor_resource_buffer&) const -> void;
+
 			auto map_resource_buffer_offsets(const vk::raii::CommandBuffer&,
 											 const descriptor_resource_buffer&,
 											 const vk::PipelineBindPoint&) const -> void;
-			auto register_resource_buffer(const descriptor_resource_buffer&) const -> void;
 
 			using descriptor_offsets_t = vk::DeviceSize;
 
@@ -78,7 +79,7 @@ export namespace lh
 			const vk::DeviceSize m_uniform_buffer_offset;
 			const vk::DeviceSize m_storage_buffer_offset;
 			const vk::DeviceSize m_combined_image_sampler_buffer_offset;
-			mapped_buffer m_descriptor_buffer;
+			const mapped_buffer m_descriptor_buffer;
 			const std::array<vk::DescriptorBufferBindingInfoEXT, 3> m_bindings;
 		};
 	}

@@ -13,7 +13,8 @@ module;
 #include <vulkan/vulkan_hash.hpp>
 #include <vulkan/vulkan_raii.hpp>
 
-export module vulkan;
+//export module vulkan;
+export module vulkan_hpp;
 
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
@@ -885,7 +886,7 @@ export namespace VULKAN_HPP_NAMESPACE
 #  endif /*VK_ENABLE_BETA_EXTENSIONS*/
 
   using VULKAN_HPP_NAMESPACE::CompressionExhaustedEXTError;
-  using VULKAN_HPP_NAMESPACE::IncompatibleShaderBinaryEXTError;
+  //using VULKAN_HPP_NAMESPACE::IncompatibleShaderBinaryEXTError;
 #endif /*VULKAN_HPP_NO_EXCEPTIONS*/
 
   using VULKAN_HPP_NAMESPACE::createResultValueType;

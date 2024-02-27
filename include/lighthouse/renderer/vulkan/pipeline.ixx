@@ -27,7 +27,7 @@ import descriptor_resource_buffer;
 #if not INTELLISENSE
 import std.core;
 import std.filesystem;
-import vulkan;
+import vulkan_hpp;
 #endif
 
 export namespace lh
@@ -56,11 +56,11 @@ export namespace lh
 			auto bind(const vk::raii::CommandBuffer&) const -> void;
 
 		private:
-			create_info m_create_info;
 			auto translate_shader_input_format(const shader_input&) const -> const vk::Format;
 			auto generate_vertex_input_description(const std::vector<shader_input>&)
 				-> const vulkan::vertex_input_description;
 
+			const create_info m_create_info;
 			const descriptor_buffer& m_descriptor_buffer;
 			std::optional<vulkan::vertex_input_description> m_vertex_input_description;
 			vulkan::shader_pipeline m_shader_pipeline;

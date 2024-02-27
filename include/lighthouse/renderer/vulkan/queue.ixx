@@ -16,7 +16,7 @@ import command_control;
 import swapchain;
 
 #if not INTELLISENSE
-import vulkan;
+import vulkan_hpp;
 #endif
 
 export namespace lh

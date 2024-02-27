@@ -9,7 +9,7 @@ export module raii_wrapper;
 
 #if INTELLISENSE
 #else
-export import vulkan;
+export import vulkan_hpp;
 #endif
 import lighthouse_string;
 

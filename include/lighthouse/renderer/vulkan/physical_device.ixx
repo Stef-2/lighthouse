@@ -1,5 +1,7 @@
 module;
-
+/*
+#include "Windows.h"
+#include "vulkan/vulkan_win32.h"*/
 #include "vulkan/vulkan_core.h"
 
 #if INTELLISENSE
@@ -9,6 +11,10 @@ module;
 #endif
 
 export module physical_device;
+
+#if not INTELLISENSE
+import vulkan_hpp;
+#endif
 
 import lighthouse_string;
 import extension;
@@ -27,12 +33,17 @@ export namespace lh
 
 			struct create_info
 			{
-				physical_extensions::create_info m_extensions {{VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-																VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
-																VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME,
-																VK_EXT_SHADER_OBJECT_EXTENSION_NAME,
-																VK_EXT_VERTEX_INPUT_DYNAMIC_STATE_EXTENSION_NAME,
-																VK_KHR_MAINTENANCE_5_EXTENSION_NAME}};
+				physical_extensions::create_info m_extensions {
+					{VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+					 //VK_EXT_FULL_SCREEN_EXCLUSIVE_EXTENSION_NAME,
+					 VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
+					 VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME,
+					 VK_EXT_SHADER_OBJECT_EXTENSION_NAME,
+					 VK_EXT_VERTEX_INPUT_DYNAMIC_STATE_EXTENSION_NAME,
+					 VK_KHR_MAINTENANCE_5_EXTENSION_NAME,
+					 VK_KHR_MAINTENANCE_6_EXTENSION_NAME,
+					 //"VK_EXT_map_memory_placed", /*VK_EXT_MAP_MEMORY_PLACED_EXTENSION_NAME*/
+					 VK_KHR_INDEX_TYPE_UINT8_EXTENSION_NAME}};
 
 				performance_score_t m_minimum_accepted_score {0xFFFFFFFF};
 			};

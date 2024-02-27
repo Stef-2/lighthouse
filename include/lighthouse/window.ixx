@@ -10,7 +10,7 @@ module;
 export module window;
 
 #if not INTELLISENSE
-import vulkan;
+import vulkan_hpp;
 import std.core;
 #endif
 
