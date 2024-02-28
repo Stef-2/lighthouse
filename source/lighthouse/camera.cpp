@@ -20,7 +20,7 @@ namespace lh
 			  const auto quat_delta_x = (glm::ext::angleAxis(glm::radians(delta_y), glm::vec3(1.0f, 0.0f, 0.0f)));
 			  const auto quat_delta_y = (glm::ext::angleAxis(glm::radians(delta_x), glm::vec3(0.0f, 1.0f, 0.0f)));
 
-			  rotate_absolute(glm::quat {1.0f, 0.0f, 0.0f, 0.0f} * quat_delta_x * m_rotation * quat_delta_y);
+			  rotate_absolute(glm::quat {1.0f, 0.0f, 0.0f, 0.0f} * quat_delta_x * m_orientation * quat_delta_y);
 		  }}
 	{}
 

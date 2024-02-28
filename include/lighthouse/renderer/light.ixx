@@ -65,14 +65,14 @@ export namespace lh
 	public:
 		physical_light(const colors::color&,
 					   const light::intensity_t&,
-					   const entity::position_t& = {},
-					   const entity::rotation_t = {},
-					   const entity::scale_t = {});
+					   const geometry::position_t& = {},
+					   const geometry::rotation_t = {},
+					   const geometry::scale_t = {});
 
 		auto color(const colors::color&) -> void;
 		auto intensity(const intensity_t&) -> void;
 		auto effective_radius() const -> const light::intensity_t&;
-		auto intensity_at(const entity::position_t&) const -> light::intensity_t;
+		auto intensity_at(const geometry::point_t&) const -> light::intensity_t;
 
 	protected:
 		auto on_position_change() -> void override final;
@@ -97,7 +97,7 @@ export namespace lh
 			glm::vec4 m_color;
 		};
 
-		point_light(const lh::colors::color&, const light::intensity_t&, const entity::position_t&);
+		point_light(const lh::colors::color&, const light::intensity_t&, const geometry::position_t&);
 		~point_light();
 
 	private:
@@ -120,7 +120,7 @@ export namespace lh
 
 		spot_light(const lh::colors::color&,
 				   const light::intensity_t&,
-				   const entity::position_t&,
+				   const geometry::position_t&,
 				   const parameter_precision_t& spread_angle = 45.0f,
 				   const parameter_precision_t& sharpness = 1.0f);
 		~spot_light();
@@ -151,8 +151,8 @@ export namespace lh
 
 		directional_light(const colors::color&,
 						  const light::intensity_t&,
-						  const entity::position_t&,
-						  const entity::rotation_t);
+						  const geometry::position_t&,
+						  const geometry::rotation_t);
 		~directional_light();
 
 	private:
@@ -171,7 +171,10 @@ export namespace lh
 			parameter_precision_t m_alignment_padding[3] = {0.0f, 0.0f, 0.0f};
 		};
 
-		ambient_light(const colors::color&, const light::intensity_t&, const entity::position_t&, const parameter_precision_t& decay_factor = 0.0f);
+		ambient_light(const colors::color&,
+					  const light::intensity_t&,
+					  const geometry::position_t&,
+					  const parameter_precision_t& decay_factor = 0.0f);
 		~ambient_light();
 
 		auto decay_factor() const -> const parameter_precision_t&;

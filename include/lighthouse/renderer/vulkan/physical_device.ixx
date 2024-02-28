@@ -37,6 +37,7 @@ export namespace lh
 					{VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 					 //VK_EXT_FULL_SCREEN_EXCLUSIVE_EXTENSION_NAME,
 					 VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
+					 VK_EXT_MEMORY_PRIORITY_EXTENSION_NAME,
 					 VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME,
 					 VK_EXT_SHADER_OBJECT_EXTENSION_NAME,
 					 VK_EXT_VERTEX_INPUT_DYNAMIC_STATE_EXTENSION_NAME,
@@ -77,7 +78,7 @@ export namespace lh
 				vk::PhysicalDeviceDescriptorIndexingFeatures m_descriptor_indexing_features {};
 				vk::PhysicalDeviceDescriptorBufferFeaturesEXT m_descriptor_buffer_features {};
 				vk::PhysicalDeviceMaintenance5FeaturesKHR m_maintenance_5_features {};
-				vk::PhysicalDeviceHostImageCopyFeaturesEXT m_host_image_copy_features {};
+				vk::PhysicalDeviceMaintenance6FeaturesKHR m_maintenance_6_features {};
 			};
 
 			physical_device(const instance&, const create_info& = {});

@@ -28,9 +28,9 @@ namespace lh
 
 	physical_light::physical_light(const colors::color& color,
 								   const light::intensity_t& intensity,
-								   const entity::position_t& position,
-								   const entity::rotation_t rotation,
-								   const entity::scale_t scale)
+								   const geometry::position_t& position,
+								   const geometry::rotation_t rotation,
+								   const geometry::scale_t scale)
 		: light {color, intensity}, entity {position, rotation, scale}
 	{
 		calculate_effective_radius();
@@ -61,7 +61,7 @@ namespace lh
 		return m_effective_radius;
 	}
 
-	auto physical_light::intensity_at(const entity::position_t& position) const -> light::intensity_t
+	auto physical_light::intensity_at(const geometry::point_t& position) const -> light::intensity_t
 	{
 		// physical light decay is proportional to inverse of the square of the distance between the source and point X
 		return m_color.a * (1 / glm::pow(glm::distance(this->m_position, position), 2));
@@ -86,7 +86,7 @@ namespace lh
 
 	point_light::point_light(const lh::colors::color& color,
 							 const light::intensity_t& intensity,
-							 const entity::position_t& position)
+							 const geometry::position_t& position)
 		: physical_light {color, intensity, position}
 	{
 		s_global_light_manager->m_point_lights.push_back(this);
@@ -109,7 +109,7 @@ namespace lh
 
 	spot_light::spot_light(const lh::colors::color& color,
 						   const light::intensity_t& intensity,
-						   const entity::position_t& position,
+						   const geometry::position_t& position,
 						   const parameter_precision_t& spread_angle,
 						   const parameter_precision_t& sharpness)
 		: physical_light {color, intensity, position}, m_spread_angle {spread_angle}, m_sharpness {sharpness}
@@ -150,7 +150,7 @@ namespace lh
 	{
 		s_global_light_manager->light_resource_buffer().mapped_buffer().map_data(
 			shader_data {glm::vec4 {m_position, 1.0f},
-						 glm::vec4 {glm::degrees(glm::eulerAngles(m_rotation)), 1.0f},
+						 glm::vec4 {glm::degrees(glm::eulerAngles(m_orientation)), 1.0f},
 						 m_color,
 						 m_spread_angle,
 						 m_sharpness},
@@ -162,8 +162,8 @@ namespace lh
 
 	directional_light::directional_light(const colors::color& color,
 										 const light::intensity_t& intensity,
-										 const entity::position_t& position,
-										 const entity::rotation_t rotation)
+										 const geometry::position_t& position,
+										 const geometry::rotation_t rotation)
 		: physical_light {color, intensity, position, rotation}
 	{
 		s_global_light_manager->m_directional_lights.push_back(this);
@@ -180,7 +180,7 @@ namespace lh
 	{
 		s_global_light_manager->light_resource_buffer().mapped_buffer().map_data(
 			shader_data {glm::vec4 {m_position, 1.0f},
-						 glm::vec4 {glm::degrees(glm::eulerAngles(m_rotation)), 1.0f},
+						 glm::vec4 {glm::degrees(glm::eulerAngles(m_orientation)), 1.0f},
 						 m_color},
 			s_global_light_manager->create_information().m_point_lights * sizeof point_light::shader_data +
 				s_global_light_manager->create_information().m_spot_lights * sizeof spot_light::shader_data +
@@ -191,7 +191,7 @@ namespace lh
 
 	ambient_light::ambient_light(const colors::color& color,
 								 const light::intensity_t& intensity,
-								 const entity::position_t& position,
+								 const geometry::position_t& position,
 								 const parameter_precision_t& decay_factor)
 		: physical_light {color, intensity, position}, m_decay_factor {decay_factor}
 	{

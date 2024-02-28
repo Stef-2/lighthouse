@@ -49,6 +49,7 @@ namespace lh
 			const auto& suported_features = physical_device.features().m_features;
 			const auto null_features = vk::PhysicalDeviceFeatures {};
 
+			const auto required_extensions = physical_device.extensions().required_extensions();
 			if (not physical_device.extensions().assert_required_extensions())
 				output::error() << "this system does not support the required vulkan components";
 
@@ -73,11 +74,13 @@ namespace lh
 			auto shader_object = vk::PhysicalDeviceShaderObjectFeaturesEXT {true, &descriptor_buffering};
 			auto vertex_input = vk::PhysicalDeviceVertexInputDynamicStateFeaturesEXT {true, &shader_object};
 			auto synchronization2 = vk::PhysicalDeviceSynchronization2Features {true, &vertex_input};
-			auto host_image_copy = vk::PhysicalDeviceHostImageCopyFeaturesEXT {true, &synchronization2};
-			auto maintenantce_5 = vk::PhysicalDeviceMaintenance5FeaturesKHR {true, &host_image_copy};
+			auto maintenantce_5 = vk::PhysicalDeviceMaintenance5FeaturesKHR {true, &synchronization2};
+			auto maintenantce_6 = vk::PhysicalDeviceMaintenance6FeaturesKHR {true, &maintenantce_5};
+			auto memory_budget = vk::PhysicalDeviceMemoryPriorityFeaturesEXT {true, &maintenantce_6};
+			auto index_type_uint8 = vk::PhysicalDeviceIndexTypeUint8FeaturesEXT {true, &memory_budget};
 
 			auto device_info = vk::DeviceCreateInfo {
-				{}, requested_device_queues, {}, create_info.m_extensions, &null_features, &maintenantce_5};
+				{}, requested_device_queues, {}, required_extensions, &null_features, &index_type_uint8};
 
 			m_object = {*physical_device, device_info};
 		}

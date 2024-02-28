@@ -2600,6 +2600,17 @@ export namespace VULKAN_HPP_NAMESPACE
   using VULKAN_HPP_NAMESPACE::SubresourceLayout2EXT;
   using VULKAN_HPP_NAMESPACE::SubresourceLayout2KHR;
 
+    //=== VK_KHR_maintenance6 ===
+  using VULKAN_HPP_NAMESPACE::BindDescriptorBufferEmbeddedSamplersInfoEXT;
+  using VULKAN_HPP_NAMESPACE::BindDescriptorSetsInfoKHR;
+  using VULKAN_HPP_NAMESPACE::BindMemoryStatusKHR;
+  using VULKAN_HPP_NAMESPACE::PhysicalDeviceMaintenance6FeaturesKHR;
+  using VULKAN_HPP_NAMESPACE::PhysicalDeviceMaintenance6PropertiesKHR;
+  using VULKAN_HPP_NAMESPACE::PushConstantsInfoKHR;
+  using VULKAN_HPP_NAMESPACE::PushDescriptorSetInfoKHR;
+  using VULKAN_HPP_NAMESPACE::PushDescriptorSetWithTemplateInfoKHR;
+  using VULKAN_HPP_NAMESPACE::SetDescriptorBufferOffsetsInfoEXT;
+
   //=== VK_KHR_ray_tracing_position_fetch ===
   using VULKAN_HPP_NAMESPACE::PhysicalDeviceRayTracingPositionFetchFeaturesKHR;
 

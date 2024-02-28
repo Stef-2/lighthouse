@@ -12,7 +12,9 @@ module;
 
 export module camera;
 
+#if not INTELLISENSE
 import glm;
+#endif
 import entity;
 import input;
 
@@ -50,29 +52,29 @@ export namespace lh
 
 		camera(std::shared_ptr<node>, const create_info<T>& = {});
 
-		static auto up_direction() -> const glm::vec3&
+		static auto up_direction() -> const geometry::direction_t&
 		{
 			return s_up_direction;
 		}
 
-		auto view() const -> const node::transformation_t&
+		auto view() const -> const geometry::transformation_t&
 		{
 			return local_transformation();
 		}
 
-		auto view_direction() const -> const glm::vec3
+		auto view_direction() const -> const geometry::direction_t
 		{
 			const auto& transformation = local_transformation();
 
 			return {transformation[0][2], transformation[1][2], transformation[2][2]};
 		}
 
-		auto right_direction() const -> const glm::vec3
+		auto right_direction() const -> const geometry::direction_t
 		{
 			return glm::cross(view_direction(), s_up_direction);
 		}
 
-		auto look_at(const entity::position_t& target) -> void
+		auto look_at(const geometry::position_t& target) -> void
 		{
 			auto view = glm::quatLookAt(glm::normalize(m_position + target), s_up_direction);
 			// don't ask
@@ -95,7 +97,7 @@ export namespace lh
 		}
 		
 	private:
-		static inline const auto s_up_direction = glm::vec3 {0.0f, 1.0f, 0.0f};
+		static inline const auto s_up_direction = geometry::direction_t {0.0f, 1.0f, 0.0f};
 
 		create_info<T> m_camera_info;
 		glm::mat4x4 m_projection;

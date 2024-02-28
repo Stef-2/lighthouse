@@ -8,6 +8,8 @@ module;
 
 export module node;
 
+import geometry;
+
 #if not INTELLISENSE
 import glm;
 import std.core;
@@ -18,9 +20,6 @@ export namespace lh
 	export class node
 	{
 	public:
-		// internal transformation type
-		using transformation_t = glm::mat4x4;
-
 		// mode that describes what happens to our relatives after we die
 		enum class destruction_strategy
 		{
@@ -31,7 +30,7 @@ export namespace lh
 		};
 
 		node(node& parent = s_root_node,
-			 const transformation_t& = transformation_t {1.0f},
+			 const geometry::transformation_t& = geometry::transformation_t {1.0f},
 			 destruction_strategy = destruction_strategy::collapse);
 		node(const node&) = delete;
 		node& operator=(const node&) = delete;
@@ -55,9 +54,9 @@ export namespace lh
 
 		auto operator==(const node&) const -> bool;
 
-		auto local_transformation(const transformation_t&) -> void;
-		auto local_transformation() const -> const transformation_t&;
-		auto global_transformation() const -> const transformation_t;
+		auto local_transformation(const geometry::transformation_t&) -> void;
+		auto local_transformation() const -> const geometry::transformation_t&;
+		auto global_transformation() const -> const geometry::transformation_t;
 
 	private:
 		// remove ourselves from our current parents children list
@@ -78,7 +77,7 @@ export namespace lh
 		node* m_parent;
 		std::vector<node*> m_children;
 
-		transformation_t m_transformation;
+		geometry::transformation_t m_transformation;
 
 		destruction_strategy m_destruction_mode;
 

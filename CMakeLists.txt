@@ -76,9 +76,28 @@ target_include_directories(vulkan_module PUBLIC
 	${include}
 )
 
+#vma module
+add_library(vma_module)
+target_sources(vma_module PUBLIC FILE_SET CXX_MODULES FILES
+	${include}/vulkan/vma/vk_mem_alloc.cppm
+)
+target_compile_options(vma_module PUBLIC
+	${compile_options}
+	/DVULKAN_HPP_FLAGS_MASK_TYPE_AS_PUBLIC
+	/DVULKAN_HPP_NO_NODISCARD_WARNINGS
+	/DVK_USE_PLATFORM_WIN32_KHR
+	/DVULKAN_HPP_NO_SPACESHIP_OPERATOR
+	/DVULKAN_HPP_NO_TO_STRING
+)
+target_include_directories(vma_module PUBLIC
+	${include}
+	${include}/vulkan
+	${include}/vulkan/vma
+)
+
 # imgui module
-add_library(imgui)
-target_sources(imgui PUBLIC
+add_library(imgui_module)
+target_sources(imgui_module PUBLIC
 	${source}/imgui/imgui.cpp
 	${source}/imgui/imgui_demo.cpp
 	${source}/imgui/imgui_draw.cpp
@@ -87,7 +106,7 @@ target_sources(imgui PUBLIC
 	${source}/imgui/backends/imgui_impl_glfw.cpp
 	${source}/imgui/backends/imgui_impl_vulkan.cpp
 )
-target_include_directories(imgui PUBLIC
+target_include_directories(imgui_module PUBLIC
 	${include}
 	${include}/imgui
 	${include}/glfw
@@ -307,7 +326,8 @@ target_link_libraries(
 	#std_compat_module
 	glm_module
 	vulkan_module
-	imgui
+	vma_module
+	imgui_module
 )
 
 message(cmake_version: ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION})

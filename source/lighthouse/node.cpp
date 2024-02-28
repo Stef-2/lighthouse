@@ -12,7 +12,9 @@ namespace lh
 		return s_root_node;
 	}
 
-	node::node(node& parent, const transformation_t& transformation, destruction_strategy destruction_strategy)
+	node::node(node& parent,
+			   const geometry::transformation_t& transformation,
+			   destruction_strategy destruction_strategy)
 		: m_parent(&parent), m_transformation(transformation), m_destruction_mode(destruction_strategy), m_children {}
 	{
 		m_parent->add_child(*this);
@@ -117,17 +119,17 @@ namespace lh
 		return descendent_count;
 	}
 
-	auto node::local_transformation(const transformation_t& transformation) -> void
+	auto node::local_transformation(const geometry::transformation_t& transformation) -> void
 	{
 		m_transformation = transformation;
 	}
 
-	auto node::local_transformation() const -> const transformation_t&
+	auto node::local_transformation() const -> const geometry::transformation_t&
 	{
 		return m_transformation;
 	}
 
-	auto node::global_transformation() const -> const transformation_t
+	auto node::global_transformation() const -> const geometry::transformation_t
 	{
 		auto global_transformation = m_transformation;
 		auto parent = m_parent;

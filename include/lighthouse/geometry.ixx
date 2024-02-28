@@ -2,6 +2,8 @@ module;
 
 #if INTELLISENSE
 #include "glm/vec3.hpp"
+#include "glm/gtx/quaternion.hpp"
+#include "glm/mat4x4.hpp"
 #endif
 
 export module geometry;
@@ -16,7 +18,14 @@ export namespace lh
 	{
 		using point_t = glm::vec3;
 		using vector_t = glm::vec3;
-		using scalar_t = double;
+		using direction_t = glm::vec3;
+		using scalar_t = float;
+
+		using position_t = glm::vec3;
+		using rotation_t = glm::vec3;
+		using orientation_t = glm::quat;
+		using scale_t = glm::vec3;
+		using transformation_t = glm::mat4x4;
 
 		constexpr auto epsilon = 0.00001;
 
@@ -56,7 +65,5 @@ export namespace lh
 			point_t m_position;
 			vector_t m_direction;
 		};
-
-
 	}
 }

@@ -33,7 +33,7 @@ export namespace lh
 			};
 
 			global_descriptor(const physical_device&, const logical_device&, const create_info& = {});
-							  
+
 
 			auto uniform_buffer_set() const -> const vk::raii::DescriptorSetLayout&;
 			auto storage_buffer_set() const -> const vk::raii::DescriptorSetLayout&;
