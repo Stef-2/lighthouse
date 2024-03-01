@@ -39,7 +39,7 @@ namespace lh
 	{}
 
 	template <camera_type T>
-	auto camera<T>::up_direction() -> const glm::vec3&
+	auto camera<T>::up_direction() -> const geometry::rotation_t&
 	{
 		return camera::s_up_direction;
 	}

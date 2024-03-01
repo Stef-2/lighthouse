@@ -42,6 +42,7 @@ export namespace lh
 
 				struct depth_stencil_attachment_create_info
 				{
+					vk::Format m_format = vk::Format::eD24UnormS8Uint;
 					vk::ImageLayout m_layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
 					vk::AttachmentLoadOp m_load_operation = vk::AttachmentLoadOp::eClear;
 					vk::AttachmentStoreOp m_store_operation = vk::AttachmentStoreOp::eStore;

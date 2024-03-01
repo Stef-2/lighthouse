@@ -4,6 +4,8 @@ module;
 #include "glm/vec3.hpp"
 #include "glm/gtx/quaternion.hpp"
 #include "glm/mat4x4.hpp"
+
+#include <concepts>
 #endif
 
 export module geometry;
@@ -17,8 +19,6 @@ export namespace lh
 	namespace geometry
 	{
 		using point_t = glm::vec3;
-		using vector_t = glm::vec3;
-		using direction_t = glm::vec3;
 		using scalar_t = float;
 
 		using position_t = glm::vec3;
@@ -26,6 +26,9 @@ export namespace lh
 		using orientation_t = glm::quat;
 		using scale_t = glm::vec3;
 		using transformation_t = glm::mat4x4;
+		/*
+		template <typename T>
+		concept*/
 
 		constexpr auto epsilon = 0.00001;
 
@@ -56,14 +59,14 @@ export namespace lh
 
 		struct plane
 		{
-			vector_t m_normal;
+			rotation_t m_normal;
 			scalar_t m_distance;
 		};
 
 		struct ray
 		{
 			point_t m_position;
-			vector_t m_direction;
+			rotation_t m_direction;
 		};
 	}
 }

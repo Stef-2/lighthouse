@@ -52,7 +52,7 @@ export namespace lh
 
 		camera(std::shared_ptr<node>, const create_info<T>& = {});
 
-		static auto up_direction() -> const geometry::direction_t&
+		static auto up_direction() -> const geometry::rotation_t&
 		{
 			return s_up_direction;
 		}
@@ -62,14 +62,14 @@ export namespace lh
 			return local_transformation();
 		}
 
-		auto view_direction() const -> const geometry::direction_t
+		auto view_direction() const -> const geometry::rotation_t
 		{
 			const auto& transformation = local_transformation();
 
 			return {transformation[0][2], transformation[1][2], transformation[2][2]};
 		}
 
-		auto right_direction() const -> const geometry::direction_t
+		auto right_direction() const -> const geometry::rotation_t
 		{
 			return glm::cross(view_direction(), s_up_direction);
 		}
@@ -97,7 +97,7 @@ export namespace lh
 		}
 		
 	private:
-		static inline const auto s_up_direction = geometry::direction_t {0.0f, 1.0f, 0.0f};
+		static inline const auto s_up_direction = geometry::rotation_t {0.0f, 1.0f, 0.0f};
 
 		create_info<T> m_camera_info;
 		glm::mat4x4 m_projection;

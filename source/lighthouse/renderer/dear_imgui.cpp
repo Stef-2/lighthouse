@@ -27,27 +27,36 @@ namespace lh
 		// create context
 		m_context = ImGui::CreateContext();
 
-		auto vulkan_init_info =
-			ImGui_ImplVulkan_InitInfo {**instance,
-									   **physical_device,
-									   **logical_device,
-									   queue_family.m_index,
-									   **queue,
-									   {},
-									   *m_descriptor_pool,
-									   {},
-									   2,
-									   swapchain.image_count(),
-									   static_cast<VkSampleCountFlagBits>(create_info.m_rasterization_sample_count),
-									   true,
-									   static_cast<VkFormat>(swapchain.surface().format().surfaceFormat.format)};
+		const auto pipeline_rendering_info = vk::PipelineRenderingCreateInfo {
+			{},
+			swapchain.surface().format().surfaceFormat.format,
+			swapchain.create_information().m_depth_stencil_attachment_create_info.m_format,
+			swapchain.create_information().m_depth_stencil_attachment_create_info.m_format};
+
+		auto vulkan_init_info = ImGui_ImplVulkan_InitInfo {**instance,
+														   **physical_device,
+														   **logical_device,
+														   queue_family.m_index,
+														   **queue,
+														   *m_descriptor_pool,
+														   {},
+														   2,
+														   swapchain.image_count(),
+														   static_cast<VkSampleCountFlagBits>(
+															   create_info.m_rasterization_sample_count),
+														   {},
+														   {},
+														   true,
+														   pipeline_rendering_info};
 
 		// initialize
 		ImGui_ImplGlfw_InitForVulkan(window.vkfw_window(), true);
-		ImGui_ImplVulkan_Init(&vulkan_init_info, {});
+		ImGui_ImplVulkan_Init(&vulkan_init_info);
+
+		auto& imgui_io = ImGui::GetIO();
 
 		// generate fonts if their paths were provided
-		for (const auto& imgui_io = ImGui::GetIO(); const auto& font_info : create_info.m_font_infos)
+		for (const auto& font_info : create_info.m_font_infos)
 		{
 			const auto font_name = font_info.m_font_path.stem().string();
 			m_font_map.emplace(font_name,
@@ -55,6 +64,8 @@ namespace lh
 																  font_info.m_size,
 																  &font_info.m_config));
 		}
+
+		imgui_io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	}
 
 	dear_imgui::~dear_imgui()
@@ -75,10 +86,9 @@ namespace lh
 	{
 		bool wtf = true;
 		ImGui::ShowDemoWindow(&wtf);
-		ImGui::Render();
 
-		const auto draw_data = ImGui::GetDrawData();
-		ImGui_ImplVulkan_RenderDrawData(draw_data, *command_buffer);
+		ImGui::Render();
+		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *command_buffer);
 	}
 
 	auto dear_imgui::push_font(const string::string_t& font_name) const -> void

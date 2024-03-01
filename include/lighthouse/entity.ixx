@@ -33,7 +33,7 @@ export namespace lh
 		auto scale() const -> const geometry::scale_t&;
 
 		auto translate_relative(const geometry::position_t&) -> void;
-		auto translate_relative(const geometry::direction_t&, geometry::scalar_t) -> void;
+		auto translate_relative(const geometry::rotation_t&, geometry::scalar_t) -> void;
 		auto rotate_relative(const geometry::rotation_t&) -> void;
 		auto rotate_relative(const geometry::orientation_t&) -> void;
 		auto scale_relative(const geometry::scale_t&) -> void;
@@ -61,5 +61,4 @@ export namespace lh
 		mutable bool m_node_requires_reconstruction;
 		std::shared_ptr<lh::node> m_node;
 	};
-
 }

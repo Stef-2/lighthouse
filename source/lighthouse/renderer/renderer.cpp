@@ -181,6 +181,7 @@ namespace lh
 
 		// test ui vs camera controls
 		const auto& imgui_io = ImGui::GetIO();
+		// imgui_io.ConfigFlags |=
 		if (imgui_io.WantCaptureMouse)
 			input::mouse::move_callback([](auto wtf) {});
 		else
@@ -212,9 +213,9 @@ namespace lh
 		m_skybox.pipeline().bind(command_buffer);
 		m_skybox.pipeline().resource_buffer().map_uniform_data(0, sb_scene);
 		command_buffer.drawIndexed(m_default_meshes.cube().indices().size(), 1, 0, 0, 0);
-		/*
+
 		m_user_interface.new_frame();
-		m_user_interface.render(command_buffer);*/
+		m_user_interface.render(command_buffer);
 
 		command_buffer.endRendering();
 
