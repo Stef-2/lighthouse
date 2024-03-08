@@ -22,7 +22,7 @@ export namespace lh
 		using scalar_t = float;
 
 		using position_t = glm::vec3;
-		using rotation_t = glm::vec3;
+		using direction_t = glm::vec3;
 		using orientation_t = glm::quat;
 		using scale_t = glm::vec3;
 		using transformation_t = glm::mat4x4;
@@ -56,14 +56,14 @@ export namespace lh
 
 		struct plane
 		{
-			rotation_t m_normal;
+			direction_t m_normal;
 			scalar_t m_distance;
 		};
 
 		struct ray
 		{
 			point_t m_position;
-			rotation_t m_direction;
+			direction_t m_direction;
 		};
 	}
 }

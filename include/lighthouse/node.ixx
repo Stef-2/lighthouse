@@ -23,7 +23,7 @@ export namespace lh
 		// mode that describes what happens to our relatives after we die
 		enum class destruction_strategy
 		{
-			// connect out children with our parent
+			// connect our children with our parent
 			collapse,
 			// connect our children with the world node
 			orphanage

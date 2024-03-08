@@ -1,6 +1,6 @@
-module;
+// module;
 
-module physical_property;
+// module physical_property;
 
 namespace lh
 {
@@ -18,12 +18,12 @@ namespace lh
 
 		 // ==========================================================================
 
-		 auto orientation::value() const -> const rotation_t
+		 auto orientation::value() const -> const direction_t
 		 {
 			 return glm::eulerAngles(*this);
 		 }
 
-		 orientation::operator const rotation_t() const
+		 orientation::operator const direction_t() const
 		 {
 			 return glm::eulerAngles(*this);
 		 }
@@ -38,12 +38,12 @@ namespace lh
 			 modify_absolute(value);
 		 }
 
-		 auto orientation::rotate_relative(const rotation_t& value) -> void
+		 auto orientation::rotate_relative(const direction_t& value) -> void
 		 {
 			 modify_relative(orientation_t {value});
 		 }
 
-		 auto orientation::rotate_absolute(const rotation_t& value) -> void
+		 auto orientation::rotate_absolute(const direction_t& value) -> void
 		 {
 			 modify_absolute(orientation_t {value});
 		 }

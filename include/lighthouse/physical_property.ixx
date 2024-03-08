@@ -16,7 +16,7 @@ import std.core;
 
 import geometry;
 
-export namespace lh
+namespace lh
 {
 	namespace geometry
 	{
@@ -26,7 +26,7 @@ export namespace lh
 			std::is_same_v<T, position_t> or std::is_same_v<T, orientation_t> or std::is_same_v<T, scale_t>; };
 
 		template <typename T>
-		concept constrainable = requires (T t) { glm::clamp(t, t, t); } and physical_property<T>;
+		concept constrainable = requires (T t) {glm::clamp(t, t, t);} and physical_property<T>;
 
 		// base
 		template <physical_property T>
@@ -58,6 +58,11 @@ export namespace lh
 		{
 		public:
 			using base_physical_property<T>::base_physical_property;
+
+			constrained_physical_property(const base_physical_property<T>& value)
+				: base_physical_property<T> {value},
+				m_lower_bound {},
+				m_upper_bound {} {}
 			constrained_physical_property(const T& value, const T& lower_bound, const T& upper_bound)
 				: base_physical_property<T> {value},
 				m_lower_bound {lower_bound},
@@ -81,69 +86,72 @@ export namespace lh
 			};
 			auto modify_absolute(const T& value) -> void {*this = glm::clamp(value, m_lower_bound, m_upper_bound);}
 
-			auto constrain() -> void { *this = std::clamp(static_cast<T&>(*this), m_lower_bound, m_upper_bound); }
+			auto constrain() -> void { *this = glm::clamp(static_cast<T&>(*this), m_lower_bound, m_upper_bound); }
 
 			T m_lower_bound {};
 			T m_upper_bound {};
 		};
 
+		// ==========================================================================
 		// instantiations
+		// ==========================================================================
 		
 		template <typename T = base_physical_property<position_t>>
 			requires std::is_same_v<T, base_physical_property<position_t>> or
 					 std::is_same_v<T, constrained_physical_property<position_t>>
-		class position : public T
+		class position_property : public T
 		{
 		public:
 			using T::T;
 
-			auto translate_relative(const position_t&) -> void {};
-			auto translate_absolute(const position_t&) -> void;
+			auto translate_relative(const direction_t& direction, scalar_t magnitude) -> void { T::modify_relative(direction * magnitude); }
+			auto translate_relative(const position_t& value) -> void { T::modify_relative(value); }
+			auto translate_absolute(const position_t& value) -> void { T::modify_absolute(value); }
 		};
 
 		template <typename T = base_physical_property<position_t>>
-			requires std::is_same_v<T, base_physical_property<position_t>> or
-					 std::is_same_v<T, constrained_physical_property<position_t>>
-		class orientation : public T
+			requires std::is_same_v<T, base_physical_property<orientation_t>> or
+					 std::is_same_v<T, constrained_physical_property<orientation_t>>
+		class orientation_property : public T
 		{
 		public:
 			using T::T;
 
-			auto value() const -> const rotation_t;
-			operator const rotation_t() const;
+			auto value() const -> const direction_t;
+			operator const direction_t() const;
 
-			auto rotate_relative(const orientation_t&) -> void;
-			auto rotate_absolute(const orientation_t&) -> void;
+			auto rotate_relative(const orientation_t& value) -> void { T::modify_relative(value); }
+			auto rotate_absolute(const orientation_t& value) -> void { T::modify_absolute(value); }
 
-			auto rotate_relative(const rotation_t&) -> void;
-			auto rotate_absolute(const rotation_t&) -> void;
+			auto rotate_relative(const direction_t& value) -> void { T::modify_relative(orientation_t {value}); }
+			auto rotate_absolute(const direction_t& value) -> void { T::modify_absolute(orientation_t {value}); }
 		};
 
-		template <typename T = base_physical_property<position_t>>
-			requires std::is_same_v<T, base_physical_property<position_t>> or
-					 std::is_same_v<T, constrained_physical_property<position_t>>
-		class scale : public T
+		template <typename T = base_physical_property<scale_t>>
+			requires std::is_same_v<T, base_physical_property<scale_t>> or
+					 std::is_same_v<T, constrained_physical_property<scale_t>>
+		class scale_property : public T
 		{
 		public:
 			using T::T;
 
-			auto scale_relative(const scale_t&) -> void;
-			auto scale_absolute(const scale_t&) -> void;
+			auto scale_relative(const scale_t& value) -> void { T::modify_relative(value); }
+			auto scale_absolute(const scale_t& value) -> void { T::modify_absolute(value); }
 		};
-
-		using wtf_t = position<base_physical_property<position_t>>;
-		using omg_t = position<constrained_physical_property<position_t>>;
 	}
 }
 
-//lh::geometry::position p;
-lh::geometry::omg_t t {};
-//lh::geometry::wtf_t p {0.0f, 0.0f, 0.0f};
-//lh::geometry::position a {0.0f, 0.0f, 0.0f};
-//lh::geometry::position b {glm::vec3 {0.0f}};
-//lh::geometry::position<lh::geometry::base_physical_property<lh::geometry::position_t>> b {glm::vec3(0.0f, 0.0f, 0.0f)};
-
-void f()
+export namespace lh
 {
-	//p.translate_relative(glm::vec3 {0.0f, 0.0f, 0.0f});
+	export namespace geometry
+	{
+		using position = position_property<base_physical_property<position_t>>;
+		using constrained_position = position_property<constrained_physical_property<position_t>>;
+
+		using orientation = orientation_property<base_physical_property<orientation_t>>;
+		using constrained_orientation = orientation_property<constrained_physical_property<orientation_t>>;
+
+		using scale = scale_property<base_physical_property<scale_t>>;
+		using constrained_scale = scale_property<constrained_physical_property<scale_t>>;
+	}
 }

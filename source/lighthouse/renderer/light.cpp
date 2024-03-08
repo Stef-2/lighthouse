@@ -29,7 +29,7 @@ namespace lh
 	physical_light::physical_light(const colors::color& color,
 								   const light::intensity_t& intensity,
 								   const geometry::position_t& position,
-								   const geometry::rotation_t rotation,
+								   const geometry::direction_t rotation,
 								   const geometry::scale_t scale)
 		: light {color, intensity}, entity {position, rotation, scale}
 	{
@@ -163,7 +163,7 @@ namespace lh
 	directional_light::directional_light(const colors::color& color,
 										 const light::intensity_t& intensity,
 										 const geometry::position_t& position,
-										 const geometry::rotation_t rotation)
+										 const geometry::direction_t rotation)
 		: physical_light {color, intensity, position, rotation}
 	{
 		s_global_light_manager->m_directional_lights.push_back(this);

@@ -39,7 +39,7 @@ namespace lh
 	{}
 
 	template <camera_type T>
-	auto camera<T>::up_direction() -> const geometry::rotation_t&
+	auto camera<T>::up_direction() -> const geometry::direction_t&
 	{
 		return camera::s_up_direction;
 	}

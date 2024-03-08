@@ -66,7 +66,7 @@ export namespace lh
 		physical_light(const colors::color&,
 					   const light::intensity_t&,
 					   const geometry::position_t& = {},
-					   const geometry::rotation_t = {},
+					   const geometry::direction_t = {},
 					   const geometry::scale_t = {});
 
 		auto color(const colors::color&) -> void;
@@ -152,7 +152,7 @@ export namespace lh
 		directional_light(const colors::color&,
 						  const light::intensity_t&,
 						  const geometry::position_t&,
-						  const geometry::rotation_t);
+						  const geometry::direction_t);
 		~directional_light();
 
 	private:
