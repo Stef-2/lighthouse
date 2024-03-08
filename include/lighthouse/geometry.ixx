@@ -26,9 +26,6 @@ export namespace lh
 		using orientation_t = glm::quat;
 		using scale_t = glm::vec3;
 		using transformation_t = glm::mat4x4;
-		/*
-		template <typename T>
-		concept*/
 
 		constexpr auto epsilon = 0.00001;
 
