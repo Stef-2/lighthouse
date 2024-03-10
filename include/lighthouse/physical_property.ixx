@@ -5,6 +5,8 @@ module;
 #include "glm/gtc/quaternion.hpp"
 
 #include <algorithm>
+#include <cstddef>
+#include <concepts>
 #endif
 
 export module physical_property;
@@ -15,6 +17,7 @@ import std.core;
 #endif
 
 import geometry;
+import lighthouse_utility;
 
 namespace lh
 {
@@ -22,8 +25,7 @@ namespace lh
 	{
 		// concepts
 		template <typename T>
-		concept physical_property = requires {
-			std::is_same_v<T, position_t> or std::is_same_v<T, orientation_t> or std::is_same_v<T, scale_t>; };
+		concept physical_property = requires { lh::concepts::is_any<T, position_t, orientation_t, scale_t>; };
 
 		template <typename T>
 		concept constrainable = requires (T t) {glm::clamp(t, t, t);} and physical_property<T>;
@@ -34,14 +36,17 @@ namespace lh
 		{
 		public:
 			using T::T;
-			base_physical_property(const T& value) : T {value} {};
 
-			auto value() const -> const T& { return *this; };
+			base_physical_property() : T {} {}
+			base_physical_property(const T& value) : T {value} {};
+			base_physical_property& operator=(const T& value) { *this = value; return *this; };
+
 			operator const T&() const { return static_cast<const T&>(*this); };
 			operator T&() { return static_cast<T&>(*this); };
 
 		protected:
-			auto modify_relative(const T& value) -> void
+			auto value() const -> const T& { return *this; };
+			auto modify_relative(const T& value)
 			{
 				// special modification rules for quaternions
 				if constexpr (std::is_same_v<T, orientation_t>)
@@ -49,10 +54,10 @@ namespace lh
 				else
 					*this += value;
 			};
-			auto modify_absolute(const T& value) -> void { static_cast<T&>(*this) = value; };
+			auto modify_absolute(const T& value) { static_cast<T&>(*this) = value; };
 		};
 
-		// constrained
+		// constrained base
 		template <constrainable T>
 		class constrained_physical_property : public base_physical_property<T>
 		{
@@ -60,18 +65,14 @@ namespace lh
 			using base_physical_property<T>::base_physical_property;
 
 			constrained_physical_property(const base_physical_property<T>& value)
-				: base_physical_property<T> {value},
-				m_lower_bound {},
-				m_upper_bound {} {}
+				: base_physical_property<T> {value}, m_lower_bound {}, m_upper_bound {} {}
 			constrained_physical_property(const T& value, const T& lower_bound, const T& upper_bound)
-				: base_physical_property<T> {value},
-				m_lower_bound {lower_bound},
-				m_upper_bound {upper_bound} {}
+				: base_physical_property<T> {value}, m_lower_bound {lower_bound}, m_upper_bound {upper_bound} {}
 
-			auto lower_bound(const T& lower_bound) -> void { m_lower_bound = lower_bound; }
+			auto lower_bound(const T& lower_bound) { m_lower_bound = lower_bound; }
 			auto lower_bound() const -> const T& { return m_lower_bound; }
 
-			auto upper_bound(const T& upper_bound) -> void { m_upper_bound = upper_bound; }
+			auto upper_bound(const T& upper_bound) { m_upper_bound = upper_bound; }
 			auto upper_bound() const -> const T& { return m_upper_bound; }
 
 		protected:
@@ -79,65 +80,99 @@ namespace lh
 			{
 				// special modification rules for quaternions
 				if constexpr (std::is_same_v<T, orientation_t>)
-					*this = glm::clamp(*this * value, m_lower_bound, m_upper_bound);
+					static_cast<T&>(*this) = glm::clamp(*this * value, m_lower_bound, m_upper_bound);
 				else
-					*this = glm::clamp(*this + value, m_lower_bound, m_upper_bound);
+					static_cast<T&>(*this) = glm::clamp(*this + value, m_lower_bound, m_upper_bound);
 
 			};
-			auto modify_absolute(const T& value) -> void {*this = glm::clamp(value, m_lower_bound, m_upper_bound);}
+			auto modify_absolute(const T& value) { static_cast<T&>(*this) = glm::clamp(value, m_lower_bound, m_upper_bound); }
 
-			auto constrain() -> void { *this = glm::clamp(static_cast<T&>(*this), m_lower_bound, m_upper_bound); }
+			auto constrain() { *this = glm::clamp(static_cast<T&>(*this), m_lower_bound, m_upper_bound); }
 
 			T m_lower_bound {};
 			T m_upper_bound {};
+		};
+		
+		// optional virtual callbacks on property modification
+		class property_modification_callback
+		{
+		protected:
+			virtual auto position_modified() -> void {}
+			virtual auto orientation_modified() -> void {}
+			virtual auto scale_modified() -> void {}
 		};
 
 		// ==========================================================================
 		// instantiations
 		// ==========================================================================
+
+		// if compiling on msvc, force 4 byte data alignment for the following classes to save memory
+		#if _MSC_VER
+		#pragma pack(push, 4)
+		#endif
+
+		// position
+		template <typename T = base_physical_property<position_t>, typename Y = lh::empty>
+			requires lh::concepts::is_any<T, base_physical_property<position_t>, constrained_physical_property<position_t>> and
+					 lh::concepts::is_any<Y, lh::empty, property_modification_callback>
+		class position_property : public T, public Y
+		{
+		public:
+			using T::T;
+
+			using std::conditional<std::same_as<T, constrained_physical_property<position_t>>, constrained_physical_property<position_t>::lower_bound, T>;
+			auto position() const { return T::value(); };
+			auto translate_relative(const direction_t& direction, scalar_t magnitude) { T::modify_relative(direction * magnitude); invoke_callback(); }
+			auto translate_relative(const position_t& value) { T::modify_relative(value); invoke_callback(); }
+			auto translate_absolute(const position_t& value) { T::modify_absolute(value); invoke_callback(); }
+
+		private:
+			auto invoke_callback() { if constexpr (std::is_same_v<Y, property_modification_callback>) this->position_modified(); }
+		};
 		
-		template <typename T = base_physical_property<position_t>>
-			requires std::is_same_v<T, base_physical_property<position_t>> or
-					 std::is_same_v<T, constrained_physical_property<position_t>>
-		class position_property : public T
+		// orientation
+		template <typename T = base_physical_property<orientation_t>, typename Y = lh::empty>
+			requires lh::concepts::is_any<T, base_physical_property<orientation_t>, constrained_physical_property<orientation_t>> and
+					 lh::concepts::is_any<Y, lh::empty, property_modification_callback>
+		class orientation_property : public T, public Y
 		{
 		public:
 			using T::T;
 
-			auto translate_relative(const direction_t& direction, scalar_t magnitude) -> void { T::modify_relative(direction * magnitude); }
-			auto translate_relative(const position_t& value) -> void { T::modify_relative(value); }
-			auto translate_absolute(const position_t& value) -> void { T::modify_absolute(value); }
+			auto orientation() const { return T::value(); };
+			auto direction() const -> const direction_t { return glm::eulerAngles(*this); };
+			operator const direction_t() const { return glm::eulerAngles(*this); };
+
+			auto rotate_relative(const orientation_t& value) { T::modify_relative(value); invoke_callback(); }
+			auto rotate_absolute(const orientation_t& value) { T::modify_absolute(value); invoke_callback(); }
+
+			auto rotate_relative(const direction_t& value) { T::modify_relative(orientation_t {value}); invoke_callback(); }
+			auto rotate_absolute(const direction_t& value) { T::modify_absolute(orientation_t {value}); invoke_callback(); }
+
+		private:
+			auto invoke_callback() { if constexpr (std::is_same_v<Y, property_modification_callback>) this->orientation_modified(); }
 		};
 
-		template <typename T = base_physical_property<position_t>>
-			requires std::is_same_v<T, base_physical_property<orientation_t>> or
-					 std::is_same_v<T, constrained_physical_property<orientation_t>>
-		class orientation_property : public T
+		// scale
+		template <typename T = base_physical_property<scale_t>, typename Y = lh::empty>
+			requires lh::concepts::is_any<T, base_physical_property<scale_t>, constrained_physical_property<scale_t>> and
+					 lh::concepts::is_any<Y, lh::empty, property_modification_callback>
+		class scale_property : public T, public Y
 		{
 		public:
 			using T::T;
 
-			auto value() const -> const direction_t;
-			operator const direction_t() const;
+			auto scale() const { return T::value(); };
+			auto scale_relative(const scale_t& value) { T::modify_relative(value); invoke_callback(); }
+			auto scale_absolute(const scale_t& value) { T::modify_absolute(value); invoke_callback(); }
 
-			auto rotate_relative(const orientation_t& value) -> void { T::modify_relative(value); }
-			auto rotate_absolute(const orientation_t& value) -> void { T::modify_absolute(value); }
-
-			auto rotate_relative(const direction_t& value) -> void { T::modify_relative(orientation_t {value}); }
-			auto rotate_absolute(const direction_t& value) -> void { T::modify_absolute(orientation_t {value}); }
+		private:
+			auto invoke_callback() { if constexpr (std::is_same_v<Y, property_modification_callback>) this->scale_modified(); }
 		};
 
-		template <typename T = base_physical_property<scale_t>>
-			requires std::is_same_v<T, base_physical_property<scale_t>> or
-					 std::is_same_v<T, constrained_physical_property<scale_t>>
-		class scale_property : public T
-		{
-		public:
-			using T::T;
-
-			auto scale_relative(const scale_t& value) -> void { T::modify_relative(value); }
-			auto scale_absolute(const scale_t& value) -> void { T::modify_absolute(value); }
-		};
+		#if _MSC_VER
+		#pragma pack(pop)
+		#endif
 	}
 }
 
@@ -146,12 +181,35 @@ export namespace lh
 	export namespace geometry
 	{
 		using position = position_property<base_physical_property<position_t>>;
+		using position_with_callback = position_property<base_physical_property<position_t>, property_modification_callback>;
 		using constrained_position = position_property<constrained_physical_property<position_t>>;
+		using constrained_position_with_callback = position_property<constrained_physical_property<position_t>, property_modification_callback>;
 
 		using orientation = orientation_property<base_physical_property<orientation_t>>;
+		using orientation_with_callback = orientation_property<base_physical_property<orientation_t>, property_modification_callback>;
 		using constrained_orientation = orientation_property<constrained_physical_property<orientation_t>>;
+		using constrained_orientation_with_callback = orientation_property<constrained_physical_property<orientation_t>, property_modification_callback>;
 
 		using scale = scale_property<base_physical_property<scale_t>>;
+		using scale_with_callback = scale_property<base_physical_property<scale_t>, property_modification_callback>;
 		using constrained_scale = scale_property<constrained_physical_property<scale_t>>;
+		using constrained_scale_with_callback = scale_property<constrained_physical_property<scale_t>, property_modification_callback>;
+
+		struct transformable : public position, public orientation, public scale
+		{};
+
+		struct const_trans : public constrained_position, public constrained_orientation, public constrained_scale
+		{};
+
+		void func()
+		{
+			transformable t;
+			const_trans c_t;
+			c_t.constrained_position::lower_bound({0.0f, 0.0f, 0.0f});
+
+			std::cout << t.scale().x;
+
+			exit(0);
+		}
 	}
 }

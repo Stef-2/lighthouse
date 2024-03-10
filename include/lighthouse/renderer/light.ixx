@@ -16,6 +16,7 @@ import glm;
 import std.core;
 #endif
 
+import geometry;
 import entity;
 import color;
 import physical_device;

@@ -128,8 +128,7 @@ namespace lh
 
 	auto entity::local_transformation() const -> const geometry::transformation_t&
 	{
-		if (m_node_requires_reconstruction)
-			reconstruct_node();
+		if (m_node_requires_reconstruction) reconstruct_node();
 
 		return m_node->local_transformation();
 	}

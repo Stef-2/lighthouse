@@ -48,9 +48,9 @@ export namespace lh
 		auto global_transformation() const -> const geometry::transformation_t;
 
 	protected:
-		virtual auto on_position_change() -> void {};
-		virtual auto on_rotation_change() -> void {};
-		virtual auto on_scale_change() -> void {};
+		virtual auto on_position_change() -> void { reconstruct_node(); };
+		virtual auto on_rotation_change() -> void { reconstruct_node(); };
+		virtual auto on_scale_change() -> void { reconstruct_node(); };
 
 		auto reconstruct_node() const -> void;
 

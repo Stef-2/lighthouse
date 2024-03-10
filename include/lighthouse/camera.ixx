@@ -15,6 +15,8 @@ export module camera;
 #if not INTELLISENSE
 import glm;
 #endif
+
+import geometry;
 import entity;
 import input;
 

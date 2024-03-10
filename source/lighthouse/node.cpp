@@ -50,7 +50,10 @@ namespace lh
 		} else if (m_destruction_mode == destruction_strategy::orphanage)
 		{
 			for (auto& child : m_children)
+			{
 				child->parent(s_root_node);
+				s_root_node.add_child(*child);
+			}
 		}
 
 		get_disowned();
@@ -96,8 +99,7 @@ namespace lh
 
 		while (*parent != s_root_node)
 		{
-			if (*parent == node)
-				return true;
+			if (*parent == node) return true;
 
 			parent = &parent->parent();
 		}
@@ -144,6 +146,11 @@ namespace lh
 	}
 
 	auto node::operator==(const node& node) const -> bool
+	{
+		return this == &node;
+	}
+
+	auto node::operator==(node& node) -> bool
 	{
 		return this == &node;
 	}

@@ -53,6 +53,7 @@ export namespace lh
 		auto descendent_count() const -> const std::size_t;
 
 		auto operator==(const node&) const -> bool;
+		auto operator==(node&) -> bool;
 
 		auto local_transformation(const geometry::transformation_t&) -> void;
 		auto local_transformation() const -> const geometry::transformation_t&;
