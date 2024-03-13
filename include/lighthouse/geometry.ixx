@@ -6,6 +6,7 @@ module;
 #include "glm/mat4x4.hpp"
 
 #include <concepts>
+#include <array>
 #endif
 
 export module geometry;
@@ -19,28 +20,41 @@ export namespace lh
 	namespace geometry
 	{
 		using scalar_t = float;
-		
-		using position_t = glm::vec3;
-		using normal_t = glm::vec3;
-		using orientation_t = glm::quat;
-		using quaternion_t = glm::qua<scalar_t>;
-		using scale_t = glm::vec3;
-		using transformation_t = glm::mat4x4;
-
 		constexpr auto epsilon = scalar_t {1.0e-6};
 
+		using position_t = glm::vec<3, scalar_t>;
+		using normal_t = glm::vec<3, scalar_t>;
+		using orientation_t = glm::quat;
+		using quaternion_t = glm::qua<scalar_t>;
+		using scale_t = glm::vec<3, scalar_t>;
+		using transformation_t = glm::mat<4, 4, scalar_t>;
+		
 		struct direction_t : public quaternion_t
 		{
 			using quaternion_t::quaternion_t;
 
+			direction_t() : quaternion_t {1.0f, 0} {}
+
 			auto rotate(const quaternion_t& value) { *this *= value; }
 			auto rotate(const glm::vec3& value) { *this *= quaternion_t {value}; }
 
-			auto euler() const { return glm::eulerAngles(*this); }
+			auto euler_cast() const { return glm::eulerAngles(*this); }
+			auto matrix_cast() const { return glm::mat4_cast(*this); }
+
+			auto dot_product(const direction_t& other) const { return glm::dot(*this, other); }
+			auto cross_product(const direction_t& other) const { return glm::cross(*this, other); }
+
+			[[nodiscard]] auto conjugate() const { return glm::conjugate(*this); }
+			auto conjugate() { *this = glm::conjugate(*this); }
+			[[nodiscard]] auto inverse() const { return glm::inverse(*this); }
+			auto inverse() { *this = glm::inverse(*this); }
+			[[nodiscard]] auto normalize() const { return glm::normalize(*this); }
+			auto normalize() { *this = glm::normalize(*this); }
 
 			operator quaternion_t&() { return *this; }
 			operator const quaternion_t&() const { return *this; }
-			operator const normal_t() { return euler(); }
+			operator normal_t() { return euler_cast(); }
+			operator const normal_t() { return euler_cast(); }
 		};
 
 		struct line

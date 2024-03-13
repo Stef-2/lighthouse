@@ -209,7 +209,7 @@ namespace lh
 
 export namespace lh
 {
-	export namespace geometry
+	namespace geometry
 	{
 		using position = position_property<base_physical_property<position_t>>;
 		using position_with_callback = position_property<base_physical_property<position_t>, property_modification_callback>;
@@ -247,7 +247,9 @@ export namespace lh
 
 			std::cout << t.scale().x;
 
-			glm::quat q;
+			direction_t d;
+
+			glm::quat q = glm::quat {};
 			//q = glm::clamp(q, glm::quat {0.0f, 0.0f, 0.0f, 0.0f}, glm::quat {1.0f, 1.0f, 1.0f, 1.0f});
 			q = glm::vec3 {1.0f, 0.0f, 0.0f};
 
