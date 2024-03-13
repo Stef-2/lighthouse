@@ -23,7 +23,7 @@ namespace lh
 	}
 
 	entity::entity(const geometry::position_t& position,
-				   const geometry::direction_t rotation,
+				   const geometry::normal_t rotation,
 				   const geometry::scale_t& scale)
 		: m_position {position},
 		  m_orientation {rotation},
@@ -37,7 +37,7 @@ namespace lh
 		return m_position;
 	}
 
-	auto entity::rotation() const -> const geometry::direction_t
+	auto entity::rotation() const -> const geometry::normal_t
 	{
 		return glm::eulerAngles(m_orientation);
 	}
@@ -60,7 +60,7 @@ namespace lh
 		on_position_change();
 	}
 
-	auto entity::translate_relative(const geometry::direction_t& direction, geometry::scalar_t magnitude) -> void
+	auto entity::translate_relative(const geometry::normal_t& direction, geometry::scalar_t magnitude) -> void
 	{
 		m_position += direction * magnitude;
 		m_node_requires_reconstruction = true;
@@ -68,9 +68,9 @@ namespace lh
 		on_position_change();
 	}
 
-	auto entity::rotate_relative(const geometry::direction_t& rotation) -> void
+	auto entity::rotate_relative(const geometry::normal_t& rotation) -> void
 	{
-		m_orientation = m_orientation * geometry::direction_t {rotation};
+		m_orientation = m_orientation * geometry::normal_t {rotation};
 		m_node_requires_reconstruction = true;
 
 		on_rotation_change();
@@ -98,9 +98,9 @@ namespace lh
 		on_position_change();
 	}
 
-	auto entity::rotate_absolute(const geometry::direction_t& rotation) -> void
+	auto entity::rotate_absolute(const geometry::normal_t& rotation) -> void
 	{
-		m_orientation = geometry::direction_t {rotation};
+		m_orientation = geometry::normal_t {rotation};
 
 		on_rotation_change();
 	}

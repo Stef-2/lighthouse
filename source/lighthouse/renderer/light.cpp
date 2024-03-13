@@ -1,7 +1,7 @@
 module;
 
 #if INTELLISENSE
-#include <ranges>
+	#include <ranges>
 #endif
 
 module light;
@@ -29,7 +29,7 @@ namespace lh
 	physical_light::physical_light(const colors::color& color,
 								   const light::intensity_t& intensity,
 								   const geometry::position_t& position,
-								   const geometry::direction_t rotation,
+								   const geometry::normal_t rotation,
 								   const geometry::scale_t scale)
 		: light {color, intensity}, entity {position, rotation, scale}
 	{
@@ -61,7 +61,7 @@ namespace lh
 		return m_effective_radius;
 	}
 
-	auto physical_light::intensity_at(const geometry::point_t& position) const -> light::intensity_t
+	auto physical_light::intensity_at(const geometry::position_t& position) const -> light::intensity_t
 	{
 		// physical light decay is proportional to inverse of the square of the distance between the source and point X
 		return m_color.a * (1 / glm::pow(glm::distance(this->m_position, position), 2));
@@ -163,7 +163,7 @@ namespace lh
 	directional_light::directional_light(const colors::color& color,
 										 const light::intensity_t& intensity,
 										 const geometry::position_t& position,
-										 const geometry::direction_t rotation)
+										 const geometry::normal_t rotation)
 		: physical_light {color, intensity, position, rotation}
 	{
 		s_global_light_manager->m_directional_lights.push_back(this);

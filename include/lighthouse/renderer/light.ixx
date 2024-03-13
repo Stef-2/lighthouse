@@ -67,13 +67,13 @@ export namespace lh
 		physical_light(const colors::color&,
 					   const light::intensity_t&,
 					   const geometry::position_t& = {},
-					   const geometry::direction_t = {},
+					   const geometry::normal_t = {},
 					   const geometry::scale_t = {});
 
 		auto color(const colors::color&) -> void;
 		auto intensity(const intensity_t&) -> void;
 		auto effective_radius() const -> const light::intensity_t&;
-		auto intensity_at(const geometry::point_t&) const -> light::intensity_t;
+		auto intensity_at(const geometry::position_t&) const -> light::intensity_t;
 
 	protected:
 		auto on_position_change() -> void override final;
@@ -153,7 +153,7 @@ export namespace lh
 		directional_light(const colors::color&,
 						  const light::intensity_t&,
 						  const geometry::position_t&,
-						  const geometry::direction_t);
+						  const geometry::normal_t);
 		~directional_light();
 
 	private:

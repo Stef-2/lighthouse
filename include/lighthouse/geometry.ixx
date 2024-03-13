@@ -18,52 +18,66 @@ export namespace lh
 {
 	namespace geometry
 	{
-		using point_t = glm::vec3;
 		using scalar_t = float;
-
+		
 		using position_t = glm::vec3;
-		using direction_t = glm::vec3;
+		using normal_t = glm::vec3;
 		using orientation_t = glm::quat;
+		using quaternion_t = glm::qua<scalar_t>;
 		using scale_t = glm::vec3;
 		using transformation_t = glm::mat4x4;
 
-		constexpr auto epsilon = 0.00001;
+		constexpr auto epsilon = scalar_t {1.0e-6};
+
+		struct direction_t : public quaternion_t
+		{
+			using quaternion_t::quaternion_t;
+
+			auto rotate(const quaternion_t& value) { *this *= value; }
+			auto rotate(const glm::vec3& value) { *this *= quaternion_t {value}; }
+
+			auto euler() const { return glm::eulerAngles(*this); }
+
+			operator quaternion_t&() { return *this; }
+			operator const quaternion_t&() const { return *this; }
+			operator const normal_t() { return euler(); }
+		};
 
 		struct line
 		{
-			point_t m_x;
-			point_t m_y;
+			position_t m_x;
+			position_t m_y;
 		};
 
 		struct triangle
 		{
-			point_t m_x;
-			point_t m_y;
-			point_t m_z;
+			position_t m_x;
+			position_t m_y;
+			position_t m_z;
 		};
 
 		struct sphere
 		{
-			point_t m_position;
+			position_t m_position;
 			scalar_t m_radius;
 		};
 
 		struct aabb
 		{
-			point_t m_minima;
-			point_t m_maxima;
+			position_t m_minima;
+			position_t m_maxima;
 		};
 
 		struct plane
 		{
-			direction_t m_normal;
+			normal_t m_normal;
 			scalar_t m_distance;
 		};
 
 		struct ray
 		{
-			point_t m_position;
-			direction_t m_direction;
+			position_t m_position;
+			normal_t m_direction;
 		};
 	}
 }

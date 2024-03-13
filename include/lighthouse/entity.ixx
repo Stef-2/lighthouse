@@ -25,21 +25,21 @@ export namespace lh
 	{
 	public:
 		entity(std::shared_ptr<node> = std::make_shared<node>());
-		entity(const geometry::position_t&, const geometry::direction_t = {}, const geometry::scale_t& = {});
+		entity(const geometry::position_t&, const geometry::normal_t = {}, const geometry::scale_t& = {});
 
 		auto position() const -> const geometry::position_t&;
-		auto rotation() const -> const geometry::direction_t;
+		auto rotation() const -> const geometry::normal_t;
 		auto orientation() const -> const geometry::orientation_t&;
 		auto scale() const -> const geometry::scale_t&;
 
 		auto translate_relative(const geometry::position_t&) -> void;
-		auto translate_relative(const geometry::direction_t&, geometry::scalar_t) -> void;
-		auto rotate_relative(const geometry::direction_t&) -> void;
+		auto translate_relative(const geometry::normal_t&, geometry::scalar_t) -> void;
+		auto rotate_relative(const geometry::normal_t&) -> void;
 		auto rotate_relative(const geometry::orientation_t&) -> void;
 		auto scale_relative(const geometry::scale_t&) -> void;
 
 		auto translate_absolute(const geometry::position_t&) -> void;
-		auto rotate_absolute(const geometry::direction_t&) -> void;
+		auto rotate_absolute(const geometry::normal_t&) -> void;
 		auto rotate_absolute(const geometry::orientation_t&) -> void;
 		auto scale_absolute(const geometry::scale_t&) -> void;
 
