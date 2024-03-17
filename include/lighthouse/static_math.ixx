@@ -16,6 +16,9 @@ export module static_math;
 import std.core;
 import glm;
 #endif
+
+import math;
+
 export namespace lh
 {
 	namespace math
@@ -105,7 +108,8 @@ export namespace lh
 				{
 					const auto next_term = sign * (pow(value, increment) / factorial(increment));
 
-					if (not isvalid(next_term) or not isvalid(result + next_term)) return result;
+					if (not isvalid(next_term) or not isvalid(result + next_term))
+						return result;
 
 					result += next_term;
 					increment += 2;
@@ -122,7 +126,7 @@ export namespace lh
 			}
 
 			template <typename T, std::size_t N = iteration_count>
-			consteval auto cotan(T value)
+			consteval auto ctan(T value)
 			{
 				return cos<T, N>(value) / sin<T, N>(value);
 			}

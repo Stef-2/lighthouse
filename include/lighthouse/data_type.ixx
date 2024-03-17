@@ -7,6 +7,10 @@ module;
 
 export module data_type;
 
+#if not INTELLISENSE
+import std.core;
+#endif
+
 export namespace lh
 {
 	using float32_t = float;

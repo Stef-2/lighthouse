@@ -14,6 +14,7 @@ module;
 
 export module input;
 
+import data_type;
 import file_system;
 import file_type;
 import lighthouse_string;
@@ -163,7 +164,7 @@ namespace lh
 		};
 
 		auto read_text_file(const std::filesystem::path&) -> string::string_t;
-		auto read_binary_file(const std::filesystem::path&) -> std::vector<std::byte>;
+		auto read_binary_file(const std::filesystem::path&) -> lh::data_t;
 		auto read_image_file(const std::filesystem::path&) -> const image_data;
 
 		export template <file_type type = file_type::text>

@@ -36,15 +36,14 @@ export namespace lh
 		using transformation_t = glm::mat<4, 4, scalar_t>;
 
 
-		//constexpr auto default_orientation = std::vector
 		struct direction_t : public quaternion_t
 		{
 			using quaternion_t::quaternion_t;
 
-			direction_t() : quaternion_t {} {}
+			direction_t() : quaternion_t {1.0f, 0.0f, 0.0f, 0.0f} {}
 
 			auto rotate(const quaternion_t& value) { *this *= value; }
-			auto rotate(const glm::vec3& value) { *this *= quaternion_t {value}; }
+			auto rotate(const normal_t& value) { *this *= quaternion_t {value}; }
 
 			auto euler_degrees_cast() const { return glm::degrees(glm::eulerAngles(*this)); }
 			auto euler_radians_cast() const { return glm::eulerAngles(*this); }
@@ -65,6 +64,8 @@ export namespace lh
 			operator const quaternion_t&() const { return *this; }
 			operator normal_t() { return euler_radians_cast(); }
 			operator const normal_t() { return euler_radians_cast(); }
+			operator transformation_t() { return matrix_cast(); }
+			operator const transformation_t() const { return matrix_cast(); }
 		};
 
 		struct line

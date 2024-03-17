@@ -7,12 +7,12 @@ module;
 #include "stb/stb_truetype.h"
 
 #if INTELLISENSE
-#include "vkfw/vkfw.hpp"
+	#include "vkfw/vkfw.hpp"
 
-#include <variant>
-#include <iostream>
-#include <fstream>
-#include <ranges>
+	#include <variant>
+	#include <iostream>
+	#include <fstream>
+	#include <ranges>
 #endif
 
 module input;
@@ -74,8 +74,7 @@ namespace lh
 
 	auto input::key_binding::unbind(const key_input& key) -> void
 	{
-		if (s_key_bindings.contains(key))
-			s_key_bindings.erase(key);
+		if (s_key_bindings.contains(key)) s_key_bindings.erase(key);
 	}
 
 	auto input::key_binding::unbind(const key_input& key, const action& func) -> void
@@ -85,8 +84,7 @@ namespace lh
 			auto range = s_key_bindings.equal_range(key);
 
 			for (auto it = range.first; it != range.second; ++it)
-				if (it->second == func)
-					s_key_bindings.erase(it);
+				if (it->second == func) s_key_bindings.erase(it);
 		}
 	}
 
@@ -128,8 +126,7 @@ namespace lh
 	{
 		for (const auto& [map_key, value] : s_key_bindings)
 			for (const auto& pressed_key : s_pressed_keys)
-				if (map_key == pressed_key)
-					value();
+				if (map_key == pressed_key) value();
 	}
 
 	auto input::mouse::initialize(const window& window) -> void
@@ -165,8 +162,7 @@ namespace lh
 
 	auto input::read_text_file(const std::filesystem::path& file_path) -> string::string_t
 	{
-		if (not assert_path_validity(file_path, file_type::text))
-			return {};
+		if (not assert_path_validity(file_path, file_type::text)) return {};
 
 		auto stream = std::ifstream {file_path, std::ios::in};
 		auto buffer = std::stringstream {};
@@ -176,10 +172,9 @@ namespace lh
 		return buffer.str();
 	}
 
-	auto input::read_binary_file(const std::filesystem::path& file_path) -> std::vector<std::byte>
+	auto input::read_binary_file(const std::filesystem::path& file_path) -> lh::data_t
 	{
-		if (not assert_path_validity(file_path, file_type::binary))
-			return {};
+		if (not assert_path_validity(file_path, file_type::binary)) return {};
 
 		auto stream = std::ifstream {file_path, std::ios::in | std::ios::binary | std::ios::ate};
 		const auto file_size = stream.tellg();
@@ -233,8 +228,7 @@ namespace lh
 
 	auto input::read_image_file(const std::filesystem::path& file_path) -> const image_data
 	{
-		if (not assert_path_validity(file_path, file_type::image))
-			return {};
+		if (not assert_path_validity(file_path, file_type::image)) return {};
 
 		constexpr auto texel_format = STBI_rgb_alpha;
 		constexpr auto rgba_texel_size = std::uint8_t {4};
@@ -271,8 +265,7 @@ namespace lh
 				break;
 			}
 
-		if (valid_path and valid_extension)
-			return true;
+		if (valid_path and valid_extension) return true;
 
 		output::error() << "invalid file path provided: " + file_path.string();
 		return false;

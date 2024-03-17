@@ -25,10 +25,10 @@ namespace lh
 	{
 		// concepts
 		template <typename T>
-		concept physical_property = requires { lh::concepts::is_any<T, position_t, orientation_t, scale_t>; };
+		concept physical_property = requires { lh::concepts::is_any<T, position_t, direction_t, scale_t>; };
 
 		template <typename T>
-		concept constrainable = requires (T t) { glm::clamp(t, t, t); } and physical_property<T>;
+		concept constrainable = requires (T t) { glm::clamp(t, t, t); } and physical_property<T> or std::is_same_v<T, direction_t>;
 
 		// base
 		template <physical_property T>
@@ -49,7 +49,7 @@ namespace lh
 			auto modify_relative(const T& value)
 			{
 				// special modification rules for quaternions
-				if constexpr (std::is_same_v<T, orientation_t>)
+				if constexpr (std::is_same_v<T, direction_t>)
 					*this *= value;
 				else
 					*this += value;
@@ -64,8 +64,8 @@ namespace lh
 		public:
 			using base_physical_property<T>::base_physical_property;
 
-			// orientation_t is constrained by normal_t
-			using constrain_t = std::conditional<std::is_same_v<T, orientation_t>, normal_t, T>::type;
+			// direction_t is constrained by normal_t, position_t and scale_t by their respective type
+			using constrain_t = std::conditional<std::is_same_v<T, direction_t>, normal_t, T>::type;
 
 			constrained_physical_property(const base_physical_property<T>& value)
 				: base_physical_property<T> {value}, m_lower_bound {}, m_upper_bound {} {}
@@ -82,20 +82,20 @@ namespace lh
 
 		protected:
 			template <typename Y>
-				requires constrainable<Y> or std::is_same_v<Y, normal_t>
+				requires constrainable<Y>
 			auto modify_relative(const Y& value) -> void
 			{
 				// special modification rules for quaternions
-				if constexpr (std::is_same_v<T, orientation_t>)
+				if constexpr (std::is_same_v<T, direction_t>)
 				{
 					auto direction = constrain_t {};
 
-					if constexpr (std::is_same_v<Y, orientation_t>)
+					if constexpr (std::is_same_v<Y, direction_t>)
 						direction = glm::eulerAngles(value);
 					else
 						direction = value;
 
-					const auto euler_angles = glm::eulerAngles(static_cast<orientation_t&>(*this));
+					const auto euler_angles = glm::eulerAngles(static_cast<direction_t&>(*this));
 					static_cast<T&>(*this) = glm::clamp(euler_angles + direction, m_lower_bound, m_upper_bound);
 				}
 				else
@@ -103,19 +103,19 @@ namespace lh
 			};
 
 			template <typename Y>
-				requires constrainable<Y> or std::is_same_v<Y, normal_t>
+				requires constrainable<Y>
 			auto modify_absolute(const Y& value)
 			{
 				// special modification rules for quaternions
-				if constexpr (std::is_same_v<T, orientation_t>)
+				if constexpr (std::is_same_v<T, direction_t>)
 				{
 					auto direction = constrain_t {};
 
-					if constexpr (std::is_same_v<Y, orientation_t>)
+					if constexpr (std::is_same_v<Y, direction_t>)
 						direction = glm::eulerAngles(value);
 					else
 						direction = value;
-					static_cast<T&>(*this) = glm::clamp(glm::eulerAngles(value), m_lower_bound, m_upper_bound);
+					static_cast<T&>(*this) = glm::clamp(direction, m_lower_bound, m_upper_bound);
 				}
 				else
 				static_cast<T&>(*this) = glm::clamp(value, m_lower_bound, m_upper_bound);
@@ -130,7 +130,7 @@ namespace lh
 		{
 		protected:
 			virtual auto position_modified() -> void {}
-			virtual auto orientation_modified() -> void {}
+			virtual auto direction_modified() -> void {}
 			virtual auto scale_modified() -> void {}
 		};
 
@@ -161,27 +161,27 @@ namespace lh
 			auto invoke_callback() { if constexpr (std::is_same_v<Y, property_modification_callback>) this->position_modified(); }
 		};
 		
-		// orientation
-		template <typename T = base_physical_property<orientation_t>, typename Y = lh::empty>
-			requires lh::concepts::is_any<T, base_physical_property<orientation_t>, constrained_physical_property<orientation_t>> and
+		// direction
+		template <typename T = base_physical_property<direction_t>, typename Y = lh::empty>
+			requires lh::concepts::is_any<T, base_physical_property<direction_t>, constrained_physical_property<direction_t>> and
 					 lh::concepts::is_any<Y, lh::empty, property_modification_callback>
-		class orientation_property : public T, public Y
+		class direction_property : public T, public Y
 		{
 		public:
 			using T::T;
 
-			auto orientation() const { return T::value(); };
-			auto direction() const -> const normal_t { return glm::eulerAngles(*this); };
+			auto direction() const { return T::value(); };
+			auto euler_angles() const -> const normal_t { return direction_t::euler_radians_cast(); };
 			operator const normal_t() const { return glm::eulerAngles(*this); };
 
-			auto rotate_relative(const orientation_t& value) { T::modify_relative(value); invoke_callback(); }
-			auto rotate_absolute(const orientation_t& value) { T::modify_absolute(value); invoke_callback(); }
+			auto rotate_relative(const direction_t& value) { T::modify_relative(value); invoke_callback(); }
+			auto rotate_absolute(const direction_t& value) { T::modify_absolute(value); invoke_callback(); }
 
-			auto rotate_relative(const normal_t& value) { T::modify_relative(orientation_t {value}); invoke_callback(); }
-			auto rotate_absolute(const normal_t& value) { T::modify_absolute(orientation_t {value}); invoke_callback(); }
+			auto rotate_relative(const normal_t& value) { T::modify_relative(direction_t {value}); invoke_callback(); }
+			auto rotate_absolute(const normal_t& value) { T::modify_absolute(direction_t {value}); invoke_callback(); }
 
 		private:
-			auto invoke_callback() { if constexpr (std::is_same_v<Y, property_modification_callback>) this->orientation_modified(); }
+			auto invoke_callback() { if constexpr (std::is_same_v<Y, property_modification_callback>) this->direction_modified(); }
 		};
 
 		// scale
@@ -216,57 +216,40 @@ export namespace lh
 		using constrained_position = position_property<constrained_physical_property<position_t>>;
 		using constrained_position_with_callback = position_property<constrained_physical_property<position_t>, property_modification_callback>;
 
-		using orientation = orientation_property<base_physical_property<orientation_t>>;
-		using orientation_with_callback = orientation_property<base_physical_property<orientation_t>, property_modification_callback>;
-		using constrained_orientation = orientation_property<constrained_physical_property<orientation_t>>;
-		using constrained_orientation_with_callback = orientation_property<constrained_physical_property<orientation_t>, property_modification_callback>;
+		using direction = direction_property<base_physical_property<direction_t>>;
+		using direction_with_callback = direction_property<base_physical_property<direction_t>, property_modification_callback>;
+		using constrained_direction = direction_property<constrained_physical_property<direction_t>>;
+		using constrained_direction_with_callback = direction_property<constrained_physical_property<direction_t>, property_modification_callback>;
 
 		using scale = scale_property<base_physical_property<scale_t>>;
 		using scale_with_callback = scale_property<base_physical_property<scale_t>, property_modification_callback>;
 		using constrained_scale = scale_property<constrained_physical_property<scale_t>>;
 		using constrained_scale_with_callback = scale_property<constrained_physical_property<scale_t>, property_modification_callback>;
 
-		struct transformable : public position, public orientation, public scale
+		struct transformable : public position, public direction, public scale
 		{};
 
-		struct const_trans : public constrained_position, public constrained_orientation, public constrained_scale
+		struct const_trans : public constrained_position, public constrained_direction, public constrained_scale
 		{};
-		
-		consteval auto wtf()
-		{
-			glm::quat q;
-			q.w = 1.0f;
-			q.x = 0.0f;
-			q.y = 0.0f;
-			q.z = 1.0f;
-
-			return q;
-		}
 		
 		#pragma optimize("", off)
 		void func()
 		{
-			transformable t;
-			const_trans c_t;
-			c_t.constrained_position::lower_bound({0.3f, 0.4f, 0.2f});
-			c_t.constrained_position::upper_bound({0.3f, 0.4f, 0.2f});
-			c_t.constrained_scale::upper_bound({0.8f, 0.9f, 0.8f});
-			c_t.scale_relative({3.0f, 2.2f, 0.5f});
-			c_t.rotate_relative({1.0f, 0.02f, 5.6f});
-			c_t.rotate_relative(orientation_t {normal_t {5.0f, 2.02f, 5.6f}});
-			c_t.translate_absolute({2.0f, 4.02f, 33.6f});
+			auto dir = glm::quat {glm::radians(glm::vec3 {90.0f, 0.0f, 0.0f})};
 
-			std::cout << t.scale().x;
+			auto wtf = direction_t {glm::radians(glm::vec3 {90.0f, 0.0f, 0.0f})};
 
-			direction_t d;
-			constexpr auto omg = wtf();
+			constrained_direction c_o = {glm::radians(glm::vec3 {90.0f, 0.0f, 0.0f})};
+			c_o.lower_bound(glm::radians(glm::vec3 {0.0f, 0.0f, 0.0f}));
+			c_o.upper_bound(glm::radians(glm::vec3 {120.0f, 0.0f, 0.0f}));
 
-			glm::quat q = glm::quat {glm::radians(glm::vec3(0.0f, 0.0f, 90.0f))};
-			q = glm::rotate(q, 90.0f, glm::degrees(glm::vec3(0.0f, 0.0f, 1.0f)));
-			//q = glm::clamp(q, glm::quat {0.0f, 0.0f, 0.0f, 0.0f}, glm::quat {1.0f, 1.0f, 1.0f, 1.0f});
-			q = glm::vec3 {1.0f, 0.0f, 0.0f};
+			//c_o.rotate_absolute(glm::radians(glm::vec3 {160.0f, 0.0f, 0.0f}));
+			c_o.rotate_relative(glm::radians(glm::vec3 {-430.0f, 0.0f, 0.0f}));
 
-			std::cout << q.w;
+			glm::vec3 test = c_o.euler_angles();
+			glm::vec3 test2 = glm::degrees(test);
+			c_o.
+
 			exit(0);
 		}
 	}
