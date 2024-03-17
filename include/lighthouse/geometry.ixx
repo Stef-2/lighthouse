@@ -17,13 +17,15 @@ import std.core;
 import glm;
 #endif
 
+import data_type;
+import math;
 import static_math;
 
 export namespace lh
 {
 	namespace geometry
 	{
-		using scalar_t = float;
+		using scalar_t = lh::float32_t;
 		constexpr auto epsilon = scalar_t {1.0e-6};
 
 		using position_t = glm::vec<3, scalar_t>;
@@ -32,15 +34,8 @@ export namespace lh
 		using quaternion_t = glm::qua<scalar_t>;
 		using scale_t = glm::vec<3, scalar_t>;
 		using transformation_t = glm::mat<4, 4, scalar_t>;
-		
-		constexpr scalar_t operator""_to_radians(long double degrees) { return degrees * std::numbers::pi_v<decltype(degrees)> / 180; }
-		constexpr scalar_t operator""_to_degrees(long double radians) { return radians * 180 / std::numbers::pi_v<decltype(radians)>; }
 
-		
 
-		constexpr auto omg = lh::math::static_math::sin<double, 30>(30.0_to_radians);
-		constexpr auto asg = lh::math::static_math::cos4(1.0/*30.0_to_radians*/);
-		constexpr auto asd = lh::math::static_math::pow(2.0f, 60);
 		//constexpr auto default_orientation = std::vector
 		struct direction_t : public quaternion_t
 		{

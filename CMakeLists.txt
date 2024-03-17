@@ -121,7 +121,7 @@ target_sources(
 	${include}/lighthouse/file_system.ixx									
 	${include}/lighthouse/file_type.ixx
 	${include}/lighthouse/utility.ixx
-	${include}/lighthouse/datatype.ixx
+	"include/lighthouse/data_type.ixx"
 	${include}/lighthouse/string/lh_string.ixx
 	${include}/lighthouse/string/string_convertible.ixx
 	${include}/lighthouse/operating_system/system.ixx
@@ -178,7 +178,7 @@ target_sources(
 	${include}/lighthouse/renderer/default_meshes.ixx
 	${include}/lighthouse/renderer/dear_imgui.ixx
 	${include}/lighthouse/renderer/user_interface.ixx
- "include/lighthouse/physical_property.ixx" "include/lighthouse/static_math.ixx")
+ "include/lighthouse/physical_property.ixx" "include/lighthouse/static_math.ixx" "include/lighthouse/math.ixx" )
 
 target_sources(
 	${PROJECT_NAME} PUBLIC
