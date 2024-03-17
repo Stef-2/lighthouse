@@ -7,6 +7,7 @@ module;
 
 #include <concepts>
 #include <numbers>
+#include <limits>
 #include <array>
 #endif
 
@@ -26,11 +27,10 @@ export namespace lh
 	namespace geometry
 	{
 		using scalar_t = lh::float32_t;
-		constexpr auto epsilon = scalar_t {1.0e-6};
+		constexpr auto epsilon = std::numeric_limits<scalar_t>::epsilon();
 
 		using position_t = glm::vec<3, scalar_t>;
 		using normal_t = glm::vec<3, scalar_t>;
-		using orientation_t = glm::quat;
 		using quaternion_t = glm::qua<scalar_t>;
 		using scale_t = glm::vec<3, scalar_t>;
 		using transformation_t = glm::mat<4, 4, scalar_t>;
@@ -40,32 +40,26 @@ export namespace lh
 		{
 			using quaternion_t::quaternion_t;
 
-			direction_t() : quaternion_t {1.0f, 0.0f, 0.0f, 0.0f} {}
+			direction_t();
+			direction_t(const quaternion_t& value);
+			auto operator=(const quaternion_t& value) -> void;
 
-			auto rotate(const quaternion_t& value) { *this *= value; }
-			auto rotate(const normal_t& value) { *this *= quaternion_t {value}; }
+			auto rotate(const quaternion_t& value) -> void;
+			auto rotate(const normal_t& value) -> void;
 
-			auto euler_degrees_cast() const { return glm::degrees(glm::eulerAngles(*this)); }
-			auto euler_radians_cast() const { return glm::eulerAngles(*this); }
-			auto matrix_cast() const { return glm::mat4_cast(*this); }
-			/*
-			auto dot_product(const direction_t& other) const { return glm::dot(*this, other); }
-			auto cross_product(const direction_t& other) const { return glm::cross(*this, other); }
-			*/
-			/*
-			[[nodiscard]] auto conjugate() const { return glm::conjugate(*this); }
-			auto conjugate() { *this = glm::conjugate(*this); }
-			[[nodiscard]] auto inverse() const { return glm::inverse(*this); }
-			auto inverse() { *this = glm::inverse(*this); }
-			[[nodiscard]] auto normalize() const { return glm::normalize(*this); }
-			auto normalize() { *this = glm::normalize(*this); }
-			*/
-			operator quaternion_t&() { return *this; }
-			operator const quaternion_t&() const { return *this; }
-			operator normal_t() { return euler_radians_cast(); }
-			operator const normal_t() { return euler_radians_cast(); }
-			operator transformation_t() { return matrix_cast(); }
-			operator const transformation_t() const { return matrix_cast(); }
+			auto euler_degrees_cast() const -> const normal_t;
+			auto euler_radians_cast() const -> const normal_t;
+			auto matrix_cast() const -> const transformation_t;
+			
+			auto dot_product(const direction_t& other) const -> const scalar_t;
+			auto cross_product(const direction_t& other) const -> const quaternion_t;
+
+			operator quaternion_t&();
+			operator const quaternion_t&() const;
+			operator normal_t();
+			operator const normal_t();
+			operator transformation_t();
+			operator const transformation_t() const;
 		};
 
 		struct line
@@ -104,5 +98,6 @@ export namespace lh
 			position_t m_position;
 			normal_t m_direction;
 		};
+		
 	}
 }

@@ -29,18 +29,18 @@ export namespace lh
 
 		auto position() const -> const geometry::position_t&;
 		auto rotation() const -> const geometry::normal_t;
-		auto orientation() const -> const geometry::orientation_t&;
+		auto orientation() const -> const geometry::direction_t&;
 		auto scale() const -> const geometry::scale_t&;
 
 		auto translate_relative(const geometry::position_t&) -> void;
 		auto translate_relative(const geometry::normal_t&, geometry::scalar_t) -> void;
 		auto rotate_relative(const geometry::normal_t&) -> void;
-		auto rotate_relative(const geometry::orientation_t&) -> void;
+		auto rotate_relative(const geometry::direction_t&) -> void;
 		auto scale_relative(const geometry::scale_t&) -> void;
 
 		auto translate_absolute(const geometry::position_t&) -> void;
 		auto rotate_absolute(const geometry::normal_t&) -> void;
-		auto rotate_absolute(const geometry::orientation_t&) -> void;
+		auto rotate_absolute(const geometry::direction_t&) -> void;
 		auto scale_absolute(const geometry::scale_t&) -> void;
 
 		auto local_transformation(const geometry::transformation_t&) -> void;
@@ -55,7 +55,7 @@ export namespace lh
 		auto reconstruct_node() const -> void;
 
 		geometry::position_t m_position;
-		geometry::orientation_t m_orientation;
+		geometry::direction_t m_orientation;
 		geometry::scale_t m_scale;
 
 		mutable bool m_node_requires_reconstruction;

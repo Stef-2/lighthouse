@@ -248,7 +248,7 @@ export namespace lh
 
 			glm::vec3 test = c_o.euler_angles();
 			glm::vec3 test2 = glm::degrees(test);
-			c_o.
+			
 
 			exit(0);
 		}
