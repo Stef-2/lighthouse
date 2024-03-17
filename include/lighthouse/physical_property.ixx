@@ -231,7 +231,18 @@ export namespace lh
 
 		struct const_trans : public constrained_position, public constrained_orientation, public constrained_scale
 		{};
+		
+		consteval auto wtf()
+		{
+			glm::quat q;
+			q.w = 1.0f;
+			q.x = 0.0f;
+			q.y = 0.0f;
+			q.z = 1.0f;
 
+			return q;
+		}
+		
 		#pragma optimize("", off)
 		void func()
 		{
@@ -248,8 +259,10 @@ export namespace lh
 			std::cout << t.scale().x;
 
 			direction_t d;
+			constexpr auto omg = wtf();
 
-			glm::quat q = glm::quat {};
+			glm::quat q = glm::quat {glm::radians(glm::vec3(0.0f, 0.0f, 90.0f))};
+			q = glm::rotate(q, 90.0f, glm::degrees(glm::vec3(0.0f, 0.0f, 1.0f)));
 			//q = glm::clamp(q, glm::quat {0.0f, 0.0f, 0.0f, 0.0f}, glm::quat {1.0f, 1.0f, 1.0f, 1.0f});
 			q = glm::vec3 {1.0f, 0.0f, 0.0f};
 

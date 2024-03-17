@@ -178,7 +178,7 @@ target_sources(
 	${include}/lighthouse/renderer/default_meshes.ixx
 	${include}/lighthouse/renderer/dear_imgui.ixx
 	${include}/lighthouse/renderer/user_interface.ixx
- "include/lighthouse/physical_property.ixx")
+ "include/lighthouse/physical_property.ixx" "include/lighthouse/static_math.ixx")
 
 target_sources(
 	${PROJECT_NAME} PUBLIC
