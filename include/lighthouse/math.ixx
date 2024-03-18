@@ -18,6 +18,9 @@ export namespace lh
 	constexpr float64_t operator""_to_radians(long double degrees) { return degrees * std::numbers::pi_v<decltype(degrees)> / 180; }
 	constexpr float64_t operator""_to_degrees(long double radians) { return radians * 180 / std::numbers::pi_v<decltype(radians)>; }
 
+	constexpr float64_t operator""_deg(long double degrees) { return degrees * std::numbers::pi_v<decltype(degrees)> / 180; }
+
+
 	namespace math
 	{
 		template <typename T>

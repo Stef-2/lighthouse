@@ -65,8 +65,10 @@ export namespace lh
 			using quaternion_t::quaternion_t;
 
 			direction_t();
+			direction_t(scalar_t x, scalar_t y, scalar_t z) : quaternion_t {{x, y, z}} {}
 			direction_t(const quaternion_t&);
 			direction_t(const normal_t&);
+
 			auto operator=(const quaternion_t& value) -> void { static_cast<quaternion_t>(*this) = value; }
 			auto operator=(const normal_t& value) -> void { static_cast<quaternion_t>(*this) = quaternion_t {value}; }
 
