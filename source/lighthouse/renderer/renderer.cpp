@@ -3,7 +3,7 @@ module;
 #include "imgui/imgui.h"
 
 #if INTELLISENSE
-#include "vulkan/vulkan_raii.hpp"
+	#include "vulkan/vulkan_raii.hpp"
 #endif
 
 module renderer;
@@ -104,8 +104,7 @@ namespace lh
 		// m_global_descriptor_buffer.register_resource_buffer(m_test_pipeline.resource_buffer());
 		// m_global_descriptor_buffer.register_resource_buffer(m_skybox.pipeline().resource_buffer());
 
-		if (m_create_info.m_using_validation)
-			output::log() << info(m_create_info);
+		if (m_create_info.m_using_validation) output::log() << info(m_create_info);
 
 		output::dump_logs(std::cout);
 
@@ -122,7 +121,9 @@ namespace lh
 		input::key_binding::bind({vkfw::Key::C},
 								 [this]() { m_camera.translate_relative(m_camera.up_direction(), -0.1f); });
 
-		input::key_binding::bind({vkfw::Key::E}, [this]() { m_camera.look_at(glm::vec3 {0.05f, 0.05f, 0.05f}); });
+		input::key_binding::bind({vkfw::Key::E}, [this]() {
+			m_camera.look_at(geometry::position_t {0.05f, 0.05f, 0.05f});
+		});
 
 		input::mouse::move_callback(m_camera.first_person_callback());
 

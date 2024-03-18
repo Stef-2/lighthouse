@@ -23,10 +23,21 @@ namespace lh
 {
 	namespace geometry
 	{
-		struct direction_t;
-		using quaternion_t = glm::quat;
-		// ==========================================================================
+		enum class property_class
+		{
+			position,
+			direction,
+			scale
+		};
 
+		template <property_class T>
+		constexpr auto default_value()
+		{
+			if constexpr (T == property_class::position) return position_t {1.0, 0.0, 0.0};
+			else if constexpr (T == property_class::direction) return quaternion_t {1.0, 0.0, 0.0, 0.0};
+			else if constexpr (T == property_class::scale) return scale_t {1.0, 1.0, 1.0};
+		}
+		
 		// concepts
 		template <typename T>
 		concept physical_property = requires { lh::concepts::is_any<T, position_t, direction_t, scale_t>; };
@@ -35,13 +46,16 @@ namespace lh
 		concept constrainable = requires (T t) { glm::clamp(t, t, t); } and physical_property<T> or std::is_same_v<T, direction_t>;
 
 		// base
-		template <physical_property T>
+		template <physical_property T, property_class Y>
 		class base_physical_property : protected T
 		{
 		public:
 			using T::T;
 
-			base_physical_property() : T {} {}
+			base_physical_property() : T {default_value<Y>()}
+			{
+				std::cout << default_value<Y>().x << " " << default_value<Y>().y << " " << default_value<Y>().z << '\n';
+			}
 			base_physical_property(const T& value) : T {value} {};
 			base_physical_property& operator=(const T& value) { *this = value; return *this; };
 
@@ -52,16 +66,9 @@ namespace lh
 			auto value() const -> const T& { return *this; };
 			auto modify_relative(const T& value)
 			{
-				volatile int i = 2323;
 				// special modification rules for quaternions
 				if constexpr (std::is_same_v<T, direction_t>)
-				{
-					const auto w = static_cast<quaternion_t>(*this) * static_cast<quaternion_t>(value);
-					const auto& me = static_cast<direction_t&>(*this);
-					*this *= w;
-					//(*this) = w;
-					std::cout << this->w << " " << i << '\n';
-				}
+					*this *= static_cast<quaternion_t>(value);
 				else
 					*this += value;
 			};
@@ -69,21 +76,21 @@ namespace lh
 		};
 
 		// constrained base
-		template <constrainable T>
-		class constrained_physical_property : public base_physical_property<T>
+		template <constrainable T, property_class Y>
+		class constrained_physical_property : public base_physical_property<T, Y>
 		{
 		public:
-			using base_physical_property<T>::base_physical_property;
+			using base_physical_property<T, Y>::base_physical_property;
 
 			// direction_t is constrained by normal_t, position_t and scale_t by their respective type
 			using constrain_t = std::conditional<std::is_same_v<T, direction_t>, normal_t, T>::type;
 
-			constrained_physical_property(const base_physical_property<T>& value)
-				: base_physical_property<T> {value}, m_lower_bound {}, m_upper_bound {} {}
+			constrained_physical_property(const base_physical_property<T, Y>& value)
+				: base_physical_property<T, Y> {value}, m_lower_bound {}, m_upper_bound {} {}
 			constrained_physical_property(const T& value,
 										  const constrain_t& lower_bound,
 										  const constrain_t& upper_bound)
-				: base_physical_property<T> {value}, m_lower_bound {lower_bound}, m_upper_bound {upper_bound} {}
+				: base_physical_property<T, Y> {value}, m_lower_bound {lower_bound}, m_upper_bound {upper_bound} {}
 
 			auto lower_bound(const constrain_t& lower_bound) { m_lower_bound = lower_bound; }
 			auto lower_bound() const -> const T& { return m_lower_bound; }
@@ -155,8 +162,10 @@ namespace lh
 		#endif
 
 		// position
-		template <typename T = base_physical_property<position_t>, typename Y = lh::empty>
-			requires lh::concepts::is_any<T, base_physical_property<position_t>, constrained_physical_property<position_t>> and
+		template <typename T = base_physical_property<position_t, property_class::position>, typename Y = lh::empty>
+			requires lh::concepts::is_any<T,
+										  base_physical_property<position_t, property_class::position>,
+										  constrained_physical_property<position_t, property_class::position>> and
 					 lh::concepts::is_any<Y, lh::empty, property_modification_callback>
 		class position_property : public T, public Y
 		{
@@ -173,8 +182,10 @@ namespace lh
 		};
 		
 		// direction
-		template <typename T = base_physical_property<direction_t>, typename Y = lh::empty>
-			requires lh::concepts::is_any<T, base_physical_property<direction_t>, constrained_physical_property<direction_t>> and
+		template <typename T = base_physical_property<direction_t, property_class::direction>, typename Y = lh::empty>
+			requires lh::concepts::is_any<T,
+										  base_physical_property<direction_t, property_class::direction>,
+										  constrained_physical_property<direction_t, property_class::direction>> and
 					 lh::concepts::is_any<Y, lh::empty, property_modification_callback>
 		class direction_property : public T, public Y
 		{
@@ -195,8 +206,10 @@ namespace lh
 		};
 
 		// scale
-		template <typename T = base_physical_property<scale_t>, typename Y = lh::empty>
-			requires lh::concepts::is_any<T, base_physical_property<scale_t>, constrained_physical_property<scale_t>> and
+		template <typename T = base_physical_property<scale_t, property_class::scale>, typename Y = lh::empty>
+			requires lh::concepts::is_any<T,
+										  base_physical_property<scale_t, property_class::scale>,
+										  constrained_physical_property<scale_t, property_class::scale>> and
 					 lh::concepts::is_any<Y, lh::empty, property_modification_callback>
 		class scale_property : public T, public Y
 		{
@@ -221,48 +234,22 @@ export namespace lh
 {
 	namespace geometry
 	{
-		struct direction_t : public quaternion_t
-		{
-			using quaternion_t::quaternion_t;
+		
 
-			direction_t();
-			direction_t(const quaternion_t&);
-			direction_t(const normal_t&);
-			auto operator=(const quaternion_t& value) -> void { static_cast<quaternion_t>(*this) = value; }
-			auto operator=(const normal_t& value) -> void { static_cast<quaternion_t>(*this) = quaternion_t {value}; }
+		using position = position_property<base_physical_property<position_t, property_class::position>>;
+		using position_with_callback = position_property<base_physical_property<position_t, property_class::position>, property_modification_callback>;
+		using constrained_position = position_property<constrained_physical_property<position_t, property_class::position>>;
+		using constrained_position_with_callback = position_property<constrained_physical_property<position_t, property_class::position>, property_modification_callback>;
 
-			auto rotate(const quaternion_t&) -> void;
-			auto rotate(const normal_t&) -> void;
+		using direction = direction_property<base_physical_property<direction_t, property_class::direction>>;
+		using direction_with_callback = direction_property<base_physical_property<direction_t, property_class::direction>, property_modification_callback>;
+		using constrained_direction = direction_property<constrained_physical_property<direction_t, property_class::direction>>;
+		using constrained_direction_with_callback = direction_property<constrained_physical_property<direction_t, property_class::direction>, property_modification_callback>;
 
-			auto euler_degrees_cast() const -> const normal_t;
-			auto euler_radians_cast() const -> const normal_t;
-			auto matrix_cast() const -> const transformation_t;
-
-			auto dot_product(const direction_t& other) const -> const scalar_t;
-			auto cross_product(const direction_t& other) const -> const quaternion_t;
-
-			operator quaternion_t&();
-			operator const quaternion_t&() const;
-			operator normal_t();
-			operator const normal_t();
-			operator transformation_t();
-			operator const transformation_t() const;
-		};
-
-		using position = position_property<base_physical_property<position_t>>;
-		using position_with_callback = position_property<base_physical_property<position_t>, property_modification_callback>;
-		using constrained_position = position_property<constrained_physical_property<position_t>>;
-		using constrained_position_with_callback = position_property<constrained_physical_property<position_t>, property_modification_callback>;
-
-		using direction = direction_property<base_physical_property<direction_t>>;
-		using direction_with_callback = direction_property<base_physical_property<direction_t>, property_modification_callback>;
-		using constrained_direction = direction_property<constrained_physical_property<direction_t>>;
-		using constrained_direction_with_callback = direction_property<constrained_physical_property<direction_t>, property_modification_callback>;
-
-		using scale = scale_property<base_physical_property<scale_t>>;
-		using scale_with_callback = scale_property<base_physical_property<scale_t>, property_modification_callback>;
-		using constrained_scale = scale_property<constrained_physical_property<scale_t>>;
-		using constrained_scale_with_callback = scale_property<constrained_physical_property<scale_t>, property_modification_callback>;
+		using scale = scale_property<base_physical_property<scale_t, property_class::scale>>;
+		using scale_with_callback = scale_property<base_physical_property<scale_t, property_class::scale>, property_modification_callback>;
+		using constrained_scale = scale_property<constrained_physical_property<scale_t, property_class::scale>>;
+		using constrained_scale_with_callback = scale_property<constrained_physical_property<scale_t, property_class::scale>, property_modification_callback>;
 
 		struct transformable : public position, public direction, public scale
 		{};
@@ -273,33 +260,18 @@ export namespace lh
 		#pragma optimize("", off)
 		void func()
 		{
-			auto ang = glm::radians(normal_t {60.0f, 0.0f, 0.0f});
-
-			glm::quat q {1.0f, 1.0f, 1.0f, 1.0f};
-			q = glm::normalize(q);
-
-			glm::quat p {1.0f, 0.0f, 0.0f, 0.0f};
-
-			glm::quat x {glm::radians(normal_t{220.0f, 0.0f, 00.0f})};
-			glm::quat y {glm::radians(normal_t{0.0f, 90.0f, 0.0f})};
-			glm::quat z {glm::radians(normal_t{0.0f, 0.0f, 90.0f})};
-
-			direction_t d = p;
-			direction_t b = x;
-			const auto test = (quaternion_t)d * (quaternion_t)b;
-
-			p = p * x;
-			p = p * y;
-			//p = p * z;
+			glm::vec3 v {1.0, 1.0, 1.0};
+			glm::vec3 f {v};
 
 			transformable t;
 
 			t.translate_relative({5.0f, 0.0f, 10.0f});
 			t.translate_absolute({0.0f, 0.0f, 10.0f});
 
-			t.rotate_relative(p);
-
+			t.rotate_relative(glm::radians(normal_t {30.0f, 0.0f, 0.0f}));
 			t.rotate_absolute(glm::radians(normal_t{0.0f, 0.0f, 60.0f}));
+
+			//t.scale_relative();
 
 			exit(0);
 		}
