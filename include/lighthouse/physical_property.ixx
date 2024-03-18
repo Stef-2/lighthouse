@@ -23,6 +23,10 @@ namespace lh
 {
 	namespace geometry
 	{
+		struct direction_t;
+		using quaternion_t = glm::quat;
+		// ==========================================================================
+
 		// concepts
 		template <typename T>
 		concept physical_property = requires { lh::concepts::is_any<T, position_t, direction_t, scale_t>; };
@@ -48,9 +52,16 @@ namespace lh
 			auto value() const -> const T& { return *this; };
 			auto modify_relative(const T& value)
 			{
+				volatile int i = 2323;
 				// special modification rules for quaternions
 				if constexpr (std::is_same_v<T, direction_t>)
-					*this *= value;
+				{
+					const auto w = static_cast<quaternion_t>(*this) * static_cast<quaternion_t>(value);
+					const auto& me = static_cast<direction_t&>(*this);
+					*this *= w;
+					//(*this) = w;
+					std::cout << this->w << " " << i << '\n';
+				}
 				else
 					*this += value;
 			};
@@ -171,7 +182,6 @@ namespace lh
 			using T::T;
 
 			auto direction() const { return T::value(); };
-			auto euler_angles() const -> const normal_t { return direction_t::euler_radians_cast(); };
 			operator const normal_t() const { return glm::eulerAngles(*this); };
 
 			auto rotate_relative(const direction_t& value) { T::modify_relative(value); invoke_callback(); }
@@ -211,6 +221,34 @@ export namespace lh
 {
 	namespace geometry
 	{
+		struct direction_t : public quaternion_t
+		{
+			using quaternion_t::quaternion_t;
+
+			direction_t();
+			direction_t(const quaternion_t&);
+			direction_t(const normal_t&);
+			auto operator=(const quaternion_t& value) -> void { static_cast<quaternion_t>(*this) = value; }
+			auto operator=(const normal_t& value) -> void { static_cast<quaternion_t>(*this) = quaternion_t {value}; }
+
+			auto rotate(const quaternion_t&) -> void;
+			auto rotate(const normal_t&) -> void;
+
+			auto euler_degrees_cast() const -> const normal_t;
+			auto euler_radians_cast() const -> const normal_t;
+			auto matrix_cast() const -> const transformation_t;
+
+			auto dot_product(const direction_t& other) const -> const scalar_t;
+			auto cross_product(const direction_t& other) const -> const quaternion_t;
+
+			operator quaternion_t&();
+			operator const quaternion_t&() const;
+			operator normal_t();
+			operator const normal_t();
+			operator transformation_t();
+			operator const transformation_t() const;
+		};
+
 		using position = position_property<base_physical_property<position_t>>;
 		using position_with_callback = position_property<base_physical_property<position_t>, property_modification_callback>;
 		using constrained_position = position_property<constrained_physical_property<position_t>>;
@@ -235,20 +273,33 @@ export namespace lh
 		#pragma optimize("", off)
 		void func()
 		{
-			auto dir = glm::quat {glm::radians(glm::vec3 {90.0f, 0.0f, 0.0f})};
+			auto ang = glm::radians(normal_t {60.0f, 0.0f, 0.0f});
 
-			auto wtf = direction_t {glm::radians(glm::vec3 {90.0f, 0.0f, 0.0f})};
+			glm::quat q {1.0f, 1.0f, 1.0f, 1.0f};
+			q = glm::normalize(q);
 
-			constrained_direction c_o = {glm::radians(glm::vec3 {90.0f, 0.0f, 0.0f})};
-			c_o.lower_bound(glm::radians(glm::vec3 {0.0f, 0.0f, 0.0f}));
-			c_o.upper_bound(glm::radians(glm::vec3 {120.0f, 0.0f, 0.0f}));
+			glm::quat p {1.0f, 0.0f, 0.0f, 0.0f};
 
-			//c_o.rotate_absolute(glm::radians(glm::vec3 {160.0f, 0.0f, 0.0f}));
-			c_o.rotate_relative(glm::radians(glm::vec3 {-430.0f, 0.0f, 0.0f}));
+			glm::quat x {glm::radians(normal_t{220.0f, 0.0f, 00.0f})};
+			glm::quat y {glm::radians(normal_t{0.0f, 90.0f, 0.0f})};
+			glm::quat z {glm::radians(normal_t{0.0f, 0.0f, 90.0f})};
 
-			glm::vec3 test = c_o.euler_angles();
-			glm::vec3 test2 = glm::degrees(test);
-			
+			direction_t d = p;
+			direction_t b = x;
+			const auto test = (quaternion_t)d * (quaternion_t)b;
+
+			p = p * x;
+			p = p * y;
+			//p = p * z;
+
+			transformable t;
+
+			t.translate_relative({5.0f, 0.0f, 10.0f});
+			t.translate_absolute({0.0f, 0.0f, 10.0f});
+
+			t.rotate_relative(p);
+
+			t.rotate_absolute(glm::radians(normal_t{0.0f, 0.0f, 60.0f}));
 
 			exit(0);
 		}

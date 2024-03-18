@@ -36,31 +36,7 @@ export namespace lh
 		using transformation_t = glm::mat<4, 4, scalar_t>;
 
 
-		struct direction_t : public quaternion_t
-		{
-			using quaternion_t::quaternion_t;
-
-			direction_t();
-			direction_t(const quaternion_t& value);
-			auto operator=(const quaternion_t& value) -> void;
-
-			auto rotate(const quaternion_t& value) -> void;
-			auto rotate(const normal_t& value) -> void;
-
-			auto euler_degrees_cast() const -> const normal_t;
-			auto euler_radians_cast() const -> const normal_t;
-			auto matrix_cast() const -> const transformation_t;
-			
-			auto dot_product(const direction_t& other) const -> const scalar_t;
-			auto cross_product(const direction_t& other) const -> const quaternion_t;
-
-			operator quaternion_t&();
-			operator const quaternion_t&() const;
-			operator normal_t();
-			operator const normal_t();
-			operator transformation_t();
-			operator const transformation_t() const;
-		};
+		
 
 		struct line
 		{

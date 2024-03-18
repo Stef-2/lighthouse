@@ -18,6 +18,7 @@ import node;
 import window;
 import lighthouse_utility;
 import geometry;
+import physical_property;
 
 export namespace lh
 {
