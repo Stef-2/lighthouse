@@ -40,13 +40,34 @@ namespace lh
 			scale
 		};
 
+		template <typename T>
+			requires physical_property<T>
+		struct default_values
+		{
+			// direction_t is constrained by normal_t, position_t and scale_t by their respective type
+			using constraint_t = std::conditional<std::is_same_v<T, direction_t>, normal_t, T>::type;
+
+			constraint_t m_lower_bound;
+			T m_default;
+			constraint_t m_upper_bound;
+		};
+
 		// initial physical property values
 		template <property_class T>
 		constexpr auto default_value()
 		{
-			if constexpr (T == property_class::position) return position_t {0.0, 0.0, 0.0};
-			if constexpr (T == property_class::direction) return quaternion_t {1.0, 0.0, 0.0, 0.0};
-			if constexpr (T == property_class::scale) return scale_t {1.0, 1.0, 1.0};
+			if constexpr (T == property_class::position)
+				return default_values<position_t> {.m_lower_bound {-32'000.0, -32'000.0, -32'000.0},
+												   .m_default {0.0, 0.0, 0.0},
+												   .m_upper_bound{+32'000.0, +32'000.0, +32'000.0}};
+			if constexpr (T == property_class::direction)
+				return default_values<direction_t> {.m_lower_bound {0.0_deg, 0.0_deg, 0.0_deg},
+													.m_default {1.0, 0.0, 0.0, 0.0},
+													.m_upper_bound{360.0_deg, 360.0_deg, 360.0_deg}};
+			if constexpr (T == property_class::scale)
+				return default_values<scale_t> {.m_lower_bound {0.0, 0.0, 0.0},
+												.m_default {1.0, 1.0, 1.0},
+												.m_upper_bound {1.0, 1.0, 1.0}};
 		}
 		
 		// base physical property
@@ -56,7 +77,7 @@ namespace lh
 		public:
 			using T::T;
 
-			base_physical_property() : T {default_value<Y>()} {}
+			base_physical_property() : T {default_value<Y>().m_default} {}
 			base_physical_property(const T& value) : T {value} {};
 			base_physical_property& operator=(const T& value) { *this = value; return *this; };
 
@@ -87,8 +108,16 @@ namespace lh
 			// direction_t is constrained by normal_t, position_t and scale_t by their respective type
 			using constraint_t = std::conditional<std::is_same_v<T, direction_t>, normal_t, T>::type;
 
+			constrained_physical_property()
+				: base_physical_property<T, Y> {},
+				  m_lower_bound {default_value<Y>().m_lower_bound},
+				  m_upper_bound {default_value<Y>().m_upper_bound} {}
+
 			constrained_physical_property(const base_physical_property<T, Y>& value)
-				: base_physical_property<T, Y> {value}, m_lower_bound {}, m_upper_bound {} {}
+				: base_physical_property<T, Y> {value},
+				  m_lower_bound {default_value<Y>().m_lower_bound},
+				  m_upper_bound {default_value<Y>().m_upper_bound} {}
+
 			constrained_physical_property(const T& value,
 										  const constraint_t& lower_bound,
 										  const constraint_t& upper_bound)
@@ -116,10 +145,10 @@ namespace lh
 						direction = value;
 
 					const auto euler_angles = glm::eulerAngles(static_cast<direction_t&>(*this));
-					static_cast<T&>(*this) = glm::clamp(euler_angles + direction, m_lower_bound, m_upper_bound);
+					*this = glm::clamp(euler_angles + direction, m_lower_bound, m_upper_bound);
 				}
 				else
-					static_cast<T&>(*this) = glm::clamp(static_cast<T&>(*this) + value, m_lower_bound, m_upper_bound);
+					*this = glm::clamp(static_cast<T&>(*this) + value, m_lower_bound, m_upper_bound);
 			};
 
 			template <typename Y>
@@ -135,10 +164,10 @@ namespace lh
 						direction = glm::eulerAngles(value);
 					else
 						direction = value;
-					static_cast<T&>(*this) = glm::clamp(direction, m_lower_bound, m_upper_bound);
+					*this = glm::clamp(direction, m_lower_bound, m_upper_bound);
 				}
 				else
-				static_cast<T&>(*this) = glm::clamp(value, m_lower_bound, m_upper_bound);
+				*this = glm::clamp(value, m_lower_bound, m_upper_bound);
 			}
 
 			constraint_t m_lower_bound {};
@@ -173,13 +202,14 @@ namespace lh
 		{
 		public:
 			using T::T;
+			using position = T;
 
-			auto position() const { return T::value(); };
+			auto position_value() const { return T::value(); };
 			auto translate_relative(const normal_t& direction, scalar_t magnitude) { T::modify_relative(direction * magnitude); invoke_callback(); }
 			auto translate_relative(const position_t& value) { T::modify_relative(value); invoke_callback(); }
-			auto translate_relative(scalar_t x, scalar_t y, scalar_t z) { T::modify_relative({x, y, z}); invoke_callback(); }
+			auto translate_relative(scalar_t x, scalar_t y, scalar_t z) { T::modify_relative(position_t {x, y, z}); invoke_callback(); }
 			auto translate_absolute(const position_t& value) { T::modify_absolute(value); invoke_callback(); }
-			auto translate_absolute(scalar_t x, scalar_t y, scalar_t z) { T::modify_absolute({x, y, z}); invoke_callback(); }
+			auto translate_absolute(scalar_t x, scalar_t y, scalar_t z) { T::modify_absolute(position_t {x, y, z}); invoke_callback(); }
 
 		private:
 			auto invoke_callback() { if constexpr (std::is_same_v<Y, property_modification_callback>) this->position_modified(); }
@@ -195,15 +225,16 @@ namespace lh
 		{
 		public:
 			using T::T;
+			using direction = T;
 
-			auto direction() const { return T::value(); };
+			auto direction_value() const { return T::value(); };
 			operator normal_t() { return direction_t::euler_radians_cast(); }
 			operator const normal_t() const { return direction_t::euler_radians_cast(); };
 
 			auto rotate_relative(const direction_t& value) { T::modify_relative(value); invoke_callback(); }
-			auto rotate_relative(scalar_t w, scalar_t x, scalar_t y, scalar_t z) { T::modify_relative({w, x, y, z}); invoke_callback(); }
+			auto rotate_relative(scalar_t w, scalar_t x, scalar_t y, scalar_t z) { T::modify_relative(direction_t {w, x, y, z}); invoke_callback(); }
 			auto rotate_absolute(const direction_t& value) { T::modify_absolute(value); invoke_callback(); }
-			auto rotate_absolute(scalar_t w, scalar_t x, scalar_t y, scalar_t z) { T::modify_absolute({w, x, y, z}); invoke_callback(); }
+			auto rotate_absolute(scalar_t w, scalar_t x, scalar_t y, scalar_t z) { T::modify_absolute(direction_t {w, x, y, z}); invoke_callback(); }
 
 			auto rotate_relative(const normal_t& value) { T::modify_relative(direction_t {value}); invoke_callback(); }
 			auto rotate_relative(scalar_t x, scalar_t y, scalar_t z) { T::modify_relative(direction_t {x, y, z}); invoke_callback(); }
@@ -224,12 +255,13 @@ namespace lh
 		{
 		public:
 			using T::T;
+			using scale = T;
 
-			auto scale() const { return T::value(); };
+			auto scale_value() const { return T::value(); };
 			auto scale_relative(const scale_t& value) { T::modify_relative(value); invoke_callback(); }
-			auto scale_relative(scalar_t x, scalar_t y, scalar_t z) { T::modify_relative({x, y, z}); invoke_callback(); }
+			auto scale_relative(scalar_t x, scalar_t y, scalar_t z) { T::modify_relative(scale_t {x, y, z}); invoke_callback(); }
 			auto scale_absolute(const scale_t& value) { T::modify_absolute(value); invoke_callback(); }
-			auto scale_absolute(scalar_t x, scalar_t y, scalar_t z) { T::modify_absolute({x, y, z}); invoke_callback(); }
+			auto scale_absolute(scalar_t x, scalar_t y, scalar_t z) { T::modify_absolute(scale_t {x, y, z}); invoke_callback(); }
 
 		private:
 			auto invoke_callback() { if constexpr (std::is_same_v<Y, property_modification_callback>) this->scale_modified(); }
@@ -260,28 +292,27 @@ export namespace lh
 		using constrained_scale = scale_property<constrained_physical_property<scale_t, property_class::scale>>;
 		using constrained_scale_with_callback = scale_property<constrained_physical_property<scale_t, property_class::scale>, property_modification_callback>;
 
-		struct transformable : public position, public direction, public scale
-		{};
-
-		struct const_trans : public constrained_position, public constrained_direction, public constrained_scale
-		{};
+		struct constrained : public constrained_position_with_callback, public constrained_direction_with_callback, public scale_with_callback
+		{
+			auto position_modified() -> void override { std::cout << "IM CALLING BACK IM BACLLING BACK CUZ IM MODIFIED AAGH SAVE ME NIGGERMAN!!!!\n"; }
+			auto direction_modified() -> void override { std::cout << "GET ROTATED IDIOT !!!11\n"; }
+			auto scale_modified() -> void override { std::cout << "OH NOEZ IM SMOLE NOW !!!111111\n"; }
+		};
 		
 		#pragma optimize("", off)
 		void func()
 		{
-			glm::vec3 v {1.0, 1.0, 1.0};
-			glm::vec3 f {v};
+			constrained c;
 
-			transformable t;
+			c.position::lower_bound({0.0f, 0.0f, 0.0f});
+			c.position::upper_bound({20.0f, 30.0f, 40.0f});
+			
+			c.direction::lower_bound({0.0_deg, 0.0_deg, -20.0_deg});
+			c.direction::upper_bound({340.0_deg, 60.0_deg, 0.0_deg});
 
-			t.translate_relative(5.0f, 0.0f, 10.0f);
-			t.translate_absolute(0.0f, 0.0f, 10.0f);
-
-			t.rotate_relative(1.0, 30.0_deg, 0.0_deg, 0.0_deg);
-			t.rotate_absolute(0.0_deg, 0.0_deg, 60.0_deg);
-
-			t.scale_relative(1.2f, 0.0f, 3.0f);
-			t.scale_absolute(1.2f, 0.0f, 3.0f);
+			c.translate_absolute(-30.0f, 60.0f, 20.0f);
+			c.rotate_relative(-30.0_deg, 90.0_deg, 45.0_deg);
+			c.scale_relative(0.0, 0.3, -0.5);
 
 			exit(0);
 		}

@@ -35,42 +35,18 @@ export namespace lh
 		using quaternion_t = glm::qua<scalar_t>;
 		using scale_t = glm::vec<3, scalar_t>;
 		using transformation_t = glm::mat<4, 4, scalar_t>;
-		/*
-		struct position_t : public vec3f_t
-		{
-			using vec3f_t::vec3f_t;
-
-			position_t() : vec3f_t {0.0f, 0.0f, 0.0f} {}
-			//position_t(const vec3f_t& value) : vec3f_t {value} {}
-			//position_t(float x, int y, int z) : vec3f_t {x, y, z} {}
-			//position_t(int x, int y, float z) : vec3f_t {x, y, z} {}
-			//position_t(int x, float y, int z) : vec3f_t {x, y, z} {}
-
-			position_t(auto x, auto y, auto z) : vec3f_t
-			{
-				static_cast<float>(x), static_cast<float>(y), static_cast<float>(z),
-			} {}
-
-			auto operator+=(const vec3f_t& vector) { static_cast<vec3f_t>(*this) += vector; }
-			auto operator+=(const position_t& other) { static_cast<vec3f_t>(*this) += static_cast<vec3f_t>(other); }
-
-			operator vec3f_t() { return *this; }
-			operator const vec3f_t() const { return *this; }
-			operator vec3f_t&() { return *this; }
-			operator const vec3f_t&() const { return *this; }
-		};*/
 
 		struct direction_t : public quaternion_t
 		{
 			using quaternion_t::quaternion_t;
 
 			direction_t();
-			direction_t(scalar_t x, scalar_t y, scalar_t z) : quaternion_t {{x, y, z}} {}
+			direction_t(scalar_t, scalar_t, scalar_t);
 			direction_t(const quaternion_t&);
 			direction_t(const normal_t&);
 
-			auto operator=(const quaternion_t& value) -> void { static_cast<quaternion_t>(*this) = value; }
-			auto operator=(const normal_t& value) -> void { static_cast<quaternion_t>(*this) = quaternion_t {value}; }
+			auto operator=(const quaternion_t& value) -> void;
+			auto operator=(const normal_t& value) -> void;
 
 			auto rotate(const quaternion_t&) -> void;
 			auto rotate(const normal_t&) -> void;

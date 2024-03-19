@@ -6,11 +6,17 @@ namespace lh
 {
 	namespace geometry
 	{
-		direction_t::direction_t() : quaternion_t {1.0f, 0.0f, 0.0f, 0.0f} {}
+		direction_t::direction_t() : quaternion_t {} {}
+
+		direction_t::direction_t(scalar_t x, scalar_t y, scalar_t z) : quaternion_t {{x, y, z}} {}
 
 		direction_t::direction_t(const quaternion_t& value) : quaternion_t {value} {}
 
 		direction_t::direction_t(const normal_t& value) : quaternion_t {value} {}
+
+		auto direction_t::operator=(const quaternion_t& value) -> void { static_cast<quaternion_t>(*this) = value; }
+
+		auto direction_t::operator=(const normal_t& value) -> void { static_cast<quaternion_t>(*this) = quaternion_t {value}; }
 
 		auto direction_t::rotate(const quaternion_t& value) -> void
 		{
