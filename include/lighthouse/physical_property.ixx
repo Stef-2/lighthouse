@@ -39,7 +39,7 @@ namespace lh
 		enum class property_class
 		{
 			position,
-			direction,
+			rotation,
 			scale
 		};
 
@@ -63,7 +63,7 @@ namespace lh
 				return default_values<position_t> {.m_lower_bound {-32'000.0, -32'000.0, -32'000.0},
 												   .m_default {0.0, 0.0, 0.0},
 												   .m_upper_bound{+32'000.0, +32'000.0, +32'000.0}};
-			if constexpr (T == property_class::direction)
+			if constexpr (T == property_class::rotation)
 				return default_values<rotation_t> {.m_lower_bound {0.0_deg, 0.0_deg, 0.0_deg},
 													.m_default {1.0, 0.0, 0.0, 0.0},
 													.m_upper_bound{360.0_deg, 360.0_deg, 360.0_deg}};
@@ -140,15 +140,15 @@ namespace lh
 				// special modification rules for quaternions
 				if constexpr (std::is_same_v<T, rotation_t>)
 				{
-					auto direction = constraint_t {};
+					auto rotation = constraint_t {};
 
 					if constexpr (std::is_same_v<Y, rotation_t>)
-						direction = glm::eulerAngles(value);
+						rotation = glm::eulerAngles(value);
 					else
-						direction = value;
+						rotation = value;
 
 					const auto euler_angles = glm::eulerAngles(static_cast<rotation_t&>(*this));
-					*this = glm::clamp(euler_angles + direction, m_lower_bound, m_upper_bound);
+					*this = glm::clamp(euler_angles + rotation, m_lower_bound, m_upper_bound);
 				}
 				else
 					*this = glm::clamp(static_cast<T&>(*this) + value, m_lower_bound, m_upper_bound);
@@ -161,13 +161,13 @@ namespace lh
 				// special modification rules for quaternions
 				if constexpr (std::is_same_v<T, rotation_t>)
 				{
-					auto direction = constraint_t {};
+					auto rotation = constraint_t {};
 
 					if constexpr (std::is_same_v<Y, rotation_t>)
-						direction = glm::eulerAngles(value);
+						rotation = glm::eulerAngles(value);
 					else
-						direction = value;
-					*this = glm::clamp(direction, m_lower_bound, m_upper_bound);
+						rotation = value;
+					*this = glm::clamp(rotation, m_lower_bound, m_upper_bound);
 				}
 				else
 				*this = glm::clamp(value, m_lower_bound, m_upper_bound);
@@ -182,7 +182,7 @@ namespace lh
 		{
 		protected:
 			virtual auto position_modified() -> void {}
-			virtual auto direction_modified() -> void {}
+			virtual auto rotation_modified() -> void {}
 			virtual auto scale_modified() -> void {}
 		};
 
@@ -209,7 +209,7 @@ namespace lh
 
 			auto position_value() const { return T::value(); };
 
-			auto translate_relative(const normal_t& direction, scalar_t magnitude) { T::modify_relative(direction * magnitude); invoke_callback(); }
+			auto translate_relative(const normal_t& rotation, scalar_t magnitude) { T::modify_relative(rotation * magnitude); invoke_callback(); }
 			auto translate_relative(const position_t& value) { T::modify_relative(value); invoke_callback(); }
 			auto translate_relative(scalar_t x, scalar_t y, scalar_t z) { T::modify_relative(position_t {x, y, z}); invoke_callback(); }
 			auto translate_absolute(const position_t& value) { T::modify_absolute(value); invoke_callback(); }
@@ -221,34 +221,26 @@ namespace lh
 		};
 
 
-		// ---- direction ----
-		template <typename T = base_physical_property<rotation_t, property_class::direction>, typename Y = lh::empty>
+		// ---- rotation ----
+		template <typename T = base_physical_property<rotation_t, property_class::rotation>, typename Y = lh::empty>
 			requires lh::concepts::is_any<T,
-										  base_physical_property<rotation_t, property_class::direction>,
-										  constrained_physical_property<rotation_t, property_class::direction>> and
+										  base_physical_property<rotation_t, property_class::rotation>,
+										  constrained_physical_property<rotation_t, property_class::rotation>> and
 					 lh::concepts::is_any<Y, lh::empty, property_modification_callback>
-		class direction_property : public T, public Y
+		class rotation_property : public T, public Y
 		{
 		public:
 			using T::T;
-			using direction = T;
+			using rotation = T;
 
-			auto direction_value() const { return T::value(); };
+			auto rotation_value() const { return T::value(); };
 			operator normal_t() { return rotation_t::euler_radians_cast(); }
 			operator const normal_t() const { return rotation_t::euler_radians_cast(); };
 
 			template <typename... Ts>
 			auto rotate_relative(Ts&&... ts)
 			{
-				// delegate the call to one of the handlers
-				if constexpr (lh::function_parameters::function_traits<void(const rotation_t&)>::match<Ts...>())
-					rotate_relative_direction(std::forward<Ts>(ts)...);
-				else if constexpr (lh::function_parameters::function_traits<void(scalar_t, scalar_t, scalar_t, scalar_t)>::match<Ts...>())
-					rotate_relative_quaternion(std::forward<Ts>(ts)...);
-				else if constexpr (lh::function_parameters::function_traits<void(scalar_t, scalar_t, scalar_t)>::match<Ts...>())
-					rotate_relative_euler(std::forward<Ts>(ts)...);
-				else
-					static_assert(dependent_false<ts...>::value, "could not statically resolve rotation");
+				delegate_relative_rotation_call(std::forward<Ts>(ts)...);
 
 				invoke_callback();
 			}
@@ -258,7 +250,7 @@ namespace lh
 			{
 				// delegate the call to one of the handlers
 				if constexpr (lh::function_parameters::function_traits<void(const rotation_t&)>::match<Ts...>())
-					rotate_absolute_direction(std::forward<Ts>(ts)...);
+					rotate_absolute_rotation(std::forward<Ts>(ts)...);
 				else if constexpr (lh::function_parameters::function_traits<void(scalar_t, scalar_t, scalar_t, scalar_t)>::match<Ts...>())
 					rotate_absolute_quaternion(std::forward<Ts>(ts)...);
 				else if constexpr (lh::function_parameters::function_traits<void(scalar_t, scalar_t, scalar_t)>::match<Ts...>())
@@ -270,14 +262,27 @@ namespace lh
 			}
 
 		private:
-			auto rotate_relative_direction(const rotation_t& value) { T::modify_relative(value); }
-			auto rotate_absolute_direction(const rotation_t& value) { T::modify_absolute(value); }
+			template <typename... Ts>
+			auto delegate_relative_rotation_call(Ts&&... ts)
+			{
+				if constexpr (lh::function_parameters::function_traits<void(const rotation_t&)>::match<Ts...>())
+					rotate_relative_rotation(std::forward<Ts>(ts)...);
+				else if constexpr (lh::function_parameters::function_traits<void(scalar_t, scalar_t, scalar_t, scalar_t)>::match<Ts...>())
+					rotate_relative_quaternion(std::forward<Ts>(ts)...);
+				else if constexpr (lh::function_parameters::function_traits<void(scalar_t, scalar_t, scalar_t)>::match<Ts...>())
+					rotate_relative_euler(std::forward<Ts>(ts)...);
+				else
+					static_assert(dependent_false<ts...>::value, "could not statically resolve rotation");
+			}
+
+			auto rotate_relative_rotation(const rotation_t& value) { T::modify_relative(value); }
+			auto rotate_absolute_rotation(const rotation_t& value) { T::modify_absolute(value); }
 			auto rotate_relative_quaternion(scalar_t w, scalar_t x, scalar_t y, scalar_t z) { T::modify_relative(rotation_t {w, x, y, z}); }
 			auto rotate_absolute_quaternion(scalar_t w, scalar_t x, scalar_t y, scalar_t z) { T::modify_absolute(rotation_t {w, x, y, z}); }
 			auto rotate_relative_euler(scalar_t x, scalar_t y, scalar_t z) { T::modify_relative(rotation_t {x, y, z}); }
 			auto rotate_absolute_euler(scalar_t x, scalar_t y, scalar_t z) { T::modify_absolute(rotation_t {x, y, z}); }
 
-			auto invoke_callback() { if constexpr (std::is_same_v<Y, property_modification_callback>) this->direction_modified(); }
+			auto invoke_callback() { if constexpr (std::is_same_v<Y, property_modification_callback>) this->rotation_modified(); }
 
 		};
 		
@@ -318,10 +323,10 @@ export namespace lh
 		using constrained_position = position_property<constrained_physical_property<position_t, property_class::position>>;
 		using constrained_position_with_callback = position_property<constrained_physical_property<position_t, property_class::position>, property_modification_callback>;
 
-		using direction = direction_property<base_physical_property<rotation_t, property_class::direction>>;
-		using direction_with_callback = direction_property<base_physical_property<rotation_t, property_class::direction>, property_modification_callback>;
-		using constrained_direction = direction_property<constrained_physical_property<rotation_t, property_class::direction>>;
-		using constrained_direction_with_callback = direction_property<constrained_physical_property<rotation_t, property_class::direction>, property_modification_callback>;
+		using rotation = rotation_property<base_physical_property<rotation_t, property_class::rotation>>;
+		using rotation_with_callback = rotation_property<base_physical_property<rotation_t, property_class::rotation>, property_modification_callback>;
+		using constrained_rotation = rotation_property<constrained_physical_property<rotation_t, property_class::rotation>>;
+		using constrained_rotation_with_callback = rotation_property<constrained_physical_property<rotation_t, property_class::rotation>, property_modification_callback>;
 
 		using scale = scale_property<base_physical_property<scale_t, property_class::scale>>;
 		using scale_with_callback = scale_property<base_physical_property<scale_t, property_class::scale>, property_modification_callback>;
@@ -329,7 +334,7 @@ export namespace lh
 		using constrained_scale_with_callback = scale_property<constrained_physical_property<scale_t, property_class::scale>, property_modification_callback>;
 
 		
-		struct rotatable : public direction {};
+		struct rotatable : public rotation {};
 
 		#pragma optimize("", off)
 		void func()
@@ -342,7 +347,7 @@ export namespace lh
 
 
 
-			exit(0);
+			//exit(0);
 		}
 
 		

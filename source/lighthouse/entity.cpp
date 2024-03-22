@@ -60,9 +60,9 @@ namespace lh
 		on_position_change();
 	}
 
-	auto entity::translate_relative(const geometry::normal_t& direction, geometry::scalar_t magnitude) -> void
+	auto entity::translate_relative(const geometry::normal_t& rotation, geometry::scalar_t magnitude) -> void
 	{
-		m_position += direction * magnitude;
+		m_position += rotation * magnitude;
 		m_node_requires_reconstruction = true;
 
 		on_position_change();

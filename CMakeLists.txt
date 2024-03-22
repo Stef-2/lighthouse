@@ -26,7 +26,7 @@ cmake_path(SET dynamic ${CMAKE_CURRENT_SOURCE_DIR}/library)
 
 add_executable(${PROJECT_NAME})
 
-set(compile_options /std:c++latest /EHsc /O2 /W3 /MP /Zf /MD /Qpar /Qpar-report:1 /arch:AVX2 /nologo /experimental:module /DNOMINMAX /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS)
+set(compile_options ${COMPILE_OPTIONS})#/std:c++latest /EHsc /O2 /W3 /MP /Zf /MD /Qpar /Qpar-report:1 /arch:AVX2 /nologo /experimental:module /DNOMINMAX /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS)
 
 # std module
 add_library(std_module)
@@ -308,17 +308,18 @@ target_link_libraries(
 
 	vulkan-1.lib
 	glfw3.lib
-	SPIRV.lib
-	SPIRV-Tools.lib
-	SPIRV-Tools-opt.lib
 
-	shaderc.lib
-	shaderc_combined.lib
+	optimized SPIRV.lib debug SPIRVd.lib
+	optimized SPIRV-Tools.lib debug SPIRV-Toolsd.lib
+	optimized SPIRV-Tools-opt.lib debug SPIRV-Tools-optd.lib
 
-	spirv-cross-core
-	spirv-cross-cpp.lib
-	spirv-cross-glsl.lib
-	spirv-cross-reflect.lib
+	optimized shaderc.lib debug shadercd.lib
+	optimized shaderc_combined.lib debug shaderc_combinedd.lib
+
+	optimized spirv-cross-core.lib debug spirv-cross-cored.lib
+	optimized spirv-cross-cpp.lib debug spirv-cross-cppd.lib
+	optimized spirv-cross-glsl.lib debug spirv-cross-glsld.lib
+	optimized spirv-cross-reflect.lib debug spirv-cross-reflectd.lib
 
 	assimp-vc143-mt.lib
 

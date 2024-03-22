@@ -3,9 +3,9 @@ module;
 #include "assimp/scene.h"
 
 #if INTELLISENSE
-#include "glm/vec3.hpp"
-#include "glm/vec2.hpp"
-#include "glm/gtc/random.hpp"
+	#include "glm/vec3.hpp"
+	#include "glm/vec2.hpp"
+	#include "glm/gtc/random.hpp"
 #endif
 
 module scene_loader;
@@ -25,8 +25,7 @@ namespace
 	{
 		const auto scene = importer.ReadFile(file_path.string(), create_info.m_importer_postprocess);
 
-		if (not scene)
-			lh::output::error() << "could not load a scene: " << file_path.string();
+		if (not scene) lh::output::error() << "could not load a scene: " << file_path.string();
 
 		auto meshes = std::vector<lh::mesh> {};
 
