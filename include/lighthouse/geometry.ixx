@@ -36,14 +36,14 @@ export namespace lh
 		using scale_t = glm::vec<3, scalar_t>;
 		using transformation_t = glm::mat<4, 4, scalar_t>;
 
-		struct direction_t : public quaternion_t
+		struct rotation_t : public quaternion_t
 		{
 			using quaternion_t::quaternion_t;
 
-			direction_t();
-			direction_t(scalar_t, scalar_t, scalar_t);
-			direction_t(const quaternion_t&);
-			direction_t(const normal_t&);
+			rotation_t();
+			rotation_t(scalar_t, scalar_t, scalar_t);
+			rotation_t(const quaternion_t&);
+			rotation_t(const normal_t&);
 
 			auto operator=(const quaternion_t& value) -> void;
 			auto operator=(const normal_t& value) -> void;
@@ -55,8 +55,8 @@ export namespace lh
 			auto euler_radians_cast() const -> const normal_t;
 			auto matrix_cast() const -> const transformation_t;
 
-			auto dot_product(const direction_t& other) const -> const scalar_t;
-			auto cross_product(const direction_t& other) const -> const quaternion_t;
+			auto dot_product(const rotation_t& other) const -> const scalar_t;
+			auto cross_product(const rotation_t& other) const -> const quaternion_t;
 
 			operator quaternion_t&();
 			operator const quaternion_t&() const;

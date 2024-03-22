@@ -42,7 +42,7 @@ namespace lh
 		return glm::eulerAngles(m_orientation);
 	}
 
-	auto entity::orientation() const -> const geometry::direction_t&
+	auto entity::orientation() const -> const geometry::rotation_t&
 	{
 		return m_orientation;
 	}
@@ -75,7 +75,7 @@ namespace lh
 
 		on_rotation_change();
 	}
-	auto entity::rotate_relative(const geometry::direction_t& rotation) -> void
+	auto entity::rotate_relative(const geometry::rotation_t& rotation) -> void
 	{
 		m_orientation = m_orientation * rotation;
 		m_node_requires_reconstruction = true;
@@ -105,7 +105,7 @@ namespace lh
 		on_rotation_change();
 	}
 
-	auto entity::rotate_absolute(const geometry::direction_t& rotation) -> void
+	auto entity::rotate_absolute(const geometry::rotation_t& rotation) -> void
 	{
 		m_orientation = rotation;
 		m_node_requires_reconstruction = true;

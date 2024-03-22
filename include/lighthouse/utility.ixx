@@ -24,6 +24,39 @@ export namespace lh
 		concept are_same = std::conjunction_v<std::is_same<T, Ts>...>;
 	}
 
+	template <typename... Ts>
+	struct variadic
+	{
+		template <typename... Ys>
+		static consteval auto match()
+		{
+			return std::is_same_v<std::tuple<Ts...>, std::tuple<Ys...>>;
+		}
+	};
+
+	template <typename... Ts>
+	struct dependent_false : std::false_type
+	{};
+
+	namespace function_parameters
+	{
+		template <typename T>
+		struct function_traits;
+
+		template <typename R, typename... As>
+		class function_traits<R(As...)>
+		{
+		public:
+			using arguments = ::std::tuple<As...>;
+
+			template <typename... Ts>
+			static consteval auto match()
+			{
+				return std::is_same_v<arguments, std::tuple<Ts...>>;
+			}
+		};
+	}
+
 	template <typename T>
 	using non_owning_ptr = T*;
 
