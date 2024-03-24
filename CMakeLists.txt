@@ -62,7 +62,7 @@ target_include_directories(glm_module PUBLIC
 # vulkan module
 add_library(vulkan_module)
 target_sources(vulkan_module PUBLIC FILE_SET CXX_MODULES FILES
-	${module}/vulkan/vulkan.cppm
+	${include}/vulkan/vulkan.cppm
 )
 target_compile_options(vulkan_module PUBLIC
 	${compile_options}
@@ -70,8 +70,10 @@ target_compile_options(vulkan_module PUBLIC
 	/DVULKAN_HPP_NO_NODISCARD_WARNINGS
 	/DVK_USE_PLATFORM_WIN32_KHR
 	/DVULKAN_HPP_NO_SPACESHIP_OPERATOR
+	/DVULKAN_HPP_NO_SMART_HANDLE
 	/DVULKAN_HPP_NO_TO_STRING
 )
+
 target_include_directories(vulkan_module PUBLIC
 	${include}
 )
@@ -87,6 +89,7 @@ target_compile_options(vma_module PUBLIC
 	/DVULKAN_HPP_NO_NODISCARD_WARNINGS
 	/DVK_USE_PLATFORM_WIN32_KHR
 	/DVULKAN_HPP_NO_SPACESHIP_OPERATOR
+	/DVULKAN_HPP_NO_SMART_HANDLE
 	/DVULKAN_HPP_NO_TO_STRING
 )
 target_include_directories(vma_module PUBLIC
@@ -121,7 +124,7 @@ target_sources(
 	${include}/lighthouse/file_system.ixx									
 	${include}/lighthouse/file_type.ixx
 	${include}/lighthouse/utility.ixx
-	"include/lighthouse/data_type.ixx"
+	${include}/lighthouse/data_type.ixx
 	${include}/lighthouse/string/lh_string.ixx
 	${include}/lighthouse/string/string_convertible.ixx
 	${include}/lighthouse/operating_system/system.ixx
@@ -178,7 +181,10 @@ target_sources(
 	${include}/lighthouse/renderer/default_meshes.ixx
 	${include}/lighthouse/renderer/dear_imgui.ixx
 	${include}/lighthouse/renderer/user_interface.ixx
- "include/lighthouse/physical_property.ixx" "include/lighthouse/static_math.ixx" "include/lighthouse/math.ixx" )
+	${include}/lighthouse/physical_property.ixx
+	${include}/lighthouse/static_math.ixx
+	${include}/lighthouse/math.ixx
+ "include/lighthouse/lhd/lhd_format.ixx")
 
 target_sources(
 	${PROJECT_NAME} PUBLIC
@@ -234,7 +240,9 @@ target_sources(
 	${source}/lighthouse/renderer/skybox.cpp
 	${source}/lighthouse/renderer/dear_imgui.cpp
 	${source}/lighthouse/renderer/user_interface.cpp
- "source/lighthouse/physical_property.cpp" "source/lighthouse/geometry.cpp")
+	${source}/lighthouse/physical_property.cpp
+	${source}/lighthouse/geometry.cpp
+)
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_RELEASE}")
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
@@ -255,7 +263,7 @@ if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
 	target_link_options(
 		${PROJECT_NAME} PUBLIC
 		# MSVC linker settings
-		/INCREMENTAL /CGTHREADS:8 /VERBOSE:INCR /LTCG #/EDITANDCONTINUE#/${library}/std/std.obj
+		/INCREMENTAL# /CGTHREADS:8 /EDITANDCONTINUE#/LTCG #/EDITANDCONTINUE#/${library}/std/std.obj
 		# no console
 		#/SUBSYSTEM:windows /ENTRY:mainCRTStartup
 	)

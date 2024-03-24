@@ -48,5 +48,7 @@ export namespace lh
 	private:
 		Assimp::Importer m_importer;
 		std::vector<mesh> m_meshes;
+		aiScene s;
+		s.
 	};
 }
