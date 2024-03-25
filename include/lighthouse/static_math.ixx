@@ -8,6 +8,7 @@ module;
 #include <numbers>
 #include <limits>
 #include <cmath>
+#include <bit>
 #endif
 
 export module static_math;
@@ -18,40 +19,6 @@ import glm;
 #endif
 
 import math;
-
-#define EXP_A 184
-#define EXP_C 16249
-
-float EXP(float y)
-{
-	union
-	{
-		float d;
-		struct
-		{
-#ifdef LITTLE_ENDIAN
-			short j, i;
-#else
-			short i, j;
-#endif
-		} n;
-	} eco;
-	eco.n.i = EXP_A * (y) + (EXP_C);
-	eco.n.j = 0;
-	return eco.d;
-}
-
-float LOG(float y)
-{
-	int* nTemp = (int*)&y;
-	y = (*nTemp) >> 16;
-	return (y - EXP_C) / EXP_A;
-}
-
-float POW(float b, float p)
-{
-	return EXP(LOG(b) * p);
-}
 
 export namespace lh
 {
@@ -80,21 +47,21 @@ export namespace lh
 			}
 
 			template <typename T>
-				requires std::is_integral_v<T> or std::is_floating_point_v<T>
+				requires std::is_arithmetic_v<T>
 			consteval auto min(T x, T y)
 			{
 				return x < y ? x : y;
 			}
 
 			template <typename T>
-				requires std::is_integral_v<T> or std::is_floating_point_v<T>
+				requires std::is_arithmetic_v<T>
 			consteval auto max(T x, T y)
 			{
 				return x > y ? x : y;
 			}
 
 			template <typename T>
-				requires std::is_integral_v<T> or std::is_floating_point_v<T>
+				requires std::is_arithmetic_v<T>
 			consteval auto clamp(T value, T minimum, T maximum)
 			{
 				return min(max(value, minimum), maximum);
@@ -111,7 +78,6 @@ export namespace lh
 					return value > 0 ? to_integer + 1 : to_integer;
 				
 			}
-			
 
 			template <typename T>
 				requires std::is_floating_point_v<T>
@@ -122,10 +88,29 @@ export namespace lh
 				return to_integer;
 			}
 
-			template <typename T>
-			consteval auto pow(T value, std::size_t exponent)
+			template <typename T, std::size_t N = iteration_count>
+			consteval T nth_root(T value, std::size_t n)
 			{
+				constexpr int K = N;
+				T x[K] = {1};
+				for (int k = 0; k < K - 1; k++)
+				{
+					T power = x[k];
+					for (size_t i = 1; i < n - 1; i++)
+						power = power * x[k];
+
+					x[k + 1] = (1.0 / n) * ((n - 1) * x[k] + value / power/*pow<T, std::size_t>(x[k], n - 1))*/);
+				}
+				return x[K - 1];
+			}
+
+			template <typename T, typename Y>
+			consteval auto pow(T value, Y exponent)
+			{
+				if (value == 0) return static_cast<T>(0);
 				if (exponent == 0) return static_cast<T>(1);
+				if (exponent < 0) return 1 / pow(value, -exponent);
+				if (exponent > 0.0 and exponent < 1.0) return static_cast<T>(nth_root<T>(value, 1 / exponent));
 
 				auto result = value;
 
@@ -134,7 +119,8 @@ export namespace lh
 
 				return result;
 			}
-
+			constexpr auto nth_r = nth_root(5.0, 2);
+			constexpr auto power = pow(4.0, 0.5);
 			template <typename T>
 			consteval auto mod(T value, T divisor)
 			{
