@@ -9,6 +9,7 @@ module;
 #include <limits>
 #include <cmath>
 #include <bit>
+#include <utility>
 #endif
 
 export module static_math;
@@ -30,7 +31,7 @@ export namespace lh
 
 			template <typename T>
 				requires std::is_floating_point_v<T>
-			consteval auto isvalid(T value)
+			consteval auto is_valid(T value)
 			{
 				const auto is_nan = value != value;
 				const auto is_inf = value == std::numeric_limits<T>::infinity();
@@ -46,6 +47,23 @@ export namespace lh
 				return value > 0 ? value : -value;
 			}
 
+			template <typename R = std::int64_t, typename T>
+				requires std::is_floating_point_v<T>
+			consteval R to_integer(T value)
+			{
+				if (not is_valid(value)) return 0;
+
+				const auto integer = static_cast<R>(value);
+				const auto integer_above = integer + 1;
+				constexpr auto epsilon = std::numeric_limits<double>::epsilon() * 4'503'599'628/*'599'627'370'496*/;
+				constexpr auto epsilon2 = std::numeric_limits<double>::epsilon();
+				//constexpr auto epsilon = std::numeric_limits<T>::epsilon() * 99'999'999'999'999'9;
+				const auto floating = static_cast<T>(integer);
+
+				if (static_cast<T>(integer_above) - value < epsilon2) return integer_above else return integer;
+			}
+			constexpr auto qwe = to_integer(1.9999999999999);
+			constexpr auto asd = 7.0 / 3.5;
 			template <typename T>
 				requires std::is_arithmetic_v<T>
 			consteval auto min(T x, T y)
@@ -88,6 +106,34 @@ export namespace lh
 				return to_integer;
 			}
 
+			template <typename T>
+				requires std::is_floating_point_v<T>
+			consteval auto fraction(T value)
+			{
+				const auto integer = floor(value);
+
+				const auto result = value - static_cast<T>(integer);
+
+				return result;
+			}
+
+			template <typename T>
+				requires std::is_floating_point_v<T>
+			consteval auto round(T value)
+			{
+				const auto fractional_part = fraction(value);
+				const auto default_round = floor(value);
+
+				if (fractional_part >= 0.5)
+					return static_cast<std::int64_t>(default_round) + 1;
+				else
+					return static_cast<std::int64_t>(default_round);
+			}
+			constexpr auto test_round = round(1.7);
+			
+			constexpr auto testtt = fraction(1.5);
+			constexpr auto omg = 1 / testtt;
+			constexpr auto testttt = to_integer(1 / testtt);
 			template <typename T, std::size_t N = iteration_count>
 			consteval T nth_root(T value, std::size_t n)
 			{
@@ -109,8 +155,13 @@ export namespace lh
 			{
 				if (value == 0) return static_cast<T>(0);
 				if (exponent == 0) return static_cast<T>(1);
+				if (exponent == 1) return value;
+
 				if (exponent < 0) return 1 / pow(value, -exponent);
 				if (exponent > 0.0 and exponent < 1.0) return static_cast<T>(nth_root<T>(value, 1 / exponent));
+				if constexpr (std::is_floating_point_v<Y>)
+					if (exponent > 1.0)
+					return pow(value, floor(exponent)) * nth_root(value, round(1 / fraction(exponent)));
 
 				auto result = value;
 
@@ -119,8 +170,10 @@ export namespace lh
 
 				return result;
 			}
-			constexpr auto nth_r = nth_root(5.0, 2);
-			constexpr auto power = pow(4.0, 0.5);
+			constexpr auto frac = fraction(2.37);
+			constexpr auto one_over = 1 / frac;
+			constexpr auto power = pow(4.0, 2.5);
+			constexpr auto gggcd = std::gcd(1, 3);
 			template <typename T>
 			consteval auto mod(T value, T divisor)
 			{
@@ -132,6 +185,31 @@ export namespace lh
 
 				return result / divisor;
 			}
+
+			template <typename T>
+			consteval auto to_fraction(T value)
+			{
+				struct asd
+				{
+					T x, y;
+				};
+
+				const auto integer = floor(value);
+				const auto frac = fraction(value);
+
+				constexpr auto precision = 1000000000;
+
+				const auto gcd = std::gcd(round(frac * precision), precision);
+
+				const auto numerator = round(frac * precision) / gcd;
+				const auto denominator = precision / gcd;
+
+				const std::pair<T, T> asdf = {numerator + integer, denominator};
+				const asd xx{numerator, denominator};
+				return asdf;
+			}
+
+			constexpr auto xxx = to_fraction(3.14);
 
 			template <typename T>
 				requires std::is_integral_v<T>
@@ -168,7 +246,7 @@ export namespace lh
 				{
 					const auto next_term = sign * (pow(value, increment) / factorial(increment));
 					
-					if (not isvalid(next_term) or not isvalid(result + next_term))
+					if (not is_valid(next_term) or not is_valid(result + next_term))
 						return result;
 
 					result += next_term;
@@ -191,7 +269,7 @@ export namespace lh
 				{
 					const auto next_term = sign * (pow(value, increment) / factorial(increment));
 
-					if (not isvalid(next_term) or not isvalid(result + next_term))
+					if (not is_valid(next_term) or not is_valid(result + next_term))
 						return result;
 
 					result += next_term;
