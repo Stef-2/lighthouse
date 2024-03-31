@@ -47,23 +47,6 @@ export namespace lh
 				return value > 0 ? value : -value;
 			}
 
-			template <typename R = std::int64_t, typename T>
-				requires std::is_floating_point_v<T>
-			consteval R to_integer(T value)
-			{
-				if (not is_valid(value)) return 0;
-
-				const auto integer = static_cast<R>(value);
-				const auto integer_above = integer + 1;
-				constexpr auto epsilon = std::numeric_limits<double>::epsilon() * 4'503'599'628/*'599'627'370'496*/;
-				constexpr auto epsilon2 = std::numeric_limits<double>::epsilon();
-				//constexpr auto epsilon = std::numeric_limits<T>::epsilon() * 99'999'999'999'999'9;
-				const auto floating = static_cast<T>(integer);
-
-				if (static_cast<T>(integer_above) - value < epsilon2) return integer_above else return integer;
-			}
-			constexpr auto qwe = to_integer(1.9999999999999);
-			constexpr auto asd = 7.0 / 3.5;
 			template <typename T>
 				requires std::is_arithmetic_v<T>
 			consteval auto min(T x, T y)
@@ -84,6 +67,7 @@ export namespace lh
 			{
 				return min(max(value, minimum), maximum);
 			}
+
 			template <typename T>
 				requires std::is_floating_point_v<T>
 			consteval auto ceil(T value)
@@ -91,10 +75,9 @@ export namespace lh
 				const auto to_integer = static_cast<std::int64_t>(value);
 
 				if (static_cast<T>(to_integer) == value)
-					return to_integer
+					return to_integer;
 				else
 					return value > 0 ? to_integer + 1 : to_integer;
-				
 			}
 
 			template <typename T>
@@ -129,11 +112,28 @@ export namespace lh
 				else
 					return static_cast<std::int64_t>(default_round);
 			}
-			constexpr auto test_round = round(1.7);
 			
-			constexpr auto testtt = fraction(1.5);
-			constexpr auto omg = 1 / testtt;
-			constexpr auto testttt = to_integer(1 / testtt);
+			template <typename T>
+				requires std::is_floating_point_v<T>
+			consteval auto to_fraction(T value)
+			{
+				struct fraction
+				{
+					std::int64_t numerator;
+					std::int64_t denominator;
+				};
+
+				constexpr auto precision = 1'000'000;
+
+				const auto gcd = std::gcd(round(value * precision), precision);
+
+				const auto numerator = round(value * precision) / gcd;
+				const auto denominator = precision / gcd;
+
+				const auto result = fraction {numerator, denominator};
+				return result;
+			}
+
 			template <typename T, std::size_t N = iteration_count>
 			consteval T nth_root(T value, std::size_t n)
 			{
@@ -149,6 +149,8 @@ export namespace lh
 				}
 				return x[K - 1];
 			}
+
+			constexpr auto x = nth_root(4.0, 3);
 
 			template <typename T, typename Y>
 			consteval auto pow(T value, Y exponent)
@@ -170,10 +172,11 @@ export namespace lh
 
 				return result;
 			}
-			constexpr auto frac = fraction(2.37);
-			constexpr auto one_over = 1 / frac;
-			constexpr auto power = pow(4.0, 2.5);
-			constexpr auto gggcd = std::gcd(1, 3);
+
+			constexpr auto fr = to_fraction(3.14);
+			constexpr auto po = pow(3.14, fr.numerator);
+			constexpr auto ro = nth_root(po, 10);
+
 			template <typename T>
 			consteval auto mod(T value, T divisor)
 			{
@@ -186,30 +189,6 @@ export namespace lh
 				return result / divisor;
 			}
 
-			template <typename T>
-			consteval auto to_fraction(T value)
-			{
-				struct asd
-				{
-					T x, y;
-				};
-
-				const auto integer = floor(value);
-				const auto frac = fraction(value);
-
-				constexpr auto precision = 1000000000;
-
-				const auto gcd = std::gcd(round(frac * precision), precision);
-
-				const auto numerator = round(frac * precision) / gcd;
-				const auto denominator = precision / gcd;
-
-				const std::pair<T, T> asdf = {numerator + integer, denominator};
-				const asd xx{numerator, denominator};
-				return asdf;
-			}
-
-			constexpr auto xxx = to_fraction(3.14);
 
 			template <typename T>
 				requires std::is_integral_v<T>

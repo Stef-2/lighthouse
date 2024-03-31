@@ -36,52 +36,6 @@ export namespace lh
 														std::byte {0x73},
 														std::byte {0x65}};
 			
-			consteval auto strlen1(const char* start)
-			{
-				int i = 0;
-
-				while (start[i] != '\0')
-				{
-					i++;
-				}
-
-				return i;
-			}
-
-			struct stru
-			{
-				constexpr stru(const char* c) : cc {c}, sz {}
-				{
-					int i = 0;
-
-					while (c[i] != '\0')
-					{
-						i++;
-					}
-					sz = i;
-				}
-
-				size_t sz;
-				const char* cc;
-			};
-
-			constexpr stru strue {"lighthouse"};
-
-			constexpr auto test1 = strlen1("asdasdasd");
-
-
-			template <stru start>
-			consteval auto text_to_hex()
-			{
-				std::array<std::byte, start.sz> hex {};
-
-				for (size_t i = 0; i < start.sz; i++)
-					hex[i] = std::byte {int(start.cc[i])};
-
-				return hex;
-			}
-
-			constexpr auto test = text_to_hex<stru {"lighthouse"}>();
 
 			enum class data_type
 			{
