@@ -157,6 +157,6 @@ namespace lh
 
 	auto node::get_disowned() -> void
 	{
-		std::erase(const_cast<std::vector<node*>&>(m_parent->children()), this);
+		if (*this != s_root_node and this) std::erase(const_cast<std::vector<node*>&>(m_parent->children()), this);
 	}
 }
