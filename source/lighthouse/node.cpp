@@ -40,23 +40,26 @@ namespace lh
 
 	node::~node()
 	{
-		if (m_destruction_mode == destruction_strategy::collapse)
+		if (*this != s_root_node)
 		{
-			for (auto& child : m_children)
+			if (m_destruction_mode == destruction_strategy::collapse)
 			{
-				child->parent(*m_parent);
-				m_parent->add_child(*child);
-			}
-		} else if (m_destruction_mode == destruction_strategy::orphanage)
-		{
-			for (auto& child : m_children)
+				for (auto& child : m_children)
+				{
+					child->parent(*m_parent);
+					m_parent->add_child(*child);
+				}
+			} else if (m_destruction_mode == destruction_strategy::orphanage)
 			{
-				child->parent(s_root_node);
-				s_root_node.add_child(*child);
+				for (auto& child : m_children)
+				{
+					child->parent(s_root_node);
+					s_root_node.add_child(*child);
+				}
 			}
-		}
 
-		get_disowned();
+			get_disowned();
+		}
 	}
 
 	auto node::parent(node& new_parent) -> void
@@ -157,6 +160,6 @@ namespace lh
 
 	auto node::get_disowned() -> void
 	{
-		if (*this != s_root_node and this) std::erase(const_cast<std::vector<node*>&>(m_parent->children()), this);
+		if (this and *this != s_root_node) std::erase(const_cast<std::vector<node*>&>(m_parent->children()), this);
 	}
 }

@@ -10,7 +10,7 @@ namespace lh
 			   const vulkan::memory_allocator& memory_allocator,
 			   const std::vector<vulkan::vertex>& vertices,
 			   const std::vector<vulkan::vertex_index_t>& indices,
-			   const bounding_box& bounding_box,
+			   const geometry::aabb& bounding_box,
 			   non_owning_ptr<lh::node> node)
 		: m_node {node ? std::shared_ptr<lh::node> {node} : std::make_shared<lh::node>()},
 		  m_vertices {std::move(vertices)},
@@ -74,6 +74,11 @@ namespace lh
 	auto mesh::vertex_buffer() const -> const vulkan::vertex_buffer&
 	{
 		return m_vertex_buffer;
+	}
+
+	auto mesh::bounding_box() const -> const geometry::aabb&
+	{
+		return m_bounding_box;
 	}
 
 }

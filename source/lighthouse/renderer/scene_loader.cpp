@@ -62,8 +62,8 @@ namespace
 				}
 
 				const auto bounding_box =
-					lh::bounding_box {.m_minima {mesh.mAABB.mMin.x, mesh.mAABB.mMin.y, mesh.mAABB.mMin.z},
-									  .m_maxima {mesh.mAABB.mMax.x, mesh.mAABB.mMax.y, mesh.mAABB.mMax.z}};
+					lh::geometry::aabb {.m_minima {mesh.mAABB.mMin.x, mesh.mAABB.mMin.y, mesh.mAABB.mMin.z},
+										.m_maxima {mesh.mAABB.mMax.x, mesh.mAABB.mMax.y, mesh.mAABB.mMax.z}};
 
 				meshes.emplace_back(logical_device, memory_allocator, vertices, indices, bounding_box);
 			}

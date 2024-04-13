@@ -125,6 +125,28 @@ namespace lh
 			m_camera.look_at(geometry::position_t {0.05f, 0.05f, 0.05f});
 		});
 
+		input::key_binding::bind({vkfw::Key::B}, [this]() {
+			const auto ray = geometry::ray {m_camera.position(), m_camera.view_direction()};
+
+			if (geometry::ray_aabb_test(ray, m_default_meshes.sphere().bounding_box()))
+			{
+
+				for (size_t i = 0; i < m_default_meshes.sphere().indices().size() - 3; i += 3)
+				{
+					const auto indices = std::array<uint32_t, 3> {m_default_meshes.sphere().indices()[i],
+																  m_default_meshes.sphere().indices()[i + 1],
+																  m_default_meshes.sphere().indices()[i + 2]};
+
+					const auto triangle =
+						geometry::triangle {m_default_meshes.sphere().vertices()[indices[0]].m_position,
+											m_default_meshes.sphere().vertices()[indices[1]].m_position,
+											m_default_meshes.sphere().vertices()[indices[2]].m_position};
+
+					if (geometry::ray_tri_test(ray, triangle)) std::cout << "got it after: " << i << '\n';
+				}
+			}
+		});
+
 		input::mouse::move_callback(m_camera.first_person_callback());
 
 		input::key_binding::bind({vkfw::Key::P}, [this]() { m_amb_light2.translate_relative({0.0f, 0.1f, 0.0f}); });
