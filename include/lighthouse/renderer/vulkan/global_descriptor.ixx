@@ -3,6 +3,8 @@ module;
 #if INTELLISENSE
 #include "vulkan/vulkan_raii.hpp"
 
+#include <vector>
+#include <array>
 #include <cstdint>
 #endif
 
@@ -39,7 +41,7 @@ export namespace lh
 			auto storage_buffer_set() const -> const vk::raii::DescriptorSetLayout&;
 			auto combined_image_sampler_set() const -> const vk::raii::DescriptorSetLayout&;
 
-			auto descriptor_set_layouts() const -> const std::vector<vk::DescriptorSetLayout>;
+			auto descriptor_set_layouts() const -> const std::array<vk::DescriptorSetLayout, 3>;
 
 			auto pipeline_layout() const -> const vk::raii::PipelineLayout&;
 

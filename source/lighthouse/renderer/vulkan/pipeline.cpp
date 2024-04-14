@@ -1,9 +1,9 @@
 module;
 
 #if INTELLISENSE
-#include "vulkan/vulkan_raii.hpp"
+	#include "vulkan/vulkan_raii.hpp"
 
-#include <ranges>
+	#include <ranges>
 #endif
 
 module pipeline;
@@ -81,11 +81,11 @@ namespace lh
 			const auto unique_pipeline_inputs = generate_unique_pipeline_inputs(pipeline_shader_inputs);
 
 			// generate the pipeline
-			auto pipeline_data = std::vector<shader_pipeline::individual_stage_data_t> {};
+			/*auto pipeline_data = std::vector<shader_pipeline::individual_stage_data_t> {};
 			for (const auto& stage_spir_v : spir_v)
-				pipeline_data.emplace_back(stage_spir_v, global_descriptor.descriptor_set_layouts());
+				pipeline_data.emplace_back(stage_spir_v);*/
 
-			m_shader_pipeline = {logical_device, pipeline_data};
+			m_shader_pipeline = {logical_device, spir_v, global_descriptor};
 
 			// generate uniform and storage buffer data to form a resource buffer
 			auto resource_buffer_subdata =

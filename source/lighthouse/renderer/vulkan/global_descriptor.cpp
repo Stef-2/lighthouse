@@ -1,9 +1,9 @@
 module;
 
 #if INTELLISENSE
-#include "vulkan/vulkan_raii.hpp"
+	#include "vulkan/vulkan_raii.hpp"
 
-#include <numeric>
+	#include <numeric>
 #endif
 
 module global_descriptor;
@@ -98,7 +98,7 @@ namespace lh
 			return m_combined_image_sampler_set;
 		}
 
-		auto global_descriptor::descriptor_set_layouts() const -> const std::vector<vk::DescriptorSetLayout>
+		auto global_descriptor::descriptor_set_layouts() const -> const std::array<vk::DescriptorSetLayout, 3>
 		{
 			return {*m_uniform_buffer_set, *m_storage_buffer_set, *m_combined_image_sampler_set};
 		}

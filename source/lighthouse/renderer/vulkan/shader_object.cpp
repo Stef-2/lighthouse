@@ -1,10 +1,10 @@
 module;
 
 #if INTELLISENSE
-#include <cstdint>
-#include <ranges>
-#include <iostream>
-#include <numeric>
+	#include <cstdint>
+	#include <ranges>
+	#include <iostream>
+	#include <numeric>
 #endif
 
 module shader_object;
@@ -17,7 +17,7 @@ namespace lh
 	{
 		shader_object::shader_object(const logical_device& logical_device,
 									 const spir_v& spir_v,
-									 const std::vector<vk::DescriptorSetLayout>& descriptor_set_layouts,
+									 const global_descriptor& global_descriptor,
 									 const create_info& create_info)
 			: m_shader_stage {spir_v.stage()}
 		{
@@ -29,8 +29,8 @@ namespace lh
 										 spir_v.code().size() * sizeof(spir_v::spir_v_bytecode_t::value_type),
 										 spir_v.code().data(),
 										 spir_v.entrypoint().c_str(),
-										 static_cast<std::uint32_t>(descriptor_set_layouts.size()),
-										 descriptor_set_layouts.data()};
+										 static_cast<std::uint32_t>(global_descriptor.descriptor_set_layouts().size()),
+										 global_descriptor.descriptor_set_layouts().data()};
 
 			m_object = {*logical_device, shader_create_info};
 		}
@@ -58,13 +58,14 @@ namespace lh
 		// ==========================================================================
 
 		shader_pipeline::shader_pipeline(const logical_device& logical_device,
-										 const std::vector<shader_pipeline::individual_stage_data_t>& pipeline_data,
+										 const std::vector<spir_v>& pipeline_data,
+										 const global_descriptor& global_descriptor,
 										 const shader_object::create_info& create_info)
 			: m_pipeline_stages {}
 		{
 			auto pipeline_create_info = std::vector<vk::ShaderCreateInfoEXT> {};
 
-			for (const auto& [spir_v, descriptor_set_layouts] : pipeline_data)
+			for (const auto& spir_v : pipeline_data)
 			{
 				m_pipeline_stages.push_back(spir_v.stage());
 
@@ -75,8 +76,9 @@ namespace lh
 												  spir_v.code().size() * sizeof(spir_v::spir_v_bytecode_t::value_type),
 												  spir_v.code().data(),
 												  spir_v.entrypoint().c_str(),
-												  static_cast<std::uint32_t>(descriptor_set_layouts.size()),
-												  descriptor_set_layouts.data());
+												  static_cast<std::uint32_t>(
+													  global_descriptor.descriptor_set_layouts().size()),
+												  global_descriptor.descriptor_set_layouts().data());
 			}
 
 			m_object = {*logical_device, pipeline_create_info};
