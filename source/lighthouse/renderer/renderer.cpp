@@ -232,6 +232,12 @@ namespace lh
 		m_test_pipeline.resource_buffer().map_uniform_data(1, mi);
 		m_test_pipeline.resource_buffer().map_storage_data(0, mi);
 		m_test_pipeline.resource_buffer().map_storage_data(1, m_global_light_manager.light_device_addresses());
+
+		glm::vec4 pc = glm::vec4 {1.0f, 0.0f, 0.0f, 1.0f};
+		command_buffer.pushConstants<glm::vec4>(m_global_descriptor.pipeline_layout(),
+												vk::ShaderStageFlagBits::eAll,
+												0,
+												pc);
 		command_buffer.drawIndexed(m_default_meshes.sphere().indices().size(), 3, 0, 0, 0);
 
 		/*

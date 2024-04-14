@@ -31,10 +31,10 @@ namespace
 			if (input.m_type == vk::DescriptorType::eCombinedImageSampler and
 				not std::ranges::contains(unique_pipeline_inputs.m_combined_image_sampler_descriptors, input))
 				unique_pipeline_inputs.m_combined_image_sampler_descriptors.push_back(input);
-
+			/*
 			if (input.m_type == vk::DescriptorType::eUniformBuffer and
 				input.m_storage_class == lh::vulkan::shader_input::storage_class::push_constant)
-				unique_pipeline_inputs.m_push_constant = input;
+				unique_pipeline_inputs.m_push_constant = input;*/
 		}
 
 		return unique_pipeline_inputs;

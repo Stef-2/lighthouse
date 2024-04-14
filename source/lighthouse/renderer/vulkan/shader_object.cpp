@@ -30,7 +30,9 @@ namespace lh
 										 spir_v.code().data(),
 										 spir_v.entrypoint().c_str(),
 										 static_cast<std::uint32_t>(global_descriptor.descriptor_set_layouts().size()),
-										 global_descriptor.descriptor_set_layouts().data()};
+										 global_descriptor.descriptor_set_layouts().data(),
+										 1,
+										 &global_descriptor.push_constant_range()};
 
 			m_object = {*logical_device, shader_create_info};
 		}
@@ -78,7 +80,9 @@ namespace lh
 												  spir_v.entrypoint().c_str(),
 												  static_cast<std::uint32_t>(
 													  global_descriptor.descriptor_set_layouts().size()),
-												  global_descriptor.descriptor_set_layouts().data());
+												  global_descriptor.descriptor_set_layouts().data(),
+												  1,
+												  &global_descriptor.push_constant_range());
 			}
 
 			m_object = {*logical_device, pipeline_create_info};

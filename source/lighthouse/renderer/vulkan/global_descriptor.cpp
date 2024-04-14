@@ -19,6 +19,9 @@ namespace lh
 			  m_uniform_buffer_set {nullptr},
 			  m_storage_buffer_set {nullptr},
 			  m_combined_image_sampler_set {nullptr},
+			  m_push_constant_range {vk::ShaderStageFlagBits::eAll,
+									 0,
+									 physical_device.properties().m_properties.properties.limits.maxPushConstantsSize},
 			  m_pipeline_layout {nullptr}
 		{
 			const auto& physical_device_properties = physical_device.properties();
@@ -80,7 +83,7 @@ namespace lh
 			auto descriptor_sets = std::array<vk::DescriptorSetLayout, 3> {*m_uniform_buffer_set,
 																		   *m_storage_buffer_set,
 																		   *m_combined_image_sampler_set};
-			m_pipeline_layout = {*logical_device, {{}, descriptor_sets}};
+			m_pipeline_layout = {*logical_device, {{}, descriptor_sets, {m_push_constant_range}}};
 		}
 
 		auto global_descriptor::uniform_buffer_set() const -> const vk::raii::DescriptorSetLayout&
@@ -101,6 +104,11 @@ namespace lh
 		auto global_descriptor::descriptor_set_layouts() const -> const std::array<vk::DescriptorSetLayout, 3>
 		{
 			return {*m_uniform_buffer_set, *m_storage_buffer_set, *m_combined_image_sampler_set};
+		}
+
+		auto global_descriptor::push_constant_range() const -> const vk::PushConstantRange&
+		{
+			return m_push_constant_range;
 		}
 
 		auto global_descriptor::pipeline_layout() const -> const vk::raii::PipelineLayout&

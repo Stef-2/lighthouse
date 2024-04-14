@@ -43,6 +43,7 @@ export namespace lh
 
 			auto descriptor_set_layouts() const -> const std::array<vk::DescriptorSetLayout, 3>;
 
+			auto push_constant_range() const -> const vk::PushConstantRange&;
 			auto pipeline_layout() const -> const vk::raii::PipelineLayout&;
 
 			auto create_information() const -> const create_info&;
@@ -54,6 +55,7 @@ export namespace lh
 			vk::raii::DescriptorSetLayout m_storage_buffer_set;
 			vk::raii::DescriptorSetLayout m_combined_image_sampler_set;
 
+			vk::PushConstantRange m_push_constant_range;
 			vk::raii::PipelineLayout m_pipeline_layout;
 		};
 	}
