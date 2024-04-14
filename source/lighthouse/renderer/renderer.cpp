@@ -12,6 +12,7 @@ import output;
 import file_system;
 import time;
 import glm;
+import collision;
 
 // #pragma optimize("", off)
 namespace lh
@@ -128,7 +129,7 @@ namespace lh
 		input::key_binding::bind({vkfw::Key::B}, [this]() {
 			const auto ray = geometry::ray {m_camera.position(), m_camera.view_direction()};
 
-			if (geometry::ray_aabb_test(ray, m_default_meshes.sphere().bounding_box()))
+			if (collision::ray_aabb_test(ray, m_default_meshes.sphere().bounding_box()))
 			{
 				std::cout << "found aabb\n";
 				for (size_t i = 0; i < m_default_meshes.sphere().indices().size() - 3; i += 3)
@@ -142,7 +143,7 @@ namespace lh
 											m_default_meshes.sphere().vertices()[indices[1]].m_position,
 											m_default_meshes.sphere().vertices()[indices[2]].m_position};
 
-					if (geometry::ray_tri_test(ray, triangle)) std::cout << "got it after: " << i << '\n';
+					if (collision::ray_tri_test(ray, triangle)) std::cout << "got it after: " << i << '\n';
 				}
 			}
 		});
@@ -176,6 +177,14 @@ namespace lh
 		glm::ivec4 mi = {0, 1, 2, 3};
 		struct test
 		{
+			glm::mat4x4 model[3];
+			glm::mat4x4 view;
+			glm::mat4x4 projection;
+			glm::vec4 time;
+		};
+
+		struct test2
+		{
 			glm::mat4x4 model;
 			glm::mat4x4 view;
 			glm::mat4x4 projection;
@@ -188,8 +197,12 @@ namespace lh
 		auto skybox_view_test = m_camera.view();
 		skybox_view_test[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
-		test scene {glm::mat4x4 {1.0f}, m_camera.view(), m_camera.projection(), {time, time, time, time}};
-		auto sb_scene = scene;
+		glm::mat4x4 sphere1 = glm::mat4x4 {1.0f};
+		glm::mat4x4 sphere2 = glm::translate(sphere1, glm::vec3 {10.0f, 0.0f, 0.0f});
+		glm::mat4x4 sphere3 = glm::translate(sphere1, glm::vec3 {-10.0f, 0.0f, 0.0f});
+		test scene {{sphere1, sphere2, sphere3}, m_camera.view(), m_camera.projection(), {time, time, time, time}};
+		test2 sb_scene = {glm::mat4x4 {1.0f}, m_camera.view(), m_camera.projection(), {time, time, time, time}};
+		// auto sb_scene = scene;
 		sb_scene.view[3] = glm::vec4 {0.0f, 0.0f, 0.0f, 1.0f};
 
 		/*
@@ -219,7 +232,7 @@ namespace lh
 		m_test_pipeline.resource_buffer().map_uniform_data(1, mi);
 		m_test_pipeline.resource_buffer().map_storage_data(0, mi);
 		m_test_pipeline.resource_buffer().map_storage_data(1, m_global_light_manager.light_device_addresses());
-		command_buffer.drawIndexed(m_default_meshes.sphere().indices().size(), 1, 0, 0, 0);
+		command_buffer.drawIndexed(m_default_meshes.sphere().indices().size(), 3, 0, 0, 0);
 
 		/*
 		const auto barrier = vk::MemoryBarrier2 {{vk::PipelineStageFlagBits2::eAllCommands},

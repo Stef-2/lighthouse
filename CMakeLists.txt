@@ -184,7 +184,7 @@ target_sources(
 	${include}/lighthouse/physical_property.ixx
 	${include}/lighthouse/static_math.ixx
 	${include}/lighthouse/math.ixx
- "include/lighthouse/lhd/lhd_format.ixx")
+ "include/lighthouse/lhd/lhd_format.ixx" "include/lighthouse/collision.ixx")
 
 target_sources(
 	${PROJECT_NAME} PUBLIC
