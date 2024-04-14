@@ -135,27 +135,19 @@ export namespace lh
 
 		bool ray_aabb_test(const ray& ray, const aabb& aabb)
 		{
-			double tmin = -std::numeric_limits<double>::infinity(), tmax = std::numeric_limits<double>::infinity();
+			float tmin = 0.0, tmax = std::numeric_limits<float>::infinity();
+			const auto ray_inv = glm::vec3 {1.0f} / ray.m_direction;
 
-			if (ray.m_direction.x != 0.0)
+			for (int d = 0; d < 3; ++d)
 			{
-				double tx1 = (aabb.m_minima.x - ray.m_position.x) / ray.m_direction.x;
-				double tx2 = (aabb.m_maxima.x - ray.m_position.x) / ray.m_direction.x;
+				float t1 = (aabb.m_minima[d] - ray.m_position[d]) * ray_inv[d];
+				float t2 = (aabb.m_maxima[d] - ray.m_position[d]) * ray_inv[d];
 
-				tmin = std::max(tmin, std::min(tx1, tx2));
-				tmax = std::min(tmax, std::max(tx1, tx2));
+				tmin = std::min(std::max(t1, tmin), std::max(t2, tmin));
+				tmax = std::max(std::min(t1, tmax), std::min(t2, tmax));
 			}
 
-			if (ray.m_direction.y != 0.0)
-			{
-				double ty1 = (aabb.m_minima.y - ray.m_position.y) / ray.m_direction.y;
-				double ty2 = (aabb.m_maxima.y - ray.m_position.y) / ray.m_direction.y;
-
-				tmin = std::max(tmin, std::min(ty1, ty2));
-				tmax = std::min(tmax, std::max(ty1, ty2));
-			}
-
-			return tmax >= tmin;
+			return tmin <= tmax;
 		}
 	}
 }

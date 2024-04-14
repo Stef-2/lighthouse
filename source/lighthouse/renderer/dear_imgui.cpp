@@ -84,7 +84,7 @@ namespace lh
 
 	auto dear_imgui::render(const vk::raii::CommandBuffer& command_buffer) -> void
 	{
-		bool wtf = true;
+		bool wtf = false;
 		ImGui::ShowDemoWindow(&wtf);
 
 		ImGui::Render();
@@ -135,8 +135,7 @@ namespace lh
 	{
 		const auto texture_iterator = m_texture_map.find(&texture);
 
-		if (texture_iterator != m_texture_map.end())
-			m_texture_map.erase(texture_iterator);
+		if (texture_iterator != m_texture_map.end()) m_texture_map.erase(texture_iterator);
 	}
 	auto dear_imgui::registered_textures() const -> const std::vector<const vulkan::texture*>
 	{

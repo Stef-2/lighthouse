@@ -43,6 +43,7 @@ namespace lh
 									  vk::RemainingMipLevels,
 									  0,
 									  vk::RemainingArrayLayers}}},
+			  m_image_count {},
 
 			  m_current_image_index {},
 			  m_next_image_timeout {create_info.m_next_image_timeout},

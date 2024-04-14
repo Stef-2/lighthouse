@@ -51,9 +51,12 @@ export namespace lh
 		auto new_frame() const -> void;
 		auto render(const vk::raii::CommandBuffer&) -> void;
 
+		auto draw_crosshair() -> void;
 		auto register_key_event(const input::key_binding::key_input&, const action&) -> void;
 
 	private:
+		const window& m_window;
+
 		lh::dear_imgui m_dear_imgui;
 
 		std::vector<action> m_actions;

@@ -130,7 +130,7 @@ namespace lh
 
 			if (geometry::ray_aabb_test(ray, m_default_meshes.sphere().bounding_box()))
 			{
-
+				std::cout << "found aabb\n";
 				for (size_t i = 0; i < m_default_meshes.sphere().indices().size() - 3; i += 3)
 				{
 					const auto indices = std::array<uint32_t, 3> {m_default_meshes.sphere().indices()[i],
@@ -237,9 +237,9 @@ namespace lh
 		m_skybox.pipeline().resource_buffer().map_uniform_data(0, sb_scene);
 		command_buffer.drawIndexed(m_default_meshes.cube().indices().size(), 1, 0, 0, 0);
 
-		/*
 		m_user_interface.new_frame();
-		m_user_interface.render(command_buffer);*/
+		m_user_interface.draw_crosshair();
+		m_user_interface.render(command_buffer);
 
 		command_buffer.endRendering();
 
