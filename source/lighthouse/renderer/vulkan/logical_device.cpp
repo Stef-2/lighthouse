@@ -47,7 +47,9 @@ namespace lh
 		{
 			const auto& suported_extensions = physical_device.extensions().supported_extensions();
 			const auto& suported_features = physical_device.features().m_features;
-			const auto null_features = vk::PhysicalDeviceFeatures {};
+			auto features = vk::PhysicalDeviceFeatures {};
+			features.shaderFloat64 = true;
+			features.shaderInt64 = true;
 
 			const auto required_extensions = physical_device.extensions().required_extensions();
 			if (not physical_device.extensions().assert_required_extensions())
@@ -80,7 +82,7 @@ namespace lh
 			auto index_type_uint8 = vk::PhysicalDeviceIndexTypeUint8FeaturesEXT {true, &memory_budget};
 
 			auto device_info = vk::DeviceCreateInfo {
-				{}, requested_device_queues, {}, required_extensions, &null_features, &index_type_uint8};
+				{}, requested_device_queues, {}, required_extensions, &features, &index_type_uint8};
 
 			m_object = {*physical_device, device_info};
 		}

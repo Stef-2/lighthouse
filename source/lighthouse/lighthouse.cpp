@@ -1,4 +1,4 @@
-﻿// #include "vkfw/vkfw.hpp"
+﻿#include "vkfw/vkfw.hpp"
 
 import engine;
 import window;
