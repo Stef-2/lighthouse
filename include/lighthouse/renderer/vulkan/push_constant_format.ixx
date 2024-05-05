@@ -1,7 +1,7 @@
 module;
 
 #if INTELLISENSE
-#include "vulkan/vulkan.hpp"
+#include "vulkan/vulkan_structs.hpp"
 #include "glm/mat4x4.hpp"
 #endif
 

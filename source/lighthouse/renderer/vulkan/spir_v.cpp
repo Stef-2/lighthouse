@@ -1,9 +1,9 @@
 module;
 
 #if INTELLISENSE
-#include "vulkan/vulkan_raii.hpp"
+	#include "vulkan/vulkan_raii.hpp"
 
-#include <iostream>
+	#include <iostream>
 #endif
 
 #include "vulkan/shaderc/shaderc.hpp"
@@ -17,6 +17,50 @@ import output;
 
 namespace
 {
+	struct includer : public shaderc::CompileOptions::IncluderInterface
+	{
+		struct user_data
+		{
+			lh::string::string_t m_content;
+			lh::string::string_t m_path;
+		};
+
+		auto GetInclude(const char* requested_source,
+						shaderc_include_type include_type,
+						const char* requesting_source,
+						std::size_t include_depth) -> shaderc_include_result* override
+		{
+			auto data = new shaderc_include_result {};
+
+			const auto path = include_type == shaderc_include_type::shaderc_include_type_relative
+								  ? lh::file_system::data_path().append("shaders").append("include").append(
+										requested_source)
+								  : std::filesystem::path {requested_source};
+
+			if (not std::filesystem::exists(path))
+			{
+				lh::output::warning() << "failed to include shader file: " << requested_source;
+				std::cout << "asdasdsad";
+			}
+			// C:\Users\Stefan\source\repos\lighthouse\data\shaders\include\include.txt
+			// C:\Users\Stefan\source\repos\lighthouse\data\shaders\include\include.txt
+			data->user_data = new user_data {lh::input::read_text_file(path), path.string()};
+
+			data->content = static_cast<user_data*>(data->user_data)->m_content.c_str();
+			data->content_length = static_cast<user_data*>(data->user_data)->m_content.length();
+			data->source_name = static_cast<user_data*>(data->user_data)->m_path.c_str();
+			data->source_name_length = static_cast<user_data*>(data->user_data)->m_path.length();
+
+			return data;
+		}
+
+		auto ReleaseInclude(shaderc_include_result* data) -> void override
+		{
+			delete static_cast<user_data*>(data->user_data);
+			delete data;
+		}
+	};
+
 	auto translate_data_type(const spirv_cross::SPIRType::BaseType& spirv_type)
 	{
 		using return_type = lh::vulkan::shader_input::data_type;
@@ -269,14 +313,7 @@ namespace lh
 
 			compile_options.SetPreserveBindings(not remove_inactive_inputs);
 
-			struct includer : public shaderc::CompileOptions::IncluderInterface
-			{
-				auto GetInclude(const char* requested_source,
-								shaderc_include_type type,
-								const char* requesting_source,
-								size_t include_depth) -> shaderc_include_result* override
-				{}
-			};
+			compile_options.SetIncluder(std::make_unique<includer>());
 
 			const auto result = compiler.CompileGlslToSpv(shader_code.c_str(),
 														  shaderc_glsl_infer_from_source,

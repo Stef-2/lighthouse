@@ -16,6 +16,7 @@ import vertex_input_description;
 #if not INTELLISENSE
 import vulkan_hpp;
 import std.core;
+import std.filesystem;
 #endif
 
 export namespace lh
