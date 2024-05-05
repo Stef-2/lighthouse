@@ -185,6 +185,6 @@ namespace lh
 		auto assert_path_validity(const std::filesystem::path&, const file_type&) -> bool;
 
 		inline const auto m_valid_file_extensions = std::map<file_type, const std::vector<const char*>> {
-			{file_type::text, {".txt", ".vert", ".frag"}}, {file_type::image, {".png"}}, {file_type::font, {".ttf"}}};
+			{file_type::text, {".txt", ".vert", ".frag", ".h", ".hpp"}}, {file_type::image, {".png"}}, {file_type::font, {".ttf"}}};
 	};
 }

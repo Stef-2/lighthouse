@@ -85,7 +85,9 @@ namespace
 			case spirv_cross::SPIRType::BaseType::SampledImage: return return_type::sampled_image;
 			case spirv_cross::SPIRType::BaseType::Sampler: return return_type::sampler;
 
-			default: lh::output::warning() << "unrecognized spir_v base type: " + spirv_type; break;
+			default:
+				lh::output::warning() << "unrecognized spir_v base type: " + spirv_type;
+				return return_type::invalid;
 		}
 	}
 
@@ -117,7 +119,9 @@ namespace
 			case spv::StorageClass::StorageClassPhysicalStorageBuffer: return return_type::physical_storage_buffer;
 			case spv::StorageClass::StorageClassTaskPayloadWorkgroupEXT: return return_type::task_payload_workgroup_EXT;
 
-			default: lh::output::warning() << "unrecognized spir_v storage class: " + storage_class; break;
+			default:
+				lh::output::warning() << "unrecognized spir_v storage class: " + storage_class;
+				return return_type::invalid;
 		}
 	}
 

@@ -17,5 +17,4 @@ export namespace lh
 	using float64_t = double;
 
 	using data_t = std::vector<std::byte>;
-
 }

@@ -39,7 +39,8 @@ export namespace lh
 				structure,
 				image,
 				sampled_image,
-				sampler
+				sampler,
+				invalid
 			};
 
 			enum class storage_class
@@ -64,7 +65,8 @@ export namespace lh
 				incoming_ray_payload_KHR,
 				shader_record_buffer_KHR,
 				physical_storage_buffer,
-				task_payload_workgroup_EXT
+				task_payload_workgroup_EXT,
+				invalid
 			};
 
 			struct struct_member
