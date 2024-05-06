@@ -32,9 +32,16 @@ namespace
 		{
 			auto data = new shaderc_include_result {};
 
-			const auto path = include_type == shaderc_include_type::shaderc_include_type_relative
-								  ? lh::file_system::data_path().append("shaders").append(requested_source)
-								  : std::filesystem::path {requested_source};
+			auto path = lh::file_system::data_path().append("shaders");
+
+			if (include_type == shaderc_include_type::shaderc_include_type_relative)
+			{
+				if (not std::strstr(requested_source, "include"))
+					path.append("include").append(requested_source);
+				else
+					path.append(requested_source);
+			} else
+				path = std::filesystem::path {requested_source};
 
 			if (not std::filesystem::exists(path))
 				lh::output::warning() << "failed to include shader file: " << requested_source;
@@ -320,8 +327,12 @@ namespace lh
 														  compile_options);
 
 			if (result.GetCompilationStatus() != shaderc_compilation_status_success)
-				output::error() << result.GetErrorMessage();
-			std::cout << output::error();
+			{
+				auto error_message = result.GetErrorMessage();
+				output::error() << error_message;
+				std::cout << error_message;
+				std::abort();
+			}
 			return {result.cbegin(), result.cend()};
 		}
 	}

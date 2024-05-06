@@ -24,6 +24,7 @@ import light;
 import default_meshes;
 import skybox;
 import user_interface;
+import push_constant;
 
 #if not INTELLISENSE
 import std.core;
@@ -43,6 +44,8 @@ export namespace lh
 		};
 
 		renderer(const window&, const create_info&);
+
+		auto push_constants() const -> void;
 
 		auto render() -> void;
 
@@ -78,6 +81,7 @@ export namespace lh
 		vulkan::global_descriptor m_global_descriptor;
 		global_light_manager m_global_light_manager;
 		vulkan::descriptor_buffer m_global_descriptor_buffer;
+		vulkan::push_constant m_push_constant;
 		default_meshes m_default_meshes;
 		vulkan::mapped_buffer m_instancing_data;
 

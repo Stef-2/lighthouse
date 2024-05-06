@@ -13,7 +13,6 @@ import file_system;
 import time;
 import glm;
 import collision;
-import push_constant_format;
 
 // #pragma optimize("", off)
 namespace lh
@@ -53,6 +52,7 @@ namespace lh
 		  m_global_descriptor {m_physical_device, m_logical_device},
 		  m_global_light_manager {m_physical_device, m_logical_device, m_memory_allocator},
 		  m_global_descriptor_buffer {m_physical_device, m_logical_device, m_memory_allocator, m_global_descriptor},
+		  m_push_constant {},
 		  m_default_meshes {m_logical_device,
 							m_memory_allocator,
 							{file_system::data_path() /= "models/plane.obj",
@@ -107,6 +107,14 @@ namespace lh
 		// m_global_descriptor_buffer.register_resource_buffer(m_test_pipeline.resource_buffer());
 		// m_global_descriptor_buffer.register_resource_buffer(m_skybox.pipeline().resource_buffer());
 
+		glm::mat4x4 sphere1 = glm::mat4x4 {1.0f};
+		glm::mat4x4 sphere2 = glm::translate(sphere1, glm::vec3 {0.0f, 10.0f, 0.0f});
+		glm::mat4x4 sphere3 = glm::translate(sphere1, glm::vec3 {0.0f, -10.0f, 0.0f});
+
+		glm::mat4x4 spheres[3] = {sphere1, sphere2, sphere3};
+		m_instancing_data.map_data(spheres);
+		m_push_constant.m_registers.m_address_1 = m_instancing_data.address();
+
 		if (m_create_info.m_using_validation) output::log() << info(m_create_info);
 
 		output::dump_logs(std::cout);
@@ -155,6 +163,12 @@ namespace lh
 		input::key_binding::bind({vkfw::Key::P}, [this]() { m_amb_light2.translate_relative({0.0f, 0.1f, 0.0f}); });
 	}
 
+	auto renderer::push_constants() const -> void
+	{
+		m_graphics_queue.command_control().front().pushConstants<vulkan::push_constant>(
+			m_global_descriptor.pipeline_layout(), vk::ShaderStageFlagBits::eAll, 0, m_push_constant);
+	}
+
 	// ===========================================================================
 	// ===========================================================================
 	// ===========================================================================
@@ -200,16 +214,12 @@ namespace lh
 		skybox_view_test[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
 		glm::mat4x4 sphere1 = glm::mat4x4 {1.0f};
-		glm::mat4x4 sphere2 = glm::translate(sphere1, glm::vec3 {10.0f, 0.0f, 0.0f});
-		glm::mat4x4 sphere3 = glm::translate(sphere1, glm::vec3 {-10.0f, 0.0f, 0.0f});
+		glm::mat4x4 sphere2 = glm::translate(sphere1, glm::vec3 {0.0f, 10.0f, 0.0f});
+		glm::mat4x4 sphere3 = glm::translate(sphere1, glm::vec3 {0.0f, -10.0f, 0.0f});
 		test scene {{sphere1, sphere2, sphere3}, m_camera.view(), m_camera.projection(), {time, time, time, time}};
 		test2 sb_scene = {glm::mat4x4 {1.0f}, m_camera.view(), m_camera.projection(), {time, time, time, time}};
 		// auto sb_scene = scene;
 		sb_scene.view[3] = glm::vec4 {0.0f, 0.0f, 0.0f, 1.0f};
-
-		vulkan::push_constant pc {};
-		pc.m_mvp = {};
-		pc.m_view_position = {1.0f, 0.0f, 0.0f};
 
 		/*
 		// full pipeline barrier
@@ -239,10 +249,7 @@ namespace lh
 		m_test_pipeline.resource_buffer().map_storage_data(0, mi);
 		m_test_pipeline.resource_buffer().map_storage_data(1, m_global_light_manager.light_device_addresses());
 
-		command_buffer.pushConstants<vulkan::push_constant>(m_global_descriptor.pipeline_layout(),
-															vk::ShaderStageFlagBits::eAll,
-															0,
-															pc);
+		push_constants();
 		command_buffer.drawIndexed(m_default_meshes.sphere().indices().size(), 3, 0, 0, 0);
 
 		/*
@@ -260,11 +267,7 @@ namespace lh
 		m_skybox.pipeline().bind(command_buffer);
 		m_skybox.pipeline().resource_buffer().map_uniform_data(0, sb_scene);
 
-		pc.m_view_position = {0.0f, 1.0f, 0.0f};
-		command_buffer.pushConstants<vulkan::push_constant>(m_global_descriptor.pipeline_layout(),
-															vk::ShaderStageFlagBits::eAll,
-															0,
-															pc);
+		push_constants();
 		command_buffer.drawIndexed(m_default_meshes.cube().indices().size(), 1, 0, 0, 0);
 
 		// end rendering
