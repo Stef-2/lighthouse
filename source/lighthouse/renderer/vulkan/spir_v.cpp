@@ -33,17 +33,12 @@ namespace
 			auto data = new shaderc_include_result {};
 
 			const auto path = include_type == shaderc_include_type::shaderc_include_type_relative
-								  ? lh::file_system::data_path().append("shaders").append("include").append(
-										requested_source)
+								  ? lh::file_system::data_path().append("shaders").append(requested_source)
 								  : std::filesystem::path {requested_source};
 
 			if (not std::filesystem::exists(path))
-			{
 				lh::output::warning() << "failed to include shader file: " << requested_source;
-				std::cout << "asdasdsad";
-			}
-			// C:\Users\Stefan\source\repos\lighthouse\data\shaders\include\include.txt
-			// C:\Users\Stefan\source\repos\lighthouse\data\shaders\include\include.txt
+
 			data->user_data = new user_data {lh::input::read_text_file(path), path.string()};
 
 			data->content = static_cast<user_data*>(data->user_data)->m_content.c_str();
@@ -254,7 +249,7 @@ namespace lh
 					case vk::DescriptorType::eCombinedImageSampler:
 						return (x.m_descriptor_binding < y.m_descriptor_binding and
 								x.m_descriptor_set == y.m_descriptor_set);
-					default: break;
+					default: return true;
 				}
 			});
 

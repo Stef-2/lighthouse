@@ -13,6 +13,7 @@ import file_system;
 import time;
 import glm;
 import collision;
+import push_constant_format;
 
 // #pragma optimize("", off)
 namespace lh
@@ -59,6 +60,7 @@ namespace lh
 							 file_system::data_path() /= "models/sphere.obj",
 							 file_system::data_path() /= "models/cylinder.obj",
 							 file_system::data_path() /= "models/cone.obj"}},
+		  m_instancing_data {m_logical_device, m_memory_allocator, sizeof glm::mat4x4 * 100},
 		  m_test_pipeline {m_physical_device,
 						   m_logical_device,
 						   m_memory_allocator,
@@ -205,6 +207,10 @@ namespace lh
 		// auto sb_scene = scene;
 		sb_scene.view[3] = glm::vec4 {0.0f, 0.0f, 0.0f, 1.0f};
 
+		vulkan::push_constant pc {};
+		pc.m_mvp = {};
+		pc.m_view_position = {1.0f, 0.0f, 0.0f};
+
 		/*
 		// full pipeline barrier
 		const auto barrier = vk::MemoryBarrier2 {{vk::PipelineStageFlagBits2::eAllCommands},
@@ -233,17 +239,10 @@ namespace lh
 		m_test_pipeline.resource_buffer().map_storage_data(0, mi);
 		m_test_pipeline.resource_buffer().map_storage_data(1, m_global_light_manager.light_device_addresses());
 
-		struct pc
-		{
-			glm::vec4 m_col {1.0f, 0.0f, 0.0f, 1.0f};
-			double m_time = 0;
-		};
-
-		pc push_constant = {.m_time = time};
-		command_buffer.pushConstants<pc>(m_global_descriptor.pipeline_layout(),
-												vk::ShaderStageFlagBits::eAll,
-												0,
-												push_constant);
+		command_buffer.pushConstants<vulkan::push_constant>(m_global_descriptor.pipeline_layout(),
+															vk::ShaderStageFlagBits::eAll,
+															0,
+															pc);
 		command_buffer.drawIndexed(m_default_meshes.sphere().indices().size(), 3, 0, 0, 0);
 
 		/*
@@ -260,7 +259,15 @@ namespace lh
 		m_default_meshes.cube().vertex_buffer().bind(command_buffer);
 		m_skybox.pipeline().bind(command_buffer);
 		m_skybox.pipeline().resource_buffer().map_uniform_data(0, sb_scene);
+
+		pc.m_view_position = {0.0f, 1.0f, 0.0f};
+		command_buffer.pushConstants<vulkan::push_constant>(m_global_descriptor.pipeline_layout(),
+															vk::ShaderStageFlagBits::eAll,
+															0,
+															pc);
 		command_buffer.drawIndexed(m_default_meshes.cube().indices().size(), 1, 0, 0, 0);
+
+		// end rendering
 
 		m_user_interface.new_frame();
 		m_user_interface.draw_crosshair();

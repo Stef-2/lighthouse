@@ -261,6 +261,7 @@ namespace lh
 
 			return format;
 		}
+
 		auto pipeline::generate_vertex_input_description(const std::vector<shader_input>& shader_inputs)
 			-> const vulkan::vertex_input_description
 		{

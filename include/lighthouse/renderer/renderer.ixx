@@ -79,6 +79,7 @@ export namespace lh
 		global_light_manager m_global_light_manager;
 		vulkan::descriptor_buffer m_global_descriptor_buffer;
 		default_meshes m_default_meshes;
+		vulkan::mapped_buffer m_instancing_data;
 
 		vulkan::pipeline m_test_pipeline;
 		scene_loader m_scene_loader;

@@ -13,6 +13,7 @@ import data_type;
 #if not INTELLISENSE
 import glm;
 import vulkan_hpp;
+import std.core;
 #endif
 
 export namespace lh
@@ -29,6 +30,8 @@ export namespace lh
 			float32_t m_near_clip;
 			float32_t m_far_clip;
 			float64_t m_time;
+			vk::DeviceAddress m_instances;
+			std::uint32_t m_instance_count;
 		};
 	}
 }

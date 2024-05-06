@@ -256,16 +256,17 @@ namespace lh
 	auto input::assert_path_validity(const std::filesystem::path& file_path, const file_type& file_type) -> bool
 	{
 		const auto valid_path = not file_path.empty();
+		const auto path_exists = std::filesystem::exists(file_path);
 		auto valid_extension = false;
 
-		for (const auto& wtf : m_valid_file_extensions.at(file_type))
-			if (std::strcmp(wtf, file_path.extension().string().c_str()) == 0)
+		for (const auto& extension : m_valid_file_extensions.at(file_type))
+			if (std::strcmp(extension, file_path.extension().string().c_str()) == 0)
 			{
 				valid_extension = true;
 				break;
 			}
 
-		if (valid_path and valid_extension) return true;
+		if (valid_path and valid_extension and path_exists) return true;
 
 		output::error() << "invalid file path provided: " + file_path.string();
 		return false;
