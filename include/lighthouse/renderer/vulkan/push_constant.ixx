@@ -51,5 +51,7 @@ export namespace lh
 			float64_t m_current_time {};
 			float64_t m_delta_time {};
 		};
+
+		static_assert(sizeof push_constant <= 256);
 	}
 }

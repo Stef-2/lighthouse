@@ -26,38 +26,14 @@ export namespace lh
 		using std::span<T>::size;
 		using std::span<T>::empty;
 
-		memory_mapped_span(const non_owning_ptr<T> pointer, const std::size_t element_count)
-			: std::span<T> {pointer, element_count}, m_last_element {this->begin()}
-		{}
+		memory_mapped_span(const non_owning_ptr<T>, const std::size_t);
 
-		auto operator [](std::size_t index)
-		{
-			if (index > std::distance(m_last_element, this->begin() + index)) m_last_element = this->begin() + index;
+		auto operator[](std::size_t) -> T&;
+		auto emplace_back(const T&) -> void;
+		auto pop_back() -> void;
+		auto clear() -> void;
 
-			return *this[index];
-		}
-
-		auto emplace_back(const T& element)
-		{
-			*m_last_element = element;
-			m_last_element++;
-		}
-
-		auto pop_back()
-		{ 
-			*m_last_element = {};
-			m_last_element--;
-		}
-
-		auto clear()
-		{
-			for (auto& element : *this)
-				element = {};
-
-			m_last_element = this->begin();
-		}
-
-	private:
-		std::span<T>::iterator m_last_element;
+	protected:
+		std::span<T>::iterator m_last_access_element;
 	};
 }

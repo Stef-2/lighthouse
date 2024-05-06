@@ -60,7 +60,7 @@ namespace lh
 							 file_system::data_path() /= "models/sphere.obj",
 							 file_system::data_path() /= "models/cylinder.obj",
 							 file_system::data_path() /= "models/cone.obj"}},
-		  m_instancing_data {m_logical_device, m_memory_allocator, sizeof glm::mat4x4 * 100},
+		  m_instance_buffer {m_logical_device, m_memory_allocator, sizeof glm::mat4x4 * 100},
 		  m_test_pipeline {m_physical_device,
 						   m_logical_device,
 						   m_memory_allocator,
@@ -112,8 +112,8 @@ namespace lh
 		glm::mat4x4 sphere3 = glm::translate(sphere1, glm::vec3 {0.0f, -10.0f, 0.0f});
 
 		glm::mat4x4 spheres[3] = {sphere1, sphere2, sphere3};
-		m_instancing_data.map_data(spheres);
-		m_push_constant.m_registers.m_address_1 = m_instancing_data.address();
+		m_instance_buffer.map_data(spheres);
+		m_push_constant.m_registers.m_address_1 = m_instance_buffer.address();
 
 		if (m_create_info.m_using_validation) output::log() << info(m_create_info);
 

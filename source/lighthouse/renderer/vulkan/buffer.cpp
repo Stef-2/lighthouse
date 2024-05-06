@@ -11,7 +11,7 @@ namespace lh
 	{
 		buffer::buffer(const logical_device& logical_device,
 					   const memory_allocator& allocator,
-					   const vk::DeviceSize& size,
+					   const vk::DeviceSize size,
 					   const create_info& create_info)
 			: m_logical_device {&logical_device},
 			  m_allocator {&allocator},
@@ -35,8 +35,7 @@ namespace lh
 
 		buffer::~buffer()
 		{
-			if (*m_object and m_allocation)
-				(*m_allocator)->freeMemory(m_allocation);
+			if (*m_object and m_allocation) (*m_allocator)->freeMemory(m_allocation);
 		}
 
 		auto buffer::allocation() const -> const vma::Allocation&
@@ -86,7 +85,7 @@ namespace lh
 
 		mapped_buffer::mapped_buffer(const logical_device& logical_device,
 									 const memory_allocator& allocator,
-									 const vk::DeviceSize& size,
+									 const vk::DeviceSize size,
 									 const mapped_buffer::create_info& create_info)
 			: buffer(logical_device,
 					 allocator,
@@ -121,6 +120,21 @@ namespace lh
 				(*m_allocator)->unmapMemory(m_allocation);
 			}
 		}
+
+		template <typename T>
+		mapped_buffer_span<T>::mapped_buffer_span(const logical_device& logical_device,
+												  const memory_allocator& memory_allocator,
+												  const vk::DeviceSize size,
+												  const mapped_buffer::create_info& create_info)
+			: mapped_buffer {logical_device, memory_allocator, size, create_info},
+			  memory_mapped_span<T> {this->m_mapped_data_pointer, m_allocation_info.size / sizeof T}
+		{}
+
+		template <typename T>
+		mapped_buffer_span<T>::mapped_buffer_span(mapped_buffer&& mapped_buffer)
+			: mapped_buffer {mapped_buffer},
+			  memory_mapped_span<T> {this->m_mapped_data_pointer, m_allocation_info.size / sizeof T}
+		{}
 
 		auto buffer_subdata::operator[](std::size_t index) const -> const buffer_subdata::subdata&
 		{

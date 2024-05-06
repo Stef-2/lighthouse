@@ -11,6 +11,7 @@ module;
 export module buffer;
 
 import lighthouse_utility;
+import memory_mapped_span;
 import raii_wrapper;
 import logical_device;
 import memory_allocator;
@@ -39,7 +40,7 @@ export namespace lh
 																	  m_memory_properties};
 			};
 
-			buffer(const logical_device&, const memory_allocator&, const vk::DeviceSize&, const create_info& = {});
+			buffer(const logical_device&, const memory_allocator&, const vk::DeviceSize, const create_info& = {});
 			buffer(buffer&&) noexcept = default;
 			buffer& operator=(buffer&&) noexcept = default;
 			~buffer();
@@ -104,7 +105,7 @@ export namespace lh
 
 			mapped_buffer(const logical_device&,
 						  const memory_allocator&,
-						  const vk::DeviceSize&,
+						  const vk::DeviceSize,
 						  const mapped_buffer::create_info& = {});
 			~mapped_buffer();
 			mapped_buffer(mapped_buffer&&) = default;
@@ -123,12 +124,26 @@ export namespace lh
 				std::memcpy(destination, &data, size);
 			}
 
-		private:
+		protected:
 			void* m_mapped_data_pointer;
 		};
 
-		//template <typename T = mapped_buffer>
-		//requires std::is_same_v<T, buffer> or std::is_same_v<T, mapped_buffer>
+		template <typename T>
+		class mapped_buffer_span : public mapped_buffer, public memory_mapped_span<T>
+		{
+		public:
+			mapped_buffer_span(const logical_device&,
+							   const memory_allocator&,
+							   const vk::DeviceSize,
+							   const mapped_buffer::create_info& = {});
+			mapped_buffer_span(mapped_buffer&&);
+
+		private:
+		};
+
+		mapped_buffer_span<int>* mbs;
+		auto wtf = mbs->begin();
+
 		struct buffer_subdata
 		{
 			struct subdata
