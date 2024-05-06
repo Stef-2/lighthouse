@@ -242,7 +242,7 @@ target_sources(
 	${source}/lighthouse/renderer/user_interface.cpp
 	${source}/lighthouse/physical_property.cpp
 	${source}/lighthouse/geometry.cpp
- "source/lighthouse/memory_mapped_span.cpp")
+ )
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_RELEASE}")
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")

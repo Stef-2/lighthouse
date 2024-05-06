@@ -4,6 +4,8 @@ export module renderer;
 import window;
 import lighthouse_string;
 import version;
+import buffer;
+import memory_mapped_span;
 import scene_loader;
 import instance;
 import physical_device;
@@ -27,6 +29,7 @@ import user_interface;
 import push_constant;
 
 #if not INTELLISENSE
+import glm;
 import std.core;
 #endif
 
@@ -83,7 +86,7 @@ export namespace lh
 		vulkan::descriptor_buffer m_global_descriptor_buffer;
 		vulkan::push_constant m_push_constant;
 		default_meshes m_default_meshes;
-		vulkan::mapped_buffer m_instance_buffer;
+		vulkan::mapped_buffer_span<glm::mat4x4> m_instance_buffer;
 
 		vulkan::pipeline m_test_pipeline;
 		scene_loader m_scene_loader;

@@ -132,17 +132,22 @@ export namespace lh
 		class mapped_buffer_span : public mapped_buffer, public memory_mapped_span<T>
 		{
 		public:
-			mapped_buffer_span(const logical_device&,
-							   const memory_allocator&,
-							   const vk::DeviceSize,
-							   const mapped_buffer::create_info& = {});
-			mapped_buffer_span(mapped_buffer&&);
+			mapped_buffer_span(const logical_device& logical_device,
+							   const memory_allocator& memory_allocator,
+							   const std::size_t element_count,
+							   const mapped_buffer::create_info& create_info = {})
+				: mapped_buffer {logical_device, memory_allocator, element_count * sizeof T, create_info},
+				  memory_mapped_span<T> {static_cast<T*>(this->m_mapped_data_pointer), m_allocation_info.size / sizeof T}
+			{}
+			//mapped_buffer_span(mapped_buffer&&);
+
+			//auto buffer() -> mapped_buffer&;
+			//auto buffer() const -> const mapped_buffer&;
+			//auto span() -> memory_mapped_span<T>&;
+			//auto span() const -> const memory_mapped_span<T>&;
 
 		private:
 		};
-
-		mapped_buffer_span<int>* mbs;
-		auto wtf = mbs->begin();
 
 		struct buffer_subdata
 		{

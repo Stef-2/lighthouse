@@ -129,12 +129,36 @@ namespace lh
 			: mapped_buffer {logical_device, memory_allocator, size, create_info},
 			  memory_mapped_span<T> {this->m_mapped_data_pointer, m_allocation_info.size / sizeof T}
 		{}
-
+		/*
 		template <typename T>
 		mapped_buffer_span<T>::mapped_buffer_span(mapped_buffer&& mapped_buffer)
 			: mapped_buffer {mapped_buffer},
 			  memory_mapped_span<T> {this->m_mapped_data_pointer, m_allocation_info.size / sizeof T}
 		{}
+
+		template <typename T>
+		auto mapped_buffer_span<T>::buffer() -> mapped_buffer&
+		{
+			return *this;
+		}
+
+		template <typename T>
+		auto mapped_buffer_span<T>::buffer() const -> const mapped_buffer&
+		{
+			return *this;
+		}
+
+		template <typename T>
+		auto mapped_buffer_span<T>::span() -> memory_mapped_span<T>&
+		{
+			return *this;
+		}
+
+		template <typename T>
+		auto mapped_buffer_span<T>::span() const -> const memory_mapped_span<T>&
+		{
+			return *this;
+		}*/
 
 		auto buffer_subdata::operator[](std::size_t index) const -> const buffer_subdata::subdata&
 		{
