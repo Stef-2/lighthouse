@@ -115,11 +115,12 @@ namespace lh
 
 		auto smb = m_instance_buffer.request_and_commit_span<glm::mat4x4>(3);
 		std::cout << "instance buffer address: " << m_instance_buffer.address() << '\n';
-		std::cout << "span address: " << smb.address() << '\n';
+
 		smb.emplace_back(sphere1);
 		smb.emplace_back(sphere2);
 		smb.emplace_back(sphere3);
-		m_push_constant.m_registers.m_address_1 = m_instance_buffer.address(); /*smb.address();*/
+		m_push_constant.m_registers.m_address_1 = m_instance_buffer.span_device_address(smb);
+		/*m_instance_buffer.address();*/ /*smb.address();*/
 
 		if (m_create_info.m_using_validation) output::log() << info(m_create_info);
 

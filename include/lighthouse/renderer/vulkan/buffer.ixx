@@ -6,6 +6,7 @@ module;
 #include <vector>
 #include <cstddef>
 #include <cstring>
+#include <any>
 #endif
 
 export module buffer;
@@ -165,6 +166,7 @@ export namespace lh
 					output::error() << lh::string::string_t {"could not allocate: " + element_count * sizeof T}.append(
 						" bytes from buffer at address: " + address());
 
+
 				return memory_mapped_span<T> {static_cast<T*>(memory_ptr.value()), element_count};
 			}
 
@@ -172,6 +174,12 @@ export namespace lh
 			auto free_span(const memory_mapped_span<T>& span) -> void
 			{
 				memory_suballocator::free_suballocation({span.data(), span.size_bytes()});
+			}
+
+			template <typename T>
+			auto span_device_address(const memory_mapped_span<T>& span) -> const vk::DeviceAddress
+			{
+				return address() + reinterpret_cast<std::uintptr_t>(m_mapped_data_pointer) - reinterpret_cast<std::uintptr_t>(span.data());
 			}
 
 		private:

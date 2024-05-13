@@ -15,12 +15,12 @@ import std.core;
 
 export namespace lh
 {
-	template <typename T>
-	class memory_mapped_span : private std::span<T>
+	template <typename T, std::size_t N = std::dynamic_extent>
+	class memory_mapped_span : private std::span<T, N>
 	{
 	public:
 		memory_mapped_span(const non_owning_ptr<T> pointer, const std::size_t element_count)
-			: std::span<T> {pointer, element_count}, m_last_access_element {this->begin()}
+			: std::span<T, N> {pointer, element_count}, m_last_access_element {this->begin()}
 		{}
 
 		using std::span<T>::begin;
@@ -29,7 +29,15 @@ export namespace lh
 		using std::span<T>::cend;
 		using std::span<T>::data;
 		using std::span<T>::size;
+		using std::span<T>::size_bytes;
 		using std::span<T>::empty;
+
+		template <typename Y>
+		auto operator==(const memory_mapped_span<Y>& other)
+		{
+			const auto same_address = static_cast<void*>(data()) == static_cast<void*>(other.data);
+			return same_address and size_bytes() == other.size_bytes();
+		}
 
 		auto operator[](std::size_t index) -> T&
 		{
@@ -57,13 +65,6 @@ export namespace lh
 				element = {};
 
 			m_last_access_element = this->begin();
-		}
-
-		auto address() const -> const std::uintptr_t
-		{
-			//const auto to_void = static_cast<void*>(data());
-
-			return reinterpret_cast<std::uintptr_t>(data());
 		}
 
 	protected:
