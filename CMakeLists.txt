@@ -184,7 +184,7 @@ target_sources(
 	${include}/lighthouse/physical_property.ixx
 	${include}/lighthouse/static_math.ixx
 	${include}/lighthouse/math.ixx
- "include/lighthouse/lhd/lhd_format.ixx" "include/lighthouse/collision.ixx" "include/lighthouse/memory_mapped_span.ixx" "include/lighthouse/renderer/vulkan/push_constant.ixx" "include/lighthouse/renderer/descriptor_layout.ixx")
+ "include/lighthouse/lhd/lhd_format.ixx" "include/lighthouse/collision.ixx" "include/lighthouse/memory_mapped_span.ixx" "include/lighthouse/renderer/vulkan/push_constant.ixx" "include/lighthouse/renderer/descriptor_layout.ixx" "include/lighthouse/memory_suballocator.ixx")
 
 target_sources(
 	${PROJECT_NAME} PUBLIC
@@ -242,7 +242,7 @@ target_sources(
 	${source}/lighthouse/renderer/user_interface.cpp
 	${source}/lighthouse/physical_property.cpp
 	${source}/lighthouse/geometry.cpp
- )
+  "source/lighthouse/memory_suballocator.cpp")
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_RELEASE}")
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")

@@ -60,7 +60,7 @@ namespace lh
 							 file_system::data_path() /= "models/sphere.obj",
 							 file_system::data_path() /= "models/cylinder.obj",
 							 file_system::data_path() /= "models/cone.obj"}},
-		  m_instance_buffer {m_logical_device, m_memory_allocator, 100},
+		  m_instance_buffer {m_logical_device, m_memory_allocator, 100 * sizeof glm::mat4x4},
 		  m_test_pipeline {m_physical_device,
 						   m_logical_device,
 						   m_memory_allocator,
@@ -112,10 +112,14 @@ namespace lh
 		glm::mat4x4 sphere3 = glm::translate(sphere1, glm::vec3 {0.0f, -10.0f, 0.0f});
 
 		glm::mat4x4 spheres[3] = {sphere1, sphere2, sphere3};
-		m_instance_buffer.emplace_back(sphere1);
-		m_instance_buffer.emplace_back(sphere2);
-		m_instance_buffer.emplace_back(sphere3);
-		m_push_constant.m_registers.m_address_1 = m_instance_buffer.address();
+
+		auto smb = m_instance_buffer.request_and_commit_span<glm::mat4x4>(3);
+		std::cout << "instance buffer address: " << m_instance_buffer.address() << '\n';
+		std::cout << "span address: " << smb.address() << '\n';
+		smb.emplace_back(sphere1);
+		smb.emplace_back(sphere2);
+		smb.emplace_back(sphere3);
+		m_push_constant.m_registers.m_address_1 = m_instance_buffer.address(); /*smb.address();*/
 
 		if (m_create_info.m_using_validation) output::log() << info(m_create_info);
 

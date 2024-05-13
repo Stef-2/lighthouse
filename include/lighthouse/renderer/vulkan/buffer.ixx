@@ -12,9 +12,11 @@ export module buffer;
 
 import lighthouse_utility;
 import memory_mapped_span;
+import memory_suballocator;
 import raii_wrapper;
 import logical_device;
 import memory_allocator;
+import output;
 import queue;
 
 export namespace lh
@@ -139,12 +141,38 @@ export namespace lh
 				: mapped_buffer {logical_device, memory_allocator, element_count * sizeof T, create_info},
 				  memory_mapped_span<T> {static_cast<T*>(this->m_mapped_data_pointer), m_allocation_info.size / sizeof T}
 			{}
-			//mapped_buffer_span(mapped_buffer&&);
 
-			//auto buffer() -> mapped_buffer&;
-			//auto buffer() const -> const mapped_buffer&;
-			//auto span() -> memory_mapped_span<T>&;
-			//auto span() const -> const memory_mapped_span<T>&;
+		private:
+		};
+
+		class suballocated_mapped_buffer : public mapped_buffer, private memory_suballocator
+		{
+		public:
+			suballocated_mapped_buffer(const logical_device& logical_device,
+									   const memory_allocator& memory_allocator,
+									   const vk::DeviceSize size,
+									   const mapped_buffer::create_info& create_info = {})
+				: mapped_buffer {logical_device, memory_allocator, size, create_info},
+				  memory_suballocator {{this->m_mapped_data_pointer, size}}
+			{}
+
+			template <typename T>
+			[[nodiscard]] auto request_and_commit_span(std::size_t element_count) -> memory_mapped_span<T>
+			{
+				const auto memory_ptr = memory_suballocator::request_and_commit_suballocation(element_count * sizeof T);
+
+				if (not memory_ptr)
+					output::error() << lh::string::string_t {"could not allocate: " + element_count * sizeof T}.append(
+						" bytes from buffer at address: " + address());
+
+				return memory_mapped_span<T> {static_cast<T*>(memory_ptr.value()), element_count};
+			}
+
+			template <typename T>
+			auto free_span(const memory_mapped_span<T>& span) -> void
+			{
+				memory_suballocator::free_suballocation({span.data(), span.size_bytes()});
+			}
 
 		private:
 		};

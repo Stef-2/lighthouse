@@ -64,7 +64,7 @@ namespace lh
 	auto physical_light::intensity_at(const geometry::position_t& position) const -> light::intensity_t
 	{
 		// physical light decay is proportional to inverse of the square of the distance between the source and point X
-		return m_color.a * (1 / glm::pow(glm::distance(static_cast<geometry::vec3f_t>(this->m_position), position), 2));
+		return m_color.a * (1 / glm::pow(glm::distance(static_cast<geometry::vec3_t>(this->m_position), position), 2));
 	}
 
 	auto physical_light::on_position_change() -> void

@@ -1,6 +1,7 @@
 module;
 
 #if INTELLISENSE
+#include <cstdint>
 #include <span>
 #endif
 
@@ -56,6 +57,13 @@ export namespace lh
 				element = {};
 
 			m_last_access_element = this->begin();
+		}
+
+		auto address() const -> const std::uintptr_t
+		{
+			//const auto to_void = static_cast<void*>(data());
+
+			return reinterpret_cast<std::uintptr_t>(data());
 		}
 
 	protected:

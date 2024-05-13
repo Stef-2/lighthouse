@@ -24,8 +24,8 @@ export namespace lh
 		{
 			struct view_data
 			{
-				glm::vec4 m_view_position {};
-				glm::vec4 m_view_direction {};
+				geometry::vec4_t m_view_position {};
+				geometry::vec4_t m_view_direction {};
 			};
 
 			struct projection_data

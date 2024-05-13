@@ -30,8 +30,8 @@ export namespace lh
 		using scalar_t = lh::float32_t;
 		constexpr auto epsilon = std::numeric_limits<scalar_t>::epsilon();
 
-		using vec3f_t = glm::vec<3, scalar_t>;
-		using vec4f_t = glm::vec<4, scalar_t>;
+		using vec3_t = glm::vec<3, scalar_t>;
+		using vec4_t = glm::vec<4, scalar_t>;
 		using position_t = glm::vec<3, scalar_t>;
 		using normal_t = glm::vec<3, scalar_t>;
 		using quaternion_t = glm::qua<scalar_t>;
