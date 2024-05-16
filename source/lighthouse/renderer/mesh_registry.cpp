@@ -1,12 +1,12 @@
 module;
 
-module default_meshes;
+module mesh_registry;
 
 namespace lh
 {
-	default_meshes::default_meshes(const vulkan::logical_device& logical_device,
-								   const vulkan::memory_allocator& memory_allocator,
-								   const create_info& create_info)
+	mesh_registry::mesh_registry(const vulkan::logical_device& logical_device,
+								 const vulkan::memory_allocator& memory_allocator,
+								 const create_info& create_info)
 		: m_default_meshes {}
 	{
 		auto model_paths = std::vector<std::filesystem::path> {create_info.m_plane_mesh,
@@ -28,27 +28,27 @@ namespace lh
 		}
 	}
 
-	auto default_meshes::plane() const -> const lh::mesh&
+	auto mesh_registry::plane() const -> const lh::mesh&
 	{
 		return m_default_meshes[0];
 	}
 
-	auto default_meshes::cube() const -> const lh::mesh&
+	auto mesh_registry::cube() const -> const lh::mesh&
 	{
 		return m_default_meshes[1];
 	}
 
-	auto default_meshes::sphere() const -> const lh::mesh&
+	auto mesh_registry::sphere() const -> const lh::mesh&
 	{
 		return m_default_meshes[2];
 	}
 
-	auto default_meshes::cylinder() const -> const lh::mesh&
+	auto mesh_registry::cylinder() const -> const lh::mesh&
 	{
 		return m_default_meshes[3];
 	}
 
-	auto default_meshes::cone() const -> const lh::mesh&
+	auto mesh_registry::cone() const -> const lh::mesh&
 	{
 		return m_default_meshes[4];
 	}

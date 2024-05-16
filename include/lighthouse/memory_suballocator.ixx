@@ -4,7 +4,7 @@ module;
 #include <cstdint>
 #include <cstddef>
 #include <vector>
-#include <optional>
+#include <expected>
 #include <algorithm>
 #include <ranges>
 #endif
@@ -35,7 +35,7 @@ export namespace lh
 
 		memory_suballocator(const memory_block& initial_memory, initial_block_count_t initial_block_count = 10);
 
-		[[nodiscard]] auto request_and_commit_suballocation(const std::size_t) -> std::optional<void*>;
+		[[nodiscard]] auto request_and_commit_suballocation(const std::size_t) -> const std::expected<void*, std::nullptr_t>;
 		auto free_suballocation(const memory_block&) -> void;
 
 	private:

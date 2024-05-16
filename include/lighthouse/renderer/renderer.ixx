@@ -23,7 +23,7 @@ import descriptor_buffer;
 import pipeline;
 import camera;
 import light;
-import default_meshes;
+import mesh_registry;
 import skybox;
 import user_interface;
 import push_constant;
@@ -85,7 +85,7 @@ export namespace lh
 		global_light_manager m_global_light_manager;
 		vulkan::descriptor_buffer m_global_descriptor_buffer;
 		vulkan::push_constant m_push_constant;
-		default_meshes m_default_meshes;
+		mesh_registry m_mesh_registry;
 		vulkan::suballocated_mapped_buffer m_instance_buffer;
 
 		vulkan::pipeline m_test_pipeline;

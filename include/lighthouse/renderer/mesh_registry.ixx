@@ -5,7 +5,7 @@ module;
 #include <vector>
 #endif
 
-export module default_meshes;
+export module mesh_registry;
 
 #if not INTELLISENSE
 import std.filesystem;
@@ -18,7 +18,7 @@ import mesh;
 
 export namespace lh
 {
-	class default_meshes
+	class mesh_registry
 	{
 	public:
 		struct create_info
@@ -30,7 +30,7 @@ export namespace lh
 			std::filesystem::path m_cone_mesh = {};
 		};
 
-		default_meshes(const vulkan::logical_device&,
+		mesh_registry(const vulkan::logical_device&,
 					   const vulkan::memory_allocator&,
 					   const create_info& = {});
 

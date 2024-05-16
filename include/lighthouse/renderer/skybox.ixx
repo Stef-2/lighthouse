@@ -14,7 +14,7 @@ import global_descriptor;
 import descriptor_buffer;
 import pipeline;
 import dynamic_rendering_state;
-import default_meshes;
+import mesh_registry;
 import shader_object;
 import texture;
 import mesh;
@@ -40,7 +40,7 @@ export namespace lh
 			   const vulkan::memory_allocator&,
 			   const vulkan::global_descriptor&,
 			   const vulkan::descriptor_buffer&,
-			   const default_meshes&,
+			   const mesh_registry&,
 			   const vulkan::shader_pipeline::pipeline_glsl_code_t&,
 			   const skybox_texture_paths_t&,
 			   vulkan::queue&,

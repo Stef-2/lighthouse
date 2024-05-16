@@ -11,9 +11,10 @@ namespace lh
 		m_free_memory_blocks.reserve(initial_block_count);
 	}
 
-	auto memory_suballocator::request_and_commit_suballocation(const std::size_t size) -> std::optional<void*>
+	auto memory_suballocator::request_and_commit_suballocation(const std::size_t size)
+		-> const std::expected<void*, std::nullptr_t>
 	{
-		auto result = std::optional<void*> {};
+		auto result = std::expected<void*, std::nullptr_t> {nullptr};
 
 		// iterate over free memory blocks and attempt to find a free memory block large enough to claim
 		// prefer to suballocate from smaller blocks, so iterate in reverse direction

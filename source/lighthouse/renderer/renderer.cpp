@@ -53,13 +53,13 @@ namespace lh
 		  m_global_light_manager {m_physical_device, m_logical_device, m_memory_allocator},
 		  m_global_descriptor_buffer {m_physical_device, m_logical_device, m_memory_allocator, m_global_descriptor},
 		  m_push_constant {},
-		  m_default_meshes {m_logical_device,
-							m_memory_allocator,
-							{file_system::data_path() /= "models/plane.obj",
-							 file_system::data_path() /= "models/cube.obj",
-							 file_system::data_path() /= "models/sphere.obj",
-							 file_system::data_path() /= "models/cylinder.obj",
-							 file_system::data_path() /= "models/cone.obj"}},
+		  m_mesh_registry {m_logical_device,
+						   m_memory_allocator,
+						   {file_system::data_path() /= "models/plane.obj",
+							file_system::data_path() /= "models/cube.obj",
+							file_system::data_path() /= "models/sphere.obj",
+							file_system::data_path() /= "models/cylinder.obj",
+							file_system::data_path() /= "models/cone.obj"}},
 		  m_instance_buffer {m_logical_device, m_memory_allocator, 100 * sizeof glm::mat4x4},
 		  m_test_pipeline {m_physical_device,
 						   m_logical_device,
@@ -91,7 +91,7 @@ namespace lh
 					m_memory_allocator,
 					m_global_descriptor,
 					m_global_descriptor_buffer,
-					m_default_meshes,
+					m_mesh_registry,
 					{file_system::data_path() /= "shaders/skybox.vert",
 					 file_system::data_path() /= "shaders/skybox.frag"},
 					{
@@ -146,19 +146,19 @@ namespace lh
 		input::key_binding::bind({vkfw::Key::B}, [this]() {
 			const auto ray = geometry::ray {m_camera.position(), m_camera.view_direction()};
 
-			if (collision::ray_aabb_test(ray, m_default_meshes.sphere().bounding_box()))
+			if (collision::ray_aabb_test(ray, m_mesh_registry.sphere().bounding_box()))
 			{
 				std::cout << "found aabb\n";
-				for (size_t i = 0; i < m_default_meshes.sphere().indices().size() - 3; i += 3)
+				for (size_t i = 0; i < m_mesh_registry.sphere().indices().size() - 3; i += 3)
 				{
-					const auto indices = std::array<uint32_t, 3> {m_default_meshes.sphere().indices()[i],
-																  m_default_meshes.sphere().indices()[i + 1],
-																  m_default_meshes.sphere().indices()[i + 2]};
+					const auto indices = std::array<uint32_t, 3> {m_mesh_registry.sphere().indices()[i],
+																  m_mesh_registry.sphere().indices()[i + 1],
+																  m_mesh_registry.sphere().indices()[i + 2]};
 
 					const auto triangle =
-						geometry::triangle {m_default_meshes.sphere().vertices()[indices[0]].m_position,
-											m_default_meshes.sphere().vertices()[indices[1]].m_position,
-											m_default_meshes.sphere().vertices()[indices[2]].m_position};
+						geometry::triangle {m_mesh_registry.sphere().vertices()[indices[0]].m_position,
+											m_mesh_registry.sphere().vertices()[indices[1]].m_position,
+											m_mesh_registry.sphere().vertices()[indices[2]].m_position};
 
 					if (collision::ray_tri_test(ray, triangle)) std::cout << "got it after: " << i << '\n';
 				}
@@ -249,7 +249,7 @@ namespace lh
 
 		// draw sphere
 
-		m_default_meshes.sphere().vertex_buffer().bind(command_buffer);
+		m_mesh_registry.sphere().vertex_buffer().bind(command_buffer);
 		m_test_pipeline.bind(command_buffer);
 		m_test_pipeline.resource_buffer().map_uniform_data(0, scene);
 		m_test_pipeline.resource_buffer().map_uniform_data(1, mi);
@@ -257,7 +257,7 @@ namespace lh
 		m_test_pipeline.resource_buffer().map_storage_data(1, m_global_light_manager.light_device_addresses());
 
 		push_constants();
-		command_buffer.drawIndexed(m_default_meshes.sphere().indices().size(), 3, 0, 0, 0);
+		command_buffer.drawIndexed(m_mesh_registry.sphere().indices().size(), 3, 0, 0, 0);
 
 		/*
 		const auto barrier = vk::MemoryBarrier2 {{vk::PipelineStageFlagBits2::eAllCommands},
@@ -270,12 +270,12 @@ namespace lh
 		*/
 		// draw skybox
 
-		m_default_meshes.cube().vertex_buffer().bind(command_buffer);
+		m_mesh_registry.cube().vertex_buffer().bind(command_buffer);
 		m_skybox.pipeline().bind(command_buffer);
 		m_skybox.pipeline().resource_buffer().map_uniform_data(0, sb_scene);
 
 		push_constants();
-		command_buffer.drawIndexed(m_default_meshes.cube().indices().size(), 1, 0, 0, 0);
+		command_buffer.drawIndexed(m_mesh_registry.cube().indices().size(), 1, 0, 0, 0);
 
 		// end rendering
 
