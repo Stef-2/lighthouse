@@ -281,6 +281,7 @@ namespace lh
 
 		m_user_interface.new_frame();
 		m_user_interface.draw_crosshair();
+		m_user_interface.draw_gpu_statistics(m_memory_allocator.statistics());
 		m_user_interface.render(command_buffer);
 
 		command_buffer.endRendering();

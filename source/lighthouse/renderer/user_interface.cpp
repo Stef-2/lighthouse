@@ -1,8 +1,11 @@
 module;
 
 #include "imgui/imgui.h"
+#include "vulkan/vma/vk_mem_alloc.h"
 
 module user_interface;
+
+import lighthouse_string;
 
 namespace lh
 {
@@ -67,11 +70,73 @@ namespace lh
 
 	auto user_interface::draw_crosshair() -> void
 	{
-		const auto x = (float)m_window.resolution().width / 2;
-		const auto y = (float)m_window.resolution().height / 2;
+		const auto x = static_cast<float>(m_window.resolution().width / 2);
+		const auto y = static_cast<float>(m_window.resolution().height / 2);
 
 		ImGui::GetForegroundDrawList()->AddLine(ImVec2 {x - 10, y}, ImVec2 {x + 10, y}, ImColor {255, 255, 255});
 		ImGui::GetForegroundDrawList()->AddLine(ImVec2 {x, y - 10}, ImVec2 {x, y + 10}, ImColor {255, 255, 255});
+	}
+
+	auto user_interface::draw_gpu_statistics(const vma::TotalStatistics& statistics) -> void
+	{
+		ImGui::Begin("gpu statistics");
+
+		// memory types
+		for (auto i = std::uint32_t {0}; i < VK_MAX_MEMORY_TYPES; i++)
+		{
+			const auto header_text = lh::string::string_t {"memory type: " + std::to_string(i)};
+
+			if (ImGui::CollapsingHeader(header_text.c_str(), ImGuiTreeNodeFlags_None))
+			{
+				ImGui::Text("block count: %d", statistics.memoryType[i].statistics.blockCount);
+				ImGui::Text("allocation count: %d", statistics.memoryType[i].statistics.allocationCount);
+				ImGui::Text("block bytes: %d", statistics.memoryType[i].statistics.blockBytes);
+				ImGui::Text("allocation bytes: %d", statistics.memoryType[i].statistics.allocationBytes);
+
+				ImGui::Text("unused range count: %d", statistics.memoryType[i].unusedRangeCount);
+				ImGui::Text("allocation size min: %d", statistics.memoryType[i].allocationSizeMin);
+				ImGui::Text("allocation size max: %d", statistics.memoryType[i].allocationSizeMax);
+				ImGui::Text("unused range min: %d", statistics.memoryType[i].unusedRangeSizeMin);
+				ImGui::Text("unused range max: %d", statistics.memoryType[i].unusedRangeSizeMax);
+			}
+		}
+
+		// memory heaps
+		for (auto i = std::uint32_t {0}; i < VK_MAX_MEMORY_HEAPS; i++)
+		{
+			const auto header_text = lh::string::string_t {"memory heap: " + std::to_string(i)};
+
+			if (ImGui::CollapsingHeader(header_text.c_str(), ImGuiTreeNodeFlags_None))
+			{
+				ImGui::Text("block count: %d", statistics.memoryHeap[i].statistics.blockCount);
+				ImGui::Text("allocation count: %d", statistics.memoryHeap[i].statistics.allocationCount);
+				ImGui::Text("block bytes: %d", statistics.memoryHeap[i].statistics.blockBytes);
+				ImGui::Text("allocation bytes: %d", statistics.memoryHeap[i].statistics.allocationBytes);
+
+				ImGui::Text("unused range count: %d", statistics.memoryHeap[i].unusedRangeCount);
+				ImGui::Text("allocation size min: %d", statistics.memoryHeap[i].allocationSizeMin);
+				ImGui::Text("allocation size max: %d", statistics.memoryHeap[i].allocationSizeMax);
+				ImGui::Text("unused range min: %d", statistics.memoryHeap[i].unusedRangeSizeMin);
+				ImGui::Text("unused range max: %d", statistics.memoryHeap[i].unusedRangeSizeMax);
+			}
+		}
+
+		// total
+		if (ImGui::CollapsingHeader("total: ", ImGuiTreeNodeFlags_None))
+		{
+			ImGui::Text("block count: %d", statistics.total.statistics.blockCount);
+			ImGui::Text("allocation count: %d", statistics.total.statistics.allocationCount);
+			ImGui::Text("block bytes: %d", statistics.total.statistics.blockBytes);
+			ImGui::Text("allocation bytes: %d", statistics.total.statistics.allocationBytes);
+
+			ImGui::Text("unused range count: %d", statistics.total.unusedRangeCount);
+			ImGui::Text("allocation size min: %d", statistics.total.allocationSizeMin);
+			ImGui::Text("allocation size max: %d", statistics.total.allocationSizeMax);
+			ImGui::Text("unused range min: %d", statistics.total.unusedRangeSizeMin);
+			ImGui::Text("unused range max: %d", statistics.total.unusedRangeSizeMax);
+		}
+
+		ImGui::End();
 	}
 
 	auto user_interface::register_key_event(const input::key_binding::key_input& key_input, const action& action)

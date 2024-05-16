@@ -13,6 +13,7 @@ export module user_interface;
 
 import input;
 import dear_imgui;
+import vk_mem_alloc_hpp;
 
 #if not INTELLISENSE
 import std.core;
@@ -52,6 +53,7 @@ export namespace lh
 		auto render(const vk::raii::CommandBuffer&) -> void;
 
 		auto draw_crosshair() -> void;
+		auto draw_gpu_statistics(const vma::TotalStatistics&) -> void;
 		auto register_key_event(const input::key_binding::key_input&, const action&) -> void;
 
 	private:

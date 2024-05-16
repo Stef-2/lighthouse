@@ -28,7 +28,7 @@ export namespace lh
 			memory_allocator(const instance&, const physical_device&, const logical_device&, const create_info& = {});
 			~memory_allocator();
 
-			auto statistics() const -> vma::TotalStatistics;
+			auto statistics() const -> const vma::TotalStatistics;
 		private:
 		};
 	}

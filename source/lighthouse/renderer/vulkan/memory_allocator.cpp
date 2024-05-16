@@ -58,8 +58,7 @@ namespace lh
 
 			auto result = vma::createAllocator(&allocator_info, &m_object);
 
-			if (result != vk::Result::eSuccess)
-				output::fatal() << "unable to initialize vulkan memory allocator";
+			if (result != vk::Result::eSuccess) output::fatal() << "unable to initialize vulkan memory allocator";
 		}
 
 		memory_allocator::~memory_allocator()
@@ -67,7 +66,7 @@ namespace lh
 			m_object.destroy();
 		}
 
-		auto memory_allocator::statistics() const -> vma::TotalStatistics
+		auto memory_allocator::statistics() const -> const vma::TotalStatistics
 		{
 			return m_object.calculateStatistics();
 		}
