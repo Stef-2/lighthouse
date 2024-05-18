@@ -60,7 +60,7 @@ namespace lh
 							file_system::data_path() /= "models/sphere.obj",
 							file_system::data_path() /= "models/cylinder.obj",
 							file_system::data_path() /= "models/cone.obj"}},
-		  m_instance_buffer {m_logical_device, m_memory_allocator, 100 * sizeof glm::mat4x4},
+		  m_instance_buffer {m_logical_device, m_memory_allocator, 10000000 * sizeof glm::mat4x4},
 		  m_test_pipeline {m_physical_device,
 						   m_logical_device,
 						   m_memory_allocator,
@@ -281,7 +281,7 @@ namespace lh
 
 		m_user_interface.new_frame();
 		m_user_interface.draw_crosshair();
-		m_user_interface.draw_gpu_statistics(m_memory_allocator.statistics());
+		m_user_interface.draw_gpu_budgets(m_memory_allocator.budget());
 		m_user_interface.render(command_buffer);
 
 		command_buffer.endRendering();

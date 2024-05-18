@@ -2,6 +2,8 @@ module;
 
 #if INTELLISENSE
 #include "vma/vk_mem_alloc.hpp"
+
+#include <vector>
 #endif
 
 export module memory_allocator;
@@ -29,6 +31,8 @@ export namespace lh
 			~memory_allocator();
 
 			auto statistics() const -> const vma::TotalStatistics;
+			auto budget() const -> const std::vector<vma::Budget>;
+
 		private:
 		};
 	}

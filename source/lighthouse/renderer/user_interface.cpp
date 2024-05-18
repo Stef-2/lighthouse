@@ -84,9 +84,10 @@ namespace lh
 		// memory types
 		for (auto i = std::uint32_t {0}; i < VK_MAX_MEMORY_TYPES; i++)
 		{
-			const auto header_text = lh::string::string_t {"memory type: " + std::to_string(i)};
+			auto has_block = statistics.memoryType[i].statistics.blockCount > 0;
+			const auto header_text = lh::string::string_t {"used memory type: " + std::to_string(i)};
 
-			if (ImGui::CollapsingHeader(header_text.c_str(), ImGuiTreeNodeFlags_None))
+			if (ImGui::CollapsingHeader(header_text.c_str(), &has_block, ImGuiTreeNodeFlags_None))
 			{
 				ImGui::Text("block count: %d", statistics.memoryType[i].statistics.blockCount);
 				ImGui::Text("allocation count: %d", statistics.memoryType[i].statistics.allocationCount);
@@ -102,6 +103,7 @@ namespace lh
 		}
 
 		// memory heaps
+		ImGui::SeparatorText("used memory heaps");
 		for (auto i = std::uint32_t {0}; i < VK_MAX_MEMORY_HEAPS; i++)
 		{
 			const auto header_text = lh::string::string_t {"memory heap: " + std::to_string(i)};
@@ -122,6 +124,7 @@ namespace lh
 		}
 
 		// total
+		ImGui::SeparatorText("total");
 		if (ImGui::CollapsingHeader("total: ", ImGuiTreeNodeFlags_None))
 		{
 			ImGui::Text("block count: %d", statistics.total.statistics.blockCount);
@@ -134,6 +137,34 @@ namespace lh
 			ImGui::Text("allocation size max: %d", statistics.total.allocationSizeMax);
 			ImGui::Text("unused range min: %d", statistics.total.unusedRangeSizeMin);
 			ImGui::Text("unused range max: %d", statistics.total.unusedRangeSizeMax);
+		}
+
+		ImGui::End();
+	}
+
+	auto user_interface::draw_gpu_budgets(const std::vector<vma::Budget>& budgets) -> void
+	{
+		ImGui::Begin("gpu budgets");
+
+		for (auto i = std::uint32_t {}; const auto& budget : budgets)
+		{
+			const auto header_text = lh::string::string_t {"budget: " + std::to_string(i)};
+
+			if (ImGui::CollapsingHeader(header_text.c_str(), ImGuiTreeNodeFlags_None))
+			{
+				ImGui::Text("block count: %d", budget.statistics.blockCount);
+				ImGui::Text("allocation count: %d", budget.statistics.allocationCount);
+				ImGui::Text("block bytes: %d", budget.statistics.blockBytes);
+				ImGui::Text("allocation bytes: %d", budget.statistics.allocationBytes);
+
+				ImGui::Text("usage bytes: %d", budget.usage);
+				ImGui::Text("budget bytes: %d", budget.budget);
+
+				const auto total_memory = static_cast<float>(budget.budget) + static_cast<float>(budget.usage);
+				ImGui::Text("%.2f%% free", static_cast<float>(budget.budget) / total_memory * 100);
+			}
+
+			i++;
 		}
 
 		ImGui::End();

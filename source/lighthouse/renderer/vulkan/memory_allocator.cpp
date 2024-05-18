@@ -70,5 +70,9 @@ namespace lh
 		{
 			return m_object.calculateStatistics();
 		}
+		auto memory_allocator::budget() const -> const const std::vector<vma::Budget>
+		{
+			return m_object.getHeapBudgets();
+		}
 	}
 }

@@ -3,17 +3,20 @@ module;
 #if INTELLISENSE
 #include <filesystem>
 #include <vector>
+#include <map>
 #endif
 
 export module mesh_registry;
 
 #if not INTELLISENSE
+import std.core;
 import std.filesystem;
 #endif
 
 import logical_device;
 import memory_allocator;
 import scene_loader;
+import geometry;
 import mesh;
 
 export namespace lh
@@ -42,5 +45,6 @@ export namespace lh
 
 	private:
 		std::vector<mesh> m_default_meshes;
+		std::map<const mesh*, std::vector<lh::geometry::transformation_t>> m_instances;
 	};
 }
