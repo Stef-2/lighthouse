@@ -186,6 +186,8 @@ export namespace lh
 		private:
 		};
 
+		template <typename T = mapped_buffer>
+		requires lh::concepts::is_any<T, buffer, mapped_buffer>
 		struct buffer_subdata
 		{
 			struct subdata
@@ -196,7 +198,7 @@ export namespace lh
 
 			auto operator[](std::size_t index) const -> const subdata&;
 
-			lh::non_owning_ptr<buffer> m_buffer;
+			lh::non_owning_ptr<mapped_buffer> m_buffer;
 			std::vector<subdata> m_subdata;
 		};
 	}

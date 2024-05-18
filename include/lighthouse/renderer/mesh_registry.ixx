@@ -14,8 +14,10 @@ import std.filesystem;
 #endif
 
 import logical_device;
+import buffer;
+import queue;
 import memory_allocator;
-import scene_loader;
+import scene_reader;
 import geometry;
 import mesh;
 
@@ -33,9 +35,7 @@ export namespace lh
 			std::filesystem::path m_cone_mesh = {};
 		};
 
-		mesh_registry(const vulkan::logical_device&,
-					   const vulkan::memory_allocator&,
-					   const create_info& = {});
+		mesh_registry(const vulkan::logical_device&, const vulkan::memory_allocator&, vulkan::queue&, const create_info& = {});
 
 		auto plane() const -> const lh::mesh&;
 		auto cube() const -> const lh::mesh&;
@@ -45,6 +45,6 @@ export namespace lh
 
 	private:
 		std::vector<mesh> m_meshes;
-		std::map<const mesh*, std::vector<lh::geometry::transformation_t>> m_instances;
+		vulkan::buffer m_mesh_buffer;
 	};
 }

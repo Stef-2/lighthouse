@@ -1,6 +1,8 @@
 module;
 
 #if INTELLISENSE
+#include "vulkan/vulkan.hpp"
+
 #include <vector>
 #include <filesystem>
 #include <cstdint>
@@ -9,7 +11,7 @@ module;
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"
 
-export module scene_loader;
+export module scene_reader;
 
 import node;
 import logical_device;
@@ -25,7 +27,7 @@ import std.filesystem;
 
 export namespace lh
 {
-	class scene_loader
+	class scene_reader
 	{
 	public:
 		struct create_info
@@ -37,13 +39,15 @@ export namespace lh
 				aiProcess_GenBoundingBoxes};
 		};
 
-		scene_loader(const vulkan::logical_device&,
+		scene_reader(const vulkan::logical_device&,
 					 const vulkan::memory_allocator&,
-					 const std::filesystem::path&,
+					 const std::vector<std::filesystem::path>&,
 					 const create_info& = {});
 
 		auto meshes() const -> const std::vector<mesh>&;
 		auto meshes() -> std::vector<mesh>&;
+
+		auto meshes_device_size() const -> const vk::DeviceSize;
 
 	private:
 		Assimp::Importer m_importer;

@@ -84,4 +84,8 @@ namespace lh
 		return m_bounding_box;
 	}
 
+	auto mesh::device_size() const -> const vk::DeviceSize
+	{
+		return m_vertices.size() * sizeof m_vertices::value_type + m_indices.size() * sizeof m_indices::value_type;
+	}
 }

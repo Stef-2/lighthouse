@@ -1,6 +1,8 @@
 module;
 
 #if INTELLISENSE
+#include "vulkan/vulkan.hpp"
+
 #include <memory>
 #include <vector>
 #endif
@@ -9,6 +11,7 @@ export module mesh;
 
 import node;
 import geometry;
+import buffer;
 import lighthouse_utility;
 import index_format;
 import logical_device;
@@ -16,7 +19,6 @@ import memory_allocator;
 import vertex_buffer;
 import vertex_format;
 import object_index;
-import queue;
 
 #if not INTELLISENSE
 import std.core;
@@ -36,7 +38,7 @@ export namespace lh
 			 const std::vector<vulkan::vertex>&,
 			 const std::vector<vulkan::vertex_index_t>&,
 			 const geometry::aabb&,
-			 vulkan::queue&,
+			 const vulkan::buffer_subdata<vulkan::buffer>&,
 			 non_owning_ptr<node> = nullptr);
 
 		mesh(const mesh&) = delete;
@@ -50,6 +52,7 @@ export namespace lh
 		auto indices() const -> const std::vector<vulkan::vertex_index_t>&;
 		auto vertex_buffer() const -> const vulkan::vertex_buffer&;
 		auto bounding_box() const -> const geometry::aabb&;
+		auto device_size() const -> const vk::DeviceSize;
 
 	private:
 		std::shared_ptr<lh::node> m_node;

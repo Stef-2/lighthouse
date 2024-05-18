@@ -6,7 +6,7 @@ import lighthouse_string;
 import version;
 import buffer;
 import memory_mapped_span;
-import scene_loader;
+import scene_reader;
 import instance;
 import physical_device;
 import logical_device;
@@ -89,7 +89,7 @@ export namespace lh
 		vulkan::suballocated_mapped_buffer m_instance_buffer;
 
 		vulkan::pipeline m_test_pipeline;
-		scene_loader m_scene_loader;
+		scene_reader m_scene_loader;
 		lh::camera<camera_type::perspective> m_camera;
 		material m_material;
 		point_light m_point_light;
