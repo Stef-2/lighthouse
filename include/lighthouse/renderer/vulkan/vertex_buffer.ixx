@@ -4,6 +4,7 @@ module;
 #include "vulkan/vulkan_raii.hpp"
 
 #include <vector>
+#include <optional>
 #endif
 
 export module vertex_buffer;
@@ -28,15 +29,14 @@ export namespace lh
 		{
 		public:
 			struct create_info
-			{
-				buffer_subdata m_preallocated_buffer;
-			};
+			{};
 
 			vertex_buffer();
 			vertex_buffer(const logical_device&,
 						  const memory_allocator&,
 						  const std::vector<vertex>&,
 						  const std::vector<vertex_index_t>&,
+						  const std::optional<buffer_subdata>& = {},
 						  const create_info& = {});
 
 			vertex_buffer(const vertex_buffer&) = delete;
@@ -49,7 +49,7 @@ export namespace lh
 			auto bind(const vk::raii::CommandBuffer&) const -> void;
 
 		private:
-			mapped_buffer m_vertex_and_index_buffer;
+			std::optional<mapped_buffer> m_vertex_and_index_buffer;
 			buffer_subdata m_vertex_and_index_suballocations;
 		};
 	}

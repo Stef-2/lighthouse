@@ -2,6 +2,7 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan_raii.hpp"
+#include "vulkan/vma/vk_mem_alloc.hpp"
 
 #include <vector>
 #include <cstddef>
@@ -195,7 +196,7 @@ export namespace lh
 
 			auto operator[](std::size_t index) const -> const subdata&;
 
-			lh::non_owning_ptr<mapped_buffer> m_buffer;
+			lh::non_owning_ptr<buffer> m_buffer;
 			std::vector<subdata> m_subdata;
 		};
 	}

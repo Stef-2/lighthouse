@@ -2,6 +2,7 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan_raii.hpp"
+#include "vulkan/vma/vk_mem_alloc.hpp"
 #endif
 
 export module image;

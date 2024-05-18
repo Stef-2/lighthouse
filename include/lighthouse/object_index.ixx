@@ -6,11 +6,16 @@ export module object_index;
 
 export namespace lh
 {
-	template <typename T>
+	// utility CRTP type
+	// keeps track of created and alive object counts of type T
+	// assigns each new object a unique ID, useful for indexing and comparisons
+	// stores index data in integral type Y
+	template <typename T, typename Y = std::size_t>
+		requires std::is_integral_v<Y>
 	class object_index
 	{
 	public:
-		using index_t = std::size_t;
+		using index_t = Y;
 
 		object_index() : m_index {s_objects_created}
 		{
@@ -18,22 +23,10 @@ export namespace lh
 			s_objects_alive++;
 		}
 
-		object_index(const object_index& other)
-			: m_index {other.m_index}
-		{}
-
-		object_index& operator=(const object_index& other)
-		{
-			m_index = other.m_index;
-		}
-
-		object_index(object_index&& other) : m_index {other.m_index}
-		{}
-
-		object_index& operator=(object_index&& other)
-		{
-			m_index = other.m_index;
-		}
+		object_index(const object_index&) = default;
+		object_index& operator=(const object_index& other) = default;
+		object_index(object_index&& other) = default;
+		object_index& operator=(object_index&& other) = default;
 
 		static auto objects_created() -> const index_t
 		{
@@ -51,7 +44,6 @@ export namespace lh
 		}
 
 	protected:
-
 		// disallow destruction of this type through pointers
 		~object_index()
 		{

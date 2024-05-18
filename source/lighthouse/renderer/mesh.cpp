@@ -4,13 +4,7 @@ module mesh;
 
 namespace lh
 {
-	mesh::mesh()
-		: object_index<mesh> {object_index::no_increment_t {}},
-		  m_node {},
-		  m_vertices {},
-		  m_indices {},
-		  m_vertex_buffer {},
-		  m_bounding_box {}
+	mesh::mesh() : object_index<mesh> {}, m_node {}, m_vertices {}, m_indices {}, m_vertex_buffer {}, m_bounding_box {}
 	{}
 
 	mesh::mesh(const vulkan::logical_device& logical_device,
