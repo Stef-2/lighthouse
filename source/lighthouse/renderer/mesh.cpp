@@ -12,6 +12,7 @@ namespace lh
 			   const std::vector<vulkan::vertex>& vertices,
 			   const std::vector<vulkan::vertex_index_t>& indices,
 			   const geometry::aabb& bounding_box,
+			   vulkan::queue& queue,
 			   non_owning_ptr<lh::node> node)
 		: m_node {node ? std::shared_ptr<lh::node> {node} : std::make_shared<lh::node>()},
 		  m_vertices {std::move(vertices)},

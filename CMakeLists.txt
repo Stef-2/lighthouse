@@ -184,7 +184,7 @@ target_sources(
 	${include}/lighthouse/physical_property.ixx
 	${include}/lighthouse/static_math.ixx
 	${include}/lighthouse/math.ixx
- "include/lighthouse/lhd/lhd_format.ixx" "include/lighthouse/collision.ixx" "include/lighthouse/memory_mapped_span.ixx" "include/lighthouse/renderer/vulkan/push_constant.ixx" "include/lighthouse/renderer/descriptor_layout.ixx" "include/lighthouse/memory_suballocator.ixx" "include/lighthouse/object_index.ixx")
+ "include/lighthouse/lhd/lhd_format.ixx" "include/lighthouse/collision.ixx" "include/lighthouse/memory_mapped_span.ixx" "include/lighthouse/renderer/vulkan/push_constant.ixx" "include/lighthouse/renderer/descriptor_layout.ixx" "include/lighthouse/memory_suballocator.ixx" "include/lighthouse/object_index.ixx" "include/lighthouse/scene.ixx")
 
 target_sources(
 	${PROJECT_NAME} PUBLIC

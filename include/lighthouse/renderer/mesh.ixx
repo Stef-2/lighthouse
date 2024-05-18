@@ -16,6 +16,7 @@ import memory_allocator;
 import vertex_buffer;
 import vertex_format;
 import object_index;
+import queue;
 
 #if not INTELLISENSE
 import std.core;
@@ -35,6 +36,7 @@ export namespace lh
 			 const std::vector<vulkan::vertex>&,
 			 const std::vector<vulkan::vertex_index_t>&,
 			 const geometry::aabb&,
+			 vulkan::queue&,
 			 non_owning_ptr<node> = nullptr);
 
 		mesh(const mesh&) = delete;
