@@ -15,6 +15,7 @@ import logical_device;
 import memory_allocator;
 import vertex_buffer;
 import vertex_format;
+import object_index;
 
 #if not INTELLISENSE
 import std.core;
@@ -22,7 +23,7 @@ import std.core;
 
 export namespace lh
 {
-	class mesh
+	class mesh : public object_index<mesh>
 	{
 	public:
 		struct create_info

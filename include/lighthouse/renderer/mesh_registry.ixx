@@ -44,7 +44,7 @@ export namespace lh
 		auto cone() const -> const lh::mesh&;
 
 	private:
-		std::vector<mesh> m_default_meshes;
+		std::vector<mesh> m_meshes;
 		std::map<const mesh*, std::vector<lh::geometry::transformation_t>> m_instances;
 	};
 }

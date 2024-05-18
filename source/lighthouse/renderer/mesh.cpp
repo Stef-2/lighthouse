@@ -4,7 +4,14 @@ module mesh;
 
 namespace lh
 {
-	mesh::mesh() : m_node {}, m_vertices {}, m_indices {}, m_vertex_buffer {}, m_bounding_box {} {}
+	mesh::mesh()
+		: object_index<mesh> {object_index::no_increment_t {}},
+		  m_node {},
+		  m_vertices {},
+		  m_indices {},
+		  m_vertex_buffer {},
+		  m_bounding_box {}
+	{}
 
 	mesh::mesh(const vulkan::logical_device& logical_device,
 			   const vulkan::memory_allocator& memory_allocator,
@@ -28,7 +35,8 @@ namespace lh
 	}
 
 	mesh::mesh(mesh&& other) noexcept
-		: m_node {std::move(other.m_node)},
+		: object_index<mesh> {std::move(other)},
+		  m_node {std::move(other.m_node)},
 		  m_vertices {std::move(other.m_vertices)},
 		  m_indices {std::move(other.m_indices)},
 		  m_vertex_buffer {std::move(other.m_vertex_buffer)},
