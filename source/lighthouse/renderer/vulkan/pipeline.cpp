@@ -110,7 +110,7 @@ namespace lh
 			{
 				resource_buffer_subdata.emplace_back(
 					std::pair {vk::DescriptorType::eStorageBuffer,
-							   buffer_subdata::subdata {buffer_offset, storage_buffer.m_size}});
+							   buffer_subdata<mapped_buffer>::subdata {buffer_offset, storage_buffer.m_size}});
 				resoruce_descriptor_buffer_usage |= vk::BufferUsageFlagBits::eStorageBuffer;
 
 				buffer_offset += storage_buffer.m_size;

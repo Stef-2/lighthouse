@@ -60,7 +60,7 @@ namespace lh
 		  })}
 	{
 
-		m_mesh_buffer.upload_data(queue, );
+		m_mesh_buffer.upload_data(queue, *mesh_data.data(), 0, mesh_data.size() * sizeof std::byte);
 	}
 
 	auto mesh_registry::plane() const -> const lh::mesh&
