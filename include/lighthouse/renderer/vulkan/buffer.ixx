@@ -77,7 +77,7 @@ export namespace lh
 				command_buffer.end();
 
 				queue.submit_and_wait();
-				m_used_memory = std::max(m_used_memory, offset + size)
+				m_used_memory = std::max(m_used_memory, offset + size);
 			}
 
 		protected:
@@ -199,7 +199,7 @@ export namespace lh
 
 			auto operator[](std::size_t index) const -> const subdata&;
 
-			lh::non_owning_ptr<mapped_buffer> m_buffer;
+			lh::non_owning_ptr<T> m_buffer;
 			std::vector<subdata> m_subdata;
 		};
 	}

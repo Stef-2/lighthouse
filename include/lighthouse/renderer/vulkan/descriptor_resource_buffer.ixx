@@ -33,7 +33,7 @@ export namespace lh
 
 			struct create_info
 			{
-				using binding_type_and_subdata_t = std::pair<vk::DescriptorType, buffer_subdata::subdata>;
+				using binding_type_and_subdata_t = std::pair<vk::DescriptorType, buffer_subdata<mapped_buffer>::subdata>;
 
 				mapped_buffer::create_info m_buffer_create_info = {};
 				std::vector<binding_type_and_subdata_t> m_subdata = {};
@@ -75,8 +75,8 @@ export namespace lh
 
 		private:
 			vulkan::mapped_buffer m_data_buffer;
-			buffer_subdata m_uniform_buffer_subdata;
-			buffer_subdata m_storage_buffer_subdata;
+			vulkan::buffer_subdata<vulkan::mapped_buffer> m_uniform_buffer_subdata;
+			vulkan::buffer_subdata<vulkan::mapped_buffer> m_storage_buffer_subdata;
 			std::vector<descriptor_data_t> m_uniform_descriptors;
 			std::vector<descriptor_data_t> m_storage_descriptors;
 		};

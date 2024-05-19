@@ -1,7 +1,7 @@
 module;
 
 #if INTELLISENSE
-#include "vulkan/vulkan.hpp"
+#include "vulkan/vulkan_raii.hpp"
 
 #include <memory>
 #include <vector>
@@ -37,8 +37,8 @@ export namespace lh
 		mesh& operator=(mesh&&) noexcept;
 
 		auto node() const -> const node&;
-		auto vertex_subdata() const -> const vulkan::buffer_subdata::subdata&;
-		auto index_subdata() const -> const vulkan::buffer_subdata::subdata&;
+		auto vertex_subdata() const -> const vulkan::buffer_subdata<vulkan::buffer>::subdata&;
+		auto index_subdata() const -> const vulkan::buffer_subdata<vulkan::buffer>::subdata&;
 		auto bounding_box() const -> const geometry::aabb&;
 		auto device_size() const -> const vk::DeviceSize;
 

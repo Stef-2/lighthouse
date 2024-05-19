@@ -100,7 +100,7 @@ namespace lh
 			{
 				resource_buffer_subdata.emplace_back(
 					std::pair {vk::DescriptorType::eUniformBuffer,
-							   buffer_subdata::subdata {buffer_offset, uniform_buffer.m_size}});
+							   buffer_subdata<mapped_buffer>::subdata {buffer_offset, uniform_buffer.m_size}});
 				resoruce_descriptor_buffer_usage |= vk::BufferUsageFlagBits::eUniformBuffer;
 
 				buffer_offset += uniform_buffer.m_size;

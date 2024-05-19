@@ -4,8 +4,7 @@ module mesh;
 
 namespace lh
 {
-	mesh::mesh() : object_index<mesh> {}, m_node {}, m_vertices {}, m_indices {}, m_vertex_buffer {}, m_bounding_box {}
-	{}
+	mesh::mesh() : m_node {}, m_vertex_and_index_subdata {}, m_bounding_box {} {}
 
 	mesh::mesh(const vulkan::buffer_subdata<vulkan::buffer>& suballocated_buffer_data,
 			   const geometry::aabb& bounding_box,
@@ -35,12 +34,12 @@ namespace lh
 		return *m_node;
 	}
 
-	auto vertex_subdata() const -> const vulkan::buffer_subdata::subdata&
+	auto mesh::vertex_subdata() const -> const vulkan::buffer_subdata<vulkan::buffer>::subdata&
 	{
 		return m_vertex_and_index_subdata[0];
 	}
 
-	auto index_subdata() const -> const vulkan::buffer_subdata::subdata&
+	auto mesh::index_subdata() const -> const vulkan::buffer_subdata<vulkan::buffer>::subdata&
 	{
 		return m_vertex_and_index_subdata[1];
 	}
