@@ -13,7 +13,8 @@ namespace lh
 					   const memory_allocator& allocator,
 					   const vk::DeviceSize size,
 					   const create_info& create_info)
-			: m_logical_device {&logical_device},
+			: raii_wrapper {nullptr},
+			  m_logical_device {&logical_device},
 			  m_allocator {&allocator},
 			  m_allocation_info {},
 			  m_allocation {},
@@ -26,11 +27,32 @@ namespace lh
 			auto [buffer, allocation] =
 				(*m_allocator)->createBuffer(buffer_info, m_create_info.m_allocation_create_info, &m_allocation_info);
 
-			m_allocation = allocation;
 			m_object = {*logical_device, buffer};
+			m_allocation = allocation;
 			m_address = create_info.m_usage & vk::BufferUsageFlagBits::eShaderDeviceAddress
 							? logical_device->getBufferAddress(*m_object)
 							: 0;
+		}
+
+		buffer::buffer(buffer&& other) noexcept
+			: m_logical_device {std::exchange(other.m_logical_device, nullptr)},
+			  m_allocator {std::exchange(other.m_allocator, nullptr)},
+			  m_allocation_info {std::exchange(other.m_allocation_info, {})},
+			  m_allocation {std::exchange(other.m_allocation, {})},
+			  m_address {std::exchange(other.m_address, {})},
+			  m_used_memory {std::exchange(other.m_used_memory, {})},
+			  m_create_info {std::exchange(other.m_create_info, {})}
+		{}
+
+		buffer& buffer::operator=(buffer&&) noexcept
+		{
+			m_logical_device = std::exchange(other.m_logical_device, nullptr);
+			m_allocator = std::exchange(other.m_allocator, nullptr);
+			m_allocation_info = std::exchange(other.m_allocation_info, {});
+			m_allocation = std::exchange(other.m_allocation, {});
+			m_address = std::exchange(other.m_address, {});
+			m_used_memory = std::exchange(other.m_used_memory, {});
+			m_create_info = std::exchange(other.m_create_info, {});
 		}
 
 		buffer::~buffer()

@@ -77,6 +77,7 @@ export namespace lh
 				command_buffer.end();
 
 				queue.submit_and_wait();
+				m_used_memory = std::max(m_used_memory, offset + size)
 			}
 
 		protected:

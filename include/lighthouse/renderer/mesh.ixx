@@ -42,6 +42,8 @@ export namespace lh
 		auto bounding_box() const -> const geometry::aabb&;
 		auto device_size() const -> const vk::DeviceSize;
 
+		auto bind(vk::raii::CommandBuffer&) const -> void;
+
 	private:
 		std::shared_ptr<lh::node> m_node;
 		vulkan::buffer_subdata<vulkan::buffer> m_vertex_and_index_subdata;

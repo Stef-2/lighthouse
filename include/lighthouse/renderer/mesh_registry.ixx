@@ -44,7 +44,9 @@ export namespace lh
 		auto cone() const -> const lh::mesh&;
 
 	private:
-		std::vector<mesh> m_meshes;
+		scene_reader m_scene_reader;
+
 		vulkan::buffer m_mesh_buffer;
+		std::vector<mesh> m_meshes;
 	};
 }

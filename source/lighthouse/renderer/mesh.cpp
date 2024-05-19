@@ -54,4 +54,12 @@ namespace lh
 	{
 		return m_vertex_and_index_subdata[0].m_size + m_vertex_and_index_subdata[1].m_size;
 	}
+
+	auto mesh::bind(vk::raii::CommandBuffer& command_buffer) const -> void
+	{
+		command_buffer.bindVertexBuffers(0, {**m_vertex_and_index_subdata.m_buffer}, {0});
+		command_buffer.bindIndexBuffer(**m_vertex_and_index_subdata.m_buffer,
+									   m_vertex_and_index_subdata.m_subdata[1].m_offset,
+									   vk::IndexType::eUint32);
+	}
 }
