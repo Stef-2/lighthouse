@@ -35,6 +35,16 @@ namespace lh
 		return *m_node;
 	}
 
+	auto vertex_subdata() const -> const vulkan::buffer_subdata::subdata&
+	{
+		return m_vertex_and_index_subdata[0];
+	}
+
+	auto index_subdata() const -> const vulkan::buffer_subdata::subdata&
+	{
+		return m_vertex_and_index_subdata[1];
+	}
+
 	auto mesh::bounding_box() const -> const geometry::aabb&
 	{
 		return m_bounding_box;

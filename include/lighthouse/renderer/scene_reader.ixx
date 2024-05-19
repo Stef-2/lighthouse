@@ -14,8 +14,6 @@ module;
 export module scene_reader;
 
 import node;
-import logical_device;
-import memory_allocator;
 import vertex_format;
 import index_format;
 import geometry;
@@ -30,6 +28,13 @@ export namespace lh
 	class scene_reader
 	{
 	public:
+		struct mesh_vertex_data
+		{
+			std::vector<vulkan::vertex> m_vertices;
+			std::vector<vulkan::vertex_index_t> m_indices;
+			geometry::aabb m_bounding_box;
+		};
+
 		struct create_info
 		{
 			std::int32_t m_importer_postprocess = {
@@ -39,18 +44,13 @@ export namespace lh
 				aiProcess_GenBoundingBoxes};
 		};
 
-		scene_reader(const vulkan::logical_device&,
-					 const vulkan::memory_allocator&,
-					 const std::vector<std::filesystem::path>&,
-					 const create_info& = {});
+		scene_reader(const std::vector<std::filesystem::path>&, const create_info& = {});
 
-		auto meshes() const -> const std::vector<mesh>&;
-		auto meshes() -> std::vector<mesh>&;
-
-		auto meshes_device_size() const -> const vk::DeviceSize;
+		auto mesh_data() const -> const std::vector<mesh_vertex_data>&;
 
 	private:
 		Assimp::Importer m_importer;
-		std::vector<mesh> m_meshes;
+
+		std::vector<mesh_vertex_data> m_scene_meshes;
 	};
 }

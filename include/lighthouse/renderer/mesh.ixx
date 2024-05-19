@@ -37,6 +37,8 @@ export namespace lh
 		mesh& operator=(mesh&&) noexcept;
 
 		auto node() const -> const node&;
+		auto vertex_subdata() const -> const vulkan::buffer_subdata::subdata&;
+		auto index_subdata() const -> const vulkan::buffer_subdata::subdata&;
 		auto bounding_box() const -> const geometry::aabb&;
 		auto device_size() const -> const vk::DeviceSize;
 

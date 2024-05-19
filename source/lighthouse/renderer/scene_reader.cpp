@@ -17,14 +17,10 @@ import glm;
 
 namespace
 {
-	auto generate_meshes(const lh::vulkan::logical_device& logical_device,
-						 const lh::vulkan::memory_allocator& memory_allocator,
-						 const std::vector<std::filesystem::path>& file_paths,
-						 Assimp::Importer& importer,
-						 const lh::scene_loader::create_info& create_info)
+	auto generate_mesh_data(const std::vector<std::filesystem::path>& file_paths,
+							Assimp::Importer& importer,
+							const lh::scene_loader::create_info& create_info)
 	{
-		auto meshes = std::vector<lh::mesh> {};
-
 		for (const auto& file_path : file_paths)
 		{
 			const auto scene = importer.ReadFile(file_path.string(), create_info.m_importer_postprocess);
@@ -35,11 +31,8 @@ namespace
 				{
 					const auto& mesh = *scene->mMeshes[m];
 
-					auto vertices = std::vector<lh::vulkan::vertex> {};
-					auto indices = std::vector<lh::vulkan::vertex_index_t> {};
-
-					vertices.reserve(static_cast<std::size_t>(mesh.mNumVertices));
-					indices.reserve(static_cast<std::size_t>(mesh.mNumFaces) * 3);
+					vertices.reserve(m_vertices.capacity() + static_cast<std::size_t>(mesh.mNumVertices));
+					indices.reserve(m_indices.capacity() + static_cast<std::size_t>(mesh.mNumFaces) * 3);
 
 					for (auto v = std::size_t {}; v < mesh.mNumVertices; ++v)
 					{
@@ -66,43 +59,23 @@ namespace
 						lh::geometry::aabb {.m_minima {mesh.mAABB.mMin.x, mesh.mAABB.mMin.y, mesh.mAABB.mMin.z},
 											.m_maxima {mesh.mAABB.mMax.x, mesh.mAABB.mMax.y, mesh.mAABB.mMax.z}};
 
-					meshes.emplace_back(logical_device, memory_allocator, vertices, indices, bounding_box);
+					m_mesh_vertex_data.emplace_back(vertices, indices, bounding_box);
 				}
 		}
-
-		return meshes;
 	}
 }
 
 namespace lh
 {
-	lh::scene_loader::scene_reader(const vulkan::logical_device& logical_device,
-								   const vulkan::memory_allocator& memory_allocator,
-								   const std::filesystem::path& file_path,
-								   const create_info& create_info)
-		: m_importer {}, m_meshes {}
+	lh::scene_loader::scene_reader(const std::vector<std::filesystem::path>& file_paths, const create_info& create_info)
+		: m_importer {}, m_scene_meshes {}
 	{
 		m_importer.ApplyPostProcessing(create_info.m_importer_postprocess);
-		m_meshes = generate_meshes(logical_device, memory_allocator, file_path, m_importer, create_info);
+		generate_mesh_data(file_paths, m_importer, create_info);
 	}
 
-	auto scene_reader::meshes() const -> const std::vector<mesh>&
+	auto mesh_data() const -> const std::vector<m_mesh_vertex_data>&
 	{
-		return m_meshes;
-	}
-
-	auto scene_reader::meshes() -> std::vector<mesh>&
-	{
-		return m_meshes;
-	}
-
-	auto scene_reader::size_bytes() const -> const vk::DeviceSize
-	{
-		auto size = vk::DeviceSize {};
-
-		for (const auto& mesh : m_meshes)
-			size += mesh.device_size();
-
-		return size;
+		return m_scene_meshes;
 	}
 }
