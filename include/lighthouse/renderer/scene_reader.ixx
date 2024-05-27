@@ -2,18 +2,14 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan.hpp"
-
-#include <vector>
-#include <filesystem>
-#include <cstddef>
-#include <cstdint>
-#include <variant>
 #endif
 
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"
 
 export module scene_reader;
+
+import glm;
 
 import node;
 import data_type;
@@ -22,9 +18,7 @@ import index_format;
 import geometry;
 import mesh;
 
-#if not INTELLISENSE
-import std.filesystem;
-#endif
+import std;
 
 export namespace lh
 {
@@ -34,7 +28,7 @@ export namespace lh
 		using vertex_data_t = data_t;
 
 		// per mesh data
-		// stores indices into the data_t vector
+		// stores indices into a data_t vector
 		// stores bounding boxes
 		struct mesh_iterator
 		{
@@ -63,6 +57,7 @@ export namespace lh
 
 		// vertex and index data packed into a format suitable for device uploading
 		vertex_data_t m_vertex_and_index_data;
+		// indices into the data_t vector
 		std::vector<mesh_iterator> m_mesh_iterators;
 	};
 }

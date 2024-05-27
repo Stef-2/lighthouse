@@ -31,7 +31,7 @@ set(compile_options ${COMPILE_OPTIONS})#/std:c++latest /EHsc /O2 /W3 /MP /Zf /MD
 # std module
 add_library(std_module)
 target_sources(std_module PUBLIC FILE_SET CXX_MODULES FILES
-	${module}/std/std.ixx)
+	${include}/std/std.ixx)
 target_compile_options(std_module PUBLIC
 	${compile_options}
 )
