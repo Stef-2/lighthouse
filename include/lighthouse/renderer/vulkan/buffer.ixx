@@ -21,6 +21,10 @@ import memory_allocator;
 import output;
 import queue;
 
+#if not INTELLISENSE
+import std;
+#endif
+
 export namespace lh
 {
 	namespace vulkan

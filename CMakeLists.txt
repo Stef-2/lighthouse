@@ -331,7 +331,7 @@ target_link_libraries(
 
 	assimp-vc143-mt.lib
 
-	#std_module
+	std_module
 	#std_compat_module
 	glm_module
 	vulkan_module
