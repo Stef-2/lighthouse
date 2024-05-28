@@ -2,6 +2,8 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan.hpp"
+
+#include <cstdint>
 #endif
 
 #include "assimp/Importer.hpp"
@@ -9,14 +11,8 @@ module;
 
 export module scene_reader;
 
-import glm;
-
-import node;
 import data_type;
-import vertex_format;
-import index_format;
 import geometry;
-import mesh;
 
 import std;
 
@@ -30,7 +26,7 @@ export namespace lh
 		// per mesh data
 		// stores indices into a data_t vector
 		// stores bounding boxes
-		struct mesh_iterator
+		struct mesh_data
 		{
 			vertex_data_t::iterator m_vertices;
 			vertex_data_t::iterator m_indices;
@@ -48,7 +44,8 @@ export namespace lh
 
 		scene_reader(const std::vector<std::filesystem::path>&, const create_info& = {});
 
-		auto mesh_data() const -> const vertex_data_t&;
+		auto vertex_data() const -> const vertex_data_t&;
+		auto mesh_data() const -> const std::vector<struct mesh_data>&;
 
 	private:
 		auto generate_mesh_data(const std::vector<std::filesystem::path>&, const create_info& = {}) -> void;
@@ -56,8 +53,8 @@ export namespace lh
 		Assimp::Importer m_importer;
 
 		// vertex and index data packed into a format suitable for device uploading
-		vertex_data_t m_vertex_and_index_data;
+		vertex_data_t m_vertex_data;
 		// indices into the data_t vector
-		std::vector<mesh_iterator> m_mesh_iterators;
+		std::vector<struct mesh_data> m_mesh_data;
 	};
 }
