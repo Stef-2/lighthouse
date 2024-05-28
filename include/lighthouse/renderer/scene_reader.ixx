@@ -28,8 +28,11 @@ export namespace lh
 		// stores bounding boxes
 		struct mesh_data
 		{
-			vertex_data_t::iterator m_vertices;
-			vertex_data_t::iterator m_indices;
+			std::size_t m_vertex_offset;
+			std::size_t m_vertex_buffer_size;
+			std::size_t m_index_offset;
+			std::size_t m_index_buffer_size;
+
 			geometry::aabb m_bounding_box;
 		};
 

@@ -49,18 +49,30 @@ namespace lh
 			const auto scene = m_importer.ReadFile(file_path.string(), create_info.m_importer_postprocess);
 			if (not scene) lh::output::error() << "could not load a scene: " << file_path.string();
 
-			auto mesh_data_iterator = lh::scene_reader::vertex_data_t::iterator {m_vertex_data.begin()};
+			auto byte_count = std::size_t {};
 
 			if (scene->HasMeshes())
 				// iterate scene meshes
 				for (auto m = std::size_t {}; m < scene->mNumMeshes; m++)
 				{
+					const auto mesh_byte_size = mesh.mNumVertices * vertex_size + mesh.mNumFaces * index_size * 3;
+					m_vertex_data.reserve(m_vertex_data.capacity() + mesh_byte_size);
+
 					const auto& mesh = *scene->mMeshes[m];
 
-					const auto mesh_size_bytes = mesh.mNumVertices * vertex_size + mesh.mNumFaces * index_size * 3;
-					auto mesh_data = decltype(std::declval<struct mesh_data>()) {};
-					m_vertex_data.reserve(m_vertex_data.capacity() + mesh_size_bytes);
+					const auto vertex_offset = byte_count;
+					const auto vertex_buffer_size = mesh.mNumVertice * vertex_size;
+					const auto index_offset = vertex_offset + vertex_buffer_size;
+					const auto index_buffer_size = index_offset + mesh.mNumFaces * index_size * 3;
+					const auto mesh_data = decltype(std::declval<struct mesh_data>()) {
+						vertex_offset,
+						vertex_buffer_size,
+						index_offset,
+						index_buffer_size,
+						{.m_minima {mesh.mAABB.mMin.x, mesh.mAABB.mMin.y, mesh.mAABB.mMin.z},
+						 .m_maxima {mesh.mAABB.mMax.x, mesh.mAABB.mMax.y, mesh.mAABB.mMax.z}}};
 
+					// iterate mesh vertices
 					for (auto v = std::size_t {}; v < mesh.mNumVertices; v++)
 					{
 						const auto& position = mesh.mVertices[v];
@@ -75,20 +87,23 @@ namespace lh
 																glm::vec3 {bitangent.x, bitangent.y, bitangent.z},
 																glm::vec2 {tex_coords.x, tex_coords.y}};
 
-						std::memcpy(&(*mesh_data_iterator), &vertex, vertex_size);
-						mesh_data.m_vertices = mesh_data_iterator;
-						mesh_data_iterator += vertex_size;
+						std::memcpy(&m_vertex_data[vertex_offset + v], &vertex, vertex_size);
+						mesh_data.m_vertex_offset = byte_count;
+						mesh_data.m_vertex_buffer_size += vertex_size;
+						byte_count += vertex_size;
 					}
 
-					std::memcpy(&(*mesh_data_iterator),
+					std::memcpy(&m_vertex_data[byte_count],
 								mesh.mFaces,
 								sizeof vulkan::vertex_index_t * mesh.mNumFaces * 3);
-					mesh_data.m_indices = mesh_data_iterator;
-					mesh_data_iterator += index_size * mesh.mNumFaces * 3;
+					mesh_data.m_indices = byte_count;
+					byte_count += index_size * mesh.mNumFaces * 3;
 
 					mesh_data.m_bounding_box =
 						lh::geometry::aabb {.m_minima {mesh.mAABB.mMin.x, mesh.mAABB.mMin.y, mesh.mAABB.mMin.z},
 											.m_maxima {mesh.mAABB.mMax.x, mesh.mAABB.mMax.y, mesh.mAABB.mMax.z}};
+
+					// m_mesh_data.emplace_back(mesh_data);
 
 					m_mesh_data.emplace_back(mesh_data);
 				}
