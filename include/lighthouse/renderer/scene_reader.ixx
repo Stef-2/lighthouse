@@ -33,6 +33,7 @@ export namespace lh
 			std::size_t m_index_offset;
 			std::size_t m_index_buffer_size;
 
+			geometry::transformation_t m_transformation;
 			geometry::aabb m_bounding_box;
 		};
 
