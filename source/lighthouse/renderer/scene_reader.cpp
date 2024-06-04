@@ -22,21 +22,35 @@ import glm;
 
 namespace
 {
-	auto assimp_transform_to_native(aiMatrix4x4& transform)
+	auto assimp_transform_to_native(const aiMatrix4x4& transform)
 	{
-		static_assert(sizeof transform == sizeof lh::geometry::transformation_t);
-
-		// assimp matrices are always row major
-		return reinterpret_cast<const lh::geometry::transformation_t&&>(transform.Transpose());
+		return lh::geometry::transformation_t {transform.a1,
+											   transform.b1,
+											   transform.c1,
+											   transform.d1,
+											   transform.a2,
+											   transform.b2,
+											   transform.c2,
+											   transform.d2,
+											   transform.a3,
+											   transform.b3,
+											   transform.c3,
+											   transform.d3,
+											   transform.a4,
+											   transform.b4,
+											   transform.c4,
+											   transform.d4};
 	}
 
-	auto assimp_mesh_to_node(const std::uint32_t mesh_index, const aiNode& node)
+	auto assimp_mesh_to_node(const aiNode& node, const std::uint32_t mesh_index)
 	{
 		for (auto i = std::size_t {}; i < node.mNumMeshes; i++)
-			if (node.mMeshes[i] == mesh_index) return node;
+			if (node.mMeshes[i] == mesh_index) return &node;
 
 		for (auto i = std::size_t {}; i < node.mNumChildren; i++)
-			assimp_mesh_to_node(mesh_index, *node.mChildren[i]);
+			assimp_mesh_to_node(*node.mChildren[i], mesh_index);
+
+		std::unreachable();
 	}
 }
 
@@ -78,16 +92,8 @@ namespace lh
 					const auto& mesh = *scene->mMeshes[m];
 
 					// find a scene node whose transformation is associated with this mesh
-					const auto transformation = [m](this const auto& self, aiNode& node) -> geometry::transformation_t {
-						for (auto i = std::size_t {}; i < node.mNumMeshes; i++)
-							if (m == static_cast<decltype(m)>(node.mMeshes[i]))
-								return assimp_transform_to_native(node.mTransformation);
-
-						for (auto n = std::size_t {}; n < node.mNumChildren; n++)
-							self(node);
-
-						return geometry::transformation_t {1.0f};
-					}(*scene->mRootNode);
+					const auto mesh_node = assimp_mesh_to_node(*scene->mRootNode, m);
+					const auto transformation = assimp_transform_to_native(mesh_node->mTransformation);
 
 					const auto mesh_byte_size = mesh.mNumVertices * vertex_size + mesh.mNumFaces * index_size * 3;
 					m_vertex_data.reserve(m_vertex_data.capacity() + mesh_byte_size);
