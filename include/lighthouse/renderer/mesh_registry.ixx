@@ -46,6 +46,7 @@ export namespace lh
 	private:
 		scene_reader m_scene_reader;
 
+
 		vulkan::buffer m_mesh_buffer;
 		std::vector<mesh> m_meshes;
 	};
