@@ -52,55 +52,5 @@ export namespace lh
 			vulkan::buffer_subdata<vulkan::buffer> m_vertex_and_index_subdata;
 			geometry::aabb m_bounding_box;
 		};
-
-		// ===============================================
-
-		template <typename T>
-		class registry_item;
-
-		template <typename T>
-		class registry
-		{
-		public:
-			friend registry_item<T>;
-
-			registry()
-			{
-				T::m_registry = this;
-			}
-
-		protected:
-			static std::vector<T*> m_entries;
-		};
-
-
-		template <typename T>
-		class registry_item
-		{
-		public:
-			friend registry<T>;
-
-
-		protected:
-			registry_item() { registry<T>::m_entries.push_back(nullptr/*static_cast<T*>(this)*/); }
-			static registry<T>* m_registry;
-
-		};
-		
-		class item : public registry_item<item>, public registry<item>
-		{
-
-		};
-
-
-		void func()
-		{
-			//registry_item r ();
-			registry<item> reg;
-			
-			item i;
-
-
-		}
 	}
 }
