@@ -1,16 +1,8 @@
-
 module;
-
-#if INTELLISENSE
-	#include <cstddef>
-	#include <vector>
-#endif
 
 export module data_type;
 
-#if not INTELLISENSE
-import std.core;
-#endif
+import std;
 
 export namespace lh
 {

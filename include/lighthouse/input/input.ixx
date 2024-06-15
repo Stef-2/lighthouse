@@ -2,16 +2,6 @@ module;
 
 #include "vkfw/vkfw.hpp"
 
-#if INTELLISENSE
-#include <map>
-#include <unordered_map>
-#include <functional>
-#include <filesystem>
-#include <vector>
-#include <variant>
-#include <iostream>
-#endif
-
 export module input;
 
 import data_type;
@@ -20,10 +10,7 @@ import file_type;
 import lighthouse_string;
 import window;
 
-#if not INTELLISENSE
-import std.filesystem;
-import std.core;
-#endif
+import std;
 
 namespace lh
 {
@@ -163,6 +150,11 @@ namespace lh
 			std::uint32_t m_data_size;
 		};
 
+		struct scene_data
+		{
+
+		};
+
 		auto read_text_file(const std::filesystem::path&) -> string::string_t;
 		auto read_binary_file(const std::filesystem::path&) -> lh::data_t;
 		auto read_image_file(const std::filesystem::path&) -> const image_data;
@@ -183,8 +175,5 @@ namespace lh
 		export auto initialize(const window&) -> void;
 
 		auto assert_path_validity(const std::filesystem::path&, const file_type&) -> bool;
-
-		inline const auto m_valid_file_extensions = std::map<file_type, const std::vector<const char*>> {
-			{file_type::text, {".txt", ".vert", ".frag", ".glsl", ".h", ".hpp"}}, {file_type::image, {".png"}}, {file_type::font, {".ttf"}}};
 	};
 }

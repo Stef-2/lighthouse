@@ -129,7 +129,7 @@ target_sources(
 	${include}/lighthouse/string/string_convertible.ixx
 	${include}/lighthouse/operating_system/system.ixx
 	${include}/lighthouse/output.ixx
-	${include}/lighthouse/input.ixx
+	${include}/lighthouse/input/input.ixx
 	${include}/lighthouse/operating_system/dynamic_linking.ixx				
 	${include}/lighthouse/renderer/vulkan/raii_wrapper.ixx
 	${include}/lighthouse/renderer/vulkan/vulkan_string.ixx
@@ -160,8 +160,7 @@ target_sources(
 	${include}/lighthouse/renderer/vulkan/descriptor_buffer.ixx				
 	${include}/lighthouse/renderer/vulkan/spir_v.ixx						
 	${include}/lighthouse/renderer/vulkan/shader_object.ixx					
-	
-	"include/lighthouse/renderer/scene_reader.ixx"							
+	${include}/lighthouse/renderer/scene_reader.ixx						
 	${include}/lighthouse/renderer/vulkan/pipeline.ixx
 	${include}/lighthouse/renderer/vulkan/shader_input.ixx					
 	${include}/lighthouse/renderer/mesh.ixx									
@@ -178,19 +177,28 @@ target_sources(
 	${include}/lighthouse/renderer/light.ixx
 	${include}/lighthouse/renderer/skybox.ixx
 	${include}/lighthouse/renderer/vulkan/image_view.ixx
-	"include/lighthouse/renderer/mesh_registry.ixx"
+	${include}/lighthouse/renderer/mesh_registry.ixx
 	${include}/lighthouse/renderer/dear_imgui.ixx
 	${include}/lighthouse/renderer/user_interface.ixx
 	${include}/lighthouse/physical_property.ixx
 	${include}/lighthouse/static_math.ixx
 	${include}/lighthouse/math.ixx
- "include/lighthouse/lhd/lhd_format.ixx" "include/lighthouse/collision.ixx" "include/lighthouse/memory_mapped_span.ixx" "include/lighthouse/renderer/vulkan/push_constant.ixx" "include/lighthouse/renderer/descriptor_layout.ixx" "include/lighthouse/memory_suballocator.ixx" "include/lighthouse/object_index.ixx" "include/lighthouse/scene.ixx" "include/lighthouse/registry.ixx")
+	${include}/lighthouse/lhd/lhd_format.ixx
+	${include}/lighthouse/collision.ixx
+	${include}/lighthouse/memory_mapped_span.ixx
+	${include}/lighthouse/renderer/vulkan/push_constant.ixx
+	${include}/lighthouse/renderer/descriptor_layout.ixx
+	${include}/lighthouse/memory_suballocator.ixx
+	${include}/lighthouse/object_index.ixx
+	${include}/lighthouse/scene.ixx
+	${include}/lighthouse/registry.ixx
+)
 
 target_sources(
 	${PROJECT_NAME} PUBLIC
 
 	${source}/lighthouse/window.cpp
-	${source}/lighthouse/input.cpp
+	"source/lighthouse/input/input.cpp"
 	${source}/lighthouse/output.cpp
 	${source}/lighthouse/version.cpp
 	${source}/lighthouse/file_system.cpp
@@ -215,8 +223,7 @@ target_sources(
 	${source}/lighthouse/renderer/vulkan/descriptor_buffer.cpp
 	${source}/lighthouse/renderer/vulkan/spir_v.cpp
 	${source}/lighthouse/renderer/vulkan/shader_object.cpp
-	
-	"source/lighthouse/renderer/scene_reader.cpp"
+	${source}/lighthouse/renderer/scene_reader.cpp
 	${source}/lighthouse/renderer/vulkan/pipeline.cpp
 	${source}/lighthouse/renderer/vulkan/shader_input.cpp
 	${source}/lighthouse/renderer/mesh.cpp
@@ -236,13 +243,15 @@ target_sources(
 	${source}/lighthouse/renderer/color.cpp
 	${source}/lighthouse/renderer/light.cpp
 	${source}/lighthouse/renderer/vulkan/image_view.cpp
-	"source/lighthouse/renderer/mesh_registry.cpp"
+	${source}/lighthouse/renderer/mesh_registry.cpp
 	${source}/lighthouse/renderer/skybox.cpp
 	${source}/lighthouse/renderer/dear_imgui.cpp
 	${source}/lighthouse/renderer/user_interface.cpp
 	${source}/lighthouse/physical_property.cpp
 	${source}/lighthouse/geometry.cpp
-  "source/lighthouse/memory_suballocator.cpp" "source/lighthouse/scene.cpp")
+	${source}/lighthouse/memory_suballocator.cpp
+	${source}/lighthouse/scene.cpp
+)
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_RELEASE}")
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")

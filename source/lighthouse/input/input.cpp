@@ -8,11 +8,6 @@ module;
 
 #if INTELLISENSE
 	#include "vkfw/vkfw.hpp"
-
-	#include <variant>
-	#include <iostream>
-	#include <fstream>
-	#include <ranges>
 #endif
 
 module input;
