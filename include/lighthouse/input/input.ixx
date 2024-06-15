@@ -132,48 +132,8 @@ namespace lh
 			static parameter_precision_t s_previous_y;
 		};
 
-		// data obtained by reading image files
-		struct image_data
-		{
-			image_data();
-			~image_data();
-
-			image_data(const image_data&) = delete;
-			image_data& operator=(const image_data&) = delete;
-			image_data(image_data&&) noexcept;
-			image_data& operator=(image_data&&) noexcept;
-
-			std::byte* m_data;
-			std::uint32_t m_width;
-			std::uint32_t m_height;
-			std::uint8_t m_num_color_channels;
-			std::uint32_t m_data_size;
-		};
-
-		struct scene_data
-		{
-
-		};
-
-		auto read_text_file(const std::filesystem::path&) -> string::string_t;
-		auto read_binary_file(const std::filesystem::path&) -> lh::data_t;
-		auto read_image_file(const std::filesystem::path&) -> const image_data;
-
-		export template <file_type type = file_type::text>
-		auto read_file(const std::filesystem::path& file_path)
-		{
-			if constexpr (type == file_type::text)
-				return read_text_file(file_path);
-
-			if constexpr (type == file_type::binary)
-				return read_binary_file(file_path);
-
-			if constexpr (type == file_type::image)
-				return read_image_file(file_path);
-		}
+		
 
 		export auto initialize(const window&) -> void;
-
-		auto assert_path_validity(const std::filesystem::path&, const file_type&) -> bool;
 	};
 }

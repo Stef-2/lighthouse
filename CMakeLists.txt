@@ -122,7 +122,7 @@ target_sources(
 	${include}/lighthouse/window.ixx										
 	${include}/lighthouse/static_type.ixx
 	${include}/lighthouse/file_system.ixx									
-	${include}/lighthouse/file_type.ixx
+	"include/lighthouse/input/file_type.ixx"
 	${include}/lighthouse/utility.ixx
 	${include}/lighthouse/data_type.ixx
 	${include}/lighthouse/string/lh_string.ixx
@@ -192,7 +192,7 @@ target_sources(
 	${include}/lighthouse/object_index.ixx
 	${include}/lighthouse/scene.ixx
 	${include}/lighthouse/registry.ixx
-)
+ "include/lighthouse/input/input_data.ixx")
 
 target_sources(
 	${PROJECT_NAME} PUBLIC
@@ -251,7 +251,7 @@ target_sources(
 	${source}/lighthouse/geometry.cpp
 	${source}/lighthouse/memory_suballocator.cpp
 	${source}/lighthouse/scene.cpp
-)
+ "source/lighthouse/input/input_data.cpp")
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_RELEASE}")
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")

@@ -24,7 +24,7 @@ export namespace lh
 		using vertex_data_t = data_t;
 
 		// per mesh data
-		// stores indices into a data_t vector
+		// stores indices into the vertex_data_t vector
 		// stores bounding boxes
 		struct mesh_data
 		{
