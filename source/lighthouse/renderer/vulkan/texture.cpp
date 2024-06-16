@@ -1,14 +1,15 @@
 module;
 
 #if INTELLISENSE
-#include "vulkan/vulkan.hpp"
+	#include "vulkan/vulkan.hpp"
 
-#include <cstdint>
+	#include <cstdint>
 #endif
 
 module texture;
 
 import input;
+import image_data;
 import output;
 import vulkan_utility;
 

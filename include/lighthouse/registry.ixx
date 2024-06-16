@@ -34,7 +34,7 @@ export namespace lh
 
 		auto entries() const -> const entries_t& { return m_entries; }
 
-	private:
+	protected:
 		entries_t m_entries {};
 	};
 

@@ -22,7 +22,7 @@ export namespace lh
 	public:
 
 	private:
-		auto generate_mesh_subdata(const scene_data&) const -> const vulkan::buffer_subdata<vulkan::buffer>;
+		//auto generate_mesh_subdata(const scene_data&) const -> const vulkan::buffer_subdata<vulkan::buffer>;
 
 		vulkan::buffer m_mesh_buffer;
 		std::vector<mesh> m_meshes;

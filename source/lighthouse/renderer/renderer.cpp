@@ -55,6 +55,7 @@ namespace lh
 		  m_push_constant {},
 		  m_mesh_registry {m_logical_device,
 						   m_memory_allocator,
+						   m_transfer_queue,
 						   {file_system::data_path() /= "models/plane.obj",
 							file_system::data_path() /= "models/cube.obj",
 							file_system::data_path() /= "models/sphere.obj",
@@ -68,7 +69,7 @@ namespace lh
 							file_system::data_path() /= "shaders/basic.frag"},
 						   m_global_descriptor,
 						   m_global_descriptor_buffer},
-		  m_scene_loader {m_logical_device, m_memory_allocator, file_system::data_path() /= "models/cube.obj"},
+		  // m_scene_loader {m_logical_device, m_memory_allocator, file_system::data_path() /= "models/cube.obj"},
 		  m_camera {std::make_shared<lh::node>(), camera<camera_type::perspective>::create_info {}},
 		  m_material {m_physical_device,
 					  m_logical_device,
@@ -139,10 +140,9 @@ namespace lh
 		input::key_binding::bind({vkfw::Key::C},
 								 [this]() { m_camera.translate_relative(m_camera.up_direction(), -0.1f); });
 
-		input::key_binding::bind({vkfw::Key::E}, [this]() {
-			m_camera.look_at(geometry::position_t {0.05f, 0.05f, 0.05f});
-		});
-
+		input::key_binding::bind({vkfw::Key::E},
+								 [this]() { m_camera.look_at(geometry::position_t {0.05f, 0.05f, 0.05f}); });
+		/*
 		input::key_binding::bind({vkfw::Key::B}, [this]() {
 			const auto ray = geometry::ray {m_camera.position(), m_camera.view_direction()};
 
@@ -163,7 +163,7 @@ namespace lh
 					if (collision::ray_tri_test(ray, triangle)) std::cout << "got it after: " << i << '\n';
 				}
 			}
-		});
+		});*/
 
 		input::mouse::move_callback(m_camera.first_person_callback());
 
@@ -249,7 +249,7 @@ namespace lh
 
 		// draw sphere
 
-		m_mesh_registry.sphere().vertex_buffer().bind(command_buffer);
+		m_mesh_registry.sphere().bind(command_buffer);
 		m_test_pipeline.bind(command_buffer);
 		m_test_pipeline.resource_buffer().map_uniform_data(0, scene);
 		m_test_pipeline.resource_buffer().map_uniform_data(1, mi);
@@ -257,7 +257,7 @@ namespace lh
 		m_test_pipeline.resource_buffer().map_storage_data(1, m_global_light_manager.light_device_addresses());
 
 		push_constants();
-		command_buffer.drawIndexed(m_mesh_registry.sphere().indices().size(), 3, 0, 0, 0);
+		command_buffer.drawIndexed(m_mesh_registry.sphere().index_count(), 3, 0, 0, 0);
 
 		/*
 		const auto barrier = vk::MemoryBarrier2 {{vk::PipelineStageFlagBits2::eAllCommands},
@@ -270,12 +270,12 @@ namespace lh
 		*/
 		// draw skybox
 
-		m_mesh_registry.cube().vertex_buffer().bind(command_buffer);
+		m_mesh_registry.cube().bind(command_buffer);
 		m_skybox.pipeline().bind(command_buffer);
 		m_skybox.pipeline().resource_buffer().map_uniform_data(0, sb_scene);
 
 		push_constants();
-		command_buffer.drawIndexed(m_mesh_registry.cube().indices().size(), 1, 0, 0, 0);
+		command_buffer.drawIndexed(m_mesh_registry.cube().index_count(), 1, 0, 0, 0);
 
 		// end rendering
 

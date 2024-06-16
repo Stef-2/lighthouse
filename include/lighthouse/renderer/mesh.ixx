@@ -14,6 +14,7 @@ import geometry;
 import buffer;
 import lighthouse_utility;
 import object_index;
+import registry;
 
 #if not INTELLISENSE
 import std.core;
@@ -22,7 +23,7 @@ import std.core;
 
 export namespace lh
 {
-	class mesh : public object_index<mesh>
+	class mesh : public object_index<mesh>, public registry_entry<mesh>
 	{
 	public:
 		struct create_info
@@ -41,9 +42,9 @@ export namespace lh
 		auto vertex_subdata() const -> const vulkan::buffer_subdata<vulkan::buffer>::subdata&;
 		auto index_subdata() const -> const vulkan::buffer_subdata<vulkan::buffer>::subdata&;
 		auto bounding_box() const -> const geometry::aabb&;
-		auto device_size() const -> const vk::DeviceSize;
+		auto index_count() const -> const std::size_t;
 
-		auto bind(vk::raii::CommandBuffer&) const -> void;
+		auto bind(const vk::raii::CommandBuffer&) const -> void;
 
 	private:
 		std::shared_ptr<lh::node> m_node;

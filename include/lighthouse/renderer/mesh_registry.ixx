@@ -24,9 +24,19 @@ import registry;
 
 export namespace lh
 {
-	class mesh_registry : registry<mesh>
+	class mesh_registry : public registry<mesh>
 	{
 	public:
+		enum class default_meshes
+		{
+			plane,
+			cube,
+			sphere,
+			cylinder,
+			cone,
+			default_mesh_count
+		};
+
 		struct create_info
 		{
 			std::filesystem::path m_plane_mesh = {};
@@ -45,6 +55,7 @@ export namespace lh
 		auto cone() const -> const lh::mesh&;
 
 	private:
-		vulkan::buffer m_mesh_buffer;
+		std::array<mesh, std::to_underlying(default_meshes::default_mesh_count)> m_default_meshes;
+		std::vector<vulkan::buffer> m_mesh_buffers;
 	};
 }

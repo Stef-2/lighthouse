@@ -49,12 +49,12 @@ namespace lh
 		return m_bounding_box;
 	}
 
-	auto mesh::device_size() const -> const vk::DeviceSize
+	auto mesh::index_count() const -> const std::size_t
 	{
-		return m_vertex_and_index_subdata[0].m_size + m_vertex_and_index_subdata[1].m_size;
+		return m_vertex_and_index_subdata[1].m_size / sizeof std::uint32_t;
 	}
 
-	auto mesh::bind(vk::raii::CommandBuffer& command_buffer) const -> void
+	auto mesh::bind(const vk::raii::CommandBuffer& command_buffer) const -> void
 	{
 		command_buffer.bindVertexBuffers(0, {**m_vertex_and_index_subdata.m_buffer}, {0});
 		command_buffer.bindIndexBuffer(**m_vertex_and_index_subdata.m_buffer,

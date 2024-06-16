@@ -197,7 +197,7 @@ export namespace lh
 				vk::DeviceSize m_size;
 			};
 
-			auto operator[](std::size_t index) const -> const subdata&;
+			auto operator[](std::size_t index) const -> const subdata& { return m_subdata[index]; }
 
 			lh::non_owning_ptr<T> m_buffer;
 			std::vector<subdata> m_subdata;

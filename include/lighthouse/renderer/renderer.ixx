@@ -89,7 +89,7 @@ export namespace lh
 		vulkan::suballocated_mapped_buffer m_instance_buffer;
 
 		vulkan::pipeline m_test_pipeline;
-		scene_data m_scene_loader;
+		//scene_data m_scene_loader;
 		lh::camera<camera_type::perspective> m_camera;
 		material m_material;
 		point_light m_point_light;

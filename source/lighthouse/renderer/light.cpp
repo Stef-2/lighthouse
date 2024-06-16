@@ -268,19 +268,23 @@ namespace lh
 										  create_info.m_directional_lights + create_info.m_ambient_lights;
 
 		buffer_subdata.emplace_back(vk::DescriptorType::eStorageBuffer,
-									vulkan::buffer_subdata::subdata {0, point_light_buffer_size});
+									vulkan::buffer_subdata<vulkan::mapped_buffer>::subdata {0,
+																							point_light_buffer_size});
 
 		buffer_subdata.emplace_back(vk::DescriptorType::eStorageBuffer,
-									vulkan::buffer_subdata::subdata {point_light_buffer_size, spot_light_buffer_size});
+									vulkan::buffer_subdata<vulkan::mapped_buffer>::subdata {point_light_buffer_size,
+																							spot_light_buffer_size});
 
-		buffer_subdata.emplace_back(vk::DescriptorType::eStorageBuffer,
-									vulkan::buffer_subdata::subdata {point_light_buffer_size + spot_light_buffer_size,
-																	 directional_light_buffer_size});
+		buffer_subdata.emplace_back(
+			vk::DescriptorType::eStorageBuffer,
+			vulkan::buffer_subdata<vulkan::mapped_buffer>::subdata {point_light_buffer_size + spot_light_buffer_size,
+																	directional_light_buffer_size});
 
-		buffer_subdata.emplace_back(vk::DescriptorType::eStorageBuffer,
-									vulkan::buffer_subdata::subdata {point_light_buffer_size + spot_light_buffer_size +
-																		 directional_light_buffer_size,
-																	 ambient_light_buffer_size});
+		buffer_subdata.emplace_back(
+			vk::DescriptorType::eStorageBuffer,
+			vulkan::buffer_subdata<vulkan::mapped_buffer>::subdata {point_light_buffer_size + spot_light_buffer_size +
+																		directional_light_buffer_size,
+																	ambient_light_buffer_size});
 
 		m_light_resource_buffer = {physical_device,
 								   logical_device,
