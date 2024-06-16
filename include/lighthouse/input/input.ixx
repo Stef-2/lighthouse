@@ -7,6 +7,7 @@ export module input;
 import data_type;
 import file_system;
 import file_type;
+import image_data;
 import lighthouse_string;
 import window;
 
@@ -132,7 +133,21 @@ namespace lh
 			static parameter_precision_t s_previous_y;
 		};
 
-		
+		auto read_text_file(const std::filesystem::path&) -> string::string_t;
+		auto read_binary_file(const std::filesystem::path&) -> lh::data_t;
+		auto read_image_file(const std::filesystem::path&) -> const image_data;
+
+		export template <file_type type = file_type::text>
+		auto read_file(const std::filesystem::path& file_path)
+		{
+			if constexpr (type == file_type::text) return read_text_file(file_path);
+
+			if constexpr (type == file_type::binary) return read_binary_file(file_path);
+
+			if constexpr (type == file_type::image) return read_image_file(file_path);
+		}
+
+		auto assert_path_validity(const std::filesystem::path&, const file_type&) -> bool;
 
 		export auto initialize(const window&) -> void;
 	};

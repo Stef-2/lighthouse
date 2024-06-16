@@ -10,7 +10,7 @@ module;
 	#include "glm/gtc/random.hpp"
 #endif
 
-module scene_reader;
+module scene_data;
 
 import vertex_format;
 import index_format;
@@ -56,7 +56,7 @@ namespace
 
 namespace lh
 {
-	scene_reader::scene_reader(const std::vector<std::filesystem::path>& file_paths, const create_info& create_info)
+	scene_data::scene_data(const std::vector<std::filesystem::path>& file_paths, const create_info& create_info)
 		: m_importer {}, m_vertex_data {}
 	{
 		m_importer.ApplyPostProcessing(create_info.m_importer_postprocess);
@@ -64,18 +64,18 @@ namespace lh
 		generate_mesh_data(file_paths, create_info);
 	}
 
-	auto scene_reader::vertex_data() const -> const vertex_data_t&
+	auto scene_data::vertex_data() const -> const vertex_data_t&
 	{
 		return m_vertex_data;
 	}
 
-	auto scene_reader::mesh_data() const -> const std::vector<struct mesh_data>&
+	auto scene_data::mesh_data() const -> const std::vector<struct mesh_data>&
 	{
 		return m_mesh_data;
 	}
 
-	auto scene_reader::generate_mesh_data(const std::vector<std::filesystem::path>& file_paths,
-										  const lh::scene_reader::create_info& create_info) -> void
+	auto scene_data::generate_mesh_data(const std::vector<std::filesystem::path>& file_paths,
+										const lh::scene_data::create_info& create_info) -> void
 	{
 		constexpr auto vertex_size = sizeof lh::vulkan::vertex;
 		constexpr auto index_size = sizeof lh::vulkan::vertex_index_t;

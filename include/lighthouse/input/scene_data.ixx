@@ -9,7 +9,7 @@ module;
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"
 
-export module scene_reader;
+export module scene_data;
 
 import data_type;
 import geometry;
@@ -18,7 +18,7 @@ import std;
 
 export namespace lh
 {
-	class scene_reader
+	class scene_data
 	{
 	public:
 		using vertex_data_t = data_t;
@@ -36,7 +36,7 @@ export namespace lh
 			geometry::transformation_t m_transformation;
 			geometry::aabb m_bounding_box;
 		};
-
+		
 		struct create_info
 		{
 			std::int32_t m_importer_postprocess = {
@@ -46,7 +46,7 @@ export namespace lh
 				aiProcess_GenBoundingBoxes};
 		};
 
-		scene_reader(const std::vector<std::filesystem::path>&, const create_info& = {});
+		scene_data(const std::vector<std::filesystem::path>&, const create_info& = {});
 
 		auto vertex_data() const -> const vertex_data_t&;
 		auto mesh_data() const -> const std::vector<struct mesh_data>&;

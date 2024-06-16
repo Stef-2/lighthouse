@@ -17,7 +17,7 @@ import logical_device;
 import buffer;
 import queue;
 import memory_allocator;
-import scene_reader;
+import scene_data;
 import geometry;
 import mesh;
 
@@ -44,7 +44,7 @@ export namespace lh
 		auto cone() const -> const lh::mesh&;
 
 	private:
-		scene_reader m_scene_reader;
+		scene_data m_scene_reader;
 
 
 		vulkan::buffer m_mesh_buffer;

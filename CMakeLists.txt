@@ -160,7 +160,7 @@ target_sources(
 	${include}/lighthouse/renderer/vulkan/descriptor_buffer.ixx				
 	${include}/lighthouse/renderer/vulkan/spir_v.ixx						
 	${include}/lighthouse/renderer/vulkan/shader_object.ixx					
-	${include}/lighthouse/renderer/scene_reader.ixx						
+	"include/lighthouse/input/scene_data.ixx"						
 	${include}/lighthouse/renderer/vulkan/pipeline.ixx
 	${include}/lighthouse/renderer/vulkan/shader_input.ixx					
 	${include}/lighthouse/renderer/mesh.ixx									
@@ -192,7 +192,7 @@ target_sources(
 	${include}/lighthouse/object_index.ixx
 	${include}/lighthouse/scene.ixx
 	${include}/lighthouse/registry.ixx
- "include/lighthouse/input/input_data.ixx")
+ "include/lighthouse/input/image_data.ixx")
 
 target_sources(
 	${PROJECT_NAME} PUBLIC
@@ -223,7 +223,7 @@ target_sources(
 	${source}/lighthouse/renderer/vulkan/descriptor_buffer.cpp
 	${source}/lighthouse/renderer/vulkan/spir_v.cpp
 	${source}/lighthouse/renderer/vulkan/shader_object.cpp
-	${source}/lighthouse/renderer/scene_reader.cpp
+	"source/lighthouse/input/scene_data.cpp"
 	${source}/lighthouse/renderer/vulkan/pipeline.cpp
 	${source}/lighthouse/renderer/vulkan/shader_input.cpp
 	${source}/lighthouse/renderer/mesh.cpp
@@ -251,7 +251,7 @@ target_sources(
 	${source}/lighthouse/geometry.cpp
 	${source}/lighthouse/memory_suballocator.cpp
 	${source}/lighthouse/scene.cpp
- "source/lighthouse/input/input_data.cpp")
+ "source/lighthouse/input/image_data.cpp")
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_RELEASE}")
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
