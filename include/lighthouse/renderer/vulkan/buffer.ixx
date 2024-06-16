@@ -3,11 +3,6 @@ module;
 #if INTELLISENSE
 #include "vulkan/vulkan_raii.hpp"
 #include "vulkan/vma/vk_mem_alloc.hpp"
-
-#include <vector>
-#include <cstddef>
-#include <cstring>
-#include <expected>
 #endif
 
 export module buffer;
@@ -15,15 +10,16 @@ export module buffer;
 import lighthouse_utility;
 import memory_mapped_span;
 import memory_suballocator;
+import data_type;
 import raii_wrapper;
 import logical_device;
 import memory_allocator;
 import output;
 import queue;
 
-#if not INTELLISENSE
+
 import std;
-#endif
+
 
 export namespace lh
 {
@@ -36,7 +32,7 @@ export namespace lh
 		public:
 			using raii_wrapper::raii_wrapper;
 
-			using used_memory_percentage_t = float;
+			using used_memory_percentage_t = float32_t;
 
 			struct create_info
 			{

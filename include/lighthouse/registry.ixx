@@ -5,57 +5,68 @@ export module registry;
 import std;
 import lighthouse_utility;
 
-namespace lh
+export namespace lh
 {
-	constexpr auto connection_to_registry = false;
+	constexpr auto initial_registry_capacity = 0;
 
-	template <typename T, bool R>
-	class registry_item;
+	// forward declaration
+	template <typename T>
+	class registry_entry;
 
-	template <typename T, bool R = connection_to_registry>
+	// to be inherited by a type that is to act as a registry for type T
+	// keeps track of objects of type T
+	template <typename T, std::size_t N = initial_registry_capacity>
 	class registry
 	{
 	public:
-		friend registry_item<T, R>;
+		using entries_t = std::vector<non_owning_ptr<T>>;
+		friend registry_entry<T>;
 
-		registry()
+		registry() : m_entries {}
 		{
-			if constexpr (R)
-				T::m_registry = this;
+			if constexpr (N > 0) m_entries.reserve(N);
+
+			registry_entry<T>::s_registry = this;
 		}
 
-	protected:
-		static std::vector<T*> m_entries;
+		registry(const registry&) = delete;
+		auto operator=(const registry&) -> registry& = delete;
+
+		auto entries() const -> const entries_t& { return m_entries; }
+
+	private:
+		entries_t m_entries {};
 	};
 
-	template <typename T, bool R = connection_to_registry>
-	class registry_item
+	// CRTP to be inherited by a type T whose objects are to be registered in registry<T>
+	// objects of type T inheriting this one may only be created after an object of registry<T> has been created
+	template <typename T>
+	class registry_entry
 	{
 	public:
-		friend registry<T, R>;
+		friend registry<T>;
 
 	protected:
-		registry_item() { registry<T>::m_entries.push_back(static_cast<T*>(this)); }
-		static registry<T, R>* m_registry;
+		registry_entry() { s_registry->m_entries.push_back(static_cast<non_owning_ptr<T>>(this)); }
+		~registry_entry() { std::erase(s_registry->m_entries, static_cast<non_owning_ptr<T>>(this)); }
+
+		registry_entry(const registry_entry& other) = delete;
+		auto operator=(const registry_entry& other) -> registry_entry& = delete;
+
+		registry_entry(registry_entry&& other)
+		{
+			const auto entry = std::ranges::find(s_registry->m_entries, static_cast<non_owning_ptr<T>>(this));
+			*entry = static_cast<non_owning_ptr<T>>(this);
+		}
+
+		auto operator=(registry_entry&& other) -> registry_entry&
+		{
+			const auto entry = std::ranges::find(s_registry->m_entries, static_cast<non_owning_ptr<T>>(this));
+			*entry = static_cast<non_owning_ptr<T>>(this);
+
+			return *this;
+		}
+
+		static inline non_owning_ptr<registry<T>> s_registry {nullptr};
 	};
-
-	template <typename T, bool R = connection_to_registry>
-	class full_registry : public registry_item<T, R>, public registry<T, R>
-	{};
-
-	class item : public full_registry<item>
-	{};
-
-	void func()
-	{
-		// registry_item r ();
-		registry<item> reg;
-
-		item i;
-	}
-}
-
-export namespace lh
-{
-
 }

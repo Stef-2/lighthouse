@@ -1,7 +1,5 @@
 module;
-/*
-#include "Windows.h"
-#include "vulkan/vulkan_win32.h"*/
+
 #include "vulkan/vulkan_core.h"
 
 #if INTELLISENSE

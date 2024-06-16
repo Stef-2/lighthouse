@@ -20,10 +20,11 @@ import memory_allocator;
 import scene_data;
 import geometry;
 import mesh;
+import registry;
 
 export namespace lh
 {
-	class mesh_registry
+	class mesh_registry : registry<mesh>
 	{
 	public:
 		struct create_info
@@ -44,10 +45,6 @@ export namespace lh
 		auto cone() const -> const lh::mesh&;
 
 	private:
-		scene_data m_scene_reader;
-
-
 		vulkan::buffer m_mesh_buffer;
-		std::vector<mesh> m_meshes;
 	};
 }
