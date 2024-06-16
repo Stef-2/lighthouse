@@ -96,12 +96,12 @@ namespace lh
 					const auto transformation = assimp_transform_to_native(mesh_node->mTransformation);
 
 					const auto mesh_byte_size = mesh.mNumVertices * vertex_size + mesh.mNumFaces * index_size * 3;
-					m_vertex_data.reserve(m_vertex_data.capacity() + mesh_byte_size);
+					m_vertex_data.resize(m_vertex_data.capacity() + mesh_byte_size);
 
 					const auto vertex_offset = byte_count;
 					const auto vertex_buffer_size = mesh.mNumVertices * vertex_size;
 					const auto index_offset = vertex_offset + vertex_buffer_size;
-					const auto index_buffer_size = index_offset + mesh.mNumFaces * index_size * 3;
+					const auto index_buffer_size = mesh.mNumFaces * index_size * 3;
 					const auto mesh_data = decltype(std::declval<struct mesh_data>()) {
 						vertex_offset,
 						vertex_buffer_size,
@@ -130,10 +130,9 @@ namespace lh
 						byte_count += vertex_size;
 					}
 
-					std::memcpy(&m_vertex_data[index_offset],
-								mesh.mFaces,
-								sizeof vulkan::vertex_index_t * mesh.mNumFaces * 3);
-					byte_count += index_size * mesh.mNumFaces * 3;
+					// iterate mesh indices
+					std::memcpy(&m_vertex_data[index_offset], mesh.mFaces, index_buffer_size);
+					byte_count += index_buffer_size;
 
 					m_mesh_data.emplace_back(mesh_data);
 				}

@@ -17,9 +17,7 @@ import memory_allocator;
 import output;
 import queue;
 
-
 import std;
-
 
 export namespace lh
 {
@@ -46,7 +44,7 @@ export namespace lh
 
 			buffer(const logical_device&, const memory_allocator&, const vk::DeviceSize, const create_info& = {});
 			buffer(buffer&&) noexcept;
-			buffer& operator=(buffer&&) noexcept ;
+			buffer& operator=(buffer&&) noexcept;
 			~buffer();
 
 			auto allocation_info() const -> const vma::AllocationInfo&;
@@ -67,12 +65,16 @@ export namespace lh
 							 const std::size_t& offset = 0,
 							 const std::size_t& size = sizeof(T))
 			{
-				const auto staging_buffer = mapped_buffer {*m_logical_device, *m_allocator, size};
+				const auto staging_buffer = mapped_buffer {*m_logical_device, *m_allocator, size/*, {.m_usage = vk::BufferUsageFlagBits::eTransferSrc}*/};
 				staging_buffer.map_data(data);
 
+				queue.command_control().reset();
 				const auto& command_buffer = queue.command_control().front();
+
 				command_buffer.begin(queue.command_control().usage_flags());
-				command_buffer.copyBuffer(*staging_buffer, *m_object, {0, offset, size});
+
+				const auto buffer_copy = vk::BufferCopy2 {0, offset, size};
+				command_buffer.copyBuffer2(vk::CopyBufferInfo2 {*staging_buffer, *m_object, {buffer_copy}});
 
 				command_buffer.end();
 
@@ -96,25 +98,26 @@ export namespace lh
 		{
 		public:
 			using buffer::buffer;
-
-			struct create_info
+			
+			static inline constexpr auto s_create_info = buffer::create_info
 			{
-				vk::BufferUsageFlags m_usage = {vk::BufferUsageFlagBits::eShaderDeviceAddress};
-				vk::MemoryPropertyFlags m_memory_properties = {vk::MemoryPropertyFlagBits::eHostVisible |
-														vk::MemoryPropertyFlagBits::eHostCoherent};
-				vma::AllocationCreateInfo m_allocation_create_info = {vma::AllocationCreateFlagBits::eMapped,
+				.m_usage = {vk::BufferUsageFlagBits::eShaderDeviceAddress},
+				.m_memory_properties = {vk::MemoryPropertyFlagBits::eHostVisible |
+														vk::MemoryPropertyFlagBits::eHostCoherent},
+				.m_allocation_create_info = {vma::AllocationCreateFlagBits::eMapped,
 																	  vma::MemoryUsage::eAuto,
-																	  m_memory_properties,
-																	  m_memory_properties};
+																  {vk::MemoryPropertyFlagBits::eHostVisible |
+																   vk::MemoryPropertyFlagBits::eHostCoherent},
+					{vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent}}
 			};
 
 			mapped_buffer(const logical_device&,
 						  const memory_allocator&,
 						  const vk::DeviceSize,
-						  const mapped_buffer::create_info& = {});
+						  const create_info& = s_create_info);
 			~mapped_buffer();
-			mapped_buffer(mapped_buffer&&) = default;
-			mapped_buffer& operator=(mapped_buffer&&) = default;
+			mapped_buffer(mapped_buffer&&) noexcept;
+			mapped_buffer& operator=(mapped_buffer&&) noexcept;
 
 			auto mapped_data_pointer() const -> void*;
 			auto map() -> void;
@@ -154,7 +157,7 @@ export namespace lh
 			suballocated_mapped_buffer(const logical_device& logical_device,
 									   const memory_allocator& memory_allocator,
 									   const vk::DeviceSize size,
-									   const mapped_buffer::create_info& create_info = {})
+									   const mapped_buffer::create_info& create_info = s_create_info)
 				: mapped_buffer {logical_device, memory_allocator, size, create_info},
 				  memory_suballocator {{this->m_mapped_data_pointer, size}}
 			{}

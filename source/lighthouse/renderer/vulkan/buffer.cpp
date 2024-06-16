@@ -110,13 +110,14 @@ namespace lh
 		mapped_buffer::mapped_buffer(const logical_device& logical_device,
 									 const memory_allocator& allocator,
 									 const vk::DeviceSize size,
-									 const mapped_buffer::create_info& create_info)
+									 const create_info& create_info)
 			: buffer(logical_device,
 					 allocator,
 					 size,
-					 buffer::create_info {.m_usage = create_info.m_usage,
+				create_info
+					 /*buffer::create_info {.m_usage = create_info.m_usage,
 										  .m_memory_properties = create_info.m_memory_properties,
-										  .m_allocation_create_info = create_info.m_allocation_create_info}),
+										  .m_allocation_create_info = create_info.m_allocation_create_info}*/),
 			  m_mapped_data_pointer {m_allocation_info.pMappedData}
 
 		{}
@@ -125,6 +126,10 @@ namespace lh
 		{
 			unmap();
 		}
+
+		mapped_buffer::mapped_buffer(mapped_buffer&& other) noexcept
+			: buffer(std::move(other.buffer)), m_mapped_data_pointer {std::exchange(other.m_mapped_data_pointer, {})}
+		{}
 
 		auto mapped_buffer::mapped_data_pointer() const -> void*
 		{

@@ -61,7 +61,7 @@ namespace lh
 							file_system::data_path() /= "models/sphere.obj",
 							file_system::data_path() /= "models/cylinder.obj",
 							file_system::data_path() /= "models/cone.obj"}},
-		  m_instance_buffer {m_logical_device, m_memory_allocator, 10000000 * sizeof glm::mat4x4},
+		  m_instance_buffer {m_logical_device, m_memory_allocator, 1000 * sizeof glm::mat4x4},
 		  m_test_pipeline {m_physical_device,
 						   m_logical_device,
 						   m_memory_allocator,

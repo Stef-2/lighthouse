@@ -35,7 +35,7 @@ export namespace lh
 			{
 				using binding_type_and_subdata_t = std::pair<vk::DescriptorType, buffer_subdata<mapped_buffer>::subdata>;
 
-				mapped_buffer::create_info m_buffer_create_info = {};
+				mapped_buffer::create_info m_buffer_create_info = mapped_buffer::s_create_info;
 				std::vector<binding_type_and_subdata_t> m_subdata = {};
 			};
 

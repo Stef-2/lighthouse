@@ -291,7 +291,15 @@ namespace lh
 								   memory_allocator,
 								   combined_buffer_size,
 								   {{.m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
-												vk::BufferUsageFlagBits::eStorageBuffer},
+												vk::BufferUsageFlagBits::eStorageBuffer,
+									 .m_memory_properties = {vk::MemoryPropertyFlagBits::eHostVisible |
+															 vk::MemoryPropertyFlagBits::eHostCoherent},
+									 .m_allocation_create_info = {vma::AllocationCreateFlagBits::eMapped,
+																  vma::MemoryUsage::eAuto,
+																  {vk::MemoryPropertyFlagBits::eHostVisible |
+																   vk::MemoryPropertyFlagBits::eHostCoherent},
+																  {vk::MemoryPropertyFlagBits::eHostVisible |
+																   vk::MemoryPropertyFlagBits::eHostCoherent}}},
 									buffer_subdata}};
 		const auto& buffer_address = m_light_resource_buffer.mapped_buffer().address();
 

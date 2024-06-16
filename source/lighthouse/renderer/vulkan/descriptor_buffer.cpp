@@ -1,7 +1,7 @@
 module;
 
 #if INTELLISENSE
-#include "vulkan/vulkan.hpp"
+	#include "vulkan/vulkan.hpp"
 #endif
 
 module descriptor_buffer;
@@ -44,7 +44,13 @@ namespace lh
 									   .m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
 												  vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT |
 												  vk::BufferUsageFlagBits::eSamplerDescriptorBufferEXT,
-									   .m_memory_properties = create_info.m_descriptor_buffer_memory_properties}},
+									   .m_memory_properties = create_info.m_descriptor_buffer_memory_properties,
+									   .m_allocation_create_info = {vma::AllocationCreateFlagBits::eMapped,
+																	vma::MemoryUsage::eAuto,
+																	{vk::MemoryPropertyFlagBits::eHostVisible |
+																	 vk::MemoryPropertyFlagBits::eHostCoherent},
+																	{vk::MemoryPropertyFlagBits::eHostVisible |
+																	 vk::MemoryPropertyFlagBits::eHostCoherent}}}},
 			  m_bindings {
 				  vk::DescriptorBufferBindingInfoEXT {m_descriptor_buffer.address() + m_uniform_buffer_offset,
 													  vk::BufferUsageFlagBits::eShaderDeviceAddress |

@@ -15,16 +15,18 @@ namespace lh
 	{}
 
 	mesh::mesh(mesh&& other) noexcept
-		: object_index<mesh> {std::move(other)},
-		  m_node {std::move(other.m_node)},
-		  m_bounding_box {std::move(other.m_bounding_box)}
+		: object_index<mesh> {std::exchange(other, {})},
+		  m_node {std::exchange(other.m_node, {})},
+		  m_vertex_and_index_subdata {std::exchange(other.m_vertex_and_index_subdata, {})},
+		  m_bounding_box {std::exchange(other.m_bounding_box, {})}
 
 	{}
 
 	mesh& mesh::operator=(mesh&& other) noexcept
 	{
-		m_node = std::move(other.m_node);
-		m_bounding_box = std::move(other.m_bounding_box);
+		m_node = std::exchange(other.m_node, {});
+		m_vertex_and_index_subdata = std::exchange(other.m_vertex_and_index_subdata, {});
+		m_bounding_box = std::exchange(other.m_bounding_box, {});
 
 		return *this;
 	}

@@ -100,11 +100,19 @@ namespace lh
 
 			auto extent = vk::Extent3D {image_data[0].m_width, image_data[0].m_height, 1};
 
-			const auto staging_buffer = mapped_buffer {logical_device,
-													   memory_allocator,
-													   buffer_size,
-													   mapped_buffer::create_info {
-														   .m_usage = vk::BufferUsageFlagBits::eTransferSrc}};
+			const auto staging_buffer = mapped_buffer {
+				logical_device,
+				memory_allocator,
+				buffer_size,
+				buffer::create_info {.m_usage = {vk::BufferUsageFlagBits::eTransferSrc},
+									 .m_memory_properties = {vk::MemoryPropertyFlagBits::eHostVisible |
+															 vk::MemoryPropertyFlagBits::eHostCoherent},
+									 .m_allocation_create_info = {vma::AllocationCreateFlagBits::eMapped,
+																  vma::MemoryUsage::eAuto,
+																  {vk::MemoryPropertyFlagBits::eHostVisible |
+																   vk::MemoryPropertyFlagBits::eHostCoherent},
+																  {vk::MemoryPropertyFlagBits::eHostVisible |
+																   vk::MemoryPropertyFlagBits::eHostCoherent}}}};
 
 			for (auto buffer_offset = vk::DeviceSize {}; const auto& image : image_data)
 			{
