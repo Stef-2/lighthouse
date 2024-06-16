@@ -116,11 +116,18 @@ namespace lh
 				buffer_offset += storage_buffer.m_size;
 			}
 
-			m_resource_descriptor_buffer = {physical_device,
-											logical_device,
-											memory_allocator,
-											buffer_offset,
-											{{.m_usage = resoruce_descriptor_buffer_usage}, resource_buffer_subdata}};
+			m_resource_descriptor_buffer = {
+				physical_device,
+				logical_device,
+				memory_allocator,
+				buffer_offset,
+				{{.m_usage = resoruce_descriptor_buffer_usage,
+				  .m_allocation_create_info =
+					  {vma::AllocationCreateFlagBits::eMapped,
+					   vma::MemoryUsage::eAuto,
+					   {vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent},
+					   {vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent}}},
+				 resource_buffer_subdata}};
 
 			m_descriptor_buffer.register_resource_buffer(m_resource_descriptor_buffer);
 		}

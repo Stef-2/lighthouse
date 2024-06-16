@@ -35,7 +35,15 @@ export namespace lh
 			{
 				using binding_type_and_subdata_t = std::pair<vk::DescriptorType, buffer_subdata<mapped_buffer>::subdata>;
 
-				mapped_buffer::create_info m_buffer_create_info = mapped_buffer::s_create_info;
+				buffer::create_info m_buffer_create_info = {
+					.m_usage = {vk::BufferUsageFlagBits::eShaderDeviceAddress},
+					.m_memory_properties = {vk::MemoryPropertyFlagBits::eHostVisible |
+											vk::MemoryPropertyFlagBits::eHostCoherent},
+					.m_allocation_create_info = {
+						vma::AllocationCreateFlagBits::eMapped,
+						vma::MemoryUsage::eAuto,
+						{vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent},
+						{vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent}}};
 				std::vector<binding_type_and_subdata_t> m_subdata = {};
 			};
 

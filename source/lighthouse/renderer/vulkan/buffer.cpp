@@ -114,10 +114,7 @@ namespace lh
 			: buffer(logical_device,
 					 allocator,
 					 size,
-				create_info
-					 /*buffer::create_info {.m_usage = create_info.m_usage,
-										  .m_memory_properties = create_info.m_memory_properties,
-										  .m_allocation_create_info = create_info.m_allocation_create_info}*/),
+				create_info,
 			  m_mapped_data_pointer {m_allocation_info.pMappedData}
 
 		{}
@@ -128,8 +125,16 @@ namespace lh
 		}
 
 		mapped_buffer::mapped_buffer(mapped_buffer&& other) noexcept
-			: buffer(std::move(other.buffer)), m_mapped_data_pointer {std::exchange(other.m_mapped_data_pointer, {})}
+			: buffer {std::move(other)}, m_mapped_data_pointer {std::exchange(other.m_mapped_data_pointer, {})}
 		{}
+
+		mapped_buffer& mapped_buffer::operator=(mapped_buffer&& other) noexcept
+		{
+			buffer::operator=(std::move(other));
+			m_mapped_data_pointer = {std::exchange(other.m_mapped_data_pointer, {})};
+
+			return *this;
+		}
 
 		auto mapped_buffer::mapped_data_pointer() const -> void*
 		{
@@ -143,7 +148,7 @@ namespace lh
 
 		auto mapped_buffer::unmap() -> void
 		{
-			if (m_allocation_info.pMappedData)
+			if (m_allocation_info.pMappedData and m_mapped_data_pointer)
 			{
 				m_mapped_data_pointer = nullptr;
 				(*m_allocator)->unmapMemory(m_allocation);

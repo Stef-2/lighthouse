@@ -1,8 +1,8 @@
 module;
 
 #if INTELLISENSE
-#include "vulkan_raii.hpp"
-#include "glm/vec4.hpp"
+	#include "vulkan_raii.hpp"
+	#include "glm/vec4.hpp"
 #endif
 
 module descriptor_resource_buffer;
@@ -90,7 +90,7 @@ namespace lh
 
 		descriptor_resource_buffer& descriptor_resource_buffer::operator=(descriptor_resource_buffer&& other) noexcept
 		{
-			m_data_buffer = std::exchange(other.m_data_buffer, {});
+			m_data_buffer = std::move(other.m_data_buffer); // std::exchange(other.m_data_buffer, {});
 
 			m_uniform_buffer_subdata = std::exchange(other.m_uniform_buffer_subdata, {});
 			m_storage_buffer_subdata = std::exchange(other.m_storage_buffer_subdata, {});
