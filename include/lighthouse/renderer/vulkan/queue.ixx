@@ -2,9 +2,6 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan_raii.hpp"
-
-#include <cstdint>
-#include <vector>
 #endif
 
 export module queue;
@@ -18,6 +15,8 @@ import swapchain;
 #if not INTELLISENSE
 import vulkan_hpp;
 #endif
+
+import std;
 
 export namespace lh
 {

@@ -35,7 +35,8 @@ namespace lh
 		}
 
 		buffer::buffer(buffer&& other) noexcept
-			: m_logical_device {std::exchange(other.m_logical_device, nullptr)},
+			: raii_wrapper {std::move(other)},
+			  m_logical_device {std::exchange(other.m_logical_device, nullptr)},
 			  m_allocator {std::exchange(other.m_allocator, nullptr)},
 			  m_allocation_info {std::exchange(other.m_allocation_info, {})},
 			  m_allocation {std::exchange(other.m_allocation, {})},
@@ -46,6 +47,7 @@ namespace lh
 
 		buffer& buffer::operator=(buffer&& other) noexcept
 		{
+			raii_wrapper::operator=(std::move(other));
 			m_logical_device = std::exchange(other.m_logical_device, nullptr);
 			m_allocator = std::exchange(other.m_allocator, nullptr);
 			m_allocation_info = std::exchange(other.m_allocation_info, {});
@@ -59,7 +61,11 @@ namespace lh
 
 		buffer::~buffer()
 		{
-			if (*m_object and m_allocation) (*m_allocator)->freeMemory(m_allocation);
+			if (*m_object and m_allocation)
+			{
+				(*m_allocator)->freeMemory(m_allocation);
+				m_alive = false;
+			}
 		}
 
 		auto buffer::allocation() const -> const vma::Allocation&

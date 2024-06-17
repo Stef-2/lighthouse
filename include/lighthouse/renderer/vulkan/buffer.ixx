@@ -103,6 +103,7 @@ export namespace lh
 			vk::DeviceSize m_used_memory;
 
 			create_info m_create_info;
+			bool m_alive = true;
 		};
 
 		class mapped_buffer : public buffer
