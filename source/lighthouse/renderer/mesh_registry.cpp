@@ -16,7 +16,7 @@ namespace lh
 								 const vulkan::memory_allocator& memory_allocator,
 								 vulkan::queue& queue,
 								 const create_info& create_info)
-		: m_default_meshes {}, m_test_buffer {}, m_mesh_buffers {}
+		: m_default_meshes {}, m_mesh_buffers {}
 	{
 		const auto paths = std::vector<std::filesystem::path> {create_info.m_plane_mesh,
 															   create_info.m_cube_mesh,
@@ -29,23 +29,6 @@ namespace lh
 		if (mesh_data.mesh_data().size() != std::to_underlying(default_meshes::default_mesh_count))
 			output::warning() << "could not import all default meshes";
 
-		// test
-		m_test_buffer = {logical_device,
-						 memory_allocator,
-						 mesh_data.vertex_data().size(),
-						 vulkan::buffer::create_info {
-							 .m_usage = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eIndexBuffer,
-							 .m_memory_properties = {vk::MemoryPropertyFlagBits::eHostVisible |
-													 vk::MemoryPropertyFlagBits::eHostCoherent},
-							 .m_allocation_create_info = {vma::AllocationCreateFlagBits::eMapped,
-														  vma::MemoryUsage::eAuto,
-														  {vk::MemoryPropertyFlagBits::eHostVisible |
-														   vk::MemoryPropertyFlagBits::eHostCoherent},
-														  {vk::MemoryPropertyFlagBits::eHostVisible |
-														   vk::MemoryPropertyFlagBits::eHostCoherent}}}};
-
-		m_test_buffer.map_data(*mesh_data.vertex_data().data(), 0, mesh_data.vertex_data().size());
-		vulkan::vertex* test = (vulkan::vertex*)m_test_buffer.mapped_data_pointer();
 		m_mesh_buffers.emplace_back(logical_device,
 									memory_allocator,
 									mesh_data.vertex_data().size(),
@@ -62,11 +45,8 @@ namespace lh
 			const auto buffer_subdata = vulkan::buffer_subdata<vulkan::buffer> {
 				&m_mesh_buffers.back(),
 				{{data.m_vertex_offset, data.m_vertex_buffer_size}, {data.m_index_offset, data.m_index_buffer_size}}};
-			const auto buffer_subdata2 = vulkan::buffer_subdata<vulkan::mapped_buffer> {
-				&m_test_buffer,
-				{{data.m_vertex_offset, data.m_vertex_buffer_size}, {data.m_index_offset, data.m_index_buffer_size}}};
 
-			m_default_meshes[i] = {buffer_subdata2, data.m_bounding_box};
+			m_default_meshes[i] = {buffer_subdata, data.m_bounding_box};
 		}
 	}
 

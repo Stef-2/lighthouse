@@ -26,7 +26,7 @@ export namespace lh
 	class mesh : public object_index<mesh>, public registry_entry<mesh>
 	{
 	public:
-		using buffer_type_t = vulkan::mapped_buffer;
+		using buffer_type_t = vulkan::buffer;
 
 		struct create_info
 		{};
@@ -51,7 +51,7 @@ export namespace lh
 
 	private:
 		std::shared_ptr<lh::node> m_node;
-		vulkan::buffer_subdata<vulkan::mapped_buffer> m_vertex_and_index_subdata;
+		vulkan::buffer_subdata<buffer_type_t> m_vertex_and_index_subdata;
 		geometry::aabb m_bounding_box;
 		std::size_t m_vertex_count;
 		std::size_t m_index_count;

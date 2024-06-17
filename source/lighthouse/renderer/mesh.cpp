@@ -66,14 +66,11 @@ namespace lh
 
 	auto mesh::index_count() const -> const std::size_t
 	{
-		// std::cout << m_vertex_and_index_subdata[1].m_size / sizeof std::uint32_t;
 		return m_index_count;
 	}
 
 	auto mesh::bind(const vk::raii::CommandBuffer& command_buffer) const -> void
 	{
-		std::cout << "vertex count: " << vertex_count() << " index count: " << index_count() << '\n';
-
 		command_buffer.bindVertexBuffers(0,
 										 {**m_vertex_and_index_subdata.m_buffer},
 										 {m_vertex_and_index_subdata.m_subdata[0].m_offset});

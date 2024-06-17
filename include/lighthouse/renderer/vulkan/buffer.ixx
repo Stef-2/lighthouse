@@ -77,16 +77,14 @@ export namespace lh
 						 vma::MemoryUsage::eAuto,
 						 {vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent},
 						 {vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent}}}};
-				staging_buffer.map_data(data);
+				staging_buffer.map_data(data, 0, size);
 
 				queue.command_control().reset();
 				const auto& command_buffer = queue.command_control().front();
 
 				command_buffer.begin(queue.command_control().usage_flags());
-
 				const auto buffer_copy = vk::BufferCopy2 {0, offset, size};
 				command_buffer.copyBuffer2(vk::CopyBufferInfo2 {*staging_buffer, *m_object, {buffer_copy}});
-
 				command_buffer.end();
 
 				queue.submit_and_wait();

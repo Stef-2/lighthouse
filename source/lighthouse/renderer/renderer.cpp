@@ -249,7 +249,7 @@ namespace lh
 
 		// draw sphere
 
-		m_mesh_registry.plane().bind(command_buffer);
+		m_mesh_registry.sphere().bind(command_buffer);
 		m_test_pipeline.bind(command_buffer);
 		m_test_pipeline.resource_buffer().map_uniform_data(0, scene);
 		m_test_pipeline.resource_buffer().map_uniform_data(1, mi);
@@ -257,7 +257,7 @@ namespace lh
 		m_test_pipeline.resource_buffer().map_storage_data(1, m_global_light_manager.light_device_addresses());
 
 		push_constants();
-		command_buffer.drawIndexed(m_mesh_registry.plane().index_count(), 3, 0, 0, 0);
+		command_buffer.drawIndexed(m_mesh_registry.sphere().index_count(), 3, 0, 0, 0);
 
 		/*
 		const auto barrier = vk::MemoryBarrier2 {{vk::PipelineStageFlagBits2::eAllCommands},
