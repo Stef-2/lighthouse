@@ -50,5 +50,6 @@ export namespace lh
 		std::shared_ptr<lh::node> m_node;
 		vulkan::buffer_subdata<vulkan::buffer> m_vertex_and_index_subdata;
 		geometry::aabb m_bounding_box;
+		std::size_t m_index_count;
 	};
 }

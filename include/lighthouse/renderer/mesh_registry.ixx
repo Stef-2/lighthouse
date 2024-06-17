@@ -56,6 +56,7 @@ export namespace lh
 
 	private:
 		std::array<mesh, std::to_underlying(default_meshes::default_mesh_count)> m_default_meshes;
+		vulkan::mapped_buffer m_test_buffer;
 		std::vector<vulkan::buffer> m_mesh_buffers;
 	};
 }

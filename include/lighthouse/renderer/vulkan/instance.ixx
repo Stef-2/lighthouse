@@ -33,8 +33,9 @@ export namespace lh
 			{
 				lh::version m_engine_version;
 				lh::version m_vulkan_version;
-				logical_extensions::create_info m_extensions = {
-					{VK_EXT_DEBUG_UTILS_EXTENSION_NAME, VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME}
+				logical_extensions::create_info m_extensions = {{VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
+																 VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME,
+																 VK_EXT_SURFACE_MAINTENANCE_1_EXTENSION_NAME}
 
 				};
 				validation_layers::create_info m_validation_layers = {{"VK_LAYER_KHRONOS_validation",

@@ -126,14 +126,21 @@ namespace lh
 																glm::vec3 {bitangent.x, bitangent.y, bitangent.z},
 																glm::vec2 {tex_coords.x, tex_coords.y}};
 
-						std::memcpy(&m_vertex_data[vertex_offset + v], &vertex, vertex_size);
+						std::memcpy(&m_vertex_data[byte_count], &vertex, vertex_size);
+						const auto test = reinterpret_cast<lh::vulkan::vertex*>(m_vertex_data.data());
 						byte_count += vertex_size;
 					}
 
 					// iterate mesh indices
-					std::memcpy(&m_vertex_data[index_offset], mesh.mFaces, index_buffer_size);
-					byte_count += index_buffer_size;
+					for (auto f = std::size_t {}; f < mesh.mNumFaces; f++)
+					{
+						const auto& face = mesh.mFaces[f];
 
+						std::memcpy(&m_vertex_data[byte_count], face.mIndices, index_size * 3);
+						byte_count += index_size * 3;
+					}
+
+					// std::cout << "num indices: " << mesh.mNumFaces * 3;
 					m_mesh_data.emplace_back(mesh_data);
 				}
 		}

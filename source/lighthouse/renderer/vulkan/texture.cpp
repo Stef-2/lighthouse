@@ -132,6 +132,7 @@ namespace lh
 			image_create_info.m_image_create_info.extent = extent;
 			m_image = vulkan::image {logical_device, memory_allocator, image_create_info};
 
+			queue.command_control().reset();
 			const auto& command_buffer = queue.command_control().front();
 			command_buffer.begin(queue.command_control().usage_flags());
 			m_image.transition_layout(command_buffer);

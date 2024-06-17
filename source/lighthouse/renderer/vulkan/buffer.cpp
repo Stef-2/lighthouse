@@ -111,10 +111,7 @@ namespace lh
 									 const memory_allocator& allocator,
 									 const vk::DeviceSize size,
 									 const create_info& create_info)
-			: buffer(logical_device,
-					 allocator,
-					 size,
-				create_info,
+			: buffer(logical_device, allocator, size, create_info),
 			  m_mapped_data_pointer {m_allocation_info.pMappedData}
 
 		{}

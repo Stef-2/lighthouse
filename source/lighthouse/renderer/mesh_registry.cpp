@@ -15,7 +15,7 @@ namespace lh
 								 const vulkan::memory_allocator& memory_allocator,
 								 vulkan::queue& queue,
 								 const create_info& create_info)
-		: m_default_meshes {}, m_mesh_buffers {}
+		: m_default_meshes {}, m_test_buffer {}, m_mesh_buffers {}
 	{
 		const auto paths = std::vector<std::filesystem::path> {create_info.m_plane_mesh,
 															   create_info.m_cube_mesh,
@@ -27,6 +27,22 @@ namespace lh
 
 		if (mesh_data.mesh_data().size() != std::to_underlying(default_meshes::default_mesh_count))
 			output::warning() << "could not import all default meshes";
+
+		// test
+		m_test_buffer = {logical_device,
+						 memory_allocator,
+						 mesh_data.vertex_data().size(),
+						 buffer::create_info {
+							 .m_usage = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eIndexBuffer,
+							 .m_memory_properties = {vk::MemoryPropertyFlagBits::eHostVisible |
+													 vk::MemoryPropertyFlagBits::eHostCoherent},
+							 .m_allocation_create_info = {vma::AllocationCreateFlagBits::eMapped,
+														  vma::MemoryUsage::eAuto,
+														  {vk::MemoryPropertyFlagBits::eHostVisible |
+														   vk::MemoryPropertyFlagBits::eHostCoherent},
+														  {vk::MemoryPropertyFlagBits::eHostVisible |
+														   vk::MemoryPropertyFlagBits::eHostCoherent}}}};
+		m_test_buffer.map_data();
 
 		m_mesh_buffers.emplace_back(logical_device,
 									memory_allocator,
@@ -50,7 +66,7 @@ namespace lh
 
 	auto mesh_registry::plane() const -> const lh::mesh&
 	{
-		return *m_entries[0];
+		return m_default_meshes[0];
 	}
 
 	auto mesh_registry::cube() const -> const lh::mesh&

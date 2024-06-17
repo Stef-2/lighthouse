@@ -65,7 +65,18 @@ export namespace lh
 							 const std::size_t& offset = 0,
 							 const std::size_t& size = sizeof(T))
 			{
-				const auto staging_buffer = mapped_buffer {*m_logical_device, *m_allocator, size/*, {.m_usage = vk::BufferUsageFlagBits::eTransferSrc}*/};
+				const auto staging_buffer = mapped_buffer {
+					*m_logical_device,
+					*m_allocator,
+					size,
+					{.m_usage = vk::BufferUsageFlagBits::eTransferSrc,
+					 .m_memory_properties = {vk::MemoryPropertyFlagBits::eHostVisible |
+											 vk::MemoryPropertyFlagBits::eHostCoherent},
+					 .m_allocation_create_info = {
+						 vma::AllocationCreateFlagBits::eMapped,
+						 vma::MemoryUsage::eAuto,
+						 {vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent},
+						 {vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent}}}};
 				staging_buffer.map_data(data);
 
 				queue.command_control().reset();
