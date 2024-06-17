@@ -74,12 +74,12 @@ namespace lh
 		
 		export template <typename T>
 		auto write_file(const std::filesystem::path& path,
-						const std::span<T>& data,
+						const std::span<const T>& data,
 						const std::iostream::openmode& open_mode = std::iostream::out | std::iostream::trunc) -> void
 		{
 			auto file_stream = std::ofstream {path, open_mode};
 
-			file_stream.write(reinterpret_cast<char*>(data.data()), data.size());
+			file_stream.write(reinterpret_cast<const char*>(data.data()), data.size());
 			file_stream.close();
 		}
 		

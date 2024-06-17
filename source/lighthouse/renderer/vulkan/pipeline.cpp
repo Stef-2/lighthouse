@@ -39,6 +39,8 @@ namespace
 
 		return unique_pipeline_inputs;
 	}
+
+	auto shader_code_type(const lh::vulkan::shader_pipeline::pipeline_code_t& shader_paths) {}
 }
 
 namespace lh
@@ -48,7 +50,7 @@ namespace lh
 		pipeline::pipeline(const physical_device& physical_device,
 						   const logical_device& logical_device,
 						   const memory_allocator& memory_allocator,
-						   const shader_pipeline::pipeline_glsl_code_t& shader_paths,
+						   const shader_pipeline::pipeline_code_t& shader_paths,
 						   const global_descriptor& global_descriptor,
 						   const descriptor_buffer& descriptor_buffer,
 						   const create_info& create_info)
@@ -81,10 +83,6 @@ namespace lh
 			const auto unique_pipeline_inputs = generate_unique_pipeline_inputs(pipeline_shader_inputs);
 
 			// generate the pipeline
-			/*auto pipeline_data = std::vector<shader_pipeline::individual_stage_data_t> {};
-			for (const auto& stage_spir_v : spir_v)
-				pipeline_data.emplace_back(stage_spir_v);*/
-
 			m_shader_pipeline = {logical_device, spir_v, global_descriptor};
 
 			// generate uniform and storage buffer data to form a resource buffer

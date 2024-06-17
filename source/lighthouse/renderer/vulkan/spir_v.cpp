@@ -200,6 +200,7 @@ namespace lh
 {
 	namespace vulkan
 	{
+#pragma optimize("", on)
 		spir_v::spir_v(const glsl_code_t& glsl_code, const create_info& create_info)
 			: m_code {glsl_to_spirv::translate_shader(glsl_code)},
 			  m_entrypoint {reflect_shader_entrypoint_and_stage().first},

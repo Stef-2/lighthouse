@@ -44,11 +44,10 @@ namespace lh
 
 		auto shader_object::cache_binary_data(const std::filesystem::path& path) const -> void
 		{
-
-			auto binary_data = m_object.getBinaryData();
+			const auto binary_data = m_object.getBinaryData();
 
 			lh::output::write_file(path,
-								   std::span<uint8_t> {binary_data.begin(), binary_data.end()},
+								   std::span<const uint8_t> {binary_data.cbegin(), binary_data.cend()},
 								   std::iostream::out | std::iostream::binary | std::iostream::trunc);
 		}
 
@@ -98,10 +97,10 @@ namespace lh
 
 			for (auto i = std::size_t {}; i < m_object.size(); i++)
 			{
-				auto binary_data = m_object[i].getBinaryData();
+				const auto binary_data = m_object[i].getBinaryData();
 
 				lh::output::write_file(paths[i],
-									   std::span<uint8_t> {binary_data.begin(), binary_data.end()},
+									   std::span<const uint8_t> {binary_data.cbegin(), binary_data.cend()},
 									   std::iostream::out | std::iostream::binary | std::iostream::trunc);
 			}
 		}

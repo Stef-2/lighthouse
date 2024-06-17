@@ -45,7 +45,7 @@ export namespace lh
 			pipeline(const physical_device&,
 					 const logical_device&,
 					 const memory_allocator&,
-					 const shader_pipeline::pipeline_glsl_code_t&,
+					 const shader_pipeline::pipeline_code_t&,
 					 const global_descriptor&,
 					 const descriptor_buffer&,
 					 const create_info& = {});

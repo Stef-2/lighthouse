@@ -48,8 +48,7 @@ export namespace lh
 		{
 		public:
 			using raii_wrapper::raii_wrapper;
-			using pipeline_glsl_code_t = std::vector<std::filesystem::path>;
-			//using individual_stage_data_t = std::pair<const spir_v&;
+			using pipeline_code_t = std::vector<std::filesystem::path>;
 
 			shader_pipeline(const logical_device&,
 							const std::vector<spir_v>&,

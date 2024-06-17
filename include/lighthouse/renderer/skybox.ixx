@@ -41,7 +41,7 @@ export namespace lh
 			   const vulkan::global_descriptor&,
 			   const vulkan::descriptor_buffer&,
 			   const mesh_registry&,
-			   const vulkan::shader_pipeline::pipeline_glsl_code_t&,
+			   const vulkan::shader_pipeline::pipeline_code_t&,
 			   const skybox_texture_paths_t&,
 			   vulkan::queue&,
 			   const create_info& = {});

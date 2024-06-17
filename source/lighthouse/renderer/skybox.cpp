@@ -10,7 +10,7 @@ namespace lh
 				   const vulkan::global_descriptor& global_descriptor,
 				   const vulkan::descriptor_buffer& descriptor_buffer,
 				   const mesh_registry& mesh_registry,
-				   const vulkan::shader_pipeline::pipeline_glsl_code_t& pipeline_code,
+				   const vulkan::shader_pipeline::pipeline_code_t& pipeline_code,
 				   const skybox_texture_paths_t& texture_paths,
 				   vulkan::queue& queue,
 				   const create_info& create_info)

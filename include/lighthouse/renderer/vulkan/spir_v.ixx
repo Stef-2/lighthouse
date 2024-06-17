@@ -2,8 +2,6 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan.hpp"
-
-#include <utility>
 #endif
 
 export module spir_v;
@@ -15,9 +13,9 @@ import vertex_input_description;
 
 #if not INTELLISENSE
 import vulkan_hpp;
-import std.core;
-import std.filesystem;
 #endif
+
+import std;
 
 export namespace lh
 {
@@ -26,7 +24,7 @@ export namespace lh
 		class spir_v
 		{
 		public:
-			using spir_v_bytecode_t = std::vector<uint32_t>;
+			using spir_v_bytecode_t = std::vector<std::uint32_t>;
 			using glsl_code_t = string::string_t;
 
 			struct create_info
