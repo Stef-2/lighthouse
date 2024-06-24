@@ -115,7 +115,7 @@ namespace lh
 		glm::mat4x4 spheres[3] = {sphere1, sphere2, sphere3};
 
 		auto smb = m_instance_buffer.request_and_commit_span<glm::mat4x4>(3);
-		std::cout << "instance buffer address: " << m_instance_buffer.address() << '\n';
+		// std::cout << "instance buffer address: " << m_instance_buffer.memory_mapped_span::address() << '\n';
 
 		smb.emplace_back(sphere1);
 		smb.emplace_back(sphere2);

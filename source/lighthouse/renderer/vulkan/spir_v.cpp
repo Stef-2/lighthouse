@@ -7,7 +7,6 @@ module;
 #endif
 
 #include "vulkan/shaderc/shaderc.hpp"
-
 #include "vulkan/spirv_cross/spirv_reflect.hpp"
 
 module spir_v;

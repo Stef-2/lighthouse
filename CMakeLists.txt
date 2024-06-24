@@ -192,7 +192,7 @@ target_sources(
 	${include}/lighthouse/object_index.ixx
 	${include}/lighthouse/scene.ixx
 	${include}/lighthouse/registry.ixx
- "include/lighthouse/input/image_data.ixx")
+ "include/lighthouse/input/image_data.ixx" "include/lighthouse/renderer/image_registry.ixx")
 
 target_sources(
 	${PROJECT_NAME} PUBLIC

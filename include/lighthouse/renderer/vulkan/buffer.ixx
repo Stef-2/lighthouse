@@ -169,8 +169,10 @@ export namespace lh
 									   const vk::DeviceSize size,
 									   const mapped_buffer::create_info& create_info = s_create_info)
 				: mapped_buffer {logical_device, memory_allocator, size, create_info},
-				  memory_suballocator {{this->m_mapped_data_pointer, size}}
+				  memory_suballocator {this->m_mapped_data_pointer, {0, size}}
 			{}
+
+			using memory_suballocator::address;
 
 			template <typename T>
 			[[nodiscard]] auto request_and_commit_span(std::size_t element_count) -> memory_mapped_span<T>
@@ -179,7 +181,7 @@ export namespace lh
 
 				if (not memory_ptr)
 					output::error() << lh::string::string_t {"could not allocate: " + element_count * sizeof T}.append(
-						" bytes from buffer at address: " + address());
+						" bytes from buffer at address: " + memory_suballocator::address());
 
 
 				return memory_mapped_span<T> {static_cast<T*>(memory_ptr.value()), element_count};
@@ -194,7 +196,8 @@ export namespace lh
 			template <typename T>
 			auto span_device_address(const memory_mapped_span<T>& span) -> const vk::DeviceAddress
 			{
-				return address() + reinterpret_cast<std::uintptr_t>(m_mapped_data_pointer) - reinterpret_cast<std::uintptr_t>(span.data());
+				return memory_suballocator::address() + reinterpret_cast<std::uintptr_t>(m_mapped_data_pointer) -
+					   reinterpret_cast<std::uintptr_t>(span.data());
 			}
 
 		private:
