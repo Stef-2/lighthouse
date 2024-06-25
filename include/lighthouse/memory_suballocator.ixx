@@ -49,6 +49,5 @@ export namespace lh
 
 		// vector of free memory blocks, sorted by size in descending order
 		std::vector<memory_block> m_free_memory_blocks;
-		uint32_t m_merged_suballocation = 0;
 	};
 }

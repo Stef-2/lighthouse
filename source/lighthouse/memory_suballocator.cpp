@@ -46,8 +46,6 @@ namespace lh
 		// calculate the actual offset from the one provided by the pointer
 		const auto offset = memory_block.m_offset - reinterpret_cast<std::size_t>(m_ptr);
 
-		// if (offset == 40 and memory_block.m_size == 16) { __debugbreak(); }
-
 		// attempt to find a free adjecent memory block and merge with it
 		// prefer to merge with larger blocks, so iterate in forward direction
 		for (auto& free_memory : m_free_memory_blocks)
@@ -62,15 +60,13 @@ namespace lh
 			if (space_for_rhs_merge and alignment_for_rhs_merge)
 			{
 				free_memory.m_size += memory_block.m_size;
-				m_merged_suballocation++;
 			} else if (space_for_lhs_merge and alignment_for_lhs_merge)
 			{
 				free_memory.m_offset -= memory_block.m_size;
 				free_memory.m_size += memory_block.m_size;
-				m_merged_suballocation++;
 			}
 
-			if (free_memory.m_size == 0) __debugbreak();
+			// if (free_memory.m_size == 0) __debugbreak();
 
 			if ((space_for_rhs_merge and alignment_for_rhs_merge) or (space_for_lhs_merge and alignment_for_lhs_merge))
 			{
@@ -112,7 +108,10 @@ namespace lh
 
 	auto memory_suballocator::free_memory_ratio() const -> const float01_t
 	{
-		return static_cast<float01_t>(free_memory()) / static_cast<float01_t>(used_memory());
+		const auto free_memory = static_cast<float01_t>(this->free_memory());
+		const auto total_memory = static_cast<float01_t>(m_initial_memory_block.m_size);
+
+		return free_memory / total_memory;
 	}
 
 	auto memory_suballocator::erase_empty_free_memory_blocks() -> void
