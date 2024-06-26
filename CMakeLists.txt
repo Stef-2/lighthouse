@@ -185,14 +185,14 @@ target_sources(
 	${include}/lighthouse/math.ixx
 	${include}/lighthouse/lhd/lhd_format.ixx
 	${include}/lighthouse/collision.ixx
-	${include}/lighthouse/memory_mapped_span.ixx
+	"include/lighthouse/memory/mapped_span.ixx"
 	${include}/lighthouse/renderer/vulkan/push_constant.ixx
 	${include}/lighthouse/renderer/descriptor_layout.ixx
-	${include}/lighthouse/memory_suballocator.ixx
+	"include/lighthouse/memory/suballocator.ixx"
 	${include}/lighthouse/object_index.ixx
 	${include}/lighthouse/scene.ixx
 	${include}/lighthouse/registry.ixx
- "include/lighthouse/input/image_data.ixx" "include/lighthouse/renderer/image_registry.ixx")
+ "include/lighthouse/input/image_data.ixx" "include/lighthouse/renderer/image_registry.ixx" "include/lighthouse/memory/pool.ixx")
 
 target_sources(
 	${PROJECT_NAME} PUBLIC

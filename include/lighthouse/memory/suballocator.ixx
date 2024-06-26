@@ -37,6 +37,10 @@ export namespace lh
 							const memory_block& initial_memory,
 							const initial_free_block_count_t initial_block_count = 10);
 
+		memory_suballocator(const memory_suballocator&) = delete;
+		auto operator=(const memory_suballocator&) -> memory_suballocator& = delete;
+		//memory_suballocator(const memory_suballocator&&) = delete;
+
 		[[nodiscard]] auto request_and_commit_suballocation(const std::size_t)
 			-> const std::expected<void*, std::nullptr_t>;
 		auto free_suballocation(const memory_block&) -> void;
