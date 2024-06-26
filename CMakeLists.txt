@@ -249,7 +249,7 @@ target_sources(
 	${source}/lighthouse/renderer/user_interface.cpp
 	${source}/lighthouse/physical_property.cpp
 	${source}/lighthouse/geometry.cpp
-	${source}/lighthouse/memory_suballocator.cpp
+	
 	${source}/lighthouse/scene.cpp
  "source/lighthouse/input/image_data.cpp")
 

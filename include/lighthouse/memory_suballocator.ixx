@@ -3,6 +3,7 @@ module;
 export module memory_suballocator;
 
 import data_type;
+import lighthouse_utility;
 
 import std;
 
@@ -19,7 +20,7 @@ export namespace lh
 	// manages memory block suballocations over a preallocated memory range
 	// keeps track of used and free memory blocks
 	// owns no memory itself
-	export template <allocation_strategy A = allocation_strategy::default_strategy>
+	template <allocation_strategy A = allocation_strategy::default_strategy>
 	class memory_suballocator
 	{
 	public:
@@ -30,38 +31,17 @@ export namespace lh
 		{
 			std::size_t m_offset;
 			std::size_t m_size;
-			/*
-			auto comparison(const memory_block& other) const -> bool
-			{
-				if constexpr (std::is_same_v<B, allocation_strategy::first_fit>)
-					return m_offset < other.m_offset;
-
-				if constexpr (std::is_same_v<B, allocation_strategy::best_fit>)
-				{
-					if (m_offset < other.m_offset) return true;
-					if (other.m_offset < m_offset) return false;
-					if (m_size < other.m_size) return true;
-					if (other.m_size < m_size) return false;
-				}
-
-				if constexpr (std::is_same_v<B, allocation_strategy::worst_fit>)
-				{
-					if (m_offset < other.m_offset) return true;
-					if (other.m_offset < m_offset) return false;
-					if (m_size > other.m_size) return true;
-					if (other.m_size > m_size) return false;
-				}
-			}*/
 		};
 
-		memory_suballocator(void* memory_ptr,
+		memory_suballocator(non_owning_ptr<void> memory_ptr,
 							const memory_block& initial_memory,
-							initial_free_block_count_t initial_block_count = 10);
+							const initial_free_block_count_t initial_block_count = 10);
 
-		[[nodiscard]] auto request_and_commit_suballocation(const std::size_t) -> const std::expected<void*, std::nullptr_t>;
+		[[nodiscard]] auto request_and_commit_suballocation(const std::size_t)
+			-> const std::expected<void*, std::nullptr_t>;
 		auto free_suballocation(const memory_block&) -> void;
 
-		auto pointer() const -> const void*;
+		auto pointer() const -> const non_owning_ptr<void>;
 		auto address() const -> const std::uintptr_t;
 
 		auto used_memory_bytes() const -> const std::size_t;
@@ -69,34 +49,14 @@ export namespace lh
 		auto free_memory_ratio() const -> const float01_t;
 
 	private:
-		auto comparison_fn(const memory_block& x, const memory_block& y) const -> bool
-		{
-			if constexpr (std::is_same_v<A, allocation_strategy::first_fit>) return x.m_offset < y.m_offset;
-
-			if constexpr (std::is_same_v<A, allocation_strategy::best_fit>)
-			{
-				if (x.m_offset < y.m_offset) return true;
-				if (y.m_offset < x.m_offset) return false;
-				if (x.m_size < y.m_size) return true;
-				if (y.m_size < x.m_size) return false;
-			}
-
-			if constexpr (std::is_same_v<A, allocation_strategy::worst_fit>)
-			{
-				if (x.m_offset < y.m_offset) return true;
-				if (y.m_offset < x.m_offset) return false;
-				if (x.m_size > y.m_size) return true;
-				if (y.m_size > x.m_size) return false;
-			}
-
-			std::unreachable();
-		}
+		// function used for free memory block sorting, depends on allocation strategy
+		auto comparison_fn(const memory_block&, const memory_block&) const -> bool;
 
 		auto erase_empty_free_memory_blocks() -> void;
 		auto merge_adjecent_free_memory_blocks() -> void;
 		auto sort_free_memory_blocks() -> void;
 
-		void* m_ptr;
+		non_owning_ptr<void> m_ptr;
 		memory_block m_initial_memory_block;
 
 		// vector of free memory blocks, sorted by offset in ascending order
@@ -108,11 +68,13 @@ export namespace lh
 	using worst_fit_suballocator = memory_suballocator<allocation_strategy::worst_fit>;
 
 	// ============================================================================
-	/*
+	// template instantiations
+	// ============================================================================
+
 	template <allocation_strategy A>
-	memory_suballocator<A>::memory_suballocator(void* memory_ptr,
+	memory_suballocator<A>::memory_suballocator(non_owning_ptr<void> memory_ptr,
 												const memory_block& initial_memory,
-												initial_free_block_count_t initial_free_block_count)
+												const initial_free_block_count_t initial_free_block_count)
 		: m_ptr {static_cast<std::byte*>(memory_ptr) + initial_memory.m_offset},
 		  m_initial_memory_block {initial_memory},
 		  m_free_memory_blocks {initial_memory}
@@ -127,7 +89,6 @@ export namespace lh
 		auto result = std::expected<void*, std::nullptr_t> {nullptr};
 
 		// iterate over free memory blocks and attempt to find a free memory block large enough to claim
-		// prefer to suballocate from smaller blocks, so iterate in reverse direction
 		for (auto& free_memory : m_free_memory_blocks)
 			if (size <= free_memory.m_size)
 			{
@@ -155,7 +116,7 @@ export namespace lh
 		const auto offset = memory_block.m_offset - reinterpret_cast<std::size_t>(m_ptr);
 
 		// reclaim memory by inserting a free block into the vector
-		// sort it so its possible o merge adjecent free blocks
+		// sort it so its possible to merge adjecent free blocks
 		// erase empty ones
 		m_free_memory_blocks.emplace_back(offset, memory_block.m_size);
 		sort_free_memory_blocks();
@@ -164,7 +125,7 @@ export namespace lh
 	}
 
 	template <allocation_strategy A>
-	auto memory_suballocator<A>::pointer() const -> const void*
+	auto memory_suballocator<A>::pointer() const -> const non_owning_ptr<void>
 	{
 		return m_ptr;
 	}
@@ -202,6 +163,30 @@ export namespace lh
 	}
 
 	template <allocation_strategy A>
+	auto memory_suballocator<A>::comparison_fn(const memory_block& x, const memory_block& y) const -> bool
+	{
+		if constexpr (A == allocation_strategy::first_fit) return x.m_offset < y.m_offset;
+
+		if constexpr (A == allocation_strategy::best_fit)
+		{
+			if (x.m_offset < y.m_offset) return true;
+			if (y.m_offset < x.m_offset) return false;
+			if (x.m_size < y.m_size) return true;
+			if (y.m_size < x.m_size) return false;
+		}
+
+		if constexpr (A == allocation_strategy::worst_fit)
+		{
+			if (x.m_offset < y.m_offset) return true;
+			if (y.m_offset < x.m_offset) return false;
+			if (x.m_size > y.m_size) return true;
+			if (y.m_size > x.m_size) return false;
+		}
+
+		std::unreachable();
+	}
+
+	template <allocation_strategy A>
 	auto memory_suballocator<A>::erase_empty_free_memory_blocks() -> void
 	{
 		const auto empty_memory_blocks = std::ranges::remove_if(m_free_memory_blocks, [](const auto& element) {
@@ -233,6 +218,6 @@ export namespace lh
 	template <allocation_strategy A>
 	auto memory_suballocator<A>::sort_free_memory_blocks() -> void
 	{
-		std::ranges::sort(m_free_memory_blocks, &memory_block<A>::comparison);
-	}*/
+		std::ranges::sort(m_free_memory_blocks, [this](const auto& x, const auto& y) { return comparison_fn(x, y); });
+	}
 }
