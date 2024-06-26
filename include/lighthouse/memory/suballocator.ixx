@@ -3,19 +3,14 @@ module;
 export module memory_suballocator;
 
 import data_type;
+import allocation_strategy;
 import lighthouse_utility;
 
 import std;
 
 export namespace lh
 {
-	enum class allocation_strategy
-	{
-		first_fit,
-		best_fit,
-		worst_fit,
-		default_strategy = first_fit
-	};
+	
 
 	// manages memory block suballocations over a preallocated memory range
 	// keeps track of used and free memory blocks
