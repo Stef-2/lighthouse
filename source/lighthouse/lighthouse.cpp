@@ -19,7 +19,7 @@ public:
 	template <typename>
 	friend class pool_allocator;
 
-	pool_allocator(lh::memory_suballocator& memory_suballocator) : m_memory_suballocator {memory_suballocator} {}
+	pool_allocator(lh::first_fit_suballocator& memory_suballocator) : m_memory_suballocator {memory_suballocator} {}
 
 	template <class Y>
 	pool_allocator(const pool_allocator<Y>& other) noexcept : m_memory_suballocator {other.m_memory_suballocator}
@@ -49,16 +49,16 @@ public:
 	}
 
 private:
-	lh::memory_suballocator& m_memory_suballocator;
+	lh::first_fit_suballocator& m_memory_suballocator;
 };
 
 auto main() -> int
 {
-	const auto size = 640'000'000;
+	const auto size = 64'000'000;
 
 	const auto memory = std::malloc(size);
 
-	auto suballocator = lh::memory_suballocator {memory, {0, size}};
+	auto suballocator = lh::first_fit_suballocator {memory, {0, size}};
 
 	using allocator_type = pool_allocator<int>;
 
@@ -70,8 +70,8 @@ auto main() -> int
 
 		if (i == 999)
 		{
-			std::cout << "used mem: " << suballocator.used_memory() << '\n';
-			std::cout << "free mem: " << suballocator.free_memory() << '\n';
+			std::cout << "used mem: " << suballocator.used_memory_bytes() << '\n';
+			std::cout << "free mem: " << suballocator.free_memory_bytes() << '\n';
 			std::cout << "free mem %: " << suballocator.free_memory_ratio() << '\n';
 		}
 	}
