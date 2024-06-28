@@ -29,25 +29,25 @@ auto main() -> int
 	// rand() % 10'000'000 + 5'000'000;
 	std::cout << "num iters: " << wtf << '\n';
 
-	lh::time::stopwatch sw {};
+	lh::time::stopwatch sw1 {};
 	for (size_t i = 0; i < wtf; i++)
 	{
 		v->push_back(i * 3);
 		l->push_back(i * 4);
 		d->push_back(i * 5);
 	}
-	auto dur1 = sw.stop();
+	auto dur1 = sw1.stop();
 
 	std::cout << dur1 << " ms\n";
 
-	sw.start();
+	lh::time::stopwatch sw2 {};
 	for (size_t i = 0; i < wtf; i++)
 	{
 		pv->push_back(i * 3);
 		pl->push_back(i * 4);
 		pd->push_back(i * 5);
 	}
-	auto dur2 = sw.stop();
+	auto dur2 = sw2.stop();
 
 	std::cout << dur2 << " ms\n";
 	std::cout << "ratio: " << (float)dur2 / (float)dur1 << '\n';

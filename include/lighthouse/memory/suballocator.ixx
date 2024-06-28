@@ -82,23 +82,31 @@ export namespace lh
 	{
 		auto result = static_cast<void*>(nullptr);
 
+		auto iterator = m_free_memory_blocks.end();
+
 		// iterate over free memory blocks and attempt to find a free memory block large enough to claim
-		for (auto& free_memory : m_free_memory_blocks)
-			if (size <= free_memory.m_size)
+		// collect
+		for (auto it = m_free_memory_blocks.begin(); it != m_free_memory_blocks.end(); ++it)
+			if (size <= it->m_size)
 			{
-				result = static_cast<std::byte*>(m_ptr) + free_memory.m_offset;
-				free_memory.m_offset += size;
-				free_memory.m_size -= size;
+				result = static_cast<std::byte*>(m_ptr) + it->m_offset;
+				it->m_offset += size;
+				it->m_size -= size;
+				iterator = it;
 
 				break;
 			}
+		
+		if (iterator != m_free_memory_blocks.end()) [[likely]]
+			if (iterator->m_size == 0)
+				m_free_memory_blocks.erase(iterator);
+			else
+				std::ranges::sort(m_free_memory_blocks.begin(), iterator, [this](const auto& x, const auto& y) {
+					return comparison_fn(x, y);
+				});
 
-		// if a free memory block was found and commited, sort free memory blocks
-		/*if (result) [[likely]]
-		{
-			erase_empty_free_memory_blocks();
-			sort_free_memory_blocks();
-		}*/
+		//erase_empty_free_memory_blocks();
+		//sort_free_memory_blocks();
 
 		return result;
 	}
@@ -113,17 +121,16 @@ export namespace lh
 		// sort it so its possible to merge adjecent free blocks
 		// erase empty ones
 		m_free_memory_blocks.emplace_back(offset, memory_block.m_size);
-		
+		/*
 		static size_t wtf = 0;
 		wtf++;
 
 		if (wtf % 2 == 0)
 		{
-			//sort_free_memory_blocks();
-		}
-			merge_adjecent_free_memory_blocks();
-			erase_empty_free_memory_blocks();
-			sort_free_memory_blocks();
+		}*/
+		//erase_empty_free_memory_blocks();
+		//merge_adjecent_free_memory_blocks();
+		//sort_free_memory_blocks();
 	}
 
 	template <allocation_strategy A>
