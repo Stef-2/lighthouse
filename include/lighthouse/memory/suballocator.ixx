@@ -10,8 +10,6 @@ import std;
 
 export namespace lh
 {
-	
-
 	// manages memory block suballocations over a preallocated memory range
 	// keeps track of used and free memory blocks
 	// owns no memory itself
@@ -34,10 +32,8 @@ export namespace lh
 
 		memory_suballocator(const memory_suballocator&) = delete;
 		auto operator=(const memory_suballocator&) -> memory_suballocator& = delete;
-		//memory_suballocator(const memory_suballocator&&) = delete;
 
-		[[nodiscard]] auto request_and_commit_suballocation(const std::size_t)
-			-> const std::expected<void*, std::nullptr_t>;
+		[[nodiscard]] auto request_and_commit_suballocation(const std::size_t) -> void*;
 		auto free_suballocation(const memory_block&) -> void;
 
 		auto pointer() const -> const non_owning_ptr<void>;
@@ -82,10 +78,9 @@ export namespace lh
 	}
 
 	template <allocation_strategy A>
-	auto memory_suballocator<A>::request_and_commit_suballocation(const std::size_t size)
-		-> const std::expected<void*, std::nullptr_t>
+	auto memory_suballocator<A>::request_and_commit_suballocation(const std::size_t size) -> void*
 	{
-		auto result = std::expected<void*, std::nullptr_t> {nullptr};
+		auto result = static_cast<void*>(nullptr);
 
 		// iterate over free memory blocks and attempt to find a free memory block large enough to claim
 		for (auto& free_memory : m_free_memory_blocks)
@@ -99,11 +94,11 @@ export namespace lh
 			}
 
 		// if a free memory block was found and commited, sort free memory blocks
-		if (result)
+		/*if (result) [[likely]]
 		{
 			erase_empty_free_memory_blocks();
 			sort_free_memory_blocks();
-		}
+		}*/
 
 		return result;
 	}
@@ -118,9 +113,17 @@ export namespace lh
 		// sort it so its possible to merge adjecent free blocks
 		// erase empty ones
 		m_free_memory_blocks.emplace_back(offset, memory_block.m_size);
-		sort_free_memory_blocks();
-		merge_adjecent_free_memory_blocks();
-		erase_empty_free_memory_blocks();
+		
+		static size_t wtf = 0;
+		wtf++;
+
+		if (wtf % 2 == 0)
+		{
+			//sort_free_memory_blocks();
+		}
+			merge_adjecent_free_memory_blocks();
+			erase_empty_free_memory_blocks();
+			sort_free_memory_blocks();
 	}
 
 	template <allocation_strategy A>

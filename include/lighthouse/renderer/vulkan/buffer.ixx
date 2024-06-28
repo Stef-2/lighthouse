@@ -184,7 +184,7 @@ export namespace lh
 						" bytes from buffer at address: " + memory_suballocator::address());
 
 
-				return memory_mapped_span<T> {static_cast<T*>(memory_ptr.value()), element_count};
+				return memory_mapped_span<T> {static_cast<T*>(memory_ptr), element_count};
 			}
 
 			template <typename T>

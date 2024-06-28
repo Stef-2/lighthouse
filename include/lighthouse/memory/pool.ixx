@@ -1,9 +1,10 @@
 module;
 
-export module pool;
+export module memory_pool;
 
 import allocation_strategy;
 import memory_suballocator;
+import output;
 
 import std;
 
@@ -42,7 +43,7 @@ export namespace lh
 		{
 			const auto suballocation = m_memory_suballocator->request_and_commit_suballocation(element_count *
 																							   sizeof T);
-			return static_cast<T*>(*suballocation);
+			return static_cast<T*>(suballocation);
 		}
 
 		void deallocate(const T* pointer, const size_t element_count) noexcept
@@ -91,6 +92,7 @@ export namespace lh
 		}
 
 		auto size() const -> const std::size_t { return m_size; }
+		auto data() -> void* { return m_memory; }
 		auto resize(const std::size_t new_size)
 		{
 			if (new_size <= m_size)
@@ -110,7 +112,7 @@ export namespace lh
 		template <typename T>
 		auto allocator() -> pool_allocator<T>
 		{
-			return pool_allocator<T> {m_suballocator};
+			return pool_allocator<T, A> {m_suballocator};
 		}
 
 		template <typename T, typename... Ts>
