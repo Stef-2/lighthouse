@@ -81,32 +81,35 @@ export namespace lh
 	auto memory_suballocator<A>::request_and_commit_suballocation(const std::size_t size) -> void*
 	{
 		auto result = static_cast<void*>(nullptr);
-
 		auto iterator = m_free_memory_blocks.end();
 
 		// iterate over free memory blocks and attempt to find a free memory block large enough to claim
-		// collect
+		// collect the resulting iterator, if found
 		for (auto it = m_free_memory_blocks.begin(); it != m_free_memory_blocks.end(); ++it)
 			if (size <= it->m_size)
 			{
 				result = static_cast<std::byte*>(m_ptr) + it->m_offset;
+				iterator = it;
 				it->m_offset += size;
 				it->m_size -= size;
-				iterator = it;
 
 				break;
 			}
-		
+		/*
+		// if a valid iterator was found
 		if (iterator != m_free_memory_blocks.end()) [[likely]]
+			// if the underlying memory block was taken in its entirety, erase it
 			if (iterator->m_size == 0)
 				m_free_memory_blocks.erase(iterator);
 			else
-				std::ranges::sort(m_free_memory_blocks.begin(), iterator, [this](const auto& x, const auto& y) {
+				// memory blocks are sorted according to their offset
+				std::ranges::sort(iterator, m_free_memory_blocks.end(), [this](const auto& x, const auto& y) {
 					return comparison_fn(x, y);
-				});
+				});*/
 
-		//erase_empty_free_memory_blocks();
-		//sort_free_memory_blocks();
+		erase_empty_free_memory_blocks();
+		merge_adjecent_free_memory_blocks();
+		sort_free_memory_blocks();
 
 		return result;
 	}
@@ -116,21 +119,43 @@ export namespace lh
 	{
 		// calculate the actual offset from the one provided by the pointer
 		const auto offset = memory_block.m_offset - reinterpret_cast<std::size_t>(m_ptr);
+		/*
+		auto found = std::upper_bound(m_free_memory_blocks.begin(),
+											m_free_memory_blocks.end(), offset,
+											[offset](const auto& x, const auto& y) { return y.m_offset > x;
+											});
+
+
+		if (found != m_free_memory_blocks.end())
+		{
+			// merge left
+			if (offset + memory_block.m_size == found->m_offset)
+			{
+				found->m_offset -= memory_block.m_size;
+				found->m_size += memory_block.m_size;
+				return;
+			}
+			else if (found != m_free_memory_blocks.begin())
+			{
+				found--;
+				// merge left
+				if (found->m_offset + found->m_size == offset)
+				{
+					found->m_size += memory_block.m_size;
+					return;
+				}
+			}
+
+		} else*/
 
 		// reclaim memory by inserting a free block into the vector
 		// sort it so its possible to merge adjecent free blocks
 		// erase empty ones
-		m_free_memory_blocks.emplace_back(offset, memory_block.m_size);
-		/*
-		static size_t wtf = 0;
-		wtf++;
+			m_free_memory_blocks.emplace_back(/*m_free_memory_blocks.end() - 1, */offset, memory_block.m_size);
 
-		if (wtf % 2 == 0)
-		{
-		}*/
-		//erase_empty_free_memory_blocks();
-		//merge_adjecent_free_memory_blocks();
-		//sort_free_memory_blocks();
+		erase_empty_free_memory_blocks();
+		merge_adjecent_free_memory_blocks();
+		sort_free_memory_blocks();
 	}
 
 	template <allocation_strategy A>
