@@ -161,7 +161,7 @@ export namespace lh
 		private:
 		};
 
-		class suballocated_mapped_buffer : public mapped_buffer, private memory_suballocator<>
+		class suballocated_mapped_buffer : public mapped_buffer, private memory_suballocator<allocation_strategy::default_strategy>
 		{
 		public:
 			suballocated_mapped_buffer(const logical_device& logical_device,
