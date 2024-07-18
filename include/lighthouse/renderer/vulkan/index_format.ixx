@@ -1,14 +1,8 @@
 module;
 
-#if INTELLISENSE
-#include <cstdint>
-#endif
-
 export module index_format;
 
-#if not INTELLISENSE
-import std.core;
-#endif
+import std;
 
 export namespace lh
 {

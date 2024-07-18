@@ -1,17 +1,13 @@
 module;
 
-#if INTELLISENSE
-#include <utility>
-#include <cstddef>
-#endif
-
 export module raii_wrapper;
+
+import lighthouse_string;
 
 #if INTELLISENSE
 #else
 export import vulkan_hpp;
 #endif
-import lighthouse_string;
 
 export namespace lh
 {

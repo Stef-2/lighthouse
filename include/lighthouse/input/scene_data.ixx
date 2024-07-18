@@ -2,8 +2,6 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan.hpp"
-
-#include <cstdint>
 #endif
 
 #include "assimp/Importer.hpp"

@@ -5,11 +5,6 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan_raii.hpp"
-
-#include <vector>
-#include <map>
-#include <filesystem>
-#include <string>
 #endif
 
 export module dear_imgui;
@@ -26,10 +21,10 @@ import texture;
 import color;
 
 #if not INTELLISENSE
-import std.core;
-import std.filesystem;
 import vulkan_hpp;
 #endif
+
+import std;
 
 export namespace lh
 {

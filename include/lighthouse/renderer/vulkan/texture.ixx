@@ -2,10 +2,6 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan_raii.hpp"
-
-#include <cstdint>
-#include <filesystem>
-#include <vector>
 #endif
 
 export module texture;
@@ -22,9 +18,9 @@ import sampler;
 
 #if not INTELLISENSE
 import vulkan_hpp;
-import std.core;
-import std.filesystem;
 #endif
+
+import std;
 
 export namespace lh
 {

@@ -1,17 +1,10 @@
 module;
 
-#if INTELLISENSE
-#include <cstdint>
-#include <span>
-#endif
-
 export module memory_mapped_span;
 
 import lighthouse_utility;
 
-#if not INTELLISENSE
-import std.core;
-#endif
+import std;
 
 export namespace lh
 {

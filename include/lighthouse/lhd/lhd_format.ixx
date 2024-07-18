@@ -8,9 +8,7 @@ module;
 
 export module lhd_format;
 
-#if not INTELLISENSE
-import std.core;
-#endif
+import std;
 
 import data_type;
 import version;

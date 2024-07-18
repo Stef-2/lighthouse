@@ -9,9 +9,7 @@ export module math;
 
 import data_type;
 
-#if not INTELLISENSE
-import std.core;
-#endif
+import std;
 
 export namespace lh
 {

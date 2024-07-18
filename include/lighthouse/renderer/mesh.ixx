@@ -2,9 +2,6 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan_raii.hpp"
-
-#include <memory>
-#include <vector>
 #endif
 
 export module mesh;
@@ -16,9 +13,7 @@ import lighthouse_utility;
 import object_index;
 import registry;
 
-#if not INTELLISENSE
-import std.core;
-#endif
+import std;
 
 
 export namespace lh

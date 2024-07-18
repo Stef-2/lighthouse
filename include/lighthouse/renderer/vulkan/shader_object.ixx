@@ -2,9 +2,6 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan_raii.hpp"
-
-#include <filesystem>
-#include <utility>
 #endif
 
 export module shader_object;
@@ -15,9 +12,7 @@ import global_descriptor;
 import spir_v;
 import shader_input;
 
-#if not INTELLISENSE
-import std.filesystem;
-#endif
+import std;
 
 export namespace lh
 {

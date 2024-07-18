@@ -1,17 +1,8 @@
 module;
 
-#if INTELLISENSE
-#include <concepts>
-#include <vector>
-#include <ranges>
-#include <concepts>
-#endif
-
 export module lighthouse_utility;
 
-#if not INTELLISENSE
-import std.core;
-#endif
+import std;
 
 export namespace lh
 {

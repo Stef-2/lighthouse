@@ -2,16 +2,11 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan_raii.hpp"
-
-#include <filesystem>
-#include <vector>
 #endif
 
 export module material;
 
 #if not INTELLISENSE
-import std.core;
-import std.filesystem;
 import vulkan_hpp;
 #endif
 
@@ -21,6 +16,8 @@ import memory_allocator;
 import queue;
 import descriptor_buffer;
 import texture;
+
+import std;
 
 export namespace lh
 {

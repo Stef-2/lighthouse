@@ -14,7 +14,7 @@ export module lh_memory;
 
 import system;
 import vulkan_hpp;
-import std.core;
+import std;
 
 export namespace lh
 {

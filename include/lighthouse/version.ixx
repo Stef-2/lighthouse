@@ -1,17 +1,10 @@
 module;
 
-#if INTELLISENSE
-#include <cstdint>
-#include <compare>
-#endif
-
 export module version;
 
 import lighthouse_string;
 
-#if not INTELLISENSE
-import std.core;
-#endif
+import std;
 
 export namespace lh
 {

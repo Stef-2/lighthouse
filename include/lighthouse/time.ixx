@@ -1,15 +1,8 @@
 module;
 
-#if INTELLISENSE
-#include <chrono>
-#include <concepts>
-#endif
-
 export module time;
 
-#if not INTELLISENSE
-import std.core;
-#endif
+import std;
 
 namespace lh
 {

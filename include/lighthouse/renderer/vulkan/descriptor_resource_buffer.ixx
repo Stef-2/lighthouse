@@ -2,17 +2,11 @@ module;
 
 #if INTELLISENSE
 #include "vulkan.hpp"
-
-#include <cstdint>
-#include <utility>
-#include <vector>
-#include <concepts>
 #endif
 
 export module descriptor_resource_buffer;
 
 #if not INTELLISENSE
-import std.core;
 import vulkan_hpp;
 #endif
 
@@ -20,6 +14,8 @@ import physical_device;
 import logical_device;
 import memory_allocator;
 import buffer;
+
+import std;
 
 export namespace lh
 {

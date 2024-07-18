@@ -4,24 +4,19 @@ module;
 #include "glm/vec3.hpp"
 #include "glm/gtx/quaternion.hpp"
 #include "glm/mat4x4.hpp"
-
-#include <concepts>
-#include <numbers>
-#include <limits>
-#include <array>
-#include <optional>
 #endif
 
 export module geometry;
 
-#if not INTELLISENSE
-import std.core;
-import glm;
-#endif
-
 import data_type;
 import math;
 import static_math;
+
+#if not INTELLISENSE
+import glm;
+#endif
+
+import std;
 
 export namespace lh
 {

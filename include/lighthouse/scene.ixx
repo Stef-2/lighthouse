@@ -1,9 +1,5 @@
 module;
 
-#if INTELLISENSE
-#include <vector>
-#endif
-
 export module scene;
 
 import mesh;
@@ -11,9 +7,7 @@ import buffer;
 import memory_allocator;
 import scene_data;
 
-#if not INTELLISENSE
-import std.core;
-#endif
+import std;
 
 export namespace lh
 {

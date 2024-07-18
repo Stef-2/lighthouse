@@ -2,8 +2,9 @@ module;
 
 export module registry;
 
-import std;
 import lighthouse_utility;
+
+import std;
 
 export namespace lh
 {

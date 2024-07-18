@@ -1,19 +1,10 @@
 module;
 
-#if INTELLISENSE
-#include <string>
-#endif
-
 export module string_convertible;
 
 import lighthouse_string;
 
-#if INTELLISENSE
-//#include <concepts>
-//#include <ranges>
-#else
-import std.core;
-#endif
+import std;
 
 export namespace lh
 {

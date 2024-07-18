@@ -13,8 +13,9 @@ import data_type;
 #if not INTELLISENSE
 import glm;
 import vulkan_hpp;
-import std.core;
 #endif
+
+import std;
 
 export namespace lh
 {

@@ -2,9 +2,6 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan_raii.hpp"
-
-#include <vector>
-#include <map>
 #endif
 
 export module descriptor_buffer;
@@ -17,9 +14,9 @@ import buffer;
 import descriptor_resource_buffer;
 
 #if not INTELLISENSE
-import std.core;
 import vulkan_hpp;
 #endif
+import std;
 
 export namespace lh
 {

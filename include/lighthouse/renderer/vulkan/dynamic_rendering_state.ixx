@@ -2,17 +2,15 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan_raii.hpp"
-
-#include <vector>
-#include <utility>
 #endif
 
 export module dynamic_rendering_state;
 
 #if not INTELLISENSE
-import std.core;
 import vulkan_hpp;
 #endif
+
+import std;
 
 export namespace lh
 {

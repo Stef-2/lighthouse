@@ -2,24 +2,17 @@ module;
 
 #if INTELLISENSE
 #include "glm/glm.hpp"
-
-#include <cstddef>
-#include <numeric>
-#include <numbers>
-#include <limits>
-#include <cmath>
-#include <bit>
-#include <utility>
 #endif
 
 export module static_math;
 
+import math;
+
 #if not INTELLISENSE
-import std.core;
 import glm;
 #endif
 
-import math;
+import std;
 
 export namespace lh
 {

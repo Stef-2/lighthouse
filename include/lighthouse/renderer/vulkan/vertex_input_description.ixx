@@ -2,16 +2,15 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan.hpp"
-
-#include <vector>
 #endif
 
 export module vertex_input_description;
 
 #if not INTELLISENSE
 import vulkan_hpp;
-import std.core;
 #endif
+
+import std;
 
 export namespace lh
 {

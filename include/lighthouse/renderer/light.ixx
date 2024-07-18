@@ -4,17 +4,9 @@ module;
 #include "glm/glm.hpp"
 #include "glm/gtc/quaternion.hpp"
 #include "vulkan/vulkan.hpp"
-
-#include <cstdint>
-#include <vector>
 #endif
 
 export module light;
-
-#if not INTELLISENSE
-import glm;
-import std.core;
-#endif
 
 import geometry;
 import entity;
@@ -25,6 +17,12 @@ import memory_allocator;
 import buffer;
 import descriptor_resource_buffer;
 import texture;
+
+#if not INTELLISENSE
+import glm;
+#endif
+
+import std;
 
 export namespace lh
 {

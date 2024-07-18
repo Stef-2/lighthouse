@@ -58,6 +58,7 @@ namespace lh
 
 		// ==========================================================================
 
+		// #pragma optimize("", off)
 		shader_pipeline::shader_pipeline(const logical_device& logical_device,
 										 const std::vector<spir_v>& pipeline_data,
 										 const global_descriptor& global_descriptor,
@@ -69,6 +70,14 @@ namespace lh
 			for (const auto& spir_v : pipeline_data)
 			{
 				m_pipeline_stages.push_back(spir_v.stage());
+
+				const auto descriptor_set_layouts = global_descriptor.descriptor_set_layouts();
+				const auto& wtf = global_descriptor.uniform_buffer_set();
+				if (*wtf == 0)
+				{
+					std::cout << *wtf << '\n';
+					abort();
+				}
 
 				pipeline_create_info.emplace_back(create_info.m_modifier_flags,
 												  spir_v.stage(),

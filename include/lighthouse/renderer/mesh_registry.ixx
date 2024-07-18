@@ -1,17 +1,6 @@
 module;
 
-#if INTELLISENSE
-#include <filesystem>
-#include <vector>
-#include <map>
-#endif
-
 export module mesh_registry;
-
-#if not INTELLISENSE
-import std.core;
-import std.filesystem;
-#endif
 
 import logical_device;
 import buffer;
@@ -21,6 +10,8 @@ import scene_data;
 import geometry;
 import mesh;
 import registry;
+
+import std;
 
 export namespace lh
 {

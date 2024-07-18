@@ -4,9 +4,6 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan_raii.hpp"
-
-#include <utility>
-#include <optional>
 #endif
 
 export module instance;
@@ -18,9 +15,10 @@ import extension;
 import debug_messanger;
 
 #if not INTELLISENSE
-import std.core;
 import vulkan_hpp;
 #endif
+
+import std;
 
 export namespace lh
 {

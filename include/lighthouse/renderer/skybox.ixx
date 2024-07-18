@@ -1,10 +1,5 @@
 module;
 
-#if INTELLISENSE
-#include <array>
-#include <filesystem>
-#endif
-
 export module skybox;
 
 import physical_device;
@@ -20,10 +15,7 @@ import texture;
 import mesh;
 import queue;
 
-#if not INTELLISENSE
-import std.core;
-import std.filesystem;
-#endif
+import std;
 
 export namespace lh
 {

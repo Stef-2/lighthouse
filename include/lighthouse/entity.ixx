@@ -3,15 +3,12 @@ module;
 #if INTELLISENSE
 #include "glm/vec3.hpp"
 #include "glm/gtx/quaternion.hpp"
-
-#include <memory>
 #endif
 
 export module entity;
 
 #if not INTELLISENSE
 import glm;
-import std.core;
 #endif
 
 import node;
@@ -19,6 +16,8 @@ import window;
 import lighthouse_utility;
 import geometry;
 import physical_property;
+
+import std;
 
 export namespace lh
 {

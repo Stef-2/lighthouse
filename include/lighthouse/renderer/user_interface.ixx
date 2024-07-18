@@ -2,11 +2,6 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan_raii.hpp"
-
-#include <vector>
-#include <map>
-#include <filesystem>
-#include <string>
 #endif
 
 export module user_interface;
@@ -15,10 +10,7 @@ import input;
 import dear_imgui;
 import vk_mem_alloc_hpp;
 
-#if not INTELLISENSE
-import std.core;
-import std.filesystem;
-#endif
+import std;
 
 export namespace lh
 {

@@ -1,8 +1,8 @@
 module;
 
-#include <cstddef>
-
 export module object_index;
+
+import std;
 
 export namespace lh
 {

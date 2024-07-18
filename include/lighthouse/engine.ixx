@@ -1,18 +1,12 @@
 module;
 
-#if INTELLISENSE
-#include <memory>
-#endif
-
 export module engine;
 
 import window;
 import version;
 import renderer;
 
-#if not INTELLISENSE
-import std.core;
-#endif
+import std;
 
 export namespace lh
 {

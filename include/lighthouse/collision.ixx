@@ -2,8 +2,6 @@ module;
 
 #if INTELLISENSE
 #include "glm/glm.hpp"
-
-#include <optional>
 #endif
 
 export module collision;
@@ -12,8 +10,9 @@ import geometry;
 
 #if not INTELLISENSE
 import glm;
-import std.core;
 #endif
+
+import std;
 
 export namespace lh
 {

@@ -57,7 +57,7 @@ export namespace lh
 					vk::ImageAspectFlagBits::eColor, 0, vk::RemainingMipLevels, 0, vk::RemainingArrayLayers};
 			};
 
-			image(nullptr_t);
+			image(std::nullptr_t);
 			image(const vulkan::logical_device&,
 				  const vulkan::memory_allocator&,
 				  const create_info& = {});

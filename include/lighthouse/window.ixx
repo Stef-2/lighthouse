@@ -4,18 +4,17 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan.hpp"
-
-#include <map>
 #endif
 
 export module window;
 
+import lighthouse_string;
+
 #if not INTELLISENSE
 import vulkan_hpp;
-import std.core;
 #endif
 
-import lighthouse_string;
+import std;
 
 export namespace lh
 {

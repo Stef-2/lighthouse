@@ -1,20 +1,15 @@
 module;
 
-#if INTELLISENSE
-#include <cstdint>
-#endif
-
-#include <compare>
-
 export module queue_families;
 
 import physical_device;
 import surface;
 
 #if not INTELLISENSE
-import std.core;
 import vulkan_hpp;
 #endif
+
+import std;
 
 export namespace lh
 {

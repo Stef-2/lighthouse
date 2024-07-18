@@ -2,10 +2,6 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan_raii.hpp"
-
-#include <vector>
-#include <array>
-#include <cstdint>
 #endif
 
 export module global_descriptor;
@@ -14,9 +10,10 @@ import physical_device;
 import logical_device;
 
 #if not INTELLISENSE
-import std.core;
 import vulkan_hpp;
 #endif
+
+import std;
 
 export namespace lh
 {

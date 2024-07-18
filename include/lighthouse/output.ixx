@@ -2,10 +2,6 @@ module;
 
 #if INTELLISENSE
 #include "glm/ext.hpp"
-
-#include <iostream>
-#include <filesystem>
-#include <span>
 #endif
 export module output;
 
@@ -15,9 +11,9 @@ import file_type;
 
 #if not INTELLISENSE
 import glm;
-import std.core;
-import std.filesystem;
 #endif
+
+import std;
 
 namespace lh
 {

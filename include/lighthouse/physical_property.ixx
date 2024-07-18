@@ -3,30 +3,24 @@ module;
 #if INTELLISENSE
 #include "glm/glm.hpp"
 #include "glm/gtc/quaternion.hpp"
-
-#include <algorithm>
-#include <cstddef>
-#include <concepts>
-#include <functional>
-#include <type_traits>
 #endif
 
 export module physical_property;
-
-#if not INTELLISENSE
-import glm;
-import std.core;
-#endif
 
 import math;
 import geometry;
 import lighthouse_utility;
 
+#if not INTELLISENSE
+import glm;
+#endif
+
+import std;
+
 namespace lh
 {
 	namespace geometry
 	{
-		void foo(int i) {}
 		// concepts
 		template <typename T>
 		concept physical_property = requires { lh::concepts::is_any<T, position_t, rotation_t, scale_t>; };

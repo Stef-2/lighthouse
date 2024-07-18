@@ -1,14 +1,8 @@
 module;
 
-#if INTELLISENSE
-#include <concepts>
-#endif
-
 export module vulkan_utility;
 
-#if not INTELLISENSE
-import std.core;
-#endif
+import std;
 
 export namespace lh
 {

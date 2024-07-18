@@ -2,11 +2,6 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan_raii.hpp"
-
-#include <vector>
-#include <filesystem>
-#include <utility>
-#include <optional>
 #endif
 
 export module pipeline;
@@ -25,10 +20,10 @@ import vertex_input_description;
 import descriptor_resource_buffer;
 
 #if not INTELLISENSE
-import std.core;
-import std.filesystem;
 import vulkan_hpp;
 #endif
+
+import std;
 
 export namespace lh
 {

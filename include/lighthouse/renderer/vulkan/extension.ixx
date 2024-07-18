@@ -2,13 +2,6 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan.hpp"
-
-#include <vector>
-#include <concepts>
-#include <algorithm>
-#include <cstring>
-#include <numeric>
-#include <utility>
 #endif
 
 export module extension;
@@ -18,9 +11,10 @@ import vulkan_string;
 import output;
 
 #if not INTELLISENSE
-import std.core;
 import vulkan_hpp;
 #endif
+
+import std;
 
 export namespace lh
 {

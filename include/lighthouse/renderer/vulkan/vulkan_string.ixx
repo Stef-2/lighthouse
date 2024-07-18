@@ -1,14 +1,8 @@
 module;
 
-#if INTELLISENSE
-#include <vector>
-#endif
-
 export module vulkan_string;
 
-#if not INTELLISENSE
-import std.core;
-#endif
+import std;
 
 export namespace lh
 {

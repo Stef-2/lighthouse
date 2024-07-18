@@ -2,8 +2,6 @@ module;
 
 #if INTELLISENSE
 #include "vma/vk_mem_alloc.hpp"
-
-#include <vector>
 #endif
 
 export module memory_allocator;
