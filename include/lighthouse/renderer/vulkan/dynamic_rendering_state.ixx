@@ -10,6 +10,8 @@ export module dynamic_rendering_state;
 import vulkan_hpp;
 #endif
 
+import data_type;
+
 import std;
 
 export namespace lh
@@ -30,7 +32,8 @@ export namespace lh
 				vk::CompareOp m_depth_compare_operation = vk::CompareOp::eLessOrEqual;
 				vk::PrimitiveTopology m_primitive_topology = vk::PrimitiveTopology::eTriangleList;
 				bool m_rasterizer_discarding = false;
-				vk::PolygonMode m_polygon_mode = vk::PolygonMode::eFill;
+				vk::PolygonMode m_polygon_mode = vk::PolygonMode::eLine;
+				float32_t m_line_width = 1.0f;
 				vk::SampleCountFlagBits m_sample_count = vk::SampleCountFlagBits::e1;
 				std::pair<vk::SampleCountFlagBits, std::vector<std::uint32_t>> m_sample_mask = {
 					vk::SampleCountFlagBits::e1, {1}};

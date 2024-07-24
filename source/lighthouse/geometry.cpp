@@ -14,9 +14,15 @@ namespace lh
 
 		rotation_t::rotation_t(const normal_t& value) : quaternion_t {value} {}
 
-		auto rotation_t::operator=(const quaternion_t& value) -> void { static_cast<quaternion_t>(*this) = value; }
+		auto rotation_t::operator=(const quaternion_t& value) -> void
+		{
+			static_cast<quaternion_t>(*this) = value;
+		}
 
-		auto rotation_t::operator=(const normal_t& value) -> void { static_cast<quaternion_t>(*this) = quaternion_t {value}; }
+		auto rotation_t::operator=(const normal_t& value) -> void
+		{
+			static_cast<quaternion_t>(*this) = quaternion_t {value};
+		}
 
 		auto rotation_t::rotate(const quaternion_t& value) -> void
 		{
@@ -81,6 +87,37 @@ namespace lh
 		rotation_t::operator const transformation_t() const
 		{
 			return matrix_cast();
+		}
+
+		auto aabb::center() const -> const position_t
+		{
+			return m_minima + (m_maxima - m_minima) / 2.0f;
+		}
+
+		auto aabb::transformation() const -> const transformation_t
+		{
+			const auto scale = m_maxima - m_minima;
+			const auto center = m_minima + scale / 2.0f;
+
+			return {scale.x,
+					0.0f,
+					0.0f,
+					center.x,
+
+					0.0f,
+					scale.y,
+					0.0f,
+					center.y,
+
+					0.0f,
+					0.0f,
+					scale.z,
+					center.z,
+
+					0.0f,
+					0.0f,
+					0.0f,
+					1.0f};
 		}
 	}
 }

@@ -25,6 +25,7 @@ namespace lh
 			command_buffer.setDepthWriteEnableEXT(m_state.m_depth_writing);
 			command_buffer.setDepthCompareOpEXT(m_state.m_depth_compare_operation);
 			command_buffer.setPrimitiveTopologyEXT(m_state.m_primitive_topology);
+			command_buffer.setLineWidth(m_state.m_line_width);
 			command_buffer.setRasterizerDiscardEnableEXT(m_state.m_rasterizer_discarding);
 			command_buffer.setPolygonModeEXT(m_state.m_polygon_mode);
 			command_buffer.setRasterizationSamplesEXT(m_state.m_sample_count);

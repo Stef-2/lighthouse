@@ -1,7 +1,7 @@
 module;
 
 #if INTELLISENSE
-#include "vulkan.hpp"
+	#include "vulkan.hpp"
 #endif
 
 module logical_device;
@@ -50,6 +50,7 @@ namespace lh
 			auto features = vk::PhysicalDeviceFeatures {};
 			features.shaderFloat64 = true;
 			features.shaderInt64 = true;
+			features.fillModeNonSolid = true;
 
 			const auto required_extensions = physical_device.extensions().required_extensions();
 			if (not physical_device.extensions().assert_required_extensions())
