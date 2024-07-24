@@ -196,7 +196,7 @@ export namespace lh
 			template <typename T>
 			auto span_device_address(const memory_mapped_span<T>& span) -> const vk::DeviceAddress
 			{
-				return memory_suballocator::address() + reinterpret_cast<std::uintptr_t>(m_mapped_data_pointer) -
+				return mapped_buffer::address() + reinterpret_cast<std::uintptr_t>(m_mapped_data_pointer) -
 					   reinterpret_cast<std::uintptr_t>(span.data());
 			}
 

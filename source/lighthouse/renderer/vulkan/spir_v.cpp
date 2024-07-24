@@ -272,10 +272,7 @@ namespace lh
 
 			switch (shader_stage_and_entrypoint[0].execution_model)
 			{
-				case spv::ExecutionModel::ExecutionModelVertex:
-					shader_stage = vk::ShaderStageFlagBits::eVertex;
-					break;
-					;
+				case spv::ExecutionModel::ExecutionModelVertex: shader_stage = vk::ShaderStageFlagBits::eVertex; break;
 				case spv::ExecutionModel::ExecutionModelFragment:
 					shader_stage = vk::ShaderStageFlagBits::eFragment;
 					break;
