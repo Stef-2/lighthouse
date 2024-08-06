@@ -1,6 +1,6 @@
 module;
 
-export module memory_pool;
+export module memory_heap;
 
 import allocation_strategy;
 import memory_suballocator;
@@ -13,7 +13,7 @@ export namespace lh
 	// stateful allocator
 	// claims memory from a memory suballocator
 	template <typename T, lh::allocation_strategy A = lh::allocation_strategy::default_strategy>
-	class pool_allocator
+	class heap_allocator
 	{
 	public:
 		using value_type = T;
@@ -23,21 +23,21 @@ export namespace lh
 		using is_always_equal = std::true_type;
 
 		template <typename, lh::allocation_strategy>
-		friend class pool_allocator;
+		friend class heap_allocator;
 
 		template <typename Y>
 		struct rebind
 		{
-			using other = pool_allocator<Y, A>;
+			using other = heap_allocator<Y, A>;
 		};
 
-		pool_allocator(lh::memory_suballocator<A>& memory_suballocator) : m_memory_suballocator {&memory_suballocator}
+		heap_allocator(lh::memory_suballocator<A>& memory_suballocator) : m_memory_suballocator {&memory_suballocator}
 		{}
 		template <class Y>
-		pool_allocator(const pool_allocator<Y>& other) noexcept : m_memory_suballocator {other.m_memory_suballocator}
+		heap_allocator(const heap_allocator<Y>& other) noexcept : m_memory_suballocator {other.m_memory_suballocator}
 		{}
 
-		auto select_on_container_copy_construction() const -> pool_allocator { return *this; }
+		auto select_on_container_copy_construction() const -> heap_allocator { return *this; }
 
 		T* allocate(const size_t element_count) noexcept
 		{
@@ -110,15 +110,15 @@ export namespace lh
 		auto suballocator() -> lh::memory_suballocator<A>& { return m_suballocator; }
 
 		template <typename T>
-		auto allocator() -> pool_allocator<T>
+		auto allocator() -> heap_allocator<T>
 		{
-			return pool_allocator<T, A> {m_suballocator};
+			return heap_allocator<T, A> {m_suballocator};
 		}
 
 		template <typename T, typename... Ts>
 		auto vector(auto&&... ts)
 		{
-			return std::vector<T, pool_allocator<T>> {std::forward<Ts>(ts)..., {m_suballocator}};
+			return std::vector<T, heap_allocator<T>> {std::forward<Ts>(ts)..., {m_suballocator}};
 		}
 
 	private:

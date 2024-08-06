@@ -69,6 +69,26 @@ namespace lh
 		return m_index_count;
 	}
 
+	auto mesh::instance_count() const -> const std::size_t
+	{
+		return m_instances.size();
+	}
+
+	auto mesh::add_instance(const instance_t& instance) -> void
+	{
+		m_instances.emplace_back(instance);
+	}
+
+	auto mesh::add_instances(const std::vector<instance_t>& instances) -> void
+	{
+		m_instances.insert_range(m_instances.end(), std::move(instances));
+	}
+
+	auto mesh::remove_instance(const instance_t& instance) -> void
+	{
+		std::erase(m_instances, instance);
+	}
+
 	auto mesh::bind(const vk::raii::CommandBuffer& command_buffer) const -> void
 	{
 		command_buffer.bindVertexBuffers(0,

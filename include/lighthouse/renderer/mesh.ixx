@@ -22,6 +22,7 @@ export namespace lh
 	{
 	public:
 		using buffer_type_t = vulkan::buffer;
+		using instance_t = geometry::transformation_t;
 
 		struct create_info
 		{};
@@ -41,6 +42,10 @@ export namespace lh
 		auto bounding_box() const -> const geometry::aabb&;
 		auto vertex_count() const -> const std::size_t;
 		auto index_count() const -> const std::size_t;
+		auto instance_count() const -> const std::size_t;
+		auto add_instance(const instance_t&) -> void;
+		auto add_instances(const std::vector<instance_t>&) -> void;
+		auto remove_instance(const instance_t&) -> void;
 
 		auto bind(const vk::raii::CommandBuffer&) const -> void;
 
@@ -50,5 +55,6 @@ export namespace lh
 		geometry::aabb m_bounding_box;
 		std::size_t m_vertex_count;
 		std::size_t m_index_count;
+		std::vector<instance_t> m_instances;
 	};
 }
