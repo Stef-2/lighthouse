@@ -85,6 +85,9 @@ export namespace lh
 		struct aabb
 		{
 			auto center() const -> const position_t;
+			auto size() const -> const vec3_t;
+			auto min_dimension() const -> const scalar_t;
+			auto max_dimension() const -> const scalar_t;
 			auto transformation() const -> const transformation_t;
 
 			position_t m_minima;

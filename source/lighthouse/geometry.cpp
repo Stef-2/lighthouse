@@ -94,9 +94,28 @@ namespace lh
 			return m_minima + (m_maxima - m_minima) / 2.0f;
 		}
 
+		auto aabb::size() const -> const vec3_t
+		{
+			return {m_maxima - m_minima};
+		}
+
+		auto aabb::min_dimension() const -> const scalar_t
+		{
+			const auto size = aabb::size();
+
+			return std::min({size.x, size.y, size.z});
+		}
+
+		auto aabb::max_dimension() const -> const scalar_t
+		{
+			const auto size = aabb::size();
+
+			return std::max({size.x, size.y, size.z});
+		}
+
 		auto aabb::transformation() const -> const transformation_t
 		{
-			const auto scale = m_maxima - m_minima;
+			const auto scale = size();
 			const auto center = m_minima + scale / 2.0f;
 
 			return {scale.x,
