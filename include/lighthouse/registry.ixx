@@ -41,6 +41,7 @@ export namespace lh
 
 	// CRTP to be inherited by a type T whose objects are to be registered in registry<T>
 	// objects of type T inheriting this one may only be created after an object of registry<T> has been created
+	// otherwise, the program is ill-formed, no diagnostic required
 	template <typename T>
 	class registry_entry
 	{
