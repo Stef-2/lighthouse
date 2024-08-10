@@ -192,7 +192,7 @@ target_sources(
 	${include}/lighthouse/object_index.ixx
 	${include}/lighthouse/scene.ixx
 	${include}/lighthouse/registry.ixx
- "include/lighthouse/input/image_data.ixx" "include/lighthouse/renderer/image_registry.ixx" "include/lighthouse/memory/heap.ixx" "include/lighthouse/memory/allocation_strategy.ixx")
+ "include/lighthouse/input/image_data.ixx" "include/lighthouse/renderer/image_registry.ixx" "include/lighthouse/memory/heap.ixx" "include/lighthouse/memory/allocation_strategy.ixx" "include/lighthouse/memory/virtual_allocator.ixx")
 
 target_sources(
 	${PROJECT_NAME} PUBLIC
@@ -251,7 +251,7 @@ target_sources(
 	${source}/lighthouse/geometry.cpp
 	
 	${source}/lighthouse/scene.cpp
- "source/lighthouse/input/image_data.cpp")
+ "source/lighthouse/input/image_data.cpp" "source/lighthouse/memory/virtual_allocator.cpp")
 
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_RELEASE}")
 #STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")

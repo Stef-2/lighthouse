@@ -9,7 +9,6 @@ export module buffer;
 
 import lighthouse_utility;
 import memory_mapped_span;
-import memory_suballocator;
 import data_type;
 import raii_wrapper;
 import logical_device;
@@ -104,6 +103,8 @@ export namespace lh
 			bool m_alive = true;
 		};
 
+		// =========================================================================
+
 		class mapped_buffer : public buffer
 		{
 		public:
@@ -146,6 +147,8 @@ export namespace lh
 			void* m_mapped_data_pointer;
 		};
 
+		// ===========================================================================
+
 		template <typename T>
 		class mapped_buffer_span : public mapped_buffer, public memory_mapped_span<T>
 		{
@@ -161,18 +164,24 @@ export namespace lh
 		private:
 		};
 
-		class suballocated_mapped_buffer : public mapped_buffer, private memory_suballocator<allocation_strategy::default_strategy>
+		// ===========================================================================
+
+		template <typename T>
+			requires lh::concepts::is_any<T, buffer, mapped_buffer>
+		class suballocated_buffer : public T
 		{
 		public:
-			suballocated_mapped_buffer(const logical_device& logical_device,
+			suballocated_buffer(const logical_device& logical_device,
 									   const memory_allocator& memory_allocator,
 									   const vk::DeviceSize size,
-									   const mapped_buffer::create_info& create_info = s_create_info)
-				: mapped_buffer {logical_device, memory_allocator, size, create_info},
-				  memory_suballocator {this->m_mapped_data_pointer, {0, size}}
-			{}
+									   const T::create_info& create_info = s_create_info)
+				: T {logical_device, memory_allocator, size, create_info},
+				  m_virtual_block {} //{this->m_mapped_data_pointer, {0, size}}
+			{
+				auto [result, virtual_block] = vma::createVirtualBlock()
+			}
 
-			using memory_suballocator::address;
+			//using memory_suballocator::address;
 
 			template <typename T>
 			[[nodiscard]] auto request_and_commit_span(std::size_t element_count) -> memory_mapped_span<T>
@@ -201,10 +210,20 @@ export namespace lh
 			}
 
 		private:
+			vma::VirtualBlock m_virtual_block;
 		};
 
-		template <typename T = mapped_buffer>
-		requires lh::concepts::is_any<T, buffer, mapped_buffer>
+		void test()
+		{
+			logical_device* ld;
+			memory_allocator* ma;
+			suballocated_buffer<buffer> sb {*ld, *ma, 32};
+		}
+
+		// =========================================================================
+
+		template <typename T = mapped_buffer, std::size_t N = std::dynamic_extent>
+			requires lh::concepts::is_any<T, buffer, mapped_buffer>
 		struct buffer_subdata
 		{
 			struct subdata
@@ -213,10 +232,12 @@ export namespace lh
 				vk::DeviceSize m_size;
 			};
 
+			using subdata_storage_t = std::conditional<N == std::dynamic_extent, std::vector<subdata>, std::array<subdata, N>>;
+
 			auto operator[](std::size_t index) const -> const subdata& { return m_subdata[index]; }
 
 			lh::non_owning_ptr<T> m_buffer;
-			std::vector<subdata> m_subdata;
+			/*std:: std::vector<subdata>*/subdata_storage_t m_subdata;
 		};
 	}
 }

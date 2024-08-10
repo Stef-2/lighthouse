@@ -103,7 +103,6 @@ export namespace lh
 			std::vector<shader_input> m_uniform_buffer_descriptors;
 			std::vector<shader_input> m_storage_buffer_descriptors;
 			std::vector<shader_input> m_combined_image_sampler_descriptors;
-			//shader_input m_push_constant;
 		};
 	}
 }
