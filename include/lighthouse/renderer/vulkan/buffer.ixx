@@ -13,6 +13,7 @@ import data_type;
 import raii_wrapper;
 import logical_device;
 import memory_allocator;
+import virtual_allocator;
 import output;
 import queue;
 
@@ -41,7 +42,15 @@ export namespace lh
 																	  m_memory_properties};
 			};
 
-			buffer(const logical_device&, const memory_allocator&, const vk::DeviceSize, const create_info& = {});
+			static inline constexpr auto s_create_info = buffer::create_info {
+				.m_usage = {},
+				.m_memory_properties = vk::MemoryPropertyFlagBits::eDeviceLocal,
+				.m_allocation_create_info = {{},
+																  vma::MemoryUsage::eAuto,
+																  vk::MemoryPropertyFlagBits::eDeviceLocal,
+																  vk::MemoryPropertyFlagBits::eDeviceLocal}};
+
+			buffer(const logical_device&, const memory_allocator&, const vk::DeviceSize, const create_info& = buffer::s_create_info);
 			buffer(buffer&&) noexcept;
 			buffer& operator=(buffer&&) noexcept;
 			~buffer();
@@ -125,7 +134,7 @@ export namespace lh
 			mapped_buffer(const logical_device&,
 						  const memory_allocator&,
 						  const vk::DeviceSize,
-						  const create_info& = s_create_info);
+						  const create_info& = mapped_buffer::s_create_info);
 			~mapped_buffer();
 			mapped_buffer(mapped_buffer&&) noexcept;
 			mapped_buffer& operator=(mapped_buffer&&) noexcept;
@@ -166,7 +175,7 @@ export namespace lh
 
 		// ===========================================================================
 
-		template <typename T>
+		template <typename T = mapped_buffer>
 			requires lh::concepts::is_any<T, buffer, mapped_buffer>
 		class suballocated_buffer : public T
 		{
@@ -174,50 +183,51 @@ export namespace lh
 			suballocated_buffer(const logical_device& logical_device,
 									   const memory_allocator& memory_allocator,
 									   const vk::DeviceSize size,
-									   const T::create_info& create_info = s_create_info)
+									   const T::create_info& create_info = T::s_create_info)
 				: T {logical_device, memory_allocator, size, create_info},
-				  m_virtual_block {} //{this->m_mapped_data_pointer, {0, size}}
+				  m_virtual_allocator {size}
+			{}
+
+			template <typename Y>
+				requires std::is_same_v<T, mapped_buffer>
+			[[nodiscard]] auto request_and_commit_span(std::size_t element_count) -> memory_mapped_span<Y>
 			{
-				auto [result, virtual_block] = vma::createVirtualBlock()
+				const auto memory_offset = m_virtual_allocator.request_and_commit_suballocation(element_count * sizeof (Y));
+
+				if (memory_offset == std::numeric_limits<virtual_allocator::memory_offset_t>::max())
+					output::error() << lh::string::string_t {"could not allocate: " + element_count * sizeof (Y)}.append(
+						" bytes from buffer at address: " + T::address());
+
+				const auto memory_address = static_cast<std::byte*>(T::m_mapped_data_pointer) + memory_offset;
+
+				return memory_mapped_span<Y> {reinterpret_cast<Y*>(memory_address), element_count};
 			}
 
-			//using memory_suballocator::address;
-
-			template <typename T>
-			[[nodiscard]] auto request_and_commit_span(std::size_t element_count) -> memory_mapped_span<T>
+			template <typename Y>
+				requires std::is_same_v<T, mapped_buffer>
+			auto free_span(const memory_mapped_span<Y>& span) -> void
 			{
-				const auto memory_ptr = memory_suballocator::request_and_commit_suballocation(element_count * sizeof T);
-
-				if (not memory_ptr)
-					output::error() << lh::string::string_t {"could not allocate: " + element_count * sizeof T}.append(
-						" bytes from buffer at address: " + memory_suballocator::address());
-
-
-				return memory_mapped_span<T> {static_cast<T*>(memory_ptr), element_count};
+				m_virtual_allocator.free_suballocation(reinterpret_cast<std::uintptr_t>(span.data()) - static_cast<virtual_allocator::memory_offset_t>(Y::m_mapped_data_pointer));
 			}
 
-			template <typename T>
-			auto free_span(const memory_mapped_span<T>& span) -> void
+			template <typename Y>
+				requires std::is_same_v<T, mapped_buffer>
+			auto span_device_address(const memory_mapped_span<Y>& span) -> const vk::DeviceAddress
 			{
-				memory_suballocator::free_suballocation({span.data(), span.size_bytes()});
-			}
-
-			template <typename T>
-			auto span_device_address(const memory_mapped_span<T>& span) -> const vk::DeviceAddress
-			{
-				return mapped_buffer::address() + reinterpret_cast<std::uintptr_t>(m_mapped_data_pointer) -
+				return mapped_buffer::address() + reinterpret_cast<std::uintptr_t>(T::m_mapped_data_pointer) -
 					   reinterpret_cast<std::uintptr_t>(span.data());
 			}
 
 		private:
-			vma::VirtualBlock m_virtual_block;
+			lh::virtual_allocator m_virtual_allocator;
 		};
 
 		void test()
 		{
 			logical_device* ld;
 			memory_allocator* ma;
-			suballocated_buffer<buffer> sb {*ld, *ma, 32};
+			suballocated_buffer<mapped_buffer> sb {*ld, *ma, 32};
+			auto wtf = sb.request_and_commit_span<int>(33);
 		}
 
 		// =========================================================================
@@ -232,12 +242,12 @@ export namespace lh
 				vk::DeviceSize m_size;
 			};
 
-			using subdata_storage_t = std::conditional<N == std::dynamic_extent, std::vector<subdata>, std::array<subdata, N>>;
+			using subdata_storage_t = std::conditional<N == std::dynamic_extent, std::vector<subdata>, std::array<subdata, N>>::type;
 
 			auto operator[](std::size_t index) const -> const subdata& { return m_subdata[index]; }
 
 			lh::non_owning_ptr<T> m_buffer;
-			/*std:: std::vector<subdata>*/subdata_storage_t m_subdata;
+			/*std::vector<subdata>*/subdata_storage_t m_subdata;
 		};
 	}
 }

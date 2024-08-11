@@ -87,7 +87,7 @@ export namespace lh
 		vulkan::descriptor_buffer m_global_descriptor_buffer;
 		vulkan::push_constant m_push_constant;
 		mesh_registry m_mesh_registry;
-		vulkan::suballocated_buffer m_instance_buffer;
+		vulkan::suballocated_buffer<vulkan::mapped_buffer> m_instance_buffer;
 
 		vulkan::pipeline m_test_pipeline;
 		//scene_data m_scene_loader;

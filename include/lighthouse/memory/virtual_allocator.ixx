@@ -17,6 +17,10 @@ export namespace lh
 	class virtual_allocator
 	{
 	public:
+		// memory_offset to be returned from suballocations
+		// returns std::numeric_limits<memory_offset_t>::max() on error
+		using memory_offset_t = std::size_t;
+
 		struct create_info
 		{
 			vma::VirtualBlockCreateFlagBits m_create_flags {};
@@ -39,10 +43,11 @@ export namespace lh
 
 		~virtual_allocator();
 
-		auto request_and_commit_suballocation(const std::size_t, const allocation_info& = {}) const -> const vma::VirtualAllocation;
-		auto free_suballocation(const vma::VirtualAllocation) const -> void;
+		[[nodiscard]] auto request_and_commit_suballocation(const std::size_t, const allocation_info& = {}) -> const memory_offset_t;
+		auto free_suballocation(const memory_offset_t) -> void;
 		
 	private:
 		vma::VirtualBlock m_virtual_block;
+		std::map<memory_offset_t, vma::VirtualAllocation> m_virtual_allocations;
 	};
 }
