@@ -63,7 +63,7 @@ namespace lh
 							file_system::data_path() /= "models/cone.obj"}},
 		  m_mapped_range {m_logical_device,
 						  m_memory_allocator,
-						  256000000 /*std::min(m_physical_device.properties().)*/},
+						  m_physical_device.properties().m_memory_properties.m_host_visible},
 		  m_instance_buffer {m_logical_device, m_memory_allocator, 1000 * sizeof glm::mat4x4},
 		  m_test_pipeline {m_physical_device,
 						   m_logical_device,

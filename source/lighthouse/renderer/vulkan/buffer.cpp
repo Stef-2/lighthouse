@@ -19,7 +19,7 @@ namespace lh
 			  m_allocation_info {},
 			  m_allocation {},
 			  m_address {},
-			  m_used_memory {},
+			  // m_used_memory {},
 			  m_create_info {create_info}
 		{
 			const auto buffer_info = vk::BufferCreateInfo({}, size, m_create_info.m_usage);
@@ -88,7 +88,7 @@ namespace lh
 		{
 			return m_allocation_info.size;
 		}
-
+		/*
 		auto buffer::used_memory() const -> const vk::DeviceSize&
 		{
 			return m_used_memory;
@@ -102,7 +102,7 @@ namespace lh
 		auto buffer::used_memory_percentage() const -> const used_memory_percentage_t
 		{
 			return static_cast<used_memory_percentage_t>(m_used_memory) / m_allocation_info.size * 100.0f;
-		}
+		}*/
 
 		auto buffer::create_information() const -> const create_info&
 		{

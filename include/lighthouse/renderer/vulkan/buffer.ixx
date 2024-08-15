@@ -62,43 +62,17 @@ export namespace lh
 
 			auto address() const -> const vk::DeviceAddress&;
 			auto size() const -> const vk::DeviceSize&;
-			auto used_memory() const -> const vk::DeviceSize&;
-			auto remaining_memory() const -> const vk::DeviceSize;
-			auto used_memory_percentage() const -> const used_memory_percentage_t;
+			//auto used_memory() const -> const vk::DeviceSize&;
+			//auto remaining_memory() const -> const vk::DeviceSize;
+			//auto used_memory_percentage() const -> const used_memory_percentage_t;
 			auto create_information() const -> const create_info&;
 			
 			template <typename T>
-			requires(not std::is_pointer_v<T>)
+				requires(not std::is_pointer_v<T>)
 			auto upload_data(queue& queue,
 							 const T& data,
 							 const std::size_t& offset = 0,
-							 const std::size_t& size = sizeof(T))
-			{
-				const auto staging_buffer = mapped_buffer {
-					*m_logical_device,
-					*m_allocator,
-					size,
-					{.m_usage = vk::BufferUsageFlagBits::eTransferSrc,
-					 .m_memory_properties = {vk::MemoryPropertyFlagBits::eHostVisible |
-											 vk::MemoryPropertyFlagBits::eHostCoherent},
-					 .m_allocation_create_info = {
-						 vma::AllocationCreateFlagBits::eMapped,
-						 vma::MemoryUsage::eAuto,
-						 {vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent},
-						 {vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent}}}};
-				staging_buffer.map_data(data, 0, size);
-
-				queue.command_control().reset();
-				const auto& command_buffer = queue.command_control().front();
-
-				command_buffer.begin(queue.command_control().usage_flags());
-				const auto buffer_copy = vk::BufferCopy2 {0, offset, size};
-				command_buffer.copyBuffer2(vk::CopyBufferInfo2 {*staging_buffer, *m_object, {buffer_copy}});
-				command_buffer.end();
-
-				queue.submit_and_wait();
-				m_used_memory = std::max(m_used_memory, offset + size);
-			}
+							 const std::size_t& size = sizeof(T));
 
 		protected:
 			const logical_device* m_logical_device;
@@ -107,7 +81,7 @@ export namespace lh
 			vma::Allocation m_allocation;
 
 			vk::DeviceAddress m_address;
-			vk::DeviceSize m_used_memory;
+			//vk::DeviceSize m_used_memory;
 
 			create_info m_create_info;
 		};
@@ -139,18 +113,20 @@ export namespace lh
 			mapped_buffer(mapped_buffer&&) noexcept;
 			mapped_buffer& operator=(mapped_buffer&&) noexcept;
 
+			template <typename T>
+				requires(not std::is_pointer_v<T>)
+			auto upload_data(queue&,
+							 const T&,
+							 const std::size_t&,
+							 const std::size_t&) = delete;
+
 			auto mapped_data_pointer() const -> void*;
 			auto map() -> void;
 			auto unmap() -> void;
 
 			template <typename T>
 			requires (not std::is_pointer_v<T>)
-			auto map_data(const T& data, const std::size_t& offset = 0, const std::size_t& size = sizeof(T)) const
-			{
-				const auto destination = static_cast<std::byte*>(m_mapped_data_pointer) + offset;
-				
-				std::memcpy(destination, &data, size);
-			}
+			auto map_data(const T& data, const std::size_t& offset = 0, const std::size_t& size = sizeof(T)) const;
 
 		protected:
 			void* m_mapped_data_pointer;
@@ -271,5 +247,44 @@ export namespace lh
 			lh::non_owning_ptr<T> m_buffer;
 			/*std::vector<subdata>*/subdata_storage_t m_subdata;
 		};
+
+		template <typename T>
+			requires(not std::is_pointer_v<T>)
+		auto buffer::upload_data(queue& queue, const T& data, const std::size_t& offset, const std::size_t& size)
+		{
+			const auto staging_buffer = mapped_buffer {
+				*m_logical_device,
+				*m_allocator,
+				size,
+				{.m_usage = vk::BufferUsageFlagBits::eTransferSrc,
+				 .m_memory_properties = {vk::MemoryPropertyFlagBits::eHostVisible |
+										 vk::MemoryPropertyFlagBits::eHostCoherent},
+				 .m_allocation_create_info = {
+					 vma::AllocationCreateFlagBits::eMapped,
+					 vma::MemoryUsage::eAuto,
+					 {vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent},
+					 {vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent}}}};
+			staging_buffer.map_data(data, 0, size);
+
+			queue.command_control().reset();
+			const auto& command_buffer = queue.command_control().front();
+
+			command_buffer.begin(queue.command_control().usage_flags());
+			const auto buffer_copy = vk::BufferCopy2 {0, offset, size};
+			command_buffer.copyBuffer2(vk::CopyBufferInfo2 {*staging_buffer, *m_object, {buffer_copy}});
+			command_buffer.end();
+
+			queue.submit_and_wait();
+			// m_used_memory = std::max(m_used_memory, offset + size);
+		}
+
+		template <typename T>
+			requires(not std::is_pointer_v<T>)
+		inline auto mapped_buffer::map_data(const T& data, const std::size_t& offset, const std::size_t& size) const
+		{
+			const auto destination = static_cast<std::byte*>(m_mapped_data_pointer) + offset;
+
+			std::memcpy(destination, &data, size);
+		}
 	}
 }
