@@ -61,11 +61,7 @@ namespace lh
 
 		buffer::~buffer()
 		{
-			if (*m_object and m_allocation)
-			{
-				(*m_allocator)->freeMemory(m_allocation);
-				m_alive = false;
-			}
+			if (*m_object and m_allocation) (*m_allocator)->freeMemory(m_allocation);
 		}
 
 		auto buffer::allocation() const -> const vma::Allocation&

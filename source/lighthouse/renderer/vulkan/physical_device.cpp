@@ -1,6 +1,7 @@
 module;
 
 module physical_device;
+
 import output;
 import lh_memory;
 
@@ -8,8 +9,38 @@ namespace lh
 {
 	namespace vulkan
 	{
+		auto generate_memory_properties(const vk::raii::PhysicalDevice& physical_device)
+			-> const physical_device::physical_properties::memory_properties
+		{
+			const auto memory = physical_device.getMemoryProperties2<vk::PhysicalDeviceMemoryProperties2,
+																	 vk::PhysicalDeviceMemoryBudgetPropertiesEXT>();
+			const auto [memory_properties, memory_budget] =
+				memory.get<vk::PhysicalDeviceMemoryProperties2, vk::PhysicalDeviceMemoryBudgetPropertiesEXT>();
 
-		lh::vulkan::physical_device::physical_device(const instance& instance, const create_info& create_info)
+			auto device_local = vk::DeviceSize {};
+			auto host_visible = vk::DeviceSize {};
+
+			for (auto i = std::size_t {}; i < memory_properties.memoryProperties.memoryTypeCount; i++)
+			{
+				if (memory_properties.memoryProperties.memoryTypes[i].propertyFlags &
+					vk::MemoryPropertyFlagBits::eDeviceLocal)
+				{
+					device_local += memory_properties.memoryProperties
+										.memoryHeaps[memory_properties.memoryProperties.memoryTypes[i].heapIndex]
+										.size;
+
+					if (memory_properties.memoryProperties.memoryTypes[i].propertyFlags &
+						vk::MemoryPropertyFlagBits::eHostVisible)
+						host_visible += memory_properties.memoryProperties
+											.memoryHeaps[memory_properties.memoryProperties.memoryTypes[i].heapIndex]
+											.size;
+				}
+			}
+
+			return {memory_properties, memory_budget, device_local, host_visible};
+		}
+
+		physical_device::physical_device(const instance& instance, const create_info& create_info)
 			: m_extensions {preferred_device(instance, create_info).enumerateDeviceExtensionProperties(),
 							create_info.m_extensions},
 			  m_performance_score {0},
@@ -31,7 +62,8 @@ namespace lh
 							properties.get<vk::PhysicalDeviceShaderObjectPropertiesEXT>(),
 							properties.get<vk::PhysicalDeviceDescriptorIndexingProperties>(),
 							properties.get<vk::PhysicalDeviceMaintenance5PropertiesKHR>(),
-							{properties.get<vk::PhysicalDeviceDescriptorBufferPropertiesEXT>()}};
+							{properties.get<vk::PhysicalDeviceDescriptorBufferPropertiesEXT>()},
+							generate_memory_properties(m_object)};
 
 			// physical device features
 			const auto features = m_object.getFeatures2<vk::PhysicalDeviceFeatures2,
@@ -51,12 +83,12 @@ namespace lh
 						  features.get<vk::PhysicalDeviceMaintenance5FeaturesKHR>()};
 		}
 
-		auto lh::vulkan::physical_device::extensions() const -> physical_extensions
+		auto physical_device::extensions() const -> physical_extensions
 		{
 			return m_extensions;
 		}
 
-		auto lh::vulkan::physical_device::info() const -> lh::string::string_t
+		auto physical_device::info() const -> lh::string::string_t
 		{
 			const auto properties = m_object.getProperties2();
 			const auto memory = memory::physical_device_memory(m_object);
@@ -81,8 +113,7 @@ namespace lh
 			return info;
 		}
 
-		auto lh::vulkan::physical_device::performance_score(const vk::raii::PhysicalDevice& device)
-			-> performance_score_t
+		auto physical_device::performance_score(const vk::raii::PhysicalDevice& device) -> performance_score_t
 		{
 			const auto properties = device.getProperties2();
 			const auto features = device.getFeatures2();
@@ -100,7 +131,7 @@ namespace lh
 			return score;
 		}
 
-		auto lh::vulkan::physical_device::properties() const -> const physical_properties&
+		auto physical_device::properties() const -> const physical_properties&
 		{
 			return m_properties;
 		}
@@ -110,20 +141,19 @@ namespace lh
 			return m_features;
 		}
 
-		auto lh::vulkan::physical_device::performance_score() const -> performance_score_t
+		auto physical_device::performance_score() const -> performance_score_t
 		{
 			return m_performance_score;
 		}
 
-		auto lh::vulkan::physical_device::preferred_device(const instance& instance, const create_info& create_info)
-			-> vk::raii::PhysicalDevice
+		auto physical_device::preferred_device(const instance& instance,
+											   const create_info& create_info) -> vk::raii::PhysicalDevice
 		{
 			// enumerate all vulkan capable physical devices
 			auto physical_devices = instance->enumeratePhysicalDevices();
 
 			// assert that there are any vulkan capable devices
-			if (physical_devices.empty())
-				output::fatal() << "this system does not support any vulkan capable devices";
+			if (physical_devices.empty()) output::fatal() << "this system does not support any vulkan capable devices";
 
 			// sort them according to their performance score
 			std::ranges::sort(physical_devices,

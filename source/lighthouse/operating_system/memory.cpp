@@ -18,9 +18,9 @@ auto lh::memory::physical_device_memory(const vk::raii::PhysicalDevice& physical
 	auto shared_available = vk::DeviceSize {};
 	auto shared_used = vk::DeviceSize {};
 
-	auto heap_count = memory_properties.memoryProperties.memoryHeapCount;
+	const auto heap_count = memory_properties.memoryProperties.memoryHeapCount;
 
-	for (decltype(heap_count) i {}; i < heap_count; i++)
+	for (auto i = std::size_t {}; i < heap_count; i++)
 	{
 		if (memory_properties.memoryProperties.memoryHeaps[i].flags == vk::MemoryHeapFlagBits::eDeviceLocal)
 		{

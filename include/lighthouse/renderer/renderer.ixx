@@ -87,6 +87,7 @@ export namespace lh
 		vulkan::descriptor_buffer m_global_descriptor_buffer;
 		vulkan::push_constant m_push_constant;
 		mesh_registry m_mesh_registry;
+		vulkan::suballocated_buffer<vulkan::mapped_buffer> m_mapped_range;
 		vulkan::suballocated_buffer<vulkan::mapped_buffer> m_instance_buffer;
 
 		vulkan::pipeline m_test_pipeline;

@@ -48,6 +48,14 @@ export namespace lh
 
 			struct physical_properties
 			{
+				struct memory_properties
+				{
+					vk::PhysicalDeviceMemoryProperties2 m_properties;
+					vk::PhysicalDeviceMemoryBudgetPropertiesEXT m_budget;
+					vk::DeviceSize m_device_local;
+					vk::DeviceSize m_host_visible;
+				};
+
 				struct descriptor_buffer
 				{
 					vk::PhysicalDeviceDescriptorBufferPropertiesEXT m_properties {};
@@ -64,6 +72,7 @@ export namespace lh
 				vk::PhysicalDeviceDescriptorIndexingProperties m_descriptor_indexing_properties {};
 				vk::PhysicalDeviceMaintenance5PropertiesKHR m_maintenance_t_properties {};
 				descriptor_buffer m_descriptor_buffer_properties;
+				memory_properties m_memory_properties;
 			};
 
 			struct physical_features

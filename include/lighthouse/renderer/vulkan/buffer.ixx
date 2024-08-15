@@ -12,6 +12,7 @@ import memory_mapped_span;
 import data_type;
 import raii_wrapper;
 import logical_device;
+import memory_block;
 import memory_allocator;
 import virtual_allocator;
 import output;
@@ -109,7 +110,6 @@ export namespace lh
 			vk::DeviceSize m_used_memory;
 
 			create_info m_create_info;
-			bool m_alive = true;
 		};
 
 		// =========================================================================
@@ -188,6 +188,9 @@ export namespace lh
 				  m_virtual_allocator {size}
 			{}
 
+			suballocated_buffer(const suballocated_buffer&) = delete;
+			auto operator=(const suballocated_buffer&) -> suballocated_buffer& = delete;
+
 			template <typename Y>
 				requires std::is_same_v<T, mapped_buffer>
 			[[nodiscard]] auto request_and_commit_span(std::size_t element_count) -> memory_mapped_span<Y>
@@ -218,17 +221,36 @@ export namespace lh
 					   reinterpret_cast<std::uintptr_t>(span.data());
 			}
 
+			template <typename Y>
+				requires std::is_same_v<T, buffer>
+			auto request_and_commit_range(std::size_t range_size)-> const lh::memory_block
+			{
+				const auto memory_offset = m_virtual_allocator.request_and_commit_suballocation(range_size);
+
+				if (memory_offset == std::numeric_limits<virtual_allocator::memory_offset_t>::max())
+					output::error() << lh::string::string_t {"could not allocate: " + range_size}.append(
+						" bytes from buffer at address: " + T::address());
+
+				return {memory_offset, range_size};
+			}
+
+			template <typename Y>
+				requires std::is_same_v<T, buffer>
+			auto free_range(const lh::memory_block& memory_block) -> void
+			{
+				m_virtual_allocator.free_suballocation(memory_block.m_offset);
+			}
+
+			template <typename Y>
+				requires std::is_same_v<T, buffer>
+			auto range_address(const memory_block& memory_block) -> const vk::DeviceAddress
+			{
+				return mapped_buffer::address() + memory_block.m_offset;
+			}
+
 		private:
 			lh::virtual_allocator m_virtual_allocator;
 		};
-
-		void test()
-		{
-			logical_device* ld;
-			memory_allocator* ma;
-			suballocated_buffer<mapped_buffer> sb {*ld, *ma, 32};
-			auto wtf = sb.request_and_commit_span<int>(33);
-		}
 
 		// =========================================================================
 

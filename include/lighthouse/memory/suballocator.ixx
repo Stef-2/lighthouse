@@ -3,6 +3,7 @@ module;
 export module memory_suballocator;
 
 import data_type;
+import memory_block;
 import allocation_strategy;
 import lighthouse_utility;
 
@@ -19,12 +20,6 @@ export namespace lh
 	public:
 		using suballocation_count_t = std::uint32_t;
 		using initial_free_block_count_t = std::uint32_t;
-
-		struct memory_block
-		{
-			std::size_t m_offset;
-			std::size_t m_size;
-		};
 
 		memory_suballocator(non_owning_ptr<void> memory_ptr,
 							const memory_block& initial_memory,
@@ -152,7 +147,7 @@ export namespace lh
 		}
 
 		const auto it = i == 0 ? m_free_memory_blocks.end() - 1 : m_free_memory_blocks.begin() + i;
-		m_free_memory_blocks.emplace(it, memory_suballocator<A>::memory_block {offset, memory_block.m_size});
+		m_free_memory_blocks.emplace(it, lh::memory_block {offset, memory_block.m_size});
 		//found = found.base();
 		/*
 		if (found != m_free_memory_blocks.rend())
