@@ -41,7 +41,7 @@ namespace lh
 			  m_allocation_info {std::exchange(other.m_allocation_info, {})},
 			  m_allocation {std::exchange(other.m_allocation, {})},
 			  m_address {std::exchange(other.m_address, {})},
-			  m_used_memory {std::exchange(other.m_used_memory, {})},
+			  // m_used_memory {std::exchange(other.m_used_memory, {})},
 			  m_create_info {std::exchange(other.m_create_info, {})}
 		{}
 
@@ -53,7 +53,7 @@ namespace lh
 			m_allocation_info = std::exchange(other.m_allocation_info, {});
 			m_allocation = std::exchange(other.m_allocation, {});
 			m_address = std::exchange(other.m_address, {});
-			m_used_memory = std::exchange(other.m_used_memory, {});
+			// m_used_memory = std::exchange(other.m_used_memory, {});
 			m_create_info = std::exchange(other.m_create_info, {});
 
 			return *this;

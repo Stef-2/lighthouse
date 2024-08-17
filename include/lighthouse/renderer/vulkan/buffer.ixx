@@ -114,7 +114,7 @@ export namespace lh
 			mapped_buffer& operator=(mapped_buffer&&) noexcept;
 
 			template <typename T>
-				requires(not std::is_pointer_v<T>)
+				requires (not std::is_pointer_v<T>)
 			auto upload_data(queue&,
 							 const T&,
 							 const std::size_t&,

@@ -11,6 +11,7 @@ import logical_device;
 import queue_families;
 import command_control;
 import swapchain;
+//import buffer;
 
 #if not INTELLISENSE
 import vulkan_hpp;
@@ -84,12 +85,19 @@ export namespace lh
 			auto present_and_wait() -> void;
 
 		private:
-			auto clear() -> void override;
+			auto clear() -> void override final;
 
 			const swapchain& m_swapchain;
 
 			vk::raii::Fence m_present_fence;
 			std::vector<vk::Semaphore> m_present_wait_semaphores;
 		};
+		/*
+		class transfer_queue : public queue
+		{
+		public:
+			transfer_queue(const logical_device&, const suballocated_buffer&, const create_info& = {});
+		private:
+		};*/
 	}
 }

@@ -37,7 +37,7 @@ export namespace lh
 			if (index > std::distance(m_last_access_element, this->begin() + index))
 				m_last_access_element = this->begin() + index;
 
-			return this->data()[index];
+			return this[index];
 		}
 
 		auto emplace_back(const T& element) -> void
