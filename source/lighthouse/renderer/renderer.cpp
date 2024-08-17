@@ -32,8 +32,22 @@ namespace lh
 		  m_memory_allocator {m_instance, m_physical_device, m_logical_device},
 		  m_implementation_inspector(m_instance, m_physical_device, m_logical_device, m_memory_allocator),
 		  m_swapchain {m_physical_device, m_logical_device, m_surface, m_queue_families, m_memory_allocator},
+		  m_suballocated_mapped_heap {
+			  m_logical_device,
+			  m_memory_allocator,
+			  m_physical_device.properties().m_memory_properties.m_host_visible,
+			  vulkan::buffer::create_info {.m_usage = {vk::BufferUsageFlagBits::eShaderDeviceAddress |
+													   vk::BufferUsageFlagBits::eTransferSrc},
+										   .m_memory_properties = {vk::MemoryPropertyFlagBits::eHostVisible |
+																   vk::MemoryPropertyFlagBits::eHostCoherent},
+										   .m_allocation_create_info = {vma::AllocationCreateFlagBits::eMapped,
+																		vma::MemoryUsage::eAuto,
+																		{vk::MemoryPropertyFlagBits::eHostVisible |
+																		 vk::MemoryPropertyFlagBits::eHostCoherent},
+																		{vk::MemoryPropertyFlagBits::eHostVisible |
+																		 vk::MemoryPropertyFlagBits::eHostCoherent}}}},
 		  m_graphics_queue {m_logical_device, m_swapchain, {m_queue_families.graphics()}},
-		  m_transfer_queue {m_logical_device, {m_queue_families.transfer()}},
+		  m_transfer_queue {m_logical_device, m_suballocated_mapped_heap, {m_queue_families.transfer()}},
 		  m_dynamic_rendering_state {vulkan::dynamic_rendering_state::create_info {
 			  .m_viewport = vk::Viewport(0.0f,
 										 static_cast<float>(m_surface.extent().height),
@@ -61,9 +75,9 @@ namespace lh
 							file_system::data_path() /= "models/sphere.obj",
 							file_system::data_path() /= "models/cylinder.obj",
 							file_system::data_path() /= "models/cone.obj"}},
-		  m_mapped_range {m_logical_device,
+		  /*m_mapped_range {m_logical_device,
 						  m_memory_allocator,
-						  m_physical_device.properties().m_memory_properties.m_host_visible},
+						  m_physical_device.properties().m_memory_properties.m_host_visible},*/
 		  m_instance_buffer {m_logical_device, m_memory_allocator, 1000 * sizeof glm::mat4x4},
 		  m_test_pipeline {m_physical_device,
 						   m_logical_device,

@@ -37,7 +37,7 @@ export namespace lh
 			std::filesystem::path m_cone_mesh = {};
 		};
 
-		mesh_registry(const vulkan::logical_device&, const vulkan::memory_allocator&, vulkan::queue&, const create_info& = {});
+		mesh_registry(const vulkan::logical_device&, const vulkan::memory_allocator&, vulkan::transfer_queue&, const create_info& = {});
 
 		auto plane() const -> const lh::mesh&;
 		auto cube() const -> const lh::mesh&;

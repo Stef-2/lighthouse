@@ -14,7 +14,7 @@ namespace lh
 {
 	mesh_registry::mesh_registry(const vulkan::logical_device& logical_device,
 								 const vulkan::memory_allocator& memory_allocator,
-								 vulkan::queue& queue,
+								 vulkan::transfer_queue& transfer_queue,
 								 const create_info& create_info)
 		: m_default_meshes {}, m_mesh_buffers {}
 	{
@@ -35,8 +35,16 @@ namespace lh
 									vulkan::buffer::create_info {.m_usage = vk::BufferUsageFlagBits::eVertexBuffer |
 																			vk::BufferUsageFlagBits::eIndexBuffer |
 																			vk::BufferUsageFlagBits::eTransferDst});
+		/*
+		m_mesh_buffers.back().upload_data(transfer_queue,
+										  *mesh_data.vertex_data().data(),
+										  0,
+										  mesh_data.vertex_data().size());*/
 
-		m_mesh_buffers.back().upload_data(queue, *mesh_data.vertex_data().data(), 0, mesh_data.vertex_data().size());
+		transfer_queue.upload_data_and_wait(
+			m_mesh_buffers.back(),
+			vulkan::transfer_queue::data_upload_info<scene_data::vertex_data_t::value_type> {
+				*mesh_data.vertex_data().data(), 0, mesh_data.vertex_data().size()});
 
 		for (auto i = std::size_t {}; i < std::to_underlying(default_meshes::default_mesh_count); i++)
 		{

@@ -80,44 +80,57 @@ namespace lh
 			m_submit_signal_semaphores.clear();
 			m_queue_state = queue_state::initial;
 		}
-	}
 
-	vulkan::graphics_queue::graphics_queue(const logical_device& logical_device,
-										   const swapchain& swapchain,
-										   const create_info& create_info)
-		: queue {logical_device, create_info},
-		  m_swapchain {swapchain},
-		  m_present_fence {*logical_device, vk::FenceCreateInfo {}},
-		  m_present_wait_semaphores {}
-	{}
+		graphics_queue::graphics_queue(const logical_device& logical_device,
+									   const swapchain& swapchain,
+									   const create_info& create_info)
+			: queue {logical_device, create_info},
+			  m_swapchain {swapchain},
+			  m_present_fence {*logical_device, vk::FenceCreateInfo {}},
+			  m_present_wait_semaphores {}
+		{}
 
-	auto vulkan::graphics_queue::add_present_wait_semaphore(const vk::Semaphore& semaphore) -> void
-	{
-		m_present_wait_semaphores.emplace_back(semaphore);
-	}
+		auto graphics_queue::add_present_wait_semaphore(const vk::Semaphore& semaphore) -> void
+		{
+			m_present_wait_semaphores.emplace_back(semaphore);
+		}
 
-	auto vulkan::graphics_queue::present() const -> void
-	{
-		const auto present_fence_info = vk::SwapchainPresentFenceInfoEXT {*m_present_fence};
+		auto graphics_queue::present() const -> void
+		{
+			const auto present_fence_info = vk::SwapchainPresentFenceInfoEXT {*m_present_fence};
 
-		std::ignore = m_object.presentKHR(
-			{m_present_wait_semaphores, **m_swapchain, m_swapchain.current_image_index(), {}, &present_fence_info});
-	}
+			std::ignore = m_object.presentKHR(
+				{m_present_wait_semaphores, **m_swapchain, m_swapchain.current_image_index(), {}, &present_fence_info});
+		}
 
-	auto vulkan::graphics_queue::present_and_wait() -> void
-	{
-		present();
+		auto graphics_queue::present_and_wait() -> void
+		{
+			present();
 
-		std::ignore = m_logical_device->waitForFences(*m_present_fence, true, m_fence_timeout);
+			std::ignore = m_logical_device->waitForFences(*m_present_fence, true, m_fence_timeout);
 
-		clear();
-	}
+			clear();
+		}
 
-	auto vulkan::graphics_queue::clear() -> void
-	{
-		queue::clear();
+		auto graphics_queue::clear() -> void
+		{
+			queue::clear();
 
-		m_logical_device->resetFences(*m_present_fence);
-		m_present_wait_semaphores.clear();
+			m_logical_device->resetFences(*m_present_fence);
+			m_present_wait_semaphores.clear();
+		}
+
+		transfer_queue::transfer_queue(const logical_device& logical_device,
+									   suballocated_buffer<mapped_buffer>& suballocated_buffer,
+									   const create_info& create_info)
+			: queue {logical_device, create_info}, m_suballocated_buffer {suballocated_buffer}
+		{}
+
+		auto transfer_queue::clear() -> void
+		{
+			queue::clear();
+
+			m_recorded_copies.clear();
+		}
 	}
 }

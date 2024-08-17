@@ -16,7 +16,7 @@ import memory_block;
 import memory_allocator;
 import virtual_allocator;
 import output;
-import queue;
+//import queue;
 
 import std;
 
@@ -66,13 +66,13 @@ export namespace lh
 			//auto remaining_memory() const -> const vk::DeviceSize;
 			//auto used_memory_percentage() const -> const used_memory_percentage_t;
 			auto create_information() const -> const create_info&;
-			
+			/*
 			template <typename T>
 				requires(not std::is_pointer_v<T>)
 			auto upload_data(queue& queue,
 							 const T& data,
-							 const std::size_t& offset = 0,
-							 const std::size_t& size = sizeof(T));
+							 const std::size_t offset = 0,
+							 const std::size_t size = sizeof(T));*/
 
 		protected:
 			const logical_device* m_logical_device;
@@ -113,20 +113,20 @@ export namespace lh
 			mapped_buffer(mapped_buffer&&) noexcept;
 			mapped_buffer& operator=(mapped_buffer&&) noexcept;
 
-			template <typename T>
+			/*template <typename T>
 				requires (not std::is_pointer_v<T>)
 			auto upload_data(queue&,
 							 const T&,
-							 const std::size_t&,
-							 const std::size_t&) = delete;
+							 const std::size_t,
+							 const std::size_t) = delete;*/
 
 			auto mapped_data_pointer() const -> void*;
 			auto map() -> void;
 			auto unmap() -> void;
 
 			template <typename T>
-			requires (not std::is_pointer_v<T>)
-			auto map_data(const T& data, const std::size_t& offset = 0, const std::size_t& size = sizeof(T)) const;
+				requires (not std::is_pointer_v<T>)
+			auto map_data(const T& data, const std::size_t offset = 0, const std::size_t size = sizeof(T)) const;
 
 		protected:
 			void* m_mapped_data_pointer;
@@ -169,7 +169,7 @@ export namespace lh
 
 			template <typename Y>
 				requires std::is_same_v<T, mapped_buffer>
-			[[nodiscard]] auto request_and_commit_span(std::size_t element_count) -> memory_mapped_span<Y>
+			[[nodiscard]] auto request_and_commit_span(const std::size_t element_count) -> memory_mapped_span<Y>
 			{
 				const auto memory_offset = m_virtual_allocator.request_and_commit_suballocation(element_count * sizeof (Y));
 
@@ -186,7 +186,10 @@ export namespace lh
 				requires std::is_same_v<T, mapped_buffer>
 			auto free_span(const memory_mapped_span<Y>& span) -> void
 			{
-				m_virtual_allocator.free_suballocation(reinterpret_cast<std::uintptr_t>(span.data()) - static_cast<virtual_allocator::memory_offset_t>(Y::m_mapped_data_pointer));
+				const auto span_ptr = reinterpret_cast<std::uintptr_t>(span.data());
+				const auto mapped_ptr = reinterpret_cast<std::uintptr_t>(T::mapped_data_pointer());
+
+				m_virtual_allocator.free_suballocation(span_ptr - mapped_ptr);
 			}
 
 			template <typename Y>
@@ -247,10 +250,10 @@ export namespace lh
 			lh::non_owning_ptr<T> m_buffer;
 			/*std::vector<subdata>*/subdata_storage_t m_subdata;
 		};
-
+		/*
 		template <typename T>
 			requires(not std::is_pointer_v<T>)
-		auto buffer::upload_data(queue& queue, const T& data, const std::size_t& offset, const std::size_t& size)
+		auto buffer::upload_data(queue& queue, const T& data, const std::size_t offset, const std::size_t size)
 		{
 			const auto staging_buffer = mapped_buffer {
 				*m_logical_device,
@@ -276,11 +279,11 @@ export namespace lh
 
 			queue.submit_and_wait();
 			// m_used_memory = std::max(m_used_memory, offset + size);
-		}
+		}*/
 
 		template <typename T>
 			requires(not std::is_pointer_v<T>)
-		inline auto mapped_buffer::map_data(const T& data, const std::size_t& offset, const std::size_t& size) const
+		inline auto mapped_buffer::map_data(const T& data, const std::size_t offset, const std::size_t size) const
 		{
 			const auto destination = static_cast<std::byte*>(m_mapped_data_pointer) + offset;
 

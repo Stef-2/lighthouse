@@ -11,7 +11,7 @@ import logical_device;
 import queue_families;
 import command_control;
 import swapchain;
-//import buffer;
+import buffer;
 
 #if not INTELLISENSE
 import vulkan_hpp;
@@ -92,12 +92,58 @@ export namespace lh
 			vk::raii::Fence m_present_fence;
 			std::vector<vk::Semaphore> m_present_wait_semaphores;
 		};
-		/*
+		
 		class transfer_queue : public queue
 		{
 		public:
-			transfer_queue(const logical_device&, const suballocated_buffer&, const create_info& = {});
+
+			template <typename T>
+				requires(not std::is_pointer_v<T>)
+			struct data_upload_info
+			{
+				const T& m_data;
+				std::size_t m_offset = 0;
+				std::size_t m_size = sizeof T;
+			};
+
+			transfer_queue(const logical_device&, suballocated_buffer<mapped_buffer>&, const create_info& = {});
+
+			template <typename T>
+				requires(not std::is_pointer_v<T>)
+			auto record_data_upload(const buffer& buffer, const data_upload_info<T>& data_upload_info)
+			{
+				const auto buffer_copy = vk::BufferCopy2 {0, data_upload_info.m_offset, data_upload_info.m_size};
+				m_recorded_copies.emplace_back(vk::CopyBufferInfo2 {vk::Buffer {}, *buffer, {buffer_copy}});
+			}
+
+			template <typename T>
+				requires(not std::is_pointer_v<T>)
+			auto upload_data_and_wait(const buffer& buffer, const data_upload_info<T>& data_upload_info)
+			{
+				auto span = m_suballocated_buffer.request_and_commit_span<T>(data_upload_info.m_size);
+				std::memcpy(span.data(), &data_upload_info.m_data, data_upload_info.m_size);
+
+				m_command_control.reset();
+				const auto& command_buffer = m_command_control.front();
+
+				command_buffer.begin(m_command_control.usage_flags());
+
+				const auto buffer_copy = vk::BufferCopy2 {0, data_upload_info.m_offset, data_upload_info.m_size};
+				command_buffer.copyBuffer2(vk::CopyBufferInfo2 {*m_suballocated_buffer, *buffer, {buffer_copy}});
+
+				command_buffer.end();
+
+				submit_and_wait();
+
+				m_suballocated_buffer.free_span(span);
+			}
+
 		private:
-		};*/
+			auto clear() -> void override final;
+
+			suballocated_buffer<mapped_buffer>& m_suballocated_buffer;
+
+			std::vector<vk::CopyBufferInfo2> m_recorded_copies;
+		};
 	}
 }

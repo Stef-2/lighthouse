@@ -2,13 +2,17 @@ module;
 
 #if INTELLISENSE
 #include "vulkan/vulkan_raii.hpp"
+#include "vma/vk_mem_alloc.hpp"
 #endif
 
 export module user_interface;
 
 import input;
 import dear_imgui;
+
+#if not INTELLISENSE
 import vk_mem_alloc_hpp;
+#endif
 
 import std;
 

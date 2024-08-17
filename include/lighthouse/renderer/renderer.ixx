@@ -77,8 +77,9 @@ export namespace lh
 		vulkan::memory_allocator m_memory_allocator;
 		implementation_inspector m_implementation_inspector;
 		vulkan::swapchain m_swapchain;
+		vulkan::suballocated_buffer<vulkan::mapped_buffer> m_suballocated_mapped_heap;
 		vulkan::graphics_queue m_graphics_queue;
-		vulkan::queue m_transfer_queue;
+		vulkan::transfer_queue m_transfer_queue;
 		vulkan::dynamic_rendering_state m_dynamic_rendering_state;
 		user_interface m_user_interface;
 
@@ -87,7 +88,7 @@ export namespace lh
 		vulkan::descriptor_buffer m_global_descriptor_buffer;
 		vulkan::push_constant m_push_constant;
 		mesh_registry m_mesh_registry;
-		vulkan::suballocated_buffer<vulkan::mapped_buffer> m_mapped_range;
+		//vulkan::suballocated_buffer<vulkan::mapped_buffer> m_mapped_range;
 		vulkan::suballocated_buffer<vulkan::mapped_buffer> m_instance_buffer;
 
 		vulkan::pipeline m_test_pipeline;
