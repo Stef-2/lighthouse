@@ -51,7 +51,7 @@ namespace lh
 						   const logical_device& logical_device,
 						   const memory_allocator& memory_allocator,
 						   const shader_pipeline::pipeline_code_t& shader_paths,
-						   const global_descriptor& global_descriptor,
+						   const pipeline_layout& pipeline_layout,
 						   const descriptor_buffer& descriptor_buffer,
 						   const create_info& create_info)
 			: m_create_info {create_info},
@@ -83,7 +83,7 @@ namespace lh
 			const auto unique_pipeline_inputs = generate_unique_pipeline_inputs(pipeline_shader_inputs);
 
 			// generate the pipeline
-			m_shader_pipeline = {logical_device, spir_v, global_descriptor};
+			m_shader_pipeline = {logical_device, spir_v, pipeline_layout};
 
 			// generate uniform and storage buffer data to form a resource buffer
 			auto resource_buffer_subdata =

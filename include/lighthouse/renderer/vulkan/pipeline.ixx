@@ -10,7 +10,7 @@ import physical_device;
 import logical_device;
 import memory_allocator;
 import descriptor_buffer;
-import global_descriptor;
+import pipeline_layout;
 import file_system;
 import shader_object;
 import buffer;
@@ -41,7 +41,7 @@ export namespace lh
 					 const logical_device&,
 					 const memory_allocator&,
 					 const shader_pipeline::pipeline_code_t&,
-					 const global_descriptor&,
+					 const pipeline_layout&,
 					 const descriptor_buffer&,
 					 const create_info& = {});
 

@@ -15,7 +15,7 @@ import queue_families;
 import memory_allocator;
 import command_control;
 import queue;
-import global_descriptor;
+import pipeline_layout;
 import material;
 import swapchain;
 import dynamic_rendering_state;
@@ -74,6 +74,7 @@ export namespace lh
 		vulkan::surface m_surface;
 		vulkan::queue_families m_queue_families;
 		vulkan::logical_device m_logical_device;
+		vulkan::pipeline_layout m_pipeline_layout;
 		vulkan::memory_allocator m_memory_allocator;
 		implementation_inspector m_implementation_inspector;
 		vulkan::swapchain m_swapchain;
@@ -83,7 +84,6 @@ export namespace lh
 		vulkan::dynamic_rendering_state m_dynamic_rendering_state;
 		user_interface m_user_interface;
 
-		vulkan::global_descriptor m_global_descriptor;
 		global_light_manager m_global_light_manager;
 		vulkan::descriptor_buffer m_global_descriptor_buffer;
 		vulkan::push_constant m_push_constant;

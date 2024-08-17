@@ -17,7 +17,7 @@ namespace lh
 	{
 		shader_object::shader_object(const logical_device& logical_device,
 									 const spir_v& spir_v,
-									 const global_descriptor& global_descriptor,
+									 const pipeline_layout& pipeline_layout,
 									 const create_info& create_info)
 			: m_shader_stage {spir_v.stage()}
 		{
@@ -29,10 +29,10 @@ namespace lh
 										 spir_v.code().size() * sizeof(spir_v::spir_v_bytecode_t::value_type),
 										 spir_v.code().data(),
 										 spir_v.entrypoint().c_str(),
-										 static_cast<std::uint32_t>(global_descriptor.descriptor_set_layouts().size()),
-										 global_descriptor.descriptor_set_layouts().data(),
+										 static_cast<std::uint32_t>(pipeline_layout.descriptor_set_layouts().size()),
+										 pipeline_layout.descriptor_set_layouts().data(),
 										 1,
-										 &global_descriptor.push_constant_range()};
+										 &pipeline_layout.push_constant_range()};
 
 			m_object = {*logical_device, shader_create_info};
 		}
@@ -61,7 +61,7 @@ namespace lh
 		// #pragma optimize("", off)
 		shader_pipeline::shader_pipeline(const logical_device& logical_device,
 										 const std::vector<spir_v>& pipeline_data,
-										 const global_descriptor& global_descriptor,
+										 const pipeline_layout& pipeline_layout,
 										 const shader_object::create_info& create_info)
 			: m_pipeline_stages {}
 		{
@@ -71,8 +71,8 @@ namespace lh
 			{
 				m_pipeline_stages.push_back(spir_v.stage());
 				/*
-				const auto descriptor_set_layouts = global_descriptor.descriptor_set_layouts();
-				const auto& wtf = global_descriptor.uniform_buffer_set();
+				const auto descriptor_set_layouts = pipeline_layout.descriptor_set_layouts();
+				const auto& wtf = pipeline_layout.uniform_buffer_set();
 				if (*wtf == 0)
 				{
 					std::cout << *wtf << '\n';
@@ -87,10 +87,10 @@ namespace lh
 												  spir_v.code().data(),
 												  spir_v.entrypoint().c_str(),
 												  static_cast<std::uint32_t>(
-													  global_descriptor.descriptor_set_layouts().size()),
-												  global_descriptor.descriptor_set_layouts().data(),
+													  pipeline_layout.descriptor_set_layouts().size()),
+												  pipeline_layout.descriptor_set_layouts().data(),
 												  1,
-												  &global_descriptor.push_constant_range());
+												  &pipeline_layout.push_constant_range());
 			}
 
 			m_object = {*logical_device, pipeline_create_info};

@@ -29,6 +29,7 @@ namespace lh
 		  m_logical_device {m_physical_device,
 							m_queue_families,
 							{m_physical_device.extensions().required_extensions()}},
+		  m_pipeline_layout {m_physical_device, m_logical_device},
 		  m_memory_allocator {m_instance, m_physical_device, m_logical_device},
 		  m_implementation_inspector(m_instance, m_physical_device, m_logical_device, m_memory_allocator),
 		  m_swapchain {m_physical_device, m_logical_device, m_surface, m_queue_families, m_memory_allocator},
@@ -63,9 +64,8 @@ namespace lh
 							m_queue_families.graphics(),
 							m_graphics_queue,
 							m_swapchain},
-		  m_global_descriptor {m_physical_device, m_logical_device},
 		  m_global_light_manager {m_physical_device, m_logical_device, m_memory_allocator},
-		  m_global_descriptor_buffer {m_physical_device, m_logical_device, m_memory_allocator, m_global_descriptor},
+		  m_global_descriptor_buffer {m_physical_device, m_logical_device, m_memory_allocator, m_pipeline_layout},
 		  m_push_constant {},
 		  m_mesh_registry {m_logical_device,
 						   m_memory_allocator,
@@ -84,7 +84,7 @@ namespace lh
 						   m_memory_allocator,
 						   {file_system::data_path() /= "shaders/basic.vert",
 							file_system::data_path() /= "shaders/basic.frag"},
-						   m_global_descriptor,
+						   m_pipeline_layout,
 						   m_global_descriptor_buffer},
 		  // m_scene_loader {m_logical_device, m_memory_allocator, file_system::data_path() /= "models/cube.obj"},
 		  m_camera {std::make_shared<lh::node>(), camera<camera_type::perspective>::create_info {}},
@@ -107,7 +107,7 @@ namespace lh
 		  m_skybox {m_physical_device,
 					m_logical_device,
 					m_memory_allocator,
-					m_global_descriptor,
+					m_pipeline_layout,
 					m_global_descriptor_buffer,
 					m_mesh_registry,
 					{file_system::data_path() /= "shaders/skybox.vert",
@@ -189,8 +189,10 @@ namespace lh
 
 	auto renderer::push_constants() const -> void
 	{
-		m_graphics_queue.command_control().front().pushConstants<vulkan::push_constant>(
-			m_global_descriptor.pipeline_layout(), vk::ShaderStageFlagBits::eAll, 0, m_push_constant);
+		m_graphics_queue.command_control().front().pushConstants<vulkan::push_constant>(m_pipeline_layout.layout(),
+																						vk::ShaderStageFlagBits::eAll,
+																						0,
+																						m_push_constant);
 	}
 
 	// ===========================================================================

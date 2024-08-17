@@ -6,15 +6,15 @@ module;
 	#include <numeric>
 #endif
 
-module global_descriptor;
+module pipeline_layout;
 
 namespace lh
 {
 	namespace vulkan
 	{
-		global_descriptor::global_descriptor(const physical_device& physical_device,
-											 const logical_device& logical_device,
-											 const create_info& create_info)
+		pipeline_layout::pipeline_layout(const physical_device& physical_device,
+										 const logical_device& logical_device,
+										 const create_info& create_info)
 			: m_create_info {create_info},
 			  m_uniform_buffer_set {nullptr},
 			  m_storage_buffer_set {nullptr},
@@ -86,37 +86,37 @@ namespace lh
 			m_pipeline_layout = {*logical_device, {{}, descriptor_sets, {m_push_constant_range}}};
 		}
 
-		auto global_descriptor::uniform_buffer_set() const -> const vk::raii::DescriptorSetLayout&
+		auto pipeline_layout::uniform_buffer_set() const -> const vk::raii::DescriptorSetLayout&
 		{
 			return m_uniform_buffer_set;
 		}
 
-		auto global_descriptor::storage_buffer_set() const -> const vk::raii::DescriptorSetLayout&
+		auto pipeline_layout::storage_buffer_set() const -> const vk::raii::DescriptorSetLayout&
 		{
 			return m_storage_buffer_set;
 		}
 
-		auto global_descriptor::combined_image_sampler_set() const -> const vk::raii::DescriptorSetLayout&
+		auto pipeline_layout::combined_image_sampler_set() const -> const vk::raii::DescriptorSetLayout&
 		{
 			return m_combined_image_sampler_set;
 		}
 
-		auto global_descriptor::descriptor_set_layouts() const -> const std::array<vk::DescriptorSetLayout, 3>
+		auto pipeline_layout::descriptor_set_layouts() const -> const std::array<vk::DescriptorSetLayout, 3>
 		{
 			return {*m_uniform_buffer_set, *m_storage_buffer_set, *m_combined_image_sampler_set};
 		}
 
-		auto global_descriptor::push_constant_range() const -> const vk::PushConstantRange&
+		auto pipeline_layout::push_constant_range() const -> const vk::PushConstantRange&
 		{
 			return m_push_constant_range;
 		}
 
-		auto global_descriptor::pipeline_layout() const -> const vk::raii::PipelineLayout&
+		auto pipeline_layout::layout() const -> const vk::raii::PipelineLayout&
 		{
 			return m_pipeline_layout;
 		}
 
-		auto global_descriptor::create_information() const -> const create_info&
+		auto pipeline_layout::create_information() const -> const create_info&
 		{
 			return m_create_info;
 		}

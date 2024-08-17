@@ -16,30 +16,30 @@ namespace lh
 		descriptor_buffer::descriptor_buffer(const physical_device& physical_device,
 											 const logical_device& logical_device,
 											 const memory_allocator& memory_allocator,
-											 const global_descriptor& global_descriptor,
+											 const pipeline_layout& pipeline_layout,
 											 const create_info& create_info)
 			: m_physical_device {physical_device},
 			  m_logical_device {logical_device},
-			  m_global_descriptor {global_descriptor},
+			  m_pipeline_layout {pipeline_layout},
 			  m_accumulated_uniform_descriptor_offset {},
 			  m_accumulated_storage_descriptor_offset {},
 			  m_resource_buffer_offsets {},
 			  m_texture_count {},
 			  m_vacant_combined_image_sampler_slots {},
 			  m_uniform_buffer_offset {0},
-			  m_storage_buffer_offset {global_descriptor.uniform_buffer_set().getSizeEXT() *
-									   global_descriptor.create_information().m_num_uniform_buffers},
+			  m_storage_buffer_offset {pipeline_layout.uniform_buffer_set().getSizeEXT() *
+									   pipeline_layout.create_information().m_num_uniform_buffers},
 			  m_combined_image_sampler_buffer_offset {m_storage_buffer_offset +
-													  global_descriptor.storage_buffer_set().getSizeEXT() *
-														  global_descriptor.create_information().m_num_storage_buffers},
+													  pipeline_layout.storage_buffer_set().getSizeEXT() *
+														  pipeline_layout.create_information().m_num_storage_buffers},
 			  m_descriptor_buffer {logical_device,
 								   memory_allocator,
-								   global_descriptor.uniform_buffer_set().getSizeEXT() *
-										   global_descriptor.create_information().m_num_uniform_buffers +
-									   global_descriptor.storage_buffer_set().getSizeEXT() *
-										   global_descriptor.create_information().m_num_storage_buffers +
-									   global_descriptor.combined_image_sampler_set().getSizeEXT() *
-										   global_descriptor.create_information().m_num_combined_image_samplers,
+								   pipeline_layout.uniform_buffer_set().getSizeEXT() *
+										   pipeline_layout.create_information().m_num_uniform_buffers +
+									   pipeline_layout.storage_buffer_set().getSizeEXT() *
+										   pipeline_layout.create_information().m_num_storage_buffers +
+									   pipeline_layout.combined_image_sampler_set().getSizeEXT() *
+										   pipeline_layout.create_information().m_num_combined_image_samplers,
 								   mapped_buffer::create_info {
 									   .m_usage = vk::BufferUsageFlagBits::eShaderDeviceAddress |
 												  vk::BufferUsageFlagBits::eResourceDescriptorBufferEXT |
@@ -96,7 +96,7 @@ namespace lh
 													   resource_buffer_offsets {accumulated_uniform_descriptor_offset,
 																				accumulated_storage_descriptor_offset});
 			// register uniform buffers
-			for (auto i = global_descriptor::descriptor_type_size_t {};
+			for (auto i = pipeline_layout::descriptor_type_size_t {};
 				 const auto& descriptor_data : resource_buffer.uniform_descriptors())
 			{
 				const auto memcpy_destination = static_cast<std::byte*>(m_descriptor_buffer.mapped_data_pointer()) +
@@ -109,7 +109,7 @@ namespace lh
 			}
 
 			// register storage buffers
-			for (auto i = global_descriptor::descriptor_type_size_t {};
+			for (auto i = pipeline_layout::descriptor_type_size_t {};
 				 const auto& descriptor_data : resource_buffer.storage_descriptors())
 			{
 				const auto memcpy_destination = static_cast<std::byte*>(m_descriptor_buffer.mapped_data_pointer()) +
@@ -129,7 +129,7 @@ namespace lh
 			const auto& resource_offsets = m_resource_buffer_offsets.at(&resource_buffer);
 
 			command_buffer.setDescriptorBufferOffsetsEXT(bind_point,
-														 *m_global_descriptor.pipeline_layout(),
+														 *m_pipeline_layout.layout(),
 														 0,
 														 {0, 1, 2},
 														 {resource_offsets.m_uniform_descriptor_offset,

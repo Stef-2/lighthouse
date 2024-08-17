@@ -9,7 +9,7 @@ export module descriptor_buffer;
 import physical_device;
 import logical_device;
 import memory_allocator;
-import global_descriptor;
+import pipeline_layout;
 import buffer;
 import descriptor_resource_buffer;
 
@@ -37,7 +37,7 @@ export namespace lh
 			descriptor_buffer(const physical_device&,
 							  const logical_device&,
 							  const memory_allocator&,
-							  const global_descriptor&,
+							  const pipeline_layout&,
 							  const create_info& = {});
 
 
@@ -61,7 +61,7 @@ export namespace lh
 
 			const physical_device& m_physical_device;
 			const logical_device& m_logical_device;
-			const global_descriptor& m_global_descriptor;
+			const pipeline_layout& m_pipeline_layout;
 
 			// resource management
 			mutable descriptor_offsets_t m_accumulated_uniform_descriptor_offset;
@@ -69,8 +69,8 @@ export namespace lh
 			mutable std::map<const descriptor_resource_buffer*, resource_buffer_offsets> m_resource_buffer_offsets;
 			
 			// texture management
-			mutable global_descriptor::descriptor_type_size_t m_texture_count;
-			mutable std::vector<global_descriptor::descriptor_type_size_t> m_vacant_combined_image_sampler_slots;
+			mutable pipeline_layout::descriptor_type_size_t m_texture_count;
+			mutable std::vector<pipeline_layout::descriptor_type_size_t> m_vacant_combined_image_sampler_slots;
 
 			// buffer management
 			const vk::DeviceSize m_uniform_buffer_offset;

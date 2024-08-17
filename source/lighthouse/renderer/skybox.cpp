@@ -7,7 +7,7 @@ namespace lh
 	skybox::skybox(const vulkan::physical_device& physical_device,
 				   const vulkan::logical_device& logical_device,
 				   const vulkan::memory_allocator& memory_allocator,
-				   const vulkan::global_descriptor& global_descriptor,
+				   const vulkan::pipeline_layout& pipeline_layout,
 				   const vulkan::descriptor_buffer& descriptor_buffer,
 				   const mesh_registry& mesh_registry,
 				   const vulkan::shader_pipeline::pipeline_code_t& pipeline_code,
@@ -16,7 +16,7 @@ namespace lh
 				   const create_info& create_info)
 		: m_mesh {mesh_registry.cube()},
 		  m_pipeline_resource_generator {
-			  physical_device, logical_device, memory_allocator, pipeline_code, global_descriptor, descriptor_buffer},
+			  physical_device, logical_device, memory_allocator, pipeline_code, pipeline_layout, descriptor_buffer},
 		  m_texture {physical_device,
 					 logical_device,
 					 memory_allocator,

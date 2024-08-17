@@ -5,7 +5,7 @@ export module skybox;
 import physical_device;
 import logical_device;
 import memory_allocator;
-import global_descriptor;
+import pipeline_layout;
 import descriptor_buffer;
 import pipeline;
 import dynamic_rendering_state;
@@ -30,7 +30,7 @@ export namespace lh
 		skybox(const vulkan::physical_device&,
 			   const vulkan::logical_device&,
 			   const vulkan::memory_allocator&,
-			   const vulkan::global_descriptor&,
+			   const vulkan::pipeline_layout&,
 			   const vulkan::descriptor_buffer&,
 			   const mesh_registry&,
 			   const vulkan::shader_pipeline::pipeline_code_t&,

@@ -4,7 +4,7 @@ module;
 #include "vulkan/vulkan_raii.hpp"
 #endif
 
-export module global_descriptor;
+export module pipeline_layout;
 
 import physical_device;
 import logical_device;
@@ -19,7 +19,7 @@ export namespace lh
 {
 	namespace vulkan
 	{
-		class global_descriptor
+		class pipeline_layout
 		{
 		public:
 			using descriptor_type_size_t = std::uint32_t;
@@ -31,7 +31,7 @@ export namespace lh
 				descriptor_type_size_t m_num_combined_image_samplers = 1024;
 			};
 
-			global_descriptor(const physical_device&, const logical_device&, const create_info& = {});
+			pipeline_layout(const physical_device&, const logical_device&, const create_info& = {});
 
 
 			auto uniform_buffer_set() const -> const vk::raii::DescriptorSetLayout&;
@@ -41,7 +41,7 @@ export namespace lh
 			auto descriptor_set_layouts() const -> const std::array<vk::DescriptorSetLayout, 3>;
 
 			auto push_constant_range() const -> const vk::PushConstantRange&;
-			auto pipeline_layout() const -> const vk::raii::PipelineLayout&;
+			auto layout() const -> const vk::raii::PipelineLayout&;
 
 			auto create_information() const -> const create_info&;
 
