@@ -120,7 +120,8 @@ namespace lh
 						file_system::data_path() /= "textures/skybox/+z.png",
 						file_system::data_path() /= "textures/skybox/-z.png",
 					},
-					m_transfer_queue}
+					m_transfer_queue},
+		  m_test {m_logical_device, m_memory_allocator, sizeof(float)}
 	{
 		// m_global_descriptor_buffer.register_resource_buffer(m_test_pipeline.resource_buffer());
 		// m_global_descriptor_buffer.register_resource_buffer(m_skybox.pipeline().resource_buffer());
@@ -141,6 +142,8 @@ namespace lh
 		/*m_instance_buffer.address();*/ /*smb.address();*/
 
 		if (m_create_info.m_using_validation) output::log() << info(m_create_info);
+
+		m_test.map_data(3.0f);
 
 		output::dump_logs(std::cout);
 
@@ -211,8 +214,8 @@ namespace lh
 
 		command_buffer.beginRendering(render_info);
 
-		m_dynamic_rendering_state.state().m_cull_mode = vk::CullModeFlagBits::eNone;
-		// m_dynamic_rendering_state.state().m_depth_testing = false;
+		// m_dynamic_rendering_state.state().m_cull_mode = vk::CullModeFlagBits::eNone;
+		//  m_dynamic_rendering_state.state().m_depth_testing = false;
 		m_dynamic_rendering_state.bind(command_buffer);
 		m_global_descriptor_buffer.bind(command_buffer);
 

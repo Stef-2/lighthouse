@@ -18,15 +18,16 @@ namespace lh
 		shader_object::shader_object(const logical_device& logical_device,
 									 const spir_v& spir_v,
 									 const pipeline_layout& pipeline_layout,
-									 const create_info& create_info)
-			: m_shader_stage {spir_v.stage()}
+									 const string::string_t& name,
+									 const spir_v_create_info& create_info)
+			: m_shader_stage {spir_v.stage()}, m_name {name}
 		{
 			const auto shader_create_info =
-				vk::ShaderCreateInfoEXT {create_info.m_modifier_flags,
+				vk::ShaderCreateInfoEXT {create_info.m_create_flags,
 										 m_shader_stage,
 										 *(std::ranges::find(s_shader_stage_chain, m_shader_stage) + 1),
-										 create_info.m_code_type,
-										 spir_v.code().size() * sizeof(spir_v::spir_v_bytecode_t::value_type),
+										 vk::ShaderCodeTypeEXT::eSpirv,
+										 spir_v.code().size() * sizeof(spir_v::spir_v_code_t::value_type),
 										 spir_v.code().data(),
 										 spir_v.entrypoint().c_str(),
 										 static_cast<std::uint32_t>(pipeline_layout.descriptor_set_layouts().size()),
@@ -40,6 +41,29 @@ namespace lh
 		auto shader_object::stage() const -> const vk::ShaderStageFlagBits&
 		{
 			return m_shader_stage;
+		}
+
+		shader_object::shader_object(const logical_device& logical_device,
+									 const binary_data_t& binary_data,
+									 const pipeline_layout& pipeline_layout,
+									 const string::string_t& name,
+									 const binary_create_info& create_info)
+			: m_shader_stage {create_info.m_shader_stage}, m_name {name}
+		{
+			const auto shader_create_info =
+				vk::ShaderCreateInfoEXT {create_info.m_create_flags,
+										 m_shader_stage,
+										 *(std::ranges::find(s_shader_stage_chain, m_shader_stage) + 1),
+										 vk::ShaderCodeTypeEXT::eBinary,
+										 binary_data.size() * sizeof(binary_data_t::value_type),
+										 binary_data.data(),
+										 create_info.m_entrypoint.c_str(),
+										 static_cast<std::uint32_t>(pipeline_layout.descriptor_set_layouts().size()),
+										 pipeline_layout.descriptor_set_layouts().data(),
+										 1,
+										 &pipeline_layout.push_constant_range()};
+
+			m_object = {*logical_device, shader_create_info};
 		}
 
 		auto shader_object::cache_binary_data(const std::filesystem::path& path) const -> void
@@ -58,39 +82,75 @@ namespace lh
 
 		// ==========================================================================
 
-		// #pragma optimize("", off)
 		shader_pipeline::shader_pipeline(const logical_device& logical_device,
-										 const std::vector<spir_v>& pipeline_data,
+										 const std::vector<spir_v>& spir_v,
 										 const pipeline_layout& pipeline_layout,
-										 const shader_object::create_info& create_info)
-			: m_pipeline_stages {}
+										 const std::vector<lh::string::string_t>& names,
+										 const std::vector<shader_object::spir_v_create_info>& create_infos)
+			: m_pipeline_stages {}, m_names {names}
 		{
-			auto pipeline_create_info = std::vector<vk::ShaderCreateInfoEXT> {};
-
-			for (const auto& spir_v : pipeline_data)
+			if (spir_v.size() != names.size() and names.size() != create_infos.size())
 			{
-				m_pipeline_stages.push_back(spir_v.stage());
-				/*
-				const auto descriptor_set_layouts = pipeline_layout.descriptor_set_layouts();
-				const auto& wtf = pipeline_layout.uniform_buffer_set();
-				if (*wtf == 0)
-				{
-					std::cout << *wtf << '\n';
-					abort();
-				}*/
+				output::error() << "parameter sizes differ for shader_pipeline:";
+				return;
+			}
 
-				pipeline_create_info.emplace_back(create_info.m_modifier_flags,
-												  spir_v.stage(),
-												  *(std::ranges::find(s_shader_stage_chain, spir_v.stage()) + 1),
-												  create_info.m_code_type,
-												  spir_v.code().size() * sizeof(spir_v::spir_v_bytecode_t::value_type),
-												  spir_v.code().data(),
-												  spir_v.entrypoint().c_str(),
+			auto pipeline_create_info = std::vector<vk::ShaderCreateInfoEXT> {};
+			m_pipeline_stages.reserve(spir_v.size());
+
+			for (auto i = std::size_t {}; i < spir_v.size(); i++)
+			{
+				m_pipeline_stages.emplace_back(spir_v[i].stage());
+
+				pipeline_create_info.emplace_back(create_infos[i].m_create_flags,
+												  spir_v[i].stage(),
+												  *(std::ranges::find(s_shader_stage_chain, spir_v[i].stage()) + 1),
+												  vk::ShaderCodeTypeEXT::eSpirv,
+												  spir_v[i].code().size() * sizeof(spir_v::spir_v_code_t::value_type),
+												  spir_v[i].code().data(),
+												  spir_v[i].entrypoint().c_str(),
 												  static_cast<std::uint32_t>(
 													  pipeline_layout.descriptor_set_layouts().size()),
 												  pipeline_layout.descriptor_set_layouts().data(),
 												  1,
 												  &pipeline_layout.push_constant_range());
+			}
+
+			m_object = {*logical_device, pipeline_create_info};
+		}
+
+		shader_pipeline::shader_pipeline(const logical_device& logical_device,
+										 const std::vector<shader_object::binary_data_t>& binary_data,
+										 const pipeline_layout& pipeline_layout,
+										 const std::vector<lh::string::string_t>& names,
+										 const std::vector<shader_object::binary_create_info>& create_infos)
+			: m_pipeline_stages {}, m_names {names}
+		{
+			if (binary_data.size() != names.size() and names.size() != create_infos.size())
+			{
+				output::error() << "parameter sizes differ for shader_pipeline:";
+				return;
+			}
+
+			auto pipeline_create_info = std::vector<vk::ShaderCreateInfoEXT> {};
+			m_pipeline_stages.reserve(binary_data.size());
+
+			for (auto i = std::size_t {}; i < binary_data.size(); i++)
+			{
+				m_pipeline_stages.emplace_back(create_infos[i].m_shader_stage);
+
+				pipeline_create_info.emplace_back(
+					create_infos[i].m_create_flags,
+					create_infos[i].m_shader_stage,
+					*(std::ranges::find(s_shader_stage_chain, create_infos[i].m_shader_stage) + 1),
+					vk::ShaderCodeTypeEXT::eBinary,
+					binary_data[i].size() * sizeof(shader_object::binary_data_t::value_type),
+					binary_data[i].data(),
+					create_infos[i].m_entrypoint.c_str(),
+					static_cast<std::uint32_t>(pipeline_layout.descriptor_set_layouts().size()),
+					pipeline_layout.descriptor_set_layouts().data(),
+					1,
+					&pipeline_layout.push_constant_range());
 			}
 
 			m_object = {*logical_device, pipeline_create_info};
@@ -107,8 +167,10 @@ namespace lh
 			for (auto i = std::size_t {}; i < m_object.size(); i++)
 			{
 				const auto binary_data = m_object[i].getBinaryData();
+				auto path = paths[i]; // /= m_names[i]; //".bin";
+				path /= m_names[i];
 
-				lh::output::write_file(paths[i],
+				lh::output::write_file(paths[i] /= m_names[i],
 									   std::span<const uint8_t> {binary_data.cbegin(), binary_data.cend()},
 									   std::iostream::out | std::iostream::binary | std::iostream::trunc);
 			}

@@ -104,5 +104,6 @@ export namespace lh
 		ambient_light m_amb_light;
 		ambient_light m_amb_light2;
 		skybox m_skybox;
+		vulkan::suballocated_buffer<vulkan::mapped_buffer> m_test;
 	};
 }

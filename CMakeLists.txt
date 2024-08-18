@@ -168,7 +168,7 @@ target_sources(
 	${include}/lighthouse/entity.ixx
 	${include}/lighthouse/camera.ixx
 	${include}/lighthouse/time.ixx
-	${include}/lighthouse/renderer/vulkan/global_descriptor.ixx
+	"include/lighthouse/renderer/vulkan/pipeline_layout.ixx"
 	${include}/lighthouse/geometry.ixx
 	${include}/lighthouse/renderer/material.ixx
 	${include}/lighthouse/renderer/vulkan/descriptor_resource_buffer.ixx
@@ -187,7 +187,7 @@ target_sources(
 	${include}/lighthouse/collision.ixx
 	"include/lighthouse/memory/mapped_span.ixx"
 	${include}/lighthouse/renderer/vulkan/push_constant.ixx
-	${include}/lighthouse/renderer/descriptor_layout.ixx
+	
 	"include/lighthouse/memory/suballocator.ixx"
 	${include}/lighthouse/object_index.ixx
 	${include}/lighthouse/scene.ixx
@@ -236,7 +236,7 @@ target_sources(
 	${source}/lighthouse/camera.cpp
 	${source}/lighthouse/time.cpp
 	${source}/lighthouse/renderer/vulkan/texture.cpp
-	${source}/lighthouse/renderer/vulkan/global_descriptor.cpp
+	"source/lighthouse/renderer/vulkan/pipeline_layout.cpp"
 	${source}/lighthouse/renderer/material.cpp
 	${source}/lighthouse/renderer/vulkan/descriptor_resource_buffer.cpp
 	${source}/lighthouse/renderer/vulkan/dynamic_rendering_state.cpp
