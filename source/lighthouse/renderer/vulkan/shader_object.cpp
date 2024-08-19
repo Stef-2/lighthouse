@@ -66,11 +66,11 @@ namespace lh
 			m_object = {*logical_device, shader_create_info};
 		}
 
-		auto shader_object::cache_binary_data(const std::filesystem::path& path) const -> void
+		auto shader_object::cache_binary_data(std::filesystem::path& directory_path) const -> void
 		{
 			const auto binary_data = m_object.getBinaryData();
 
-			lh::output::write_file(path,
+			lh::output::write_file((directory_path /= m_name) /= "bin",
 								   std::span<const uint8_t> {binary_data.cbegin(), binary_data.cend()},
 								   std::iostream::out | std::iostream::binary | std::iostream::trunc);
 		}
@@ -156,21 +156,13 @@ namespace lh
 			m_object = {*logical_device, pipeline_create_info};
 		}
 
-		auto shader_pipeline::cache_binary_data(const std::vector<std::filesystem::path>& paths) const -> void
+		auto shader_pipeline::cache_binary_data(std::filesystem::path& directory_path) const -> void
 		{
-			if (m_object.size() != paths.size())
-			{
-				output::error() << "number of provided cache paths does not match the number of pipeline stages";
-				return;
-			}
-
 			for (auto i = std::size_t {}; i < m_object.size(); i++)
 			{
 				const auto binary_data = m_object[i].getBinaryData();
-				auto path = paths[i]; // /= m_names[i]; //".bin";
-				path /= m_names[i];
 
-				lh::output::write_file(paths[i] /= m_names[i],
+				lh::output::write_file((directory_path /= m_names[i]) /= "bin",
 									   std::span<const uint8_t> {binary_data.cbegin(), binary_data.cend()},
 									   std::iostream::out | std::iostream::binary | std::iostream::trunc);
 			}
@@ -189,14 +181,8 @@ namespace lh
 															pipeline.emplace_back(*element);
 															return std::move(pipeline);
 														});
-			command_buffer.bindShadersEXT(
-				m_pipeline_stages,
-				shaders); /*
-			   command_buffer.getDispatcher()->vkCmdBindShadersEXT(static_cast<VkCommandBuffer>(*command_buffer),
-															 m_pipeline_stages.size(),
-															 reinterpret_cast<const VkShaderStageFlagBits*>(
-																 m_pipeline_stages.data()),
-															 reinterpret_cast<const VkShaderEXT*>(m_object.data()));*/
+
+			command_buffer.bindShadersEXT(m_pipeline_stages, shaders);
 		}
 	}
 }

@@ -199,12 +199,38 @@ namespace lh
 {
 	namespace vulkan
 	{
-#pragma optimize("", on)
+		// #pragma optimize("", on)
 		spir_v::spir_v(const glsl_code_t& glsl_code, const create_info& create_info)
-			: m_code {glsl_to_spirv::translate_shader(glsl_code)},
-			  m_entrypoint {reflect_shader_entrypoint_and_stage().first},
-			  m_stage {reflect_shader_entrypoint_and_stage().second}
-		{}
+			: m_code {glsl_to_spirv::translate_shader(glsl_code)}, m_entrypoint {}, m_stage {}
+		{
+			if (create_info.m_entrypoint and create_info.m_stage)
+			{
+				m_entrypoint = *create_info.m_entrypoint;
+				m_stage = *create_info.m_stage;
+			} else
+			{
+				const auto [entrypoint, stage] = reflect_shader_entrypoint_and_stage();
+
+				m_entrypoint = entrypoint;
+				m_stage = stage;
+			}
+		}
+
+		spir_v::spir_v(const spir_v_code_t& spir_v_code, const create_info& create_info)
+			: m_code {spir_v_code}, m_entrypoint {}, m_stage {}
+		{
+			if (create_info.m_entrypoint and create_info.m_stage)
+			{
+				m_entrypoint = *create_info.m_entrypoint;
+				m_stage = *create_info.m_stage;
+			} else
+			{
+				const auto [entrypoint, stage] = reflect_shader_entrypoint_and_stage();
+
+				m_entrypoint = entrypoint;
+				m_stage = stage;
+			}
+		}
 
 		auto spir_v::reflect_shader_input() const -> std::vector<shader_input>
 		{
@@ -282,7 +308,7 @@ namespace lh
 			return {shader_stage_and_entrypoint[0].name, shader_stage};
 		}
 
-		auto spir_v::code() const -> const spir_v_bytecode_t&
+		auto spir_v::code() const -> const spir_v_code_t&
 		{
 			return m_code;
 		}
@@ -297,17 +323,11 @@ namespace lh
 			return m_entrypoint;
 		}
 
-		spir_v::operator const spir_v_bytecode_t&()
+		auto spir_v::cache_binary_data(const std::filesystem::path&) const -> void
 		{
-			return m_code;
 		}
 
-		spir_v::operator const spir_v_bytecode_t&() const
-		{
-			return m_code;
-		}
-
-		auto spir_v::glsl_to_spirv::translate_shader(const glsl_code_t& shader_code) -> spir_v_bytecode_t
+		auto spir_v::glsl_to_spirv::translate_shader(const glsl_code_t& shader_code) -> spir_v_code_t
 
 		{
 			const auto compiler = shaderc::Compiler {};

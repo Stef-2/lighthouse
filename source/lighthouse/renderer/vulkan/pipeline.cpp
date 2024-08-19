@@ -31,16 +31,10 @@ namespace
 			if (input.m_type == vk::DescriptorType::eCombinedImageSampler and
 				not std::ranges::contains(unique_pipeline_inputs.m_combined_image_sampler_descriptors, input))
 				unique_pipeline_inputs.m_combined_image_sampler_descriptors.push_back(input);
-			/*
-			if (input.m_type == vk::DescriptorType::eUniformBuffer and
-				input.m_storage_class == lh::vulkan::shader_input::storage_class::push_constant)
-				unique_pipeline_inputs.m_push_constant = input;*/
 		}
 
 		return unique_pipeline_inputs;
 	}
-
-	auto shader_code_type(const lh::vulkan::shader_pipeline::pipeline_code_t& shader_paths) {}
 }
 
 namespace lh
@@ -66,6 +60,11 @@ namespace lh
 			// generate shader objects and collect shader input data
 			for (const auto& shader_path : shader_paths)
 			{
+				// check if the shader already has precompiled spir_v, binary or reflection data
+				// if so, check to see if they are up to date by comparing last modification dates
+				// if not, generate precompiled spir_v, binary and reflection data
+				const auto shader_binaries = generate_shader_binary_tests(shader_path);
+
 				spir_v.emplace_back(lh::input::read_file(shader_path));
 				const auto& compiled_spir_v = spir_v.back();
 
@@ -291,6 +290,39 @@ namespace lh
 			vertex_bindings = {0, /*vertex_description_size*/ sizeof vertex, vk::VertexInputRate::eVertex, 1};
 
 			return {vertex_bindings, vertex_attributes};
+		}
+
+		auto pipeline::generate_shader_binary_tests(const std::filesystem::path& shader_path) -> const shader_binaries
+		{
+			// check if the shader already has precompiled spir_v, binary or reflection data
+			// if so, check to see if they are up to date by comparing last modification dates
+			// if not, create precompiled spir_v, binary and reflection data
+			const auto shader_name = shader_path.stem();
+			auto parent_directory = shader_path.parent_path();
+			auto shader_path_no_extension = parent_directory /= shader_name;
+
+			const auto spir_v_binary_path = shader_path_no_extension /= "spir_v";
+			const auto spir_v_binary_exists = std::filesystem::exists(spir_v_binary_path);
+			const auto spir_v_binary_up_to_date = spir_v_binary_exists and
+												  std::filesystem::last_write_time(spir_v_binary_path) >
+													  std::filesystem::last_write_time(shader_path);
+
+			const auto shader_object_binary_path = shader_path_no_extension /= "sob";
+			const auto shader_object_binary_exists = std::filesystem::exists(shader_object_binary_path);
+			const auto shader_object_binary_up_to_date = shader_object_binary_exists and
+														 std::filesystem::last_write_time(shader_object_binary_path) >
+															 std::filesystem::last_write_time(shader_path);
+
+			const auto reflection_data_binary_path = shader_path_no_extension /= "sir";
+			const auto reflection_data_binary_exists = std::filesystem::exists(reflection_data_binary_path);
+			const auto reflection_data_binary_up_to_date = reflection_data_binary_exists and
+														   std::filesystem::last_write_time(
+															   reflection_data_binary_path) >
+															   std::filesystem::last_write_time(shader_path);
+
+			return {{spir_v_binary_exists, spir_v_binary_up_to_date},
+					{shader_object_binary_exists, shader_object_binary_up_to_date},
+					{reflection_data_binary_exists, reflection_data_binary_up_to_date}};
 		}
 
 	}

@@ -35,6 +35,8 @@ export namespace lh
 			struct create_info
 			{
 				vk::PipelineBindPoint m_bind_point = vk::PipelineBindPoint::eGraphics;
+				bool m_cache_spir_v = true;
+				bool m_cache_shader_pipeline = true;
 			};
 
 			pipeline(const physical_device&,
@@ -51,9 +53,23 @@ export namespace lh
 			auto bind(const vk::raii::CommandBuffer&) const -> void;
 
 		private:
+			struct shader_binaries
+			{
+				struct binary
+				{
+					bool m_exists;
+					bool m_up_to_date;
+				};
+
+				binary m_spir_v;
+				binary m_shader_object;
+				binary m_reflection_data;
+			};
+
 			auto translate_shader_input_format(const shader_input&) const -> const vk::Format;
 			auto generate_vertex_input_description(const std::vector<shader_input>&)
 				-> const vulkan::vertex_input_description;
+			auto generate_shader_binary_tests(const std::filesystem::path&) -> const shader_binaries;
 
 			const create_info m_create_info;
 			const descriptor_buffer& m_descriptor_buffer;

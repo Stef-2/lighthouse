@@ -77,7 +77,7 @@ export namespace lh
 							const std::vector<lh::string::string_t>&,
 							const std::vector<shader_object::binary_create_info>&);
 
-			auto cache_binary_data(const std::vector<std::filesystem::path>&) const -> void;
+			auto cache_binary_data(const std::filesystem::path&) const -> void;
 			auto stages() const -> const std::vector<vk::ShaderStageFlagBits>&;
 			auto bind(const vk::raii::CommandBuffer&) const -> void;
 

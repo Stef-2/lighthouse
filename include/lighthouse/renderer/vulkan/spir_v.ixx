@@ -28,16 +28,21 @@ export namespace lh
 			using glsl_code_t = string::string_t;
 
 			struct create_info
-			{};
+			{
+				std::optional<string::string_t> m_entrypoint = {};
+				std::optional<vk::ShaderStageFlagBits> m_stage = {};
+			};
 
 			spir_v(const glsl_code_t&, const create_info& = {});
-			//sir
+			spir_v(const spir_v_code_t&, const create_info& = {});
 
 			auto reflect_shader_input() const -> std::vector<shader_input>;
 
 			auto code() const -> const spir_v_code_t&;
 			auto stage() const -> const vk::ShaderStageFlagBits&;
 			auto entrypoint() const -> const string::string_t&;
+
+			auto cache_binary_data(const std::filesystem::path&) const -> void;
 
 		private:
 			auto reflect_shader_entrypoint_and_stage() const -> const std::pair<string::string_t, vk::ShaderStageFlagBits>;
