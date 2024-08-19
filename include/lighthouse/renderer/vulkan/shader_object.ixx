@@ -26,12 +26,12 @@ export namespace lh
 
 			struct spir_v_create_info
 			{
-				vk::ShaderCreateFlagsEXT m_create_flags = {};
+				vk::ShaderCreateFlagsEXT m_create_flags = {vk::ShaderCreateFlagBitsEXT::eLinkStage};
 			};
 
 			struct binary_create_info
 			{
-				vk::ShaderCreateFlagsEXT m_create_flags = {};
+				vk::ShaderCreateFlagsEXT m_create_flags = {vk::ShaderCreateFlagBitsEXT::eLinkStage};
 				vk::ShaderStageFlagBits m_shader_stage;
 				string::string_t m_entrypoint;
 			};

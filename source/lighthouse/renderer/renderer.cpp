@@ -214,7 +214,7 @@ namespace lh
 
 		command_buffer.beginRendering(render_info);
 
-		// m_dynamic_rendering_state.state().m_cull_mode = vk::CullModeFlagBits::eNone;
+		m_dynamic_rendering_state.state().m_cull_mode = vk::CullModeFlagBits::eNone;
 		//  m_dynamic_rendering_state.state().m_depth_testing = false;
 		m_dynamic_rendering_state.bind(command_buffer);
 		m_global_descriptor_buffer.bind(command_buffer);

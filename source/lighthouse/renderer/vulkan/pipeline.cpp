@@ -55,6 +55,10 @@ namespace lh
 			  m_resource_descriptor_buffer {}
 		{
 			auto pipeline_shader_inputs = std::vector<std::pair<vk::ShaderStageFlagBits, shader_input>> {};
+			auto pipeline_shader_names = std::vector<string::string_t> {};
+			auto pipeline_shader_create_infos = std::vector<shader_object::spir_v_create_info> {
+				shader_object::spir_v_create_info {vk::ShaderCreateFlagBitsEXT::eLinkStage},
+				shader_object::spir_v_create_info {vk::ShaderCreateFlagBitsEXT::eLinkStage}};
 			auto spir_v = std::vector<vulkan::spir_v> {};
 
 			// generate shader objects and collect shader input data
@@ -65,6 +69,7 @@ namespace lh
 				// if not, generate precompiled spir_v, binary and reflection data
 				const auto shader_binaries = generate_shader_binary_tests(shader_path);
 
+				pipeline_shader_names.emplace_back(shader_path.stem().string());
 				spir_v.emplace_back(lh::input::read_file(shader_path));
 				const auto& compiled_spir_v = spir_v.back();
 
@@ -82,7 +87,8 @@ namespace lh
 			const auto unique_pipeline_inputs = generate_unique_pipeline_inputs(pipeline_shader_inputs);
 
 			// generate the pipeline
-			m_shader_pipeline = {logical_device, spir_v, pipeline_layout};
+			m_shader_pipeline = {
+				logical_device, spir_v, pipeline_layout, pipeline_shader_names, pipeline_shader_create_infos};
 
 			// generate uniform and storage buffer data to form a resource buffer
 			auto resource_buffer_subdata =
