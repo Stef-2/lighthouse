@@ -161,7 +161,7 @@ target_sources(
 	${include}/lighthouse/renderer/vulkan/spir_v.ixx						
 	${include}/lighthouse/renderer/vulkan/shader_object.ixx					
 	"include/lighthouse/input/scene_data.ixx"						
-	${include}/lighthouse/renderer/vulkan/pipeline.ixx
+	"include/lighthouse/renderer/pipeline.ixx"
 	${include}/lighthouse/renderer/vulkan/shader_input.ixx					
 	${include}/lighthouse/renderer/mesh.ixx									
 	"include/lighthouse/bounding_volume.ixx"	
@@ -224,7 +224,7 @@ target_sources(
 	${source}/lighthouse/renderer/vulkan/spir_v.cpp
 	${source}/lighthouse/renderer/vulkan/shader_object.cpp
 	"source/lighthouse/input/scene_data.cpp"
-	${source}/lighthouse/renderer/vulkan/pipeline.cpp
+	"source/lighthouse/renderer/pipeline.cpp"
 	${source}/lighthouse/renderer/vulkan/shader_input.cpp
 	${source}/lighthouse/renderer/mesh.cpp
 	"source/lighthouse/bounding_volume.cpp"
