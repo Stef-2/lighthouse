@@ -323,8 +323,9 @@ namespace lh
 			return m_entrypoint;
 		}
 
-		auto spir_v::cache_binary_data(const std::filesystem::path&) const -> void
+		auto spir_v::cache_binary_data(const std::filesystem::path& path) const -> void
 		{
+
 		}
 
 		auto spir_v::glsl_to_spirv::translate_shader(const glsl_code_t& shader_code) -> spir_v_code_t

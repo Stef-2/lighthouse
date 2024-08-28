@@ -43,6 +43,10 @@ export namespace lh
 				vk::DeviceAddress m_address_2 {};
 				vk::DeviceAddress m_address_3 {};
 				vk::DeviceAddress m_address_4 {};
+				vk::DeviceAddress m_address_5 {};
+				vk::DeviceAddress m_address_6 {};
+				vk::DeviceAddress m_address_7 {};
+				vk::DeviceAddress m_address_8 {};
 			};
 
 			geometry::transformation_t m_model {1.0f};

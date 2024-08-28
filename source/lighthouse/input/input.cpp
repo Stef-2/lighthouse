@@ -225,7 +225,7 @@ namespace lh
 		const auto path_exists = std::filesystem::exists(file_path);
 		auto valid_extension = false;
 
-		for (const auto& extension : m_valid_file_extensions.at(file_type))
+		for (const auto& extension : s_valid_file_extensions.at(file_type))
 			if (std::strcmp(extension, file_path.extension().string().c_str()) == 0)
 			{
 				valid_extension = true;

@@ -139,6 +139,7 @@ namespace lh
 		smb.emplace_back(sphere2);
 		smb.emplace_back(sphere3);
 		m_push_constant.m_registers.m_address_1 = m_instance_buffer.span_device_address(smb);
+		m_push_constant.m_registers.m_address_2 = m_test.address();
 		/*m_instance_buffer.address();*/ /*smb.address();*/
 
 		if (m_create_info.m_using_validation) output::log() << info(m_create_info);
