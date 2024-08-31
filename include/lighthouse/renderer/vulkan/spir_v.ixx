@@ -27,9 +27,11 @@ export namespace lh
 			using spir_v_code_t = std::vector<std::uint32_t>;
 			using glsl_code_t = string::string_t;
 
+			static constexpr inline auto s_default_entrypoint = "main";
+
 			struct create_info
 			{
-				std::optional<string::string_t> m_entrypoint = {};
+				std::optional<string::string_t> m_entrypoint = s_default_entrypoint;
 				std::optional<vk::ShaderStageFlagBits> m_stage = {};
 			};
 

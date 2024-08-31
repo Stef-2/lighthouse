@@ -192,7 +192,7 @@ target_sources(
 	${include}/lighthouse/object_index.ixx
 	${include}/lighthouse/scene.ixx
 	${include}/lighthouse/registry.ixx
- "include/lighthouse/input/image_data.ixx" "include/lighthouse/renderer/image_registry.ixx" "include/lighthouse/memory/heap.ixx" "include/lighthouse/memory/allocation_strategy.ixx" "include/lighthouse/memory/virtual_allocator.ixx" "include/lighthouse/memory/memory_block.ixx")
+ "include/lighthouse/input/image_data.ixx" "include/lighthouse/renderer/image_registry.ixx" "include/lighthouse/memory/heap.ixx" "include/lighthouse/memory/allocation_strategy.ixx" "include/lighthouse/memory/virtual_allocator.ixx" "include/lighthouse/memory/memory_block.ixx" )
 
 target_sources(
 	${PROJECT_NAME} PUBLIC

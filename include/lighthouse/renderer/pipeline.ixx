@@ -6,6 +6,7 @@ module;
 
 export module pipeline;
 
+import data_type;
 import physical_device;
 import logical_device;
 import memory_allocator;
@@ -32,6 +33,14 @@ export namespace lh
 		class pipeline
 		{
 		public:
+			struct glsl_pipelne_stage_data
+			{
+				filepath_t m_shader_code;
+				bool m_cache_spir_v = true;
+				bool m_cache_reflection_data = true;
+				bool m_cache_shader_object = true;
+			};
+
 			struct create_info
 			{
 				vk::PipelineBindPoint m_bind_point = vk::PipelineBindPoint::eGraphics;

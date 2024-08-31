@@ -62,8 +62,9 @@ export namespace lh
 		class shader_pipeline : public raii_wrapper<vk::raii::ShaderEXTs>
 		{
 		public:
-			using raii_wrapper::raii_wrapper;
 			using pipeline_code_t = std::vector<std::filesystem::path>;
+
+			using raii_wrapper::raii_wrapper;
 
 			shader_pipeline(const logical_device&,
 							const std::vector<spir_v>&,
