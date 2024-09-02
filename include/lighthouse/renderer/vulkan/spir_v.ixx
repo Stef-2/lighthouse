@@ -7,9 +7,8 @@ module;
 export module spir_v;
 
 import lighthouse_string;
-import file_system;
+import data_type;
 import shader_input;
-import vertex_input_description;
 
 #if not INTELLISENSE
 import vulkan_hpp;
@@ -24,39 +23,39 @@ export namespace lh
 		class spir_v
 		{
 		public:
-			using spir_v_code_t = std::vector<std::uint32_t>;
 			using glsl_code_t = string::string_t;
+			using spir_v_code_t = std::vector<std::uint32_t>;
 
 			static constexpr inline auto s_default_entrypoint = "main";
 
 			struct create_info
 			{
-				std::optional<string::string_t> m_entrypoint = s_default_entrypoint;
-				std::optional<vk::ShaderStageFlagBits> m_stage = {};
+				// if entrypont and shader stage isn't provided, it will be reflected instead
+				//std::optional<string::string_t> m_entrypoint = s_default_entrypoint;
+				//std::optional<vk::ShaderStageFlagBits> m_stage = {};
 			};
 
 			spir_v(const glsl_code_t&, const create_info& = {});
 			spir_v(const spir_v_code_t&, const create_info& = {});
 
 			auto reflect_shader_input() const -> std::vector<shader_input>;
+			auto reflect_shader_entrypoint_and_stage() const -> const std::pair<string::string_t, vk::ShaderStageFlagBits>;
 
 			auto code() const -> const spir_v_code_t&;
 			auto stage() const -> const vk::ShaderStageFlagBits&;
 			auto entrypoint() const -> const string::string_t&;
 
-			auto cache_binary_data(const std::filesystem::path&) const -> void;
+			auto cache_binary_data(const filepath_t&) const -> void;
 
 		private:
-			auto reflect_shader_entrypoint_and_stage() const -> const std::pair<string::string_t, vk::ShaderStageFlagBits>;
-
 			struct glsl_to_spirv
 			{
 				static auto translate_shader(const glsl_code_t&) -> spir_v_code_t;
 			};
 
 			spir_v_code_t m_code;
-			string::string_t m_entrypoint;
-			vk::ShaderStageFlagBits m_stage;
+			//string::string_t m_entrypoint;
+			//vk::ShaderStageFlagBits m_stage;
 		};
 	}
 }

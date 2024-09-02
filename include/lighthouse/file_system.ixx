@@ -8,6 +8,17 @@ namespace lh
 {
 	namespace file_system
 	{
+		enum class directory
+		{
+			root,
+			data,
+			shaders,
+			shader_binaries,
+			meshes,
+			images,
+
+		};
+
 		// find and return engine root directory
 		export auto root_path() -> std::filesystem::path;
 
