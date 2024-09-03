@@ -33,7 +33,7 @@ namespace
 		{
 			auto data = new shaderc_include_result {};
 
-			auto path = lh::file_system::data_path().append("shaders");
+			auto path = lh::file_system::path(lh::file_system::directory::shaders);
 
 			if (include_type == shaderc_include_type::shaderc_include_type_relative)
 			{
@@ -203,40 +203,41 @@ namespace lh
 	{
 		// #pragma optimize("", on)
 		spir_v::spir_v(const glsl_code_t& glsl_code, const create_info& create_info)
-			: m_code {glsl_to_spirv::translate_shader(glsl_code)}, m_entrypoint {}, m_stage {}
-		{
-			if (create_info.m_entrypoint and create_info.m_stage)
-			{
-				m_entrypoint = *create_info.m_entrypoint;
-				m_stage = *create_info.m_stage;
-			} else
-			{
-				const auto [entrypoint, stage] = reflect_shader_entrypoint_and_stage();
-
-				m_entrypoint = entrypoint;
-				m_stage = stage;
-			}
+			: m_code {glsl_to_spirv::translate_shader(glsl_code)} //, m_entrypoint {}, m_stage {}
+		{														  /*
+																	 if (create_info.m_entrypoint and create_info.m_stage)
+																	 {
+																		 m_entrypoint = *create_info.m_entrypoint;
+																		 m_stage = *create_info.m_stage;
+																	 } else
+																	 {
+																		 const auto [entrypoint, stage] = reflect_shader_entrypoint_and_stage();
+														
+																		 m_entrypoint = entrypoint;
+																		 m_stage = stage;
+																	 }*/
 		}
 
 		spir_v::spir_v(const spir_v_code_t& spir_v_code, const create_info& create_info)
-			: m_code {spir_v_code}, m_entrypoint {}, m_stage {}
-		{
-			if (create_info.m_entrypoint and create_info.m_stage)
-			{
-				m_entrypoint = *create_info.m_entrypoint;
-				m_stage = *create_info.m_stage;
-			} else
-			{
-				const auto [entrypoint, stage] = reflect_shader_entrypoint_and_stage();
-
-				m_entrypoint = entrypoint;
-				m_stage = stage;
-			}
+			: m_code {spir_v_code} //, m_entrypoint {}, m_stage {}
+		{						   /*
+									  if (create_info.m_entrypoint and create_info.m_stage)
+									  {
+										  m_entrypoint = *create_info.m_entrypoint;
+										  m_stage = *create_info.m_stage;
+									  } else
+									  {
+										  const auto [entrypoint, stage] = reflect_shader_entrypoint_and_stage();
+						 
+										  m_entrypoint = entrypoint;
+										  m_stage = stage;
+									  }*/
 		}
 
 		auto spir_v::reflect_shader_input() const -> std::vector<shader_input>
 		{
 			auto compiler = std::make_unique<spirv_cross::CompilerGLSL>(m_code);
+			auto entrypoint_and_stage = compiler->get_entry_points_and_stages();
 			auto resources = compiler->get_shader_resources();
 			if constexpr (remove_inactive_inputs)
 			{
@@ -314,7 +315,7 @@ namespace lh
 		{
 			return m_code;
 		}
-
+		/*
 		auto spir_v::stage() const -> const vk::ShaderStageFlagBits&
 		{
 			return m_stage;
@@ -323,7 +324,7 @@ namespace lh
 		auto spir_v::entrypoint() const -> const string::string_t&
 		{
 			return m_entrypoint;
-		}
+		}*/
 
 		auto spir_v::cache_binary_data(const filepath_t& path) const -> void {}
 

@@ -4,6 +4,7 @@ module;
 
 module engine;
 
+import file_system;
 import output;
 import input;
 import time;
@@ -13,6 +14,7 @@ namespace lh
 	engine::engine(std::unique_ptr<lh::window> window, const create_info& engine_create_info)
 		: m_window {std::move(window)}, m_renderer {}, m_version(engine_create_info.m_engine_version)
 	{
+		file_system::initialize();
 		input::initialize(*m_window);
 		engine::initialize();
 		output::initialize();

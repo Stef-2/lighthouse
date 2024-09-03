@@ -42,8 +42,8 @@ export namespace lh
 			auto reflect_shader_entrypoint_and_stage() const -> const std::pair<string::string_t, vk::ShaderStageFlagBits>;
 
 			auto code() const -> const spir_v_code_t&;
-			auto stage() const -> const vk::ShaderStageFlagBits&;
-			auto entrypoint() const -> const string::string_t&;
+			//auto stage() const -> const vk::ShaderStageFlagBits&;
+			//auto entrypoint() const -> const string::string_t&;
 
 			auto cache_binary_data(const filepath_t&) const -> void;
 

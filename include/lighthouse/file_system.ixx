@@ -2,6 +2,8 @@ module;
 
 export module file_system;
 
+import data_type;
+
 import std;
 
 namespace lh
@@ -16,21 +18,25 @@ namespace lh
 			shader_binaries,
 			meshes,
 			images,
-
+			fonts
 		};
 
-		// find and return engine root directory
-		export auto root_path() -> std::filesystem::path;
+		export auto initialize() -> void;
 
-		// find and return engine data directory
-		export auto data_path() -> std::filesystem::path;
+		export constexpr auto path(const directory) -> filepath_t;
 
 		// find the path to a file or directory
-		export auto find(std::string_view) -> std::filesystem::path;
+		export auto find(const std::string_view) -> std::filesystem::path;
 
-		// once any of these paths are found, they are recorded here for faster retrieval after
-		std::pair<std::filesystem::path, const std::filesystem::path::string_type> n_engine_root_dir = {{},
-																										L"lighthouse"};
-		std::pair<std::filesystem::path, const std::filesystem::path::string_type> n_data_dir = {{}, L"data"};
+		inline const std::map<const directory, const filepath_t::string_type> s_directory_names {
+			{directory::root, L"lighthouse"},
+			{directory::data, L"data"},
+			{directory::shaders, L"shaders"},
+			{directory::shader_binaries, L"shader_binaries"},
+			{directory::meshes, L"meshes"},
+			{directory::images, L"images"},
+			{directory::fonts, L"fonts"}};
+
+		inline std::map<const directory, const filepath_t> s_directory_paths {};
 	}
 }
