@@ -14,7 +14,7 @@ import output;
 namespace lh
 {
 	namespace vulkan
-	{ /*
+	{
 		 shader_object::shader_object(const logical_device& logical_device,
 									  const spir_v& spir_v,
 									  const pipeline_layout& pipeline_layout,
@@ -79,7 +79,7 @@ namespace lh
 		 {
 			 command_buffer.bindShadersEXT(m_shader_stage, *m_object);
 		 }
-		 */
+		 
 		// ==========================================================================
 
 		shader_pipeline::shader_pipeline(const logical_device& logical_device,

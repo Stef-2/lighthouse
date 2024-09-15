@@ -10,7 +10,7 @@ namespace lh
 {
 	namespace file_system
 	{
-		enum class directory
+		export enum class directory
 		{
 			root,
 			data,

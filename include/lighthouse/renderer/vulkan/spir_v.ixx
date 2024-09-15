@@ -30,24 +30,26 @@ export namespace lh
 
 			struct create_info
 			{
-				// if entrypont and shader stage isn't provided, it will be reflected instead
-				//std::optional<string::string_t> m_entrypoint = s_default_entrypoint;
-				//std::optional<vk::ShaderStageFlagBits> m_stage = {};
+				// optional entrypoint and shader stage info
+				// if not provided, they will be reflected instead
+				std::optional<string::string_t> m_entrypoint = s_default_entrypoint;
+				std::optional<vk::ShaderStageFlagBits> m_stage = {};
 			};
 
 			spir_v(const glsl_code_t&, const create_info& = {});
 			spir_v(const spir_v_code_t&, const create_info& = {});
 
 			auto reflect_shader_input() const -> std::vector<shader_input>;
-			auto reflect_shader_entrypoint_and_stage() const -> const std::pair<string::string_t, vk::ShaderStageFlagBits>;
 
 			auto code() const -> const spir_v_code_t&;
-			//auto stage() const -> const vk::ShaderStageFlagBits&;
+			//auto stage() const -> const vk::ShaderStageFlagBits;
 			//auto entrypoint() const -> const string::string_t&;
 
 			auto cache_binary_data(const filepath_t&) const -> void;
 
 		private:
+			auto reflect_shader_entrypoint_and_stage() const -> const std::pair<string::string_t, vk::ShaderStageFlagBits>;
+
 			struct glsl_to_spirv
 			{
 				static auto translate_shader(const glsl_code_t&) -> spir_v_code_t;

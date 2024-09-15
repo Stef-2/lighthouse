@@ -130,8 +130,7 @@ namespace
 
 	auto create_shader_input(const spirv_cross::CompilerGLSL& compiler,
 							 const spirv_cross::Resource& resource,
-							 const vk::DescriptorType& input_type,
-							 const vk::ShaderStageFlags& shader_stage)
+							 const vk::DescriptorType& input_type)
 
 	{
 		constexpr auto byte_divisor = std::uint8_t {8};
@@ -253,24 +252,23 @@ namespace lh
 								  resources.push_constant_buffers.size());
 
 			for (const auto& resource : resources.stage_inputs)
-				shader_inputs.emplace_back(
-					create_shader_input(*compiler, resource, shader_input::s_stage_input_flag, m_stage));
+				shader_inputs.emplace_back(create_shader_input(*compiler, resource, shader_input::s_stage_input_flag));
 
 			for (const auto& resource : resources.uniform_buffers)
 				shader_inputs.emplace_back(
-					create_shader_input(*compiler, resource, vk::DescriptorType::eUniformBuffer, m_stage));
+					create_shader_input(*compiler, resource, vk::DescriptorType::eUniformBuffer));
 
 			for (const auto& resource : resources.storage_buffers)
 				shader_inputs.emplace_back(
-					create_shader_input(*compiler, resource, vk::DescriptorType::eStorageBuffer, m_stage));
+					create_shader_input(*compiler, resource, vk::DescriptorType::eStorageBuffer));
 
 			for (const auto& resource : resources.sampled_images)
 				shader_inputs.emplace_back(
-					create_shader_input(*compiler, resource, vk::DescriptorType::eCombinedImageSampler, m_stage));
+					create_shader_input(*compiler, resource, vk::DescriptorType::eCombinedImageSampler));
 
 			for (const auto& resource : resources.push_constant_buffers)
 				shader_inputs.emplace_back(
-					create_shader_input(*compiler, resource, vk::DescriptorType::eUniformBuffer, m_stage));
+					create_shader_input(*compiler, resource, vk::DescriptorType::eUniformBuffer));
 
 			std::ranges::sort(shader_inputs, [](const auto& x, const auto& y) {
 				switch (x.m_type)
@@ -305,6 +303,9 @@ namespace lh
 				case spv::ExecutionModel::ExecutionModelFragment:
 					shader_stage = vk::ShaderStageFlagBits::eFragment;
 					break;
+				case spv::ExecutionModel::ExecutionModelGLCompute:
+					shader_stage = vk::ShaderStageFlagBits::eCompute;
+					break;
 				default: shader_stage = vk::ShaderStageFlagBits::eAll;
 			}
 
@@ -316,7 +317,7 @@ namespace lh
 			return m_code;
 		}
 		/*
-		auto spir_v::stage() const -> const vk::ShaderStageFlagBits&
+		auto spir_v::stage() const -> const vk::ShaderStageFlagBits
 		{
 			return m_stage;
 		}

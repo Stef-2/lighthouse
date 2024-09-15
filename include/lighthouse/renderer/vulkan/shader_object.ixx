@@ -18,7 +18,7 @@ import std;
 export namespace lh
 {
 	namespace vulkan
-	{/*
+	{
 		class shader_object : public raii_wrapper<vk::raii::ShaderEXT>
 		{
 		public:
@@ -39,13 +39,13 @@ export namespace lh
 			shader_object(const logical_device&,
 						  const spir_v&,
 						  const pipeline_layout&,
-						  const string::string_t&,
+						  //const string::string_t&,
 						  const spir_v_create_info& = {});
 
 			shader_object(const logical_device&,
 						  const binary_data_t&,
 						  const pipeline_layout&,
-						  const string::string_t&,
+						  //const string::string_t&,
 						  const binary_create_info& = {});
 
 			auto cache_binary_data(const std::filesystem::path&) const -> void;
@@ -54,15 +54,21 @@ export namespace lh
 
 		private:
 			vk::ShaderStageFlagBits m_shader_stage;
-			string::string_t m_name;
+			//string::string_t m_name;
 		};
-		*/
+		
 		// ====================================================================
 
 		class shader_pipeline : public raii_wrapper<vk::raii::ShaderEXTs>
 		{
 		public:
 			using pipeline_code_t = std::vector<std::filesystem::path>;
+
+			struct create_info
+			{
+				vk::ShaderCodeTypeEXT m_code_type;
+				data_t m_shader_code;
+			};
 
 			using raii_wrapper::raii_wrapper;
 
