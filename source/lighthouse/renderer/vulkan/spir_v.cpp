@@ -316,6 +316,10 @@ namespace lh
 		{
 			return m_code;
 		}
+		auto spir_v::byte_span() const -> const std::span<std::byte>
+		{
+			return std::span<std::byte> {reinterpret_cast<const std::byte*>(m_code.data())};
+		}
 		/*
 		auto spir_v::stage() const -> const vk::ShaderStageFlagBits
 		{

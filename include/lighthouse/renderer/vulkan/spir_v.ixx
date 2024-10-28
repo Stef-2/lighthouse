@@ -27,6 +27,7 @@ export namespace lh
 			using spir_v_code_t = std::vector<std::uint32_t>;
 
 			static constexpr inline auto s_default_entrypoint = "main";
+			static constexpr inline auto s_spir_v_byteword = 4;
 
 			struct create_info
 			{
@@ -42,6 +43,7 @@ export namespace lh
 			auto reflect_shader_input() const -> std::vector<shader_input>;
 
 			auto code() const -> const spir_v_code_t&;
+			auto byte_span() const -> const std::span<std::byte>;
 			//auto stage() const -> const vk::ShaderStageFlagBits;
 			//auto entrypoint() const -> const string::string_t&;
 
