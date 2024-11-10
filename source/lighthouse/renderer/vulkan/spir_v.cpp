@@ -316,9 +316,9 @@ namespace lh
 		{
 			return m_code;
 		}
-		auto spir_v::byte_span() const -> const std::span<std::byte>
+		auto spir_v::data_range() const -> const lh::data_range
 		{
-			return std::span<std::byte> {reinterpret_cast<const std::byte*>(m_code.data())};
+			return {m_code.data(), m_code.size() * sizeof spir_v_code_t::value_type};
 		}
 		/*
 		auto spir_v::stage() const -> const vk::ShaderStageFlagBits

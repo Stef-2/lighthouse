@@ -7,6 +7,7 @@ module;
 export module spir_v;
 
 import lighthouse_string;
+import lighthouse_utility;
 import data_type;
 import shader_input;
 
@@ -43,7 +44,7 @@ export namespace lh
 			auto reflect_shader_input() const -> std::vector<shader_input>;
 
 			auto code() const -> const spir_v_code_t&;
-			auto byte_span() const -> const std::span<std::byte>;
+			auto data_range() const -> const lh::data_range;
 			//auto stage() const -> const vk::ShaderStageFlagBits;
 			//auto entrypoint() const -> const string::string_t&;
 

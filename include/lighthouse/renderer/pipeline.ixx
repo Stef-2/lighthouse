@@ -7,6 +7,7 @@ module;
 export module pipeline;
 
 import data_type;
+import lighthouse_utility;
 import physical_device;
 import logical_device;
 import memory_allocator;
@@ -33,6 +34,17 @@ export namespace lh
 		class pipeline
 		{
 		public:
+			// possible inputs for individual shader stages
+			enum class stage_data_type
+			{
+				// glsl text file, to be compiled into spir_v, then assembled into a shader object
+				glsl,
+				// precompiled spir_v, to be assembed into a shader object
+				spir_v,
+				// cached shader_object data
+				shader_object
+			};
+
 			struct glsl_pipelne_stage_data
 			{
 				filepath_t m_shader_code;
@@ -44,14 +56,16 @@ export namespace lh
 			struct create_info
 			{
 				vk::PipelineBindPoint m_bind_point = vk::PipelineBindPoint::eGraphics;
+				stage_data_type m_stage_data_type = stage_data_type::glsl;
+				lh::data_range m_stage_data;
 				bool m_cache_spir_v = true;
-				bool m_cache_shader_pipeline = true;
+				bool m_cache_shader_object = true;
 			};
 
 			pipeline(const physical_device&,
 					 const logical_device&,
 					 const memory_allocator&,
-					 const shader_pipeline::pipeline_code_t&,
+					 //const shader_pipeline::pipeline_code_t&,
 					 const pipeline_layout&,
 					 const descriptor_buffer&,
 					 const create_info& = {});
@@ -78,7 +92,8 @@ export namespace lh
 			auto translate_shader_input_format(const shader_input&) const -> const vk::Format;
 			auto generate_vertex_input_description(const std::vector<shader_input>&)
 				-> const vulkan::vertex_input_description;
-			auto generate_shader_binary_tests(const std::filesystem::path&) -> const shader_binaries;
+			auto generate_shader_binary_tests(const filepath_t&) const -> const shader_binaries;
+			auto deduce_shader_file_type(const filepath_t&) const -> const std::pair<vk::ShaderStageFlagBits, stage_data_type>;
 
 			const create_info m_create_info;
 			const descriptor_buffer& m_descriptor_buffer;

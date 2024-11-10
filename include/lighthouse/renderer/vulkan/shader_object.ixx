@@ -63,7 +63,7 @@ export namespace lh
 		
 		// ====================================================================
 
-		template <std::size_t N = std::dynamic_extent>
+		//template <std::size_t N = std::dynamic_extent>
 		class shader_pipeline : public raii_wrapper<vk::raii::ShaderEXTs>
 		{
 		public:
@@ -73,22 +73,20 @@ export namespace lh
 			{
 				struct per_stage_data
 				{
+					vk::ShaderCreateFlagsEXT m_create_flags = {vk::ShaderCreateFlagBitsEXT::eLinkStage};
 					vk::ShaderCodeTypeEXT m_code_type = vk::ShaderCodeTypeEXT::eSpirv;
 					string::string_t m_entrypoint = spir_v::s_default_entrypoint;
 					vk::ShaderStageFlagBits m_shader_stage;
-					storage m_data;
+					data_range m_data;
 				};
 
-				vk::ShaderCreateFlagsEXT m_create_flags = {vk::ShaderCreateFlagBitsEXT::eLinkStage};
 				std::vector<per_stage_data> m_per_stage_data;
 			};
 
 			using raii_wrapper::raii_wrapper;
 
 			shader_pipeline(const logical_device&,
-							//const std::vector<spir_v>&,
 							const pipeline_layout&,
-							//const std::vector<lh::string::string_t>&,
 							const create_info&);
 			/*
 			shader_pipeline(const logical_device&,
@@ -97,7 +95,8 @@ export namespace lh
 							//const std::vector<lh::string::string_t>&,
 							const std::vector<shader_object::binary_create_info>&);*/
 
-			auto cache_binary_data(const std::filesystem::path&) const -> void;
+			auto cache_binary_data(const std::vector<filepath_t>&) const -> void;
+			auto stage_count() const -> const std::size_t;
 			auto stages() const -> const std::vector<vk::ShaderStageFlagBits>&;
 			auto bind(const vk::raii::CommandBuffer&) const -> void;
 

@@ -49,16 +49,16 @@ export namespace lh
 	}
 
 	template <typename T, std::size_t N = std::dynamic_extent>
-	using static_or_dynamic = std::conditional<N == std::dynamic_extent, std::vector<T>, std::array<T, N>>;
+	using static_or_dynamic_t = std::conditional<N == std::dynamic_extent, std::vector<T>, std::array<T, N>>;
 
 	template <typename T>
 	using non_owning_ptr = T*;
 
 	struct empty {};
 
-	struct storage
+	struct data_range
 	{
-		void* m_data;
+		const void* m_data;
 		std::size_t m_size;
 	};
 }
