@@ -298,15 +298,18 @@ namespace lh
 			return {vertex_bindings, vertex_attributes};
 		}
 
-		auto pipeline::generate_shader_binary_tests(const std::filesystem::path& shader_path) -> const shader_binaries
+		auto pipeline::generate_shader_binary_tests(const filepath_t& shader_path) -> const shader_binaries
 		{
 			// check if the shader already has precompiled spir_v, binary or reflection data
 			// if so, check to see if they are up to date by comparing last modification dates
 			// if not, create precompiled spir_v, binary and reflection data
 			const auto shader_name = shader_path.stem();
+			const auto extension = shader_path.extension();
 			auto parent_directory = shader_path.parent_path();
 			auto shader_path_no_extension = parent_directory /= shader_name;
 
+
+			const auto spir_v_binary_path = file_system::path(file_system::directory::shader_binaries) /= shader_name /=
 			const auto spir_v_binary_path = shader_path_no_extension /= "spir_v";
 			const auto spir_v_binary_exists = std::filesystem::exists(spir_v_binary_path);
 			const auto spir_v_binary_up_to_date = spir_v_binary_exists and

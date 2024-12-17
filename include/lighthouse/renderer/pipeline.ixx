@@ -45,30 +45,21 @@ export namespace lh
 				shader_object
 			};
 
-			struct glsl_pipelne_stage_data
-			{
-				filepath_t m_shader_code;
-				bool m_cache_spir_v = true;
-				bool m_cache_reflection_data = true;
-				bool m_cache_shader_object = true;
-			};
-
 			struct create_info
 			{
+				filepath_t m_shader_data_path;
 				vk::PipelineBindPoint m_bind_point = vk::PipelineBindPoint::eGraphics;
-				stage_data_type m_stage_data_type = stage_data_type::glsl;
-				lh::data_range m_stage_data;
 				bool m_cache_spir_v = true;
+				bool m_cache_reflection_data = true;
 				bool m_cache_shader_object = true;
 			};
 
 			pipeline(const physical_device&,
 					 const logical_device&,
 					 const memory_allocator&,
-					 //const shader_pipeline::pipeline_code_t&,
 					 const pipeline_layout&,
 					 const descriptor_buffer&,
-					 const create_info& = {});
+					 const std::vector<create_info>&);
 
 			auto vertex_input_description() const -> const std::optional<vulkan::vertex_input_description>&;
 			auto shader_pipeline() const -> const vulkan::shader_pipeline&;
@@ -85,8 +76,8 @@ export namespace lh
 				};
 
 				binary m_spir_v;
-				binary m_shader_object;
 				binary m_reflection_data;
+				binary m_shader_object;
 			};
 
 			auto translate_shader_input_format(const shader_input&) const -> const vk::Format;

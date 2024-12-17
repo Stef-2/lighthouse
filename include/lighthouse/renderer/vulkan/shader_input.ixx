@@ -98,6 +98,8 @@ export namespace lh
 			std::vector<struct_member> m_members;
 		};
 
+		using shader_inputs_t = std::vector<shader_input>;
+
 		struct unique_pipeline_inputs
 		{
 			std::vector<shader_input> m_uniform_buffer_descriptors;

@@ -25,8 +25,8 @@ export namespace lh
 		scene,
 		glsl,
 		spir_v,
-		shader_binary,
-		shader_reflection_data
+		shader_reflection_data,
+		shader_binary
 	};
 
 	const inline auto s_valid_file_extensions = std::map<file_type, const std::vector<const char*>> {
@@ -42,4 +42,6 @@ export namespace lh
 		std::map<const char*, const vk::ShaderStageFlagBits> {{".vert", vk::ShaderStageFlagBits::eVertex},
 															  {".frag", vk::ShaderStageFlagBits::eFragment},
 															  {".comp", vk::ShaderStageFlagBits::eCompute}};
+
+	constexpr inline auto wtf = std::array {".txt", ".vert"};
 }
