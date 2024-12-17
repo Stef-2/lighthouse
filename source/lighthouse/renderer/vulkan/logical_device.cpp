@@ -88,6 +88,11 @@ namespace lh
 			m_object = {*physical_device, device_info};
 		}
 
+		auto logical_device::dispatcher() const -> const vk::raii::DeviceDispatcher*
+		{
+			return m_object.getDispatcher();
+		}
+
 		auto logical_device::info() const -> lh::string::string_t
 		{
 			return {};

@@ -27,6 +27,7 @@ export namespace lh
 
 			logical_device(const physical_device&, const queue_families&, const create_info& = {});
 
+			auto dispatcher() const -> const vk::raii::DeviceDispatcher*;
 			auto info() const -> lh::string::string_t override;
 
 		private:

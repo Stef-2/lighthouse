@@ -7,14 +7,15 @@ module;
 export module shader_object;
 
 import lighthouse_utility;
+import lighthouse_string;
 import data_type;
-import raii_wrapper;
 import logical_device;
 import pipeline_layout;
 import spir_v;
 import shader_input;
 
 import std;
+import vulkan_hpp;
 
 export namespace lh
 {
@@ -64,26 +65,26 @@ export namespace lh
 		// ====================================================================
 
 		//template <std::size_t N = std::dynamic_extent>
-		class shader_pipeline : public raii_wrapper<vk::raii::ShaderEXTs>
+		class shader_pipeline// : public raii_wrapper<vk::raii::ShaderEXTs>
 		{
 		public:
 			//using pipeline_code_t = std::vector<std::filesystem::path>;
 
 			struct create_info
 			{
-				struct per_stage_data
+				struct individual_stage_data
 				{
 					vk::ShaderCreateFlagsEXT m_create_flags = {vk::ShaderCreateFlagBitsEXT::eLinkStage};
 					vk::ShaderCodeTypeEXT m_code_type = vk::ShaderCodeTypeEXT::eSpirv;
 					string::string_t m_entrypoint = spir_v::s_default_entrypoint;
 					vk::ShaderStageFlagBits m_shader_stage;
-					data_range m_data;
+					data_range m_stage_data;
 				};
 
-				std::vector<per_stage_data> m_per_stage_data;
+				std::vector<individual_stage_data> m_individual_stage_data;
 			};
 
-			using raii_wrapper::raii_wrapper;
+			//using raii_wrapper::raii_wrapper;
 
 			shader_pipeline(const logical_device&,
 							const pipeline_layout&,
@@ -101,6 +102,8 @@ export namespace lh
 			auto bind(const vk::raii::CommandBuffer&) const -> void;
 
 		private:
+			const logical_device& m_logical_device;
+			std::vector<vk::ShaderEXT> m_shaders;
 			std::vector<vk::ShaderStageFlagBits> m_pipeline_stages;
 			//std::vector<string::string_t> m_names;
 		};
