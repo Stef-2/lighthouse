@@ -42,14 +42,14 @@ export namespace lh
 		T* allocate(const size_t element_count) noexcept
 		{
 			const auto suballocation = m_memory_suballocator->request_and_commit_suballocation(element_count *
-																							   sizeof T);
+																							   sizeof (T));
 			return static_cast<T*>(suballocation);
 		}
 
 		void deallocate(const T* pointer, const size_t element_count) noexcept
 		{
 			m_memory_suballocator->free_suballocation(
-				{reinterpret_cast<std::size_t>(pointer), element_count * sizeof T});
+				{reinterpret_cast<std::size_t>(pointer), element_count * sizeof(T)});
 		}
 
 	private:

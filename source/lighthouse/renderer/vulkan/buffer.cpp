@@ -160,7 +160,7 @@ namespace lh
 												  const vk::DeviceSize size,
 												  const mapped_buffer::create_info& create_info)
 			: mapped_buffer {logical_device, memory_allocator, size, create_info},
-			  memory_mapped_span<T> {this->m_mapped_data_pointer, m_allocation_info.size / sizeof T}
+			  memory_mapped_span<T> {this->m_mapped_data_pointer, m_allocation_info.size / sizeof(T)}
 		{}
 	}
 }

@@ -103,7 +103,7 @@ export namespace lh
 			{
 				const T& m_data;
 				std::size_t m_offset = 0;
-				std::size_t m_size = sizeof T;
+				std::size_t m_size = sizeof(T);
 			};
 
 			transfer_queue(const logical_device&, suballocated_buffer<mapped_buffer>&, const create_info& = {});

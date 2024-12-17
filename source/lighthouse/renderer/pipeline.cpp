@@ -44,7 +44,6 @@ namespace lh
 		pipeline::pipeline(const physical_device& physical_device,
 						   const logical_device& logical_device,
 						   const memory_allocator& memory_allocator,
-						   const shader_pipeline::pipeline_code_t& shader_paths,
 						   const pipeline_layout& pipeline_layout,
 						   const descriptor_buffer& descriptor_buffer,
 						   const create_info& create_info)
@@ -308,9 +307,8 @@ namespace lh
 			auto parent_directory = shader_path.parent_path();
 			auto shader_path_no_extension = parent_directory /= shader_name;
 
-
 			const auto spir_v_binary_path = file_system::path(file_system::directory::shader_binaries) /= shader_name /=
-			const auto spir_v_binary_path = shader_path_no_extension /= "spir_v";
+				const auto spir_v_binary_path = shader_path_no_extension /= "spir_v";
 			const auto spir_v_binary_exists = std::filesystem::exists(spir_v_binary_path);
 			const auto spir_v_binary_up_to_date = spir_v_binary_exists and
 												  std::filesystem::last_write_time(spir_v_binary_path) >

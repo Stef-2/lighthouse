@@ -48,7 +48,7 @@ export namespace lh
 				magic_number_t m_file_start {file_start};
 				version_t m_version {};
 				checksum_t m_header_checksum {};
-				data_size_t m_data_offset {std::byte {sizeof header}};
+				data_size_t m_data_offset {std::byte {sizeof (header)}};
 			};
 
 			// data

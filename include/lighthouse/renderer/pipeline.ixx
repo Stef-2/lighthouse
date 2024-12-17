@@ -45,13 +45,35 @@ export namespace lh
 				shader_object
 			};
 
-			struct create_info
+			struct glsl_create_info
 			{
 				filepath_t m_shader_data_path;
-				vk::PipelineBindPoint m_bind_point = vk::PipelineBindPoint::eGraphics;
+				std::optional<filepath_t> m_reflection_data_path;
 				bool m_cache_spir_v = true;
 				bool m_cache_reflection_data = true;
 				bool m_cache_shader_object = true;
+			};
+
+			struct spir_v_create_info
+			{
+				filepath_t m_shader_data_path;
+				std::optional<filepath_t> m_reflection_data_path;
+				bool m_cache_reflection_data = true;
+				bool m_cache_shader_object = true;
+			};
+
+			struct shader_object_create_info
+			{
+				filepath_t m_shader_data_path;
+				filepath_t m_reflection_data_path;
+			};
+
+			using shader_stage_t = std::variant<glsl_create_info, spir_v_create_info, shader_object_create_info>;
+
+			struct create_info
+			{
+				std::vector<shader_stage_t> m_shaders;
+				vk::PipelineBindPoint m_bind_point = vk::PipelineBindPoint::eGraphics;
 			};
 
 			pipeline(const physical_device&,
@@ -59,7 +81,7 @@ export namespace lh
 					 const memory_allocator&,
 					 const pipeline_layout&,
 					 const descriptor_buffer&,
-					 const std::vector<create_info>&);
+					 const create_info&);
 
 			auto vertex_input_description() const -> const std::optional<vulkan::vertex_input_description>&;
 			auto shader_pipeline() const -> const vulkan::shader_pipeline&;

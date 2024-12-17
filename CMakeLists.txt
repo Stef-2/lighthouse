@@ -228,8 +228,8 @@ target_sources(
 	${source}/lighthouse/renderer/vulkan/shader_input.cpp
 	${source}/lighthouse/renderer/mesh.cpp
 	"source/lighthouse/bounding_volume.cpp"
-	${source}/vulkan/utils.cpp
-	${source}/vulkan/math.cpp
+	#${source}/vulkan/utils.cpp
+	#${source}/vulkan/math.cpp
 	${source}/lighthouse/engine.cpp
 	${source}/lighthouse/lightHouse.cpp
 	${source}/lighthouse/entity.cpp
