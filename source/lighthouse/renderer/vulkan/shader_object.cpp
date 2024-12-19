@@ -16,10 +16,12 @@ namespace lh
 {
 	namespace vulkan
 	{
+		shader_pipeline::shader_pipeline() : m_logical_device {}, m_shaders {}, m_pipeline_stages {} {}
+
 		shader_pipeline::shader_pipeline(const logical_device& logical_device,
 										 const pipeline_layout& pipeline_layout,
 										 const create_info& create_info)
-			: m_logical_device {logical_device}, m_shaders {}, m_pipeline_stages {}
+			: m_logical_device {&logical_device}, m_shaders {}, m_pipeline_stages {}
 		{
 			auto pipeline_create_info = std::vector<vk::ShaderCreateInfoEXT> {};
 
@@ -47,12 +49,27 @@ namespace lh
 					&pipeline_layout.push_constant_range());
 			}
 
-			m_logical_device.dispatcher()->vkCreateShadersEXT(**logical_device,
-															  create_info.m_individual_stage_data.size(),
-															  reinterpret_cast<const VkShaderCreateInfoEXT*>(
-																  pipeline_create_info.data()),
-															  nullptr,
-															  reinterpret_cast<VkShaderEXT*>(m_shaders.data()));
+			m_logical_device->dispatcher()->vkCreateShadersEXT(**logical_device,
+															   create_info.m_individual_stage_data.size(),
+															   reinterpret_cast<const VkShaderCreateInfoEXT*>(
+																   pipeline_create_info.data()),
+															   nullptr,
+															   reinterpret_cast<VkShaderEXT*>(m_shaders.data()));
+		}
+
+		shader_pipeline::shader_pipeline(shader_pipeline&& other)
+			: m_logical_device {std::exchange(other.m_logical_device, {})},
+			  m_shaders {std::exchange(other.m_shaders, {})},
+			  m_pipeline_stages {std::exchange(other.m_pipeline_stages, {})}
+		{}
+
+		shader_pipeline& shader_pipeline::operator=(shader_pipeline&& other)
+		{
+			m_logical_device = std::exchange(other.m_logical_device, {});
+			m_shaders = std::exchange(other.m_shaders, {});
+			m_pipeline_stages = std::exchange(other.m_pipeline_stages, {});
+
+			return *this;
 		}
 
 		auto shader_pipeline::cache_binary_data(const std::vector<std::filesystem::path>& paths) const -> void
@@ -66,7 +83,7 @@ namespace lh
 
 			for (auto i = std::size_t {}; i < m_shaders.size(); i++)
 			{
-				const auto binary_data = utility::shader_object_binary_data(*m_logical_device, m_shaders[i]);
+				const auto binary_data = utility::shader_object_binary_data(**m_logical_device, m_shaders[i]);
 
 				lh::output::write_file(/*(directory_path /= m_names[i]) /= "bin"*/ paths[i],
 									   std::span<const std::byte> {binary_data.cbegin(), binary_data.cend()},

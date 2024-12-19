@@ -35,13 +35,22 @@ export namespace lh
 		{file_type::font, {".ttf"}},
 		{file_type::glsl, {".glsl", ".vert", "frag", ".comp"}},
 		{file_type::spir_v, {".spv"}},
-		{file_type::shader_binary, {".sbin"}},
-		{file_type::shader_reflection_data, {".srd"}}};
+		{file_type::shader_reflection_data, {".srd"}},
+		{file_type::shader_binary, {".sbin"}}};
 
-	const inline auto s_shader_stage_extensions =
-		std::map<const char*, const vk::ShaderStageFlagBits> {{".vert", vk::ShaderStageFlagBits::eVertex},
-															  {".frag", vk::ShaderStageFlagBits::eFragment},
-															  {".comp", vk::ShaderStageFlagBits::eCompute}};
-
-	constexpr inline auto wtf = std::array {".txt", ".vert"};
+	// shader files are identified and parsed based on an arbitrary combination of their file extensions
+	// e.g:
+	// shader.vert -> glsl vertex shader
+	// shader.vert.spv -> precompiled spir_v binary of the shader above
+	// shader.vert.srd -> shader reflection data for the shader above
+	// shader.vert.sbin -> precompiled shader object for the shader above
+	consteval auto shader_stage_file_extension(const vk::ShaderStageFlagBits stage)
+	{
+		switch (stage)
+		{
+			case vk::ShaderStageFlagBits::eVertex: return "vert";
+			case vk::ShaderStageFlagBits::eFragment: return "frag";
+			case vk::ShaderStageFlagBits::eCompute: return "comp";
+		}
+	}
 }

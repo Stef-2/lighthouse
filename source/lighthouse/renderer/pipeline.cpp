@@ -50,7 +50,12 @@ namespace lh
 			: m_create_info {create_info},
 			  m_descriptor_buffer {descriptor_buffer},
 			  m_vertex_input_description {},
-			  m_shader_pipeline {},
+			  /*m_shader_pipeline {logical_device,
+								 pipeline_layout,
+								 {create_info.m_create_flags,
+								  std::holds_alternative<glsl_create_info>(create_info.m_shader_data) or
+									  std::holds_alternative<spir_v_create_info>(create_info.m_shader_data) ?
+				 vk::ShaderCodeTypeEXT::eSpirv : vk::ShaderCodeTypeEXT::eBinary}},*/
 			  m_resource_descriptor_buffer {}
 		{
 			auto pipeline_shader_inputs = std::vector<std::pair<vk::ShaderStageFlagBits, shader_input>> {};
@@ -297,9 +302,9 @@ namespace lh
 			return {vertex_bindings, vertex_attributes};
 		}
 
-		auto pipeline::generate_shader_binary_tests(const filepath_t& shader_path) -> const shader_binaries
+		auto pipeline::generate_shader_binary_tests(const shader_stage_data_t& shader_path) -> const shader_binaries
 		{
-			// check if the shader already has precompiled spir_v, binary or reflection data
+			// check if the shader already has precompiled spir_v, reflection_data or shader_object binaries
 			// if so, check to see if they are up to date by comparing last modification dates
 			// if not, create precompiled spir_v, binary and reflection data
 			const auto shader_name = shader_path.stem();

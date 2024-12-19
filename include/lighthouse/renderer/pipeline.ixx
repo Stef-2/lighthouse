@@ -34,16 +34,9 @@ export namespace lh
 		class pipeline
 		{
 		public:
-			// possible inputs for individual shader stages
-			enum class stage_data_type
-			{
-				// glsl text file, to be compiled into spir_v, then assembled into a shader object
-				glsl,
-				// precompiled spir_v, to be assembed into a shader object
-				spir_v,
-				// cached shader_object data
-				shader_object
-			};
+			// shader code is constructed in the following order:
+			// high-level-shading-language (glsl) -> spir_v -> reflection data -> shader_object
+			// spir_v, reflection_data and shader_objects can and should be cached on disk
 
 			struct glsl_create_info
 			{
@@ -68,12 +61,13 @@ export namespace lh
 				filepath_t m_reflection_data_path;
 			};
 
-			using shader_stage_t = std::variant<glsl_create_info, spir_v_create_info, shader_object_create_info>;
+			using shader_stage_data_t = std::variant<glsl_create_info, spir_v_create_info, shader_object_create_info>;
 
 			struct create_info
 			{
-				std::vector<shader_stage_t> m_shaders;
+				std::vector<shader_stage_data_t> m_shader_data;
 				vk::PipelineBindPoint m_bind_point = vk::PipelineBindPoint::eGraphics;
+				vk::ShaderCreateFlagsEXT m_create_flags = {vk::ShaderCreateFlagBitsEXT::eLinkStage};
 			};
 
 			pipeline(const physical_device&,
@@ -105,13 +99,12 @@ export namespace lh
 			auto translate_shader_input_format(const shader_input&) const -> const vk::Format;
 			auto generate_vertex_input_description(const std::vector<shader_input>&)
 				-> const vulkan::vertex_input_description;
-			auto generate_shader_binary_tests(const filepath_t&) const -> const shader_binaries;
-			auto deduce_shader_file_type(const filepath_t&) const -> const std::pair<vk::ShaderStageFlagBits, stage_data_type>;
+			auto generate_shader_binary_tests(const shader_stage_data_t&) const -> const shader_binaries;
 
 			const create_info m_create_info;
 			const descriptor_buffer& m_descriptor_buffer;
 			std::optional<vulkan::vertex_input_description> m_vertex_input_description;
-			vulkan::shader_pipeline m_shader_pipeline;
+			class vulkan::shader_pipeline m_shader_pipeline;
 			descriptor_resource_buffer m_resource_descriptor_buffer;
 		};
 	}
