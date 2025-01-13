@@ -44,7 +44,7 @@ export namespace lh
 	// shader.vert.spv -> precompiled spir_v binary of the shader above
 	// shader.vert.srd -> shader reflection data for the shader above
 	// shader.vert.sbin -> precompiled shader object for the shader above
-	consteval auto shader_stage_file_extension(const vk::ShaderStageFlagBits stage)
+	constexpr auto shader_stage_file_extension(const vk::ShaderStageFlagBits stage)
 	{
 		switch (stage)
 		{

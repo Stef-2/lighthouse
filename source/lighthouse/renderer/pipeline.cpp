@@ -10,6 +10,7 @@ module pipeline;
 
 import input;
 import vertex_format;
+import file_type;
 
 namespace
 {
@@ -50,12 +51,7 @@ namespace lh
 			: m_create_info {create_info},
 			  m_descriptor_buffer {descriptor_buffer},
 			  m_vertex_input_description {},
-			  /*m_shader_pipeline {logical_device,
-								 pipeline_layout,
-								 {create_info.m_create_flags,
-								  std::holds_alternative<glsl_create_info>(create_info.m_shader_data) or
-									  std::holds_alternative<spir_v_create_info>(create_info.m_shader_data) ?
-				 vk::ShaderCodeTypeEXT::eSpirv : vk::ShaderCodeTypeEXT::eBinary}},*/
+			  m_shader_pipeline {},
 			  m_resource_descriptor_buffer {}
 		{
 			auto pipeline_shader_inputs = std::vector<std::pair<vk::ShaderStageFlagBits, shader_input>> {};
@@ -302,16 +298,66 @@ namespace lh
 			return {vertex_bindings, vertex_attributes};
 		}
 
+		auto pipeline::deduce_shader_stage(const filetype_t& file_path) -> const vk::ShaderStageFlagBits
+		{
+			const auto file_path_string = file_path.string();
+
+			if (file_path_string.contains(shader_stage_file_extension(vk::ShaderStageFlagBits::eVertex)))
+				return vk::ShaderStageFlagBits::eVertex;
+
+			if (file_path_string.contains(shader_stage_file_extension(vk::ShaderStageFlagBits::eFragment)))
+				return vk::ShaderStageFlagBits::eFragment;
+
+			if (file_path_string.contains(shader_stage_file_extension(vk::ShaderStageFlagBits::eCompute)))
+				return vk::ShaderStageFlagBits::eCompute;
+
+			output::error() << "could not deduce shader stage for shader file: " << file_path_string;
+		}
+
 		auto pipeline::generate_shader_binary_tests(const shader_stage_data_t& shader_path) -> const shader_binaries
 		{
 			// check if the shader already has precompiled spir_v, reflection_data or shader_object binaries
 			// if so, check to see if they are up to date by comparing last modification dates
 			// if not, create precompiled spir_v, binary and reflection data
+
+			// simplest case is that we are provided with a precompiled shader_object binary
+			// in this case nothing can be cached, exit early
+			if (std::holds_alternative<shader_object_create_info>(shader_path) return {{true, true}, {true, true}, {true, true}};
+
+			const auto shader_hlsl_directory = file_system::path(file_system::directory::shaders);
+			const shader_binaries_directory = file_system::path(file_system::directory::shaders);
+
 			const auto shader_name = shader_path.stem();
-			const auto extension = shader_path.extension();
+			const auto shader_extension = shader_path.extension();
+			const auto shader_modification_time = std::filesystem::last_modification_time(shader_path);
+			//const auto shader_data_type = shader_path.index();
 			auto parent_directory = shader_path.parent_path();
 			auto shader_path_no_extension = parent_directory /= shader_name;
 
+			auto result = shader_binaries {};
+
+			// hlsl shader data case
+			if (not shader_extension.string().contains(s_valid_file_extensions[file_type::spir_v]))
+			{
+				const auto spir_v_binary_path = shader_binaries_directory /= shader_name /=
+					s_valid_file_extensions[file_type::spir_v];
+				const auto spir_v_binary_exists = std::filesystem::exists(spir_v_binary_path);
+
+				if (spir_v_binary_exists)
+				{
+					const auto spir_v_binary_modification_time = std::filesystem::(spir_v_binary_path);
+					const auto spir_v_binary_up_to_date = std::filesystem::last_write_time(spir_v_binary_path) >
+														  shader_modification_time;
+
+					result.m_spir_v.m_exists = true;
+					result.m_spir_v.m_up_to_date = spir_v_binary_up_to_date;
+				}
+
+				const auto spir_v_binary_path = shader_binaries_directory /= shader_name /=
+					s_valid_file_extensions[file_type::spir_v];
+				const auto spir_v_binary_exists = std::filesystem::exists(spir_v_binary_path);
+			}
+			/*
 			const auto spir_v_binary_path = file_system::path(file_system::directory::shader_binaries) /= shader_name /=
 				const auto spir_v_binary_path = shader_path_no_extension /= "spir_v";
 			const auto spir_v_binary_exists = std::filesystem::exists(spir_v_binary_path);
@@ -334,7 +380,7 @@ namespace lh
 
 			return {{spir_v_binary_exists, spir_v_binary_up_to_date},
 					{shader_object_binary_exists, shader_object_binary_up_to_date},
-					{reflection_data_binary_exists, reflection_data_binary_up_to_date}};
+					{reflection_data_binary_exists, reflection_data_binary_up_to_date}};*/
 		}
 
 	}

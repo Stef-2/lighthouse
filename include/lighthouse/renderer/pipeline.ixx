@@ -87,19 +87,20 @@ export namespace lh
 			{
 				struct binary
 				{
-					bool m_exists;
-					bool m_up_to_date;
+					bool m_exists = {};
+					bool m_up_to_date = {};
 				};
 
-				binary m_spir_v;
-				binary m_reflection_data;
-				binary m_shader_object;
+				binary m_spir_v {};
+				binary m_reflection_data = {};
+				binary m_shader_object = {};
 			};
 
 			auto translate_shader_input_format(const shader_input&) const -> const vk::Format;
 			auto generate_vertex_input_description(const std::vector<shader_input>&)
 				-> const vulkan::vertex_input_description;
 			auto generate_shader_binary_tests(const shader_stage_data_t&) const -> const shader_binaries;
+			auto deduce_shader_stage(const filetype_t&) -> const vk::ShaderStageFlagBits;
 
 			const create_info m_create_info;
 			const descriptor_buffer& m_descriptor_buffer;
